@@ -1,0 +1,4 @@
+.vite
+frontend/node_modules
+.ignore
+.idea
