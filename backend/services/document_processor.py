@@ -1,7 +1,7 @@
 import os
+import asyncio
 import re
 import json
-import asyncio
 import time
 import uuid
 import logging
@@ -295,6 +295,6 @@ class DocumentProcessor:
             "datas": datas
         }
     
-    def process_document(self, markdown_path):
-        """处理文档"""
-        return asyncio.run(self.process_document_async(markdown_path))
+    async def process_document(self, markdown_path):
+        """处理文档（异步方法）"""
+        return await self.process_document_async(markdown_path)

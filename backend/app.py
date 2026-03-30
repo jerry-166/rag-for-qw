@@ -49,6 +49,37 @@ class QueryRequest(BaseModel):
 processing_results = {}
 
 
+def rebuild_processing_results():
+    """从output目录重建处理结果"""
+    output_dir = settings.OUTPUT_DIR
+    if not output_dir.exists():
+        return
+    
+    logger.info(f"开始从output目录重建处理结果")
+    
+    # 遍历output目录下的所有子目录（每个子目录对应一个文件ID）
+    for item in output_dir.iterdir():
+        if item.is_dir():
+            file_id = item.name
+            # 检查是否存在markdown文件
+            markdown_path = item / "extracted.md"
+            if markdown_path.exists():
+                # 重建处理结果
+                processing_results[file_id] = {
+                    "file_path": str(output_dir / file_id / f"{file_id}.pdf"),
+                    "markdown_path": str(markdown_path),
+                    "images_dir": str(item / "images") if (item / "images").exists() else None,
+                    "status": "parsed"
+                }
+                logger.info(f"重建文件ID: {file_id} 的处理结果")
+    
+    logger.info(f"重建完成，共恢复 {len(processing_results)} 个文件")
+
+
+# 应用启动时重建处理结果
+rebuild_processing_results()
+
+
 @app.post("/api/upload/pdf")
 async def upload_pdf(file: UploadFile = File(...)):
     """上传PDF文件"""
@@ -143,7 +174,7 @@ async def process_document(file_id: str):
         processor = DocumentProcessor()
 
         # 处理文档
-        process_result = processor.process_document(result["markdown_path"])
+        process_result = await processor.process_document(result["markdown_path"])
         logger.debug(f"文档处理完成，生成 {len(process_result['chunks'])} 个段落")
 
         # 更新处理状态

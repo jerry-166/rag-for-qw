@@ -26,12 +26,11 @@ class MilvusClient:
                 port=self.port
             )
             # 切换到指定数据库
-            from pymilvus import connections
             connections.set_current_database(self.db_name)
-            print(f"Milvus连接成功，已切换到数据库: {self.db_name}")
+            logger.info(f"Milvus连接成功，已切换到数据库: {self.db_name}")
             return True
         except Exception as e:
-            print(f"Milvus连接失败: {e}")
+            logger.error(f"Milvus连接失败: {e}")
             return False
     
     def get_collections(self):
