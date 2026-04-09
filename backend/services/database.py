@@ -38,9 +38,15 @@ class Database:
             # 如果数据库不存在，创建它
             if not exists:
                 logger.info(f"创建数据库: {settings.POSTGRES_DB}")
+                # 验证数据库名称合法性，防止SQL注入
+                import re
+                db_name = settings.POSTGRES_DB
+                # PostgreSQL数据库名称只能包含字母、数字、下划线和美元符号，且不能以数字开头
+                if not re.match(r'^[a-zA-Z_$][a-zA-Z0-9_$]*$', db_name):
+                    raise ValueError(f"无效的数据库名称: {db_name}")
                 # PostgreSQL的CREATE DATABASE语句不能使用参数化查询，所以直接使用字符串
-                temp_cursor.execute(f"CREATE DATABASE {settings.POSTGRES_DB}")
-                logger.info(f"数据库 {settings.POSTGRES_DB} 创建成功")
+                temp_cursor.execute(f"CREATE DATABASE {db_name}")
+                logger.info(f"数据库 {db_name} 创建成功")
             else:
                 logger.info(f"数据库 {settings.POSTGRES_DB} 已存在")
             

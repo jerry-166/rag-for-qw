@@ -94,7 +94,7 @@ class App {
     document.getElementById('app').innerHTML = '';
     document.getElementById('app').appendChild(authContent);
     this.initAuthEvents();
-  },
+  }
 
   async renderAppLayout(title, contentCallback) {
     const appTemplate = document.getElementById('tpl-app');

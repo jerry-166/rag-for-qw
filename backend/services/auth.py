@@ -1,11 +1,8 @@
 import bcrypt  # 对密码进行加盐处理
-import jwt
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from sqlalchemy.orm import Session
-
 from config import settings
 from services.database import db
 
