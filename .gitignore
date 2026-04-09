@@ -1,6 +1,11 @@
 # 依赖目录
 frontend/node_modules/
 
+backend/logs/
+backend/data/
+backend/output/
+backend/temp/
+
 # 临时文件和缓存
 .idea/
 .trae/
@@ -37,3 +42,5 @@ build/
 # 数据库文件
 *.db
 *.sqlite3
+
+frontend_design/

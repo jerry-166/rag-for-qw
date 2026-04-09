@@ -10,3 +10,8 @@ pymilvus
 requests
 python-multipart
 concurrent-log-handler
+bcrypt
+python-jose[cryptography]
+psycopg2-binary
+elasticsearch
+# aliyun-oss-python-sdk

@@ -1,13 +1,173 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RAG System</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAGFlow - 智能知识库系统</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Markdown 渲染库 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- PDF 渲染库 -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.worker.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- 页面内容由 JS 动态渲染 -->
+    <div id="loading-screen" class="loading-screen">
+      <div class="loading-logo">
+        <svg viewBox="0 0 36 36" fill="none">
+          <rect width="36" height="36" rx="10" fill="#6366f1" opacity=".25"/>
+          <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="18" cy="26" r="4" fill="#818cf8"/>
+        </svg>
+        <span>RAGFlow</span>
+      </div>
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+
+  <!-- 模板：认证页 -->
+  <template id="tpl-auth">
+    <div class="auth-page">
+      <div class="auth-bg-grid"></div>
+      <div class="auth-card">
+        <div class="auth-logo">
+          <svg viewBox="0 0 36 36" fill="none">
+            <rect width="36" height="36" rx="10" fill="#6366f1" opacity=".25"/>
+            <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="18" cy="26" r="4" fill="#818cf8"/>
+          </svg>
+          <h1>RAGFlow</h1>
+        </div>
+        <p class="auth-subtitle">智能文档知识库系统</p>
+
+        <!-- Tab 切换 -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">登录</button>
+          <button class="auth-tab" data-tab="register">注册</button>
+        </div>
+
+        <!-- 登录表单 -->
+        <form id="login-form" class="auth-form">
+          <div class="form-field">
+            <label>用户名</label>
+            <input type="text" id="login-username" placeholder="输入用户名" required />
+          </div>
+          <div class="form-field">
+            <label>密码</label>
+            <div class="input-with-icon">
+              <input type="password" id="login-password" placeholder="输入密码" required />
+              <button type="button" class="toggle-pwd" data-target="login-password">👁</button>
+            </div>
+          </div>
+          <div id="login-error" class="form-error hidden"></div>
+          <button type="submit" class="btn btn-primary btn-full">
+            <span class="btn-text">登 录</span>
+            <span class="btn-loading hidden">登录中...</span>
+          </button>
+        </form>
+
+        <!-- 注册表单 -->
+        <form id="register-form" class="auth-form hidden">
+          <div class="form-field">
+            <label>用户名</label>
+            <input type="text" id="reg-username" placeholder="输入用户名（3-20字符）" required />
+          </div>
+          <div class="form-field">
+            <label>邮箱</label>
+            <input type="email" id="reg-email" placeholder="输入邮箱地址" required />
+          </div>
+          <div class="form-field">
+            <label>密码</label>
+            <div class="input-with-icon">
+              <input type="password" id="reg-password" placeholder="输入密码（6位以上）" required />
+              <button type="button" class="toggle-pwd" data-target="reg-password">👁</button>
+            </div>
+          </div>
+          <div id="register-error" class="form-error hidden"></div>
+          <div id="register-success" class="form-success hidden"></div>
+          <button type="submit" class="btn btn-primary btn-full">
+            <span class="btn-text">注 册</span>
+            <span class="btn-loading hidden">注册中...</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </template>
+
+  <!-- 模板：主应用框架 -->
+  <template id="tpl-app">
+    <div class="app-layout">
+      <!-- 侧边栏 -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">
+            <svg viewBox="0 0 28 28" fill="none">
+              <rect width="28" height="28" rx="8" fill="#6366f1" opacity=".2"/>
+              <path d="M6 14 L10 8 L14 14 L18 8 L22 14" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="14" cy="20" r="3" fill="#818cf8"/>
+            </svg>
+            <span>RAGFlow</span>
+          </div>
+          <button class="sidebar-collapse" id="sidebar-toggle" title="折叠侧边栏">‹</button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a class="nav-item" data-page="knowledge-bases" href="#">
+            <span class="nav-icon">🗂️</span>
+            <span class="nav-label">知识库</span>
+          </a>
+          <a class="nav-item" data-page="documents" href="#">
+            <span class="nav-icon">📄</span>
+            <span class="nav-label">文档管理</span>
+          </a>
+          <a class="nav-item" data-page="search" href="#">
+            <span class="nav-icon">🔍</span>
+            <span class="nav-label">知识检索</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info" id="user-info-sidebar">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <div class="user-details">
+              <span class="user-name" id="sidebar-username">用户</span>
+              <span class="user-role" id="sidebar-role">普通用户</span>
+            </div>
+          </div>
+          <button class="btn-logout" id="logout-btn" title="退出登录">⎋</button>
+        </div>
+      </aside>
+
+      <!-- 主内容区 -->
+      <main class="main-content" id="main-content">
+        <!-- 顶部栏 -->
+        <header class="topbar">
+          <button class="topbar-menu-btn" id="mobile-menu-btn">☰</button>
+          <div class="topbar-breadcrumb" id="topbar-breadcrumb">知识库</div>
+          <div class="topbar-spacer"></div>
+          <div class="topbar-user">
+            <div class="user-avatar-sm" id="topbar-avatar">U</div>
+            <span id="topbar-username">用户</span>
+          </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <div class="page-container" id="page-container">
+          <!-- 动态内容 -->
+        </div>
+      </main>
+    </div>
+  </template>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/pages/knowledge-bases.js"></script>
+  <script src="js/pages/documents.js"></script>
+  <script src="js/pages/pipeline.js"></script>
+  <script src="js/pages/search.js"></script>
+  <script src="js/app.js"></script>
+</body>
 </html>

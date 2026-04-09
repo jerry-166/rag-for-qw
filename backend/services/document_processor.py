@@ -72,37 +72,80 @@ class DocumentProcessor:
         # 创建处理链
         self.gen_chain = self.prompt_template | self.ChatModel | self.fixing_parser
     
-    def split_document(self, markdown_path):
+    def split_document(self, markdown_content):
         """切分文档"""
         start_time = time.time()
-        markdown_path = Path(markdown_path)
-        if not markdown_path.exists():
-            raise FileNotFoundError(f"Markdown文件不存在: {markdown_path}")
-        
-        with open(markdown_path, "r", encoding="utf-8") as f:
-            md_content = f.read()
-            logger.debug(f"Markdown内容预览：{md_content[:200]}...")
+        logger.debug(f"Markdown内容预览：{markdown_content[:100]}...")
         
         # 使用MULTILINE使^匹配每一行的开头
-        has1 = bool(re.match(r"^#\s+", md_content, re.MULTILINE))
-        has2 = bool(re.match(r"^##\s+", md_content, re.MULTILINE))
+        has1 = bool(re.match(r"^#\s+", markdown_content, re.MULTILINE))
+        has2 = bool(re.match(r"^##\s+", markdown_content, re.MULTILINE))
         
         if has1 and has2:
             md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=[("#", "header1"), ("##", "header2")])
-            split_documents = md_splitter.split_text(md_content)
-            logger.info(f"使用Markdown标题切分，段落数: {len(split_documents)}")
+            split_documents = md_splitter.split_text(markdown_content)
+            
+            # 处理切分结果
+            processed_documents = []
+            current_chunk = ""
+            
+            # 定义阈值
+            MIN_CHUNK_SIZE = 100  # 最小chunk大小，低于此值的会被合并
+            MAX_CHUNK_SIZE = 800  # 最大chunk大小，超过此值的会被进一步切割
+            
+            # 初始化递归切割器
+            recursive_splitter = RecursiveCharacterTextSplitter(
+                separators=["\n\n", "\n"],
+                chunk_size=400,
+                chunk_overlap=50
+            )
+            
+            for doc in split_documents:
+                doc_text = doc.page_content
+                
+                # 处理长文档：如果chunk太长，进行递归切割
+                if len(doc_text) > MAX_CHUNK_SIZE:
+                    logger.debug(f"检测到长文档，长度: {len(doc_text)}，进行递归切割")
+                    # 先处理当前积累的内容
+                    if current_chunk:
+                        processed_documents.append(current_chunk)
+                        current_chunk = ""
+                    # 对长文档进行递归切割
+                    recursive_chunks = recursive_splitter.split_text(doc_text)
+                    processed_documents.extend(recursive_chunks)
+                else:
+                    # 处理短文档：如果chunk太短，与相邻chunk合并
+                    if len(doc_text) < MIN_CHUNK_SIZE:
+                        logger.debug(f"检测到短文档，长度: {len(doc_text)}，进行合并")
+                        current_chunk += doc_text + "\n\n"
+                    else:
+                        # 先处理当前积累的内容
+                        if current_chunk:
+                            processed_documents.append(current_chunk.strip())
+                            current_chunk = ""
+                        # 添加正常大小的chunk
+                        processed_documents.append(doc_text)
+            
+            # 处理最后积累的内容
+            if current_chunk:
+                processed_documents.append(current_chunk.strip())
+            
+            split_documents = processed_documents
+            logger.info(f"使用Markdown标题切分并处理，段落数: {len(split_documents)}")
         else:
             recursive_splitter = RecursiveCharacterTextSplitter(
                 separators=["\n\n", "\n"],
                 chunk_size=400,
                 chunk_overlap=50
             )
-            split_documents = recursive_splitter.split_text(md_content)
+            split_documents = recursive_splitter.split_text(markdown_content)
             logger.info(f"使用递归字符切分，段落数: {len(split_documents)}")
         
         end_time = time.time()
         logger.info(f"文档切分完成，耗时: {end_time - start_time:.2f}秒")
-        return split_documents
+        return {
+            "chunks": split_documents
+        }
     
     async def process_batch(self, chunk, batch_idx):
         """处理批次"""

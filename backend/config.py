@@ -17,6 +17,15 @@ class Settings(BaseSettings):
     # 存储配置
     TEMP_DIR: Path = Path("temp")
     OUTPUT_DIR: Path = Path("output")
+    STORAGE_TYPE: str = os.getenv("STORAGE_TYPE", "local")  # 存储类型：local 或 oss
+    DOC_STORAGE_DIR: Path = Path("data/doc_storage")  # 本地存储根目录
+    
+    # OSS配置
+    OSS_ENDPOINT: str = os.getenv("OSS_ENDPOINT", "")
+    OSS_ACCESS_KEY_ID: str = os.getenv("OSS_ACCESS_KEY_ID", "")
+    OSS_ACCESS_KEY_SECRET: str = os.getenv("OSS_ACCESS_KEY_SECRET", "")
+    OSS_BUCKET_NAME: str = os.getenv("OSS_BUCKET_NAME", "")
+    OSS_PREFIX: str = os.getenv("OSS_PREFIX", "docs/")
 
     # MinerU API配置
     MINERU_BASE_URL: str = os.getenv("MINERU_BASE_URL", "https://mineru.net")
@@ -24,7 +33,7 @@ class Settings(BaseSettings):
 
     # LiteLLM配置
     LITELLM_BASE_URL: str = os.getenv("BASE_URL", "http://localhost:4000")
-    LITELLM_API_KEY: str = os.getenv("API_KEY", "")
+    LITELLM_API_KEY: str = os.getenv("LITELLM_API_KEY", "")
 
     # 模型配置
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "github_copilot/text-embedding-ada-002")
@@ -33,9 +42,22 @@ class Settings(BaseSettings):
     # Milvus配置
     MILVUS_HOST: str = os.getenv("MILVUS_HOST", "localhost")
     MILVUS_PORT: str = os.getenv("MILVUS_PORT", "19530")
-    MILVUS_DB_NAME: str = os.getenv("MILVUS_DB_NAME", "rag_test")
+    MILVUS_DB_NAME: str = os.getenv("MILVUS_DB_NAME", "rag_system")
     MILVUS_SUMMARIES_COLLECTION: str = os.getenv("MILVUS_SUMMARIES_COLLECTION", "chunk_summaries")
     MILVUS_SUBQUESTIONS_COLLECTION: str = os.getenv("MILVUS_SUBQUESTIONS_COLLECTION", "chunk_subquestions")
+
+    # PostgreSQL配置
+    POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
+    POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", "5432"))
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
+    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "rag_system")
+
+    # Elasticsearch配置
+    ELASTICSEARCH_HOST: str = os.getenv("ELASTICSEARCH_HOST", "localhost")
+    ELASTICSEARCH_PORT: int = int(os.getenv("ELASTICSEARCH_PORT", "9200"))
+    ELASTICSEARCH_USER: str = os.getenv("ELASTICSEARCH_USER", "elastic")
+    ELASTICSEARCH_PASSWORD: str = os.getenv("ELASTICSEARCH_PASSWORD", "")
 
     # 处理配置
     MAX_WAIT_TIME: int = int(os.getenv("MAX_WAIT_TIME", "600"))  # 最长等待时间（秒）
@@ -55,10 +77,14 @@ class Settings(BaseSettings):
     LOG_ENCODING: str = "utf-8"  # 日志文件编码
     LOG_CONSOLE_LEVEL: int = logging.INFO  # 控制台日志级别
     LOG_FILE_LEVEL: int = logging.DEBUG  # 文件日志级别
+    
+    # 认证配置
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "lrj669761379123")
 
     class Config:
-        env_file = ".env"
+        env_file = Path(__file__).parent / ".env"
         case_sensitive = True
+        extra = "allow"  # 允许额外字段
 
 
 # 创建配置实例
