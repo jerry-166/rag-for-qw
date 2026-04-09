@@ -129,6 +129,33 @@
           </a>
         </nav>
 
+        <!-- 全局统计预览 -->
+        <div class="sidebar-stats" id="sidebar-stats">
+          <div class="sidebar-stats-header">
+            <span class="stats-icon">📊</span>
+            <span class="stats-label">统计概览</span>
+            <button class="stats-toggle" id="stats-toggle" title="展开/收起">▼</button>
+          </div>
+          <div class="sidebar-stats-content" id="sidebar-stats-content">
+            <div class="stats-item">
+              <span class="stats-item-label">总文档数</span>
+              <span class="stats-item-value" id="stats-documents">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">总 Chunk 数</span>
+              <span class="stats-item-value" id="stats-chunks">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">总子问题数</span>
+              <span class="stats-item-value" id="stats-sub-questions">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">总摘要数</span>
+              <span class="stats-item-value" id="stats-summaries">0</span>
+            </div>
+          </div>
+        </div>
+
         <div class="sidebar-footer">
           <div class="user-info" id="user-info-sidebar">
             <div class="user-avatar" id="user-avatar">U</div>

@@ -111,6 +111,9 @@ class App {
     // 初始化侧边栏
     this.initSidebarEvents();
     
+    // 初始化统计预览
+    this.initStatsPreview();
+    
     // 渲染页面内容
     const pageContainer = document.getElementById('page-container');
     pageContainer.innerHTML = '';
@@ -131,6 +134,66 @@ class App {
       // 顶部栏用户信息
       document.getElementById('topbar-username').textContent = username;
       document.getElementById('topbar-avatar').textContent = avatarText;
+    }
+  }
+
+  async initStatsPreview() {
+    // 统计预览展开/收起功能
+    const statsToggle = document.getElementById('stats-toggle');
+    const statsContent = document.getElementById('sidebar-stats-content');
+    
+    if (statsToggle && statsContent) {
+      statsToggle.addEventListener('click', () => {
+        statsContent.classList.toggle('hidden');
+        statsToggle.classList.toggle('collapsed');
+      });
+    }
+    
+    // 获取统计数据
+    await this.loadStatsData();
+  }
+
+  async loadStatsData() {
+    try {
+      const response = await window.DocumentAPI.getStatsOverview();
+      console.log('统计数据响应:', response);
+      const stats = response.data || response;
+      
+      // 更新统计数据
+      if (document.getElementById('stats-documents')) {
+        document.getElementById('stats-documents').textContent = stats.total_documents || 0;
+      }
+      if (document.getElementById('stats-chunks')) {
+        document.getElementById('stats-chunks').textContent = stats.total_chunks || 0;
+      }
+      if (document.getElementById('stats-sub-questions')) {
+        document.getElementById('stats-sub-questions').textContent = stats.total_sub_questions || 0;
+      }
+      if (document.getElementById('stats-summaries')) {
+        document.getElementById('stats-summaries').textContent = stats.total_summaries || 0;
+      }
+      
+      // 如果是admin用户，添加用户统计
+      if (stats.is_admin && this.user && this.user.role === 'admin') {
+        const statsContent = document.getElementById('sidebar-stats-content');
+        if (statsContent) {
+          // 检查是否已存在用户统计项
+          if (!document.getElementById('stats-users')) {
+            const userStatsItem = document.createElement('div');
+            userStatsItem.className = 'stats-item';
+            userStatsItem.innerHTML = `
+              <span class="stats-item-label">总用户数</span>
+              <span class="stats-item-value" id="stats-users">${stats.total_users || 0}</span>
+            `;
+            statsContent.appendChild(userStatsItem);
+          } else if (document.getElementById('stats-users')) {
+            document.getElementById('stats-users').textContent = stats.total_users || 0;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('加载统计数据失败:', error);
+      // 加载失败时不显示错误，保持默认值
     }
   }
 
@@ -256,6 +319,11 @@ class App {
         
         this.showToast('登录成功', 'success');
         this.navigate('knowledge-bases');
+        
+        // 登录后重新加载统计数据
+        setTimeout(() => {
+          this.loadStatsData();
+        }, 500);
       } catch (error) {
         errorEl.textContent = error.message || '登录失败';
         errorEl.classList.remove('hidden');

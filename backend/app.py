@@ -1,4 +1,5 @@
 import uuid
+import shutil
 import time
 from pathlib import Path
 from datetime import timedelta
@@ -490,18 +491,25 @@ async def split_document(file_id: str, current_user=Depends(get_current_user)):
             raise HTTPException(status_code=403, detail="无权限访问该知识库")
 
         # 检查数据库中是否已经存在切割结果
-        existing_chunks = db.get_document_chunks(file_id)
-        if existing_chunks and len(existing_chunks) > 0:
-            logger.info(f"文档已切割，直接返回数据库中的切割结果，文件ID: {file_id}")
-            chunks = [chunk["content"] for chunk in existing_chunks]
-            chunks_count = len(chunks)
-            return {
-                "file_id": file_id,
-                "status": "success",
-                "chunks": chunks,
-                "chunks_count": chunks_count,
-                "message": "文档已切割，直接返回数据库中的切割结果"
-            }
+            existing_chunks = db.get_document_chunks(file_id)
+            if existing_chunks and len(existing_chunks) > 0:
+                logger.info(f"文档已切割，直接返回数据库中的切割结果，文件ID: {file_id}")
+                chunks = [chunk["content"] for chunk in existing_chunks]
+                chunks_count = len(chunks)
+                # 计算平均chunk大小
+                total_size = sum(len(chunk) for chunk in chunks)
+                avg_chunk_size = total_size / chunks_count if chunks_count > 0 else 0
+                # 计算处理时间（毫秒）
+                processing_time_ms = (time.time() - start_time) * 1000
+                return {
+                    "file_id": file_id,
+                    "status": "success",
+                    "chunks": chunks,
+                    "chunks_count": chunks_count,
+                    "avg_chunk_size": avg_chunk_size,
+                    "processing_time_ms": processing_time_ms,
+                    "message": "文档已切割，直接返回数据库中的切割结果"
+                }
 
         # 初始化文档处理器
         processor = DocumentProcessor()
@@ -560,12 +568,19 @@ async def split_document(file_id: str, current_user=Depends(get_current_user)):
         )
 
         chunks_count = len(process_result["chunks"])
+        # 计算平均chunk大小
+        total_size = sum(len(chunk) for chunk in process_result["chunks"])
+        avg_chunk_size = total_size / chunks_count if chunks_count > 0 else 0
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
         logger.info(f"文档切割成功，文件ID: {file_id}, 段落数: {chunks_count}")
         return {
             "file_id": file_id,
             "status": "success",
             "chunks": process_result["chunks"],
             "chunks_count": chunks_count,
+            "avg_chunk_size": avg_chunk_size,
+            "processing_time_ms": processing_time_ms,
             "message": "文档切割成功"
         }
     except HTTPException:
@@ -626,11 +641,27 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 }
         
         if has_generated_data:
+            # 确保文档状态是 generated（缓存命中时状态可能仍为 chunk_done）
+            if doc["status"] != "generated":
+                db.update_document(file_id, status="generated")
+
+            # 计算子问题和摘要数量
+            sub_questions_count = 0
+            summaries_count = 0
+            for chunk_index, data in results.items():
+                sub_questions_count += len(data.get("sub_questions", []))
+                if data.get("summary"):
+                    summaries_count += 1
+            # 计算处理时间（毫秒）
+            processing_time_ms = (time.time() - start_time) * 1000
             logger.info(f"文档已生成增强内容，直接返回数据库中的结果，文件ID: {file_id}")
             return {
                 "file_id": file_id,
                 "status": "success",
                 "results": results,
+                "sub_questions_count": sub_questions_count,
+                "summaries_count": summaries_count,
+                "processing_time_ms": processing_time_ms,
                 "message": "文档已生成增强内容，直接返回数据库中的结果"
             }
 
@@ -703,12 +734,15 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
             processing_time=processing_time
         )
 
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
         logger.info(f"生成子问题和摘要成功，文件ID: {file_id}, 子问题数: {sub_questions_count}")
         return {
             "file_id": file_id,
             "status": "success",
-            "summaries_count": summaries_count,
             "sub_questions_count": sub_questions_count,
+            "summaries_count": summaries_count,
+            "processing_time_ms": processing_time_ms,
             "message": "生成子问题和摘要成功"
         }
     except HTTPException:
@@ -734,9 +768,6 @@ async def get_stats_overview(current_user=Depends(get_current_user)):
     try:
         start_time = time.time()
         logger.info(f"开始获取统计概览，用户: {current_user['username']}")
-        
-        # 初始化数据库连接
-        db = app_state['db']
         
         # 检查是否为admin用户
         is_admin = current_user.get('role') == 'admin'
@@ -851,8 +882,31 @@ async def import_to_milvus(file_id: str, current_user=Depends(get_current_user))
             status="completed"
         )
 
-        # 记录工作流日志
+        # 计算统计数据
+        chunk_count = len(chunks)
+        sub_question_count = 0
+        vector_count = 0
+        vector_dim = 0
+        
+        # 计算子问题数量和向量数量
+        for i, chunk in enumerate(chunks):
+            data = datas[i]
+            sub_question_count += len(data.sub_questions)
+            # 每个chunk有一个向量
+            vector_count += 1
+            # 每个子问题有一个向量
+            vector_count += len(data.sub_questions)
+            # 获取向量维度（假设所有向量维度相同）
+            if data.summary_embedding:
+                vector_dim = len(data.summary_embedding)
+            elif data.subq_embeddings and len(data.subq_embeddings) > 0:
+                vector_dim = len(data.subq_embeddings[0])
+
+        # 计算处理时间（毫秒）
         processing_time = time.time() - start_time
+        processing_time_ms = processing_time * 1000
+        
+        # 记录工作流日志
         db.add_workflow_log(
             document_id=file_id,
             operation="import_to_milvus",
@@ -866,6 +920,11 @@ async def import_to_milvus(file_id: str, current_user=Depends(get_current_user))
         return {
             "file_id": file_id,
             "status": "success",
+            "chunk_count": chunk_count,
+            "vector_count": vector_count,
+            "sub_question_count": sub_question_count,
+            "vector_dim": vector_dim,
+            "processing_time_ms": processing_time_ms,
             "message": "导入到Milvus成功"
         }
     except HTTPException:
@@ -1338,7 +1397,7 @@ async def get_document_preview(file_id: str, current_user=Depends(get_current_us
 
 @app.delete("/api/documents/{file_id}")
 async def delete_document(file_id: str, current_user=Depends(get_current_user)):
-    """删除文档"""
+    """删除文档（统一调度：Milvus + ES + 文件存储 + temp/output + 数据库）"""
     logger.info(f"开始删除文档，文件ID: {file_id}")
     try:
         # 从数据库中获取文档信息
@@ -1353,16 +1412,55 @@ async def delete_document(file_id: str, current_user=Depends(get_current_user)):
                 f"用户无权限访问知识库，用户: {current_user['username']}, 知识库ID: {doc['knowledge_base_id']}")
             raise HTTPException(status_code=403, detail="无权限删除该文档")
 
-        # 从应用状态中获取Milvus客户端
+        # ---------- 1. 删除 Milvus 向量数据 ----------
         milvus_client = app_state.get('milvus_client')
         if milvus_client:
-            # 删除Milvus中的对应数据
             milvus_client.delete_data_by_document(file_id)
+            logger.info(f"Milvus 数据删除完成，文件ID: {file_id}")
 
-        # 检查是否有workflow_log引用该文档
-        # 由于workflow_log是审计日志，我们不删除它，而是直接删除文档
-        # 但需要确保数据库表结构允许这样做（外键应该是可空的或级联删除的）
-        # 暂时直接删除，看是否能成功
+        # ---------- 2. 删除 ES 索引 ----------
+        try:
+            es_client.delete_document_chunks(file_id, current_user["id"])
+            logger.info(f"ES 索引删除完成，文件ID: {file_id}")
+        except Exception as e:
+            logger.warning(f"ES 索引删除失败（非致命）: {e}")
+
+        # ---------- 3. 删除文件存储（doc_storage 下的文档目录） ----------
+        storage = app_state.get('storage')
+        if storage and doc.get("file_path"):
+            # file_path 格式: "{user_id}/{kb_id}/{uuid}/original.pdf"
+            # 提取文档目录前缀: "{user_id}/{kb_id}/{uuid}"
+            parts = doc["file_path"].split("/")
+            if len(parts) >= 3:
+                doc_dir = "/".join(parts[:3])  # e.g. "1/2/abc-uuid"
+                storage.delete_dir(doc_dir)
+                logger.info(f"文件存储删除完成: {doc_dir}")
+            else:
+                # 兜底：逐个删文件
+                if doc.get("file_path"):
+                    storage.delete(doc["file_path"])
+                if doc.get("enhanced_md_path"):
+                    storage.delete(doc["enhanced_md_path"])
+
+        # ---------- 4. 清理 temp 和 output 目录 ----------
+        # temp 和 output 都用 UUID 命名，UUID 嵌入在 file_path 第3段
+        # file_path 格式: "{user_id}/{kb_id}/{uuid}/original.pdf"
+        if doc.get("file_path"):
+            parts = doc["file_path"].split("/")
+            if len(parts) >= 3:
+                uuid_part = parts[2]
+                # temp: "temp/{uuid}.pdf"
+                temp_file = settings.TEMP_DIR / f"{uuid_part}.pdf"
+                if temp_file.exists():
+                    temp_file.unlink()
+                    logger.info(f"临时文件删除完成: {temp_file}")
+                # output: "output/{uuid}/"
+                output_dir = settings.OUTPUT_DIR / uuid_part
+                if output_dir.exists():
+                    shutil.rmtree(output_dir)
+                    logger.info(f"输出目录删除完成: {output_dir}")
+
+        # ---------- 5. 删除数据库记录（子问题/摘要/chunk/document） ----------
         result = db.delete_document(file_id)
         if result:
             logger.info(f"文档删除成功，文件ID: {file_id}")
@@ -1381,7 +1479,7 @@ async def delete_document(file_id: str, current_user=Depends(get_current_user)):
 
 @app.delete("/api/knowledge-bases/{kb_id}")
 async def delete_knowledge_base(kb_id: int, current_user=Depends(get_current_user)):
-    """删除知识库"""
+    """删除知识库（统一调度：Milvus + ES + 文件存储 + temp/output + 数据库）"""
     logger.info(f"开始删除知识库，知识库ID: {kb_id}")
     try:
         # 获取知识库信息
@@ -1396,13 +1494,50 @@ async def delete_knowledge_base(kb_id: int, current_user=Depends(get_current_use
                 f"用户无权限删除知识库，用户: {current_user['username']}, 知识库ID: {kb_id}")
             raise HTTPException(status_code=403, detail="无权限删除该知识库")
 
-        # 从应用状态中获取Milvus客户端
+        # ---------- 1. 获取知识库下所有文档 ----------
+        docs_query = "SELECT id, file_path, enhanced_md_path, user_id FROM document WHERE knowledge_base_id = %s"
+        docs = db.fetchall(docs_query, (kb_id,))
+
+        # ---------- 2. 删除 Milvus 向量数据 ----------
         milvus_client = app_state.get('milvus_client')
         if milvus_client:
-            # 删除Milvus中的对应数据
             milvus_client.delete_data_by_knowledge_base(kb_id)
+            logger.info(f"Milvus 数据删除完成，知识库ID: {kb_id}")
 
-        # 删除知识库及相关数据
+        # ---------- 3. 删除 ES 索引 ----------
+        for doc in docs:
+            try:
+                # 使用文档实际 owner 的 user_id 作为 routing
+                es_client.delete_document_chunks(doc["id"], doc["user_id"])
+            except Exception as e:
+                logger.warning(f"ES 索引删除失败（非致命），文档ID: {doc['id']}: {e}")
+        logger.info(f"ES 索引删除完成，知识库ID: {kb_id}")
+
+        # ---------- 4. 删除文件存储 ----------
+        storage = app_state.get('storage')
+        if storage:
+            # 知识库的文件存储路径模式: "{user_id}/{kb_id}/{uuid}/..."
+            # 可以直接删除整个 "{user_id}/{kb_id}/" 目录
+            kb_storage_dir = f"{kb['user_id']}/{kb_id}"
+            storage.delete_dir(kb_storage_dir)
+            logger.info(f"文件存储删除完成: {kb_storage_dir}")
+
+        # ---------- 5. 清理 temp 和 output 目录 ----------
+        for doc in docs:
+            if doc.get("file_path"):
+                parts = doc["file_path"].split("/")
+                if len(parts) >= 3:
+                    uuid_part = parts[2]
+                    # temp
+                    temp_file = settings.TEMP_DIR / f"{uuid_part}.pdf"
+                    if temp_file.exists():
+                        temp_file.unlink()
+                    # output
+                    output_dir = settings.OUTPUT_DIR / uuid_part
+                    if output_dir.exists():
+                        shutil.rmtree(output_dir)
+
+        # ---------- 6. 删除数据库记录 ----------
         result = db.delete_knowledge_base(kb_id)
         if result:
             logger.info(f"知识库删除成功，知识库ID: {kb_id}")

@@ -458,7 +458,11 @@ class Database:
         return self.fetchone(query, (file_hash, knowledge_base_id))
     
     def delete_document(self, document_id, knowledge_base_id=None):
-        """删除文档及其相关数据，并记录到workflow日志"""
+        """删除文档及其相关数据（仅数据库层），并记录到workflow日志
+        
+        文件存储、向量数据库、ES 索引的删除由 app.py 统一调度，
+        此方法只负责清理 PostgreSQL 中的关联数据。
+        """
         try:
             # 获取文档信息用于日志记录
             doc_info = self.get_document(document_id)
@@ -482,7 +486,7 @@ class Database:
                 document_id=document_id,
                 operation="delete_document",
                 status="completed",
-                message=f"删除文档: {filename}, 删除了 {chunk_count} 个文档块, {subq_count} 个子问题, {summary_count} 个摘要",
+                message=f"删除文档: {filename}, 清理了 {chunk_count} 个文档块, {subq_count} 个子问题, {summary_count} 个摘要",
                 knowledge_base_id=kb_id
             )
             

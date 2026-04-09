@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional, Union
 from config import settings
 import os
+import shutil
 
 
 class FileStorage(ABC):
@@ -54,6 +55,18 @@ class FileStorage(ABC):
             
         Returns:
             文件是否存在
+        """
+        pass
+
+    @abstractmethod
+    def delete_dir(self, dir_path: str) -> bool:
+        """删除整个目录及其内容
+        
+        Args:
+            dir_path: 目录路径
+            
+        Returns:
+            是否删除成功
         """
         pass
 
@@ -122,6 +135,17 @@ class LocalFileStorage(FileStorage):
         """检查文件是否存在"""
         full_path = settings.DOC_STORAGE_DIR / file_path
         return full_path.exists()
+
+    def delete_dir(self, dir_path: str) -> bool:
+        """删除本地磁盘上的整个目录及其内容"""
+        full_path = settings.DOC_STORAGE_DIR / dir_path
+        if not full_path.exists() or not full_path.is_dir():
+            return False
+        try:
+            shutil.rmtree(full_path)
+            return True
+        except Exception:
+            return False
 
 
 class OSSFileStorage(FileStorage):
@@ -198,6 +222,16 @@ class OSSFileStorage(FileStorage):
             self.bucket.head_object(oss_key)
             return True
         except oss2.exceptions.NoSuchKey:
+            return False
+
+    def delete_dir(self, dir_path: str) -> bool:
+        """删除 OSS 上某个前缀下的所有文件（模拟删除目录）"""
+        oss_prefix = settings.OSS_PREFIX + dir_path.rstrip('/') + '/'
+        try:
+            for obj in oss2.ObjectIterator(self.bucket, prefix=oss_prefix):
+                self.bucket.delete_object(obj.key)
+            return True
+        except Exception:
             return False
 
 

@@ -16,6 +16,14 @@ const PipelinePage = {
   selectedChunk: null,
   generationResults: {},
   importResults: null,
+  timings: { upload: 0, split: 0, generate: 0, import: 0 },
+  stats: {
+    chunksCount: 0,
+    subQuestionsCount: 0,
+    summariesCount: 0,
+    vectorCount: 0,
+    vectorDim: 0
+  },
   
   async render(params = {}) {
     this.currentDocId = params.doc_id || params.fileId || null;
@@ -32,6 +40,14 @@ const PipelinePage = {
     this.selectedChunk = null;
     this.generationResults = {};
     this.importResults = null;
+    this.timings = { upload: 0, split: 0, generate: 0, import: 0 };
+    this.stats = {
+      chunksCount: 0,
+      subQuestionsCount: 0,
+      summariesCount: 0,
+      vectorCount: 0,
+      vectorDim: 0
+    };
     
     const container = document.getElementById('page-container');
     
@@ -484,25 +500,15 @@ const PipelinePage = {
       // 移除行尾的#号
       line = line.replace(/\s+#+$/g, '');
       
-      // 处理标题后面直接跟内容的情况
+      // 检查是否是标题行
       const titleMatch = line.match(/^(#{1,6})\s+(.+)$/);
       if (titleMatch) {
-        const [, hashes, title] = titleMatch;
-        // 检查标题后面是否直接跟着内容
-        if (title.includes('#')) {
-          // 分割标题和内容
-          const parts = title.split('#').filter(part => part.trim());
-          if (parts.length > 1) {
-            cleanedLines.push(`${hashes} ${parts[0].trim()}`);
-            for (let j = 1; j < parts.length; j++) {
-              cleanedLines.push(parts[j].trim());
-            }
-            continue;
-          }
-        }
+        // 保留原始标题结构，不进行分割
+        cleanedLines.push(line);
+      } else {
+        // 对于非标题行，直接添加
+        cleanedLines.push(line);
       }
-      
-      cleanedLines.push(line);
     }
     
     return cleanedLines.join('\n');
@@ -594,6 +600,10 @@ const PipelinePage = {
             }
             return chunk;
           });
+          // 从响应中提取chunks_count
+          if (result.chunks_count) {
+            this.stats.chunksCount = result.chunks_count;
+          }
           this.updateChunkList();
           return;
         }
@@ -602,7 +612,11 @@ const PipelinePage = {
       }
       
       // 如果getResult失败，再调用split
+      const startTime = Date.now();
       const response = await window.DocumentAPI.split(this.currentDocId);
+      const endTime = Date.now();
+      this.timings.split = endTime - startTime;
+      
       if (response.chunks && Array.isArray(response.chunks)) {
         this.chunks = response.chunks.map(chunk => {
           if (typeof chunk === 'string') {
@@ -610,6 +624,10 @@ const PipelinePage = {
           }
           return chunk;
         });
+        // 从响应中提取chunks_count
+        if (response.chunks_count) {
+          this.stats.chunksCount = response.chunks_count;
+        }
       } else {
         this.chunks = [];
       }
@@ -619,6 +637,22 @@ const PipelinePage = {
     }
   },
 
+  _stripMarkdown(text) {
+    // 去掉 markdown 语法符号，让预览文字干净
+    return text
+      .replace(/^#{1,6}\s+/gm, '')   // 标题 # 号
+      .replace(/\*\*(.+?)\*\*/g, '$1') // 粗体
+      .replace(/\*(.+?)\*/g, '$1')     // 斜体
+      .replace(/`(.+?)`/g, '$1')       // 行内代码
+      .replace(/!\[.*?\]\(.*?\)/g, '[图片]') // 图片
+      .replace(/\[(.+?)\]\(.*?\)/g, '$1')    // 链接
+      .replace(/^[-*+]\s+/gm, '')      // 无序列表
+      .replace(/^\d+\.\s+/gm, '')      // 有序列表
+      .replace(/\n{2,}/g, ' ')         // 多余空行
+      .replace(/\n/g, ' ')             // 换行替空格
+      .trim();
+  },
+
   updateChunkList() {
     const chunkList = document.getElementById('chunk-list');
     if (this.chunks.length === 0) {
@@ -626,15 +660,19 @@ const PipelinePage = {
       return;
     }
     
-    chunkList.innerHTML = this.chunks.map((chunk, index) => `
-      <div class="chunk-item ${this.selectedChunk === index ? 'active' : ''}" onclick="PipelinePage.selectChunk(${index})">
-        <div class="chunk-item-header">
-          <span class="chunk-num">#${index + 1}</span>
-          <span class="chunk-type">${chunk.type || '文本'}</span>
+    chunkList.innerHTML = this.chunks.map((chunk, index) => {
+      const rawPreview = chunk.content.substring(0, 120);
+      const cleanPreview = this._stripMarkdown(rawPreview).substring(0, 80);
+      return `
+        <div class="chunk-item ${this.selectedChunk === index ? 'active' : ''}" onclick="PipelinePage.selectChunk(${index})">
+          <div class="chunk-item-header">
+            <span class="chunk-num">#${index + 1}</span>
+            <span class="chunk-type">${chunk.type || '文本'}</span>
+          </div>
+          <div class="chunk-preview">${cleanPreview}${cleanPreview.length >= 80 ? '...' : ''}</div>
         </div>
-        <div class="chunk-preview">${chunk.content.substring(0, 80)}${chunk.content.length > 80 ? '...' : ''}</div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   },
 
   selectChunk(index) {
@@ -760,6 +798,17 @@ const PipelinePage = {
               summary: result.summaries[index] || ''
             };
           });
+          // 计算子问题和摘要数量
+          let subQuestionsCount = 0;
+          let summariesCount = 0;
+          result.sub_questions.forEach((subqs, index) => {
+            subQuestionsCount += subqs.length;
+            if (result.summaries[index]) {
+              summariesCount++;
+            }
+          });
+          this.stats.subQuestionsCount = subQuestionsCount;
+          this.stats.summariesCount = summariesCount;
           this.updateGenChunkList();
           return;
         }
@@ -768,8 +817,19 @@ const PipelinePage = {
       }
       
       // 如果getResult失败，再调用generate
+      const startTime = Date.now();
       const response = await window.DocumentAPI.generate(this.currentDocId);
+      const endTime = Date.now();
+      this.timings.generate = endTime - startTime;
+      
       this.generationResults = response.results || {};
+      // 从响应中提取sub_questions_count和summaries_count
+      if (response.sub_questions_count) {
+        this.stats.subQuestionsCount = response.sub_questions_count;
+      }
+      if (response.summaries_count) {
+        this.stats.summariesCount = response.summaries_count;
+      }
       this.updateGenChunkList();
     } catch (error) {
       document.getElementById('gen-chunk-list').innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
@@ -848,121 +908,72 @@ const PipelinePage = {
             文档 <strong>${this.documentData?.filename || '未知文件'}</strong> 已完成全部处理流程，知识库已就绪。
           </div>
 
-          <!-- 统计卡片 -->
+          <!-- 统计卡片：先用占位符，数据回来后由 _fillImportStats() 填充 -->
           <div class="milvus-stats-grid">
             <div class="milvus-stat-card">
-              <span class="milvus-stat-val">${this.importResults?.chunk_count || 0}</span>
+              <span class="milvus-stat-val" id="stat-chunk-count">
+                <span class="loading-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;"></span>
+              </span>
               <div class="milvus-stat-label">Chunk 总数</div>
             </div>
             <div class="milvus-stat-card">
-              <span class="milvus-stat-val">${this.importResults?.vector_count || 0}</span>
+              <span class="milvus-stat-val" id="stat-vector-count">
+                <span class="loading-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;"></span>
+              </span>
               <div class="milvus-stat-label">向量总数</div>
             </div>
             <div class="milvus-stat-card">
-              <span class="milvus-stat-val">${this.importResults?.sub_question_count || 0}</span>
+              <span class="milvus-stat-val" id="stat-subq-count">
+                <span class="loading-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;"></span>
+              </span>
               <div class="milvus-stat-label">子问题向量</div>
             </div>
             <div class="milvus-stat-card">
-              <span class="milvus-stat-val" style="color: var(--green)">${this.importResults?.vector_dim || 1024}</span>
+              <span class="milvus-stat-val" id="stat-vec-dim" style="color: var(--green)">
+                <span class="loading-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;"></span>
+              </span>
               <div class="milvus-stat-label">向量维度</div>
             </div>
           </div>
 
-          <!-- Maya 内容总览 -->
-          <div class="maya-overview" style="margin-top: 30px; padding: 20px; background: var(--surface2); border-radius: 12px; border: 1px solid var(--border);">
-            <div class="maya-overview-header" style="display: flex; align-items: center; margin-bottom: 16px;">
-              <div class="panel-icon" style="background: #f472b622; margin-right: 12px;">✨</div>
-              <div>
-                <div class="panel-title" style="margin: 0;">Maya 内容总览</div>
-                <div class="panel-subtitle" style="margin: 4px 0 0 0;">当前文档处理统计信息</div>
-              </div>
-            </div>
-            
-            <!-- 当前文档统计 -->
-            <div class="maya-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
-              <div class="maya-stat-card" style="padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);">
-                <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">📄 总 Chunk 数</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text);">${this.importResults?.chunk_count || 0}</div>
-              </div>
-              <div class="maya-stat-card" style="padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);">
-                <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">❓ 总子问题数</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text);">${this.importResults?.sub_question_count || 0}</div>
-              </div>
-              <div class="maya-stat-card" style="padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);">
-                <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">📝 总摘要数</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text);">${this.importResults?.chunk_count || 0}</div>
-              </div>
-              <div class="maya-stat-card" style="padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);">
-                <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">⚡ 总向量数</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text);">${this.importResults?.vector_count || 0}</div>
-              </div>
-            </div>
-            
-            <!-- 全局统计信息 -->
-            <div style="border-top: 1px solid var(--border); padding-top: 20px;">
-              <div style="display: flex; align-items: center; margin-bottom: 16px;">
-                <div class="panel-icon" style="background: #60a5fa22; margin-right: 12px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">🌐</div>
-                <div class="panel-title" style="margin: 0;">全局统计概览</div>
-              </div>
-              <div class="maya-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                <div class="maya-stat-card" style="padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);">
-                  <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">📁 总文档数</div>
-                  <div style="font-size: 1.5rem; font-weight: 700; color: var(--text);" id="global-documents">加载中...</div>
-                </div>
-                <div class="maya-stat-card" style="padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);">
-                  <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">🧩 总 Chunk 数</div>
-                  <div style="font-size: 1.5rem; font-weight: 700; color: var(--text);" id="global-chunks">加载中...</div>
-                </div>
-                <div class="maya-stat-card" style="padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);">
-                  <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">❓ 总子问题数</div>
-                  <div style="font-size: 1.5rem; font-weight: 700; color: var(--text);" id="global-sub-questions">加载中...</div>
-                </div>
-                <div class="maya-stat-card" style="padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);">
-                  <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">📝 总摘要数</div>
-                  <div style="font-size: 1.5rem; font-weight: 700; color: var(--text);" id="global-summaries">加载中...</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 处理时间线 -->
+          <!-- 处理时间线：id 化，数据回来后回填 -->
           <div class="milvus-timeline" style="max-width: 600px; width: 100%; margin-top: 30px;">
             <div class="timeline-item">
               <span class="timeline-icon">📤</span>
               <span class="timeline-label">PDF 上传 & 解析</span>
               <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time">${this.importResults?.timeline?.upload || 'N/A'}</span>
+              <span class="timeline-time" id="tl-upload">-</span>
             </div>
             <div class="timeline-item">
               <span class="timeline-icon">✂️</span>
-              <span class="timeline-label">文档切割 (${this.chunks.length} Chunks)</span>
+              <span class="timeline-label">文档切割 (<span id="tl-chunk-count">${this.chunks.length || '?'}</span> Chunks)</span>
               <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time">${this.importResults?.timeline?.split || 'N/A'}</span>
+              <span class="timeline-time" id="tl-split">-</span>
             </div>
             <div class="timeline-item">
               <span class="timeline-icon">🧠</span>
               <span class="timeline-label">LLM 生成子问题 & 摘要</span>
               <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time">${this.importResults?.timeline?.generate || 'N/A'}</span>
+              <span class="timeline-time" id="tl-generate">-</span>
             </div>
             <div class="timeline-item">
               <span class="timeline-icon">⚡</span>
               <span class="timeline-label">嵌入向量生成</span>
               <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time">${this.importResults?.timeline?.embed || 'N/A'}</span>
+              <span class="timeline-time" id="tl-embed">-</span>
             </div>
             <div class="timeline-item">
               <span class="timeline-icon">🗄️</span>
               <span class="timeline-label">写入 Milvus Collection</span>
               <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time">${this.importResults?.timeline?.import || 'N/A'}</span>
+              <span class="timeline-time" id="tl-import">-</span>
             </div>
           </div>
         </div>
 
         <div class="pipeline-action-bar">
-          <div class="action-info">
-            总耗时 <strong style="color: var(--green)">${this.importResults?.total_time || '0'}</strong> · Collection: <strong style="color: var(--text)">rag_knowledge_base</strong>
+          <div class="action-info" id="step4-total-time">
+            总耗时 <strong style="color: var(--green)">计算中...</strong> · Collection: <strong style="color: var(--text)">rag_knowledge_base</strong>
           </div>
           <button class="btn btn-ghost" onclick="PipelinePage.previousStep()">
             ← 返回生成
@@ -983,27 +994,81 @@ const PipelinePage = {
 
   async loadImportResults() {
     try {
+      const startTime = Date.now();
       const response = await window.DocumentAPI.importToMilvus(this.currentDocId);
+      const endTime = Date.now();
+      this.timings.import = endTime - startTime;
+      
       // 从response中提取信息，如果没有详细信息，使用默认值
       this.importResults = {
-        chunk_count: this.chunks.length || 0,
-        vector_count: this.chunks.length || 0, // 假设每个chunk对应一个向量
-        sub_question_count: Object.keys(this.generationResults).length || 0,
-        vector_dim: 1024,
-        total_time: '0s',
+        chunk_count: response.chunk_count || this.chunks.length || 0,
+        vector_count: response.vector_count || this.chunks.length || 0,
+        sub_question_count: response.sub_question_count || Object.keys(this.generationResults).length || 0,
+        vector_dim: response.vector_dim || 1024,
+        total_time: (this.timings.upload + this.timings.split + this.timings.generate + this.timings.import) / 1000 + 's',
         timeline: {
-          upload: 'N/A',
-          split: 'N/A',
-          generate: 'N/A',
+          upload: this.timings.upload ? this.timings.upload + 'ms' : 'N/A',
+          split: this.timings.split ? this.timings.split + 'ms' : 'N/A',
+          generate: this.timings.generate ? this.timings.generate + 'ms' : 'N/A',
           embed: 'N/A',
-          import: 'N/A'
+          import: this.timings.import ? this.timings.import + 'ms' : 'N/A'
         }
       };
       
+      // 从响应中提取vector_count和vector_dim
+      if (response.vector_count) {
+        this.stats.vectorCount = response.vector_count;
+      }
+      if (response.vector_dim) {
+        this.stats.vectorDim = response.vector_dim;
+      }
+      
+      // 立即回填统计数据到 DOM，无需用户重新点击
+      this._fillImportStats();
+      
       // 加载全局统计信息
       await this.loadStatsOverview();
+
+      // import 成功，标记 step4 为 done
+      if (this.steps[3] && this.steps[3].status !== 'done') {
+        this.steps[3].status = 'done';
+        this.updateStepsUI();
+      }
     } catch (error) {
       window.App.showToast('加载导入结果失败: ' + error.message, 'error');
+      // 即使失败也要回填（显示 0）
+      this._fillImportStats();
+    }
+  },
+
+  /** 将 importResults / stats 数据回填到 Step4 DOM 中（不重渲染整个页面） */
+  _fillImportStats() {
+    const r = this.importResults || {};
+    const s = this.stats;
+
+    // 统计卡片
+    const setEl = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    };
+    setEl('stat-chunk-count',  s.chunksCount  || r.chunk_count         || this.chunks.length || 0);
+    setEl('stat-vector-count', s.vectorCount   || r.vector_count        || 0);
+    setEl('stat-subq-count',   s.subQuestionsCount || r.sub_question_count || 0);
+    setEl('stat-vec-dim',      s.vectorDim     || r.vector_dim          || 1024);
+
+    // 时间线
+    const tl = r.timeline || {};
+    setEl('tl-upload',   tl.upload   || (this.timings.upload   ? this.timings.upload   + 'ms' : 'N/A'));
+    setEl('tl-split',    tl.split    || (this.timings.split    ? this.timings.split    + 'ms' : 'N/A'));
+    setEl('tl-generate', tl.generate || (this.timings.generate ? this.timings.generate + 'ms' : 'N/A'));
+    setEl('tl-embed',    tl.embed    || 'N/A');
+    setEl('tl-import',   tl.import   || (this.timings.import   ? this.timings.import   + 'ms' : 'N/A'));
+    setEl('tl-chunk-count', this.chunks.length || r.chunk_count || 0);
+
+    // action bar 总耗时
+    const totalBar = document.getElementById('step4-total-time');
+    if (totalBar) {
+      totalBar.innerHTML = `总耗时 <strong style="color: var(--green)">${r.total_time || '—'}</strong> · Collection: <strong style="color: var(--text)">rag_knowledge_base</strong>`;
     }
   },
 
@@ -1021,12 +1086,11 @@ const PipelinePage = {
       
       // 如果是admin用户，添加用户统计
       if (stats.is_admin) {
-        const statsGrid = document.querySelector('.maya-stats-grid');
+        const statsGrid = document.querySelector('div[style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"]');
         if (statsGrid) {
           // 检查是否已存在用户统计卡片
           if (!document.getElementById('global-users')) {
             const userCard = document.createElement('div');
-            userCard.className = 'maya-stat-card';
             userCard.style.cssText = 'padding: 16px; background: var(--surface1); border-radius: 8px; border: 1px solid var(--border);';
             userCard.innerHTML = `
               <div style="font-size: .8rem; color: var(--text3); margin-bottom: 8px;">👥 总用户数</div>
@@ -1096,18 +1160,10 @@ const PipelinePage = {
           this.updateStepsUI();
           await this.renderStepContent();
         } else {
-          // 如果是嵌入入库步骤，显示加载状态
+          // 如果是嵌入入库步骤，renderStep4 内部会调用 loadImportResults
           if (this.currentStep === 3) {
-            this.showLoading('正在导入到Milvus...');
-            try {
-              await window.DocumentAPI.importToMilvus(this.currentDocId);
-              this.steps[this.currentStep].status = 'done';
-              window.App.showToast('导入到Milvus成功', 'success');
-            } catch (error) {
-              window.App.showToast('导入到Milvus失败: ' + error.message, 'error');
-              this.hideLoading();
-              return;
-            }
+            // 不在这里调 API，renderStep4 -> loadImportResults 会统一处理
+            this.steps[this.currentStep].status = 'active';
           } else {
             this.steps[this.currentStep].status = 'active';
           }

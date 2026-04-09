@@ -3,6 +3,15 @@
   "sessions": {
     "94cf33430a2b497baa3a4b5e9d3da09b": [
       {
+        "expertId": "SeniorDeveloper",
+        "name": "Will",
+        "profession": "高级开发工程师",
+        "avatarUrl": "https://acc-1258344699.cos.accelerate.myqcloud.com/workbuddy/experts/avatars/02-Engineering/SeniorDeveloper/SeniorDeveloper.png",
+        "promptUrl": "https://acc-1258344699.cos.accelerate.myqcloud.com/workbuddy/experts/experts/02-Engineering/SeniorDeveloper/SeniorDeveloper_zh.md",
+        "usedAt": 1775737393682,
+        "industryId": "all"
+      },
+      {
         "expertId": "FrontendDeveloper",
         "name": "Paul",
         "profession": "前端开发工程师",
@@ -13,5 +22,5 @@
       }
     ]
   },
-  "lastUpdated": 1775729399306
+  "lastUpdated": 1775739478694
 }
