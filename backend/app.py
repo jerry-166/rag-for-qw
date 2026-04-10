@@ -339,6 +339,9 @@ async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), curr
         storage.save(enhanced_md_path, markdown_content)
         logger.debug(f"增强MD文件保存成功")
 
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
+        
         # 存储结果到数据库
         doc_id = db.add_document(
             filename=file.filename,
@@ -347,7 +350,8 @@ async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), curr
             status="uploaded",
             user_id=current_user["id"],
             knowledge_base_id=kb_id,
-            file_hash=file_hash
+            file_hash=file_hash,
+            upload_time=processing_time_ms
         )
 
         # 记录工作流日志
@@ -499,8 +503,8 @@ async def split_document(file_id: str, current_user=Depends(get_current_user)):
                 # 计算平均chunk大小
                 total_size = sum(len(chunk) for chunk in chunks)
                 avg_chunk_size = total_size / chunks_count if chunks_count > 0 else 0
-                # 计算处理时间（毫秒）
-                processing_time_ms = (time.time() - start_time) * 1000
+                # 使用数据库中已有的split_time，而不是重新计算
+                processing_time_ms = doc.get("split_time", (time.time() - start_time) * 1000)
                 return {
                     "file_id": file_id,
                     "status": "success",
@@ -549,11 +553,15 @@ async def split_document(file_id: str, current_user=Depends(get_current_user)):
                     metadata={"source": doc["filename"]}
                 )
 
-        # 更新数据库中的文档状态
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
+        
+        # 更新数据库中的文档状态和处理时间
         db.update_document(
             file_id,
             status="chunk_done",
-            es_indexed=True
+            es_indexed=True,
+            split_time=processing_time_ms
         )
 
         # 记录工作流日志
@@ -642,8 +650,11 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
         
         if has_generated_data:
             # 确保文档状态是 generated（缓存命中时状态可能仍为 chunk_done）
+            # 立即更新状态，确保后续逻辑能正确判断文档状态
             if doc["status"] != "generated":
                 db.update_document(file_id, status="generated")
+                # 更新doc对象中的状态，确保后续代码使用最新状态
+                doc["status"] = "generated"
 
             # 计算子问题和摘要数量
             sub_questions_count = 0
@@ -652,8 +663,8 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 sub_questions_count += len(data.get("sub_questions", []))
                 if data.get("summary"):
                     summaries_count += 1
-            # 计算处理时间（毫秒）
-            processing_time_ms = (time.time() - start_time) * 1000
+            # 使用数据库中已有的generate_time，而不是重新计算
+            processing_time_ms = doc.get("generate_time", (time.time() - start_time) * 1000)
             logger.info(f"文档已生成增强内容，直接返回数据库中的结果，文件ID: {file_id}")
             return {
                 "file_id": file_id,
@@ -686,9 +697,6 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
         # 批量生成子问题和摘要
         await processor.generate_batches_async_concurrent(datas, batch_size=16, max_concurrency=8)
 
-        # 批量生成嵌入向量
-        await processor.generate_and_fill_embeddings(datas)
-
         # 存储子问题和摘要到数据库
         sub_questions_count = 0
         summaries_count = 0
@@ -717,10 +725,14 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 )
                 summaries_count += 1
 
-        # 更新数据库中的文档状态
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
+        
+        # 更新数据库中的文档状态和处理时间
         db.update_document(
             file_id,
-            status="generated"
+            status="generated",
+            generate_time=processing_time_ms
         )
 
         # 记录工作流日志
@@ -862,25 +874,37 @@ async def import_to_milvus(file_id: str, current_user=Depends(get_current_user))
             )
             datas.append(data)
         
-        # 只有当文档状态不是completed时，才生成嵌入向量
+        # 只有当文档状态不是completed时，才生成嵌入向量和更新时间
         if doc["status"] != "completed":
             # 生成嵌入向量
             await processor.generate_and_fill_embeddings(datas)
+            
+            # 批量导入到Milvus
+            import_result = milvus_client.import_data(
+                datas,
+                user_id=current_user["id"],
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+
+            # 计算处理时间（毫秒）
+            processing_time_ms = (time.time() - start_time) * 1000
+            
+            # 更新数据库中的文档状态和处理时间
+            db.update_document(
+                file_id,
+                status="completed",
+                import_time=processing_time_ms
+            )
         else:
-            logger.info(f"文档状态已完成，跳过嵌入生成，直接导入到Milvus，文件ID: {file_id}")
-
-        # 批量导入到Milvus
-        import_result = milvus_client.import_data(
-            datas,
-            user_id=current_user["id"],
-            knowledge_base_id=doc["knowledge_base_id"]
-        )
-
-        # 更新数据库中的文档状态
-        db.update_document(
-            file_id,
-            status="completed"
-        )
+            logger.info(f"文档状态已完成，跳过嵌入生成和导入，直接返回结果，文件ID: {file_id}")
+            # 批量导入到Milvus
+            import_result = milvus_client.import_data(
+                datas,
+                user_id=current_user["id"],
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+            # 使用数据库中已有的import_time，而不是重新计算
+            processing_time_ms = doc.get("import_time", (time.time() - start_time) * 1000)
 
         # 计算统计数据
         chunk_count = len(chunks)
@@ -902,10 +926,6 @@ async def import_to_milvus(file_id: str, current_user=Depends(get_current_user))
             elif data.subq_embeddings and len(data.subq_embeddings) > 0:
                 vector_dim = len(data.subq_embeddings[0])
 
-        # 计算处理时间（毫秒）
-        processing_time = time.time() - start_time
-        processing_time_ms = processing_time * 1000
-        
         # 记录工作流日志
         db.add_workflow_log(
             document_id=file_id,
@@ -1065,7 +1085,11 @@ async def get_process_result(file_id: str, current_user=Depends(get_current_user
             "chunks": chunks_list,
             "sub_questions": sub_questions_list,
             "summaries": summaries_list,
-            "status": doc["status"]  # 返回文档的实际处理状态
+            "status": doc["status"],  # 返回文档的实际处理状态
+            "upload_time": doc.get("upload_time"),
+            "split_time": doc.get("split_time"),
+            "generate_time": doc.get("generate_time"),
+            "import_time": doc.get("import_time")
         }
     except HTTPException:
         raise
@@ -1386,7 +1410,11 @@ async def get_document_preview(file_id: str, current_user=Depends(get_current_us
             "status": doc["status"],  # 返回文档的实际处理状态
             "file_size": doc.get("file_size"),
             "tables_count": doc.get("tables_count"),
-            "formulas_count": doc.get("formulas_count")
+            "formulas_count": doc.get("formulas_count"),
+            "upload_time": doc.get("upload_time"),
+            "split_time": doc.get("split_time"),
+            "generate_time": doc.get("generate_time"),
+            "import_time": doc.get("import_time")
         }
     except HTTPException:
         raise

@@ -111,12 +111,22 @@ const PipelinePage = {
         const result = await window.DocumentAPI.getResult(this.currentDocId);
         this.documentData = result;
         docStatus = result.status;
+        // 从数据库中提取时间字段，更新timings对象
+        if (result.upload_time) this.timings.upload = result.upload_time;
+        if (result.split_time) this.timings.split = result.split_time;
+        if (result.generate_time) this.timings.generate = result.generate_time;
+        if (result.import_time) this.timings.import = result.import_time;
       } catch (error) {
         // 如果获取结果失败（例如文件尚未处理完成），尝试获取文档基本信息
         try {
           const docInfo = await window.DocumentAPI.getPreview(this.currentDocId);
           this.documentData = docInfo;
           docStatus = docInfo.status;
+          // 从数据库中提取时间字段，更新timings对象
+          if (docInfo.upload_time) this.timings.upload = docInfo.upload_time;
+          if (docInfo.split_time) this.timings.split = docInfo.split_time;
+          if (docInfo.generate_time) this.timings.generate = docInfo.generate_time;
+          if (docInfo.import_time) this.timings.import = docInfo.import_time;
         } catch (e) {
           // 如果获取基本信息也失败，显示错误提示，但继续设置默认状态
           console.error('加载文档信息失败:', e);
@@ -133,21 +143,32 @@ const PipelinePage = {
       // 更新步骤状态
       if (docStatus === 'completed') {
         this.steps.forEach(step => step.status = 'done');
+        // 对于completed状态，直接展示第四步（嵌入入库）
+        this.steps[3].status = 'active';
+        this.currentStep = 3;
       } else if (docStatus === 'generated') {
         this.steps[0].status = 'done';
         this.steps[1].status = 'done';
         this.steps[2].status = 'done';
         this.steps[3].status = 'pending';
+        // 对于generated状态，展示第三步（生成增强）
+        this.steps[2].status = 'active';
+        this.currentStep = 2;
       } else if (docStatus === 'chunk_done') {
         this.steps[0].status = 'done';
         this.steps[1].status = 'done';
         this.steps[2].status = 'pending';
         this.steps[3].status = 'pending';
+        // 对于chunk_done状态，展示第二步（文档切割）
+        this.steps[1].status = 'active';
+        this.currentStep = 1;
       } else if (docStatus === 'uploaded' || docStatus === 'processing') {
-        this.steps[0].status = 'done';
+        // 对于新上传的文档，从步骤0开始，显示PDF和MD对比页面
+        this.steps[0].status = 'active';
         this.steps[1].status = 'pending';
         this.steps[2].status = 'pending';
         this.steps[3].status = 'pending';
+        this.currentStep = 0;
       }
       
       // 确保至少有一个步骤是active
@@ -615,7 +636,8 @@ const PipelinePage = {
       const startTime = Date.now();
       const response = await window.DocumentAPI.split(this.currentDocId);
       const endTime = Date.now();
-      this.timings.split = endTime - startTime;
+      // 优先使用后端返回的处理时间，其次使用前端计算的时间
+      this.timings.split = response.processing_time_ms || (endTime - startTime);
       
       if (response.chunks && Array.isArray(response.chunks)) {
         this.chunks = response.chunks.map(chunk => {
@@ -639,17 +661,35 @@ const PipelinePage = {
 
   _stripMarkdown(text) {
     // 去掉 markdown 语法符号，让预览文字干净
-    return text
-      .replace(/^#{1,6}\s+/gm, '')   // 标题 # 号
-      .replace(/\*\*(.+?)\*\*/g, '$1') // 粗体
-      .replace(/\*(.+?)\*/g, '$1')     // 斜体
-      .replace(/`(.+?)`/g, '$1')       // 行内代码
-      .replace(/!\[.*?\]\(.*?\)/g, '[图片]') // 图片
-      .replace(/\[(.+?)\]\(.*?\)/g, '$1')    // 链接
-      .replace(/^[-*+]\s+/gm, '')      // 无序列表
-      .replace(/^\d+\.\s+/gm, '')      // 有序列表
-      .replace(/\n{2,}/g, ' ')         // 多余空行
-      .replace(/\n/g, ' ')             // 换行替空格
+    // 按行处理，保留标题结构
+    const lines = text.split('\n');
+    const cleanedLines = lines.map(line => {
+      // 检查是否是标题行
+      const titleMatch = line.match(/^(#{1,6})\s+(.+)$/);
+      if (titleMatch) {
+        // 保留标题结构，只移除markdown符号
+        return titleMatch[1] + ' ' + titleMatch[2]
+          .replace(/\*\*(.+?)\*\*/g, '$1') // 粗体
+          .replace(/\*(.+?)\*/g, '$1')     // 斜体
+          .replace(/`(.+?)`/g, '$1')       // 行内代码
+          .replace(/!\[.*?\]\(.*?\)/g, '[图片]') // 图片
+          .replace(/\[(.+?)\]\(.*?\)/g, '$1');    // 链接
+      } else {
+        // 非标题行，移除所有markdown符号
+        return line
+          .replace(/\*\*(.+?)\*\*/g, '$1') // 粗体
+          .replace(/\*(.+?)\*/g, '$1')     // 斜体
+          .replace(/`(.+?)`/g, '$1')       // 行内代码
+          .replace(/!\[.*?\]\(.*?\)/g, '[图片]') // 图片
+          .replace(/\[(.+?)\]\(.*?\)/g, '$1')    // 链接
+          .replace(/^[-*+]\s+/, '')      // 无序列表
+          .replace(/^\d+\.\s+/, '');      // 有序列表
+      }
+    });
+    
+    return cleanedLines
+      .join(' ')
+      .replace(/\s{2,}/g, ' ')
       .trim();
   },
 
@@ -820,7 +860,8 @@ const PipelinePage = {
       const startTime = Date.now();
       const response = await window.DocumentAPI.generate(this.currentDocId);
       const endTime = Date.now();
-      this.timings.generate = endTime - startTime;
+      // 优先使用后端返回的处理时间，其次使用前端计算的时间
+      this.timings.generate = response.processing_time_ms || (endTime - startTime);
       
       this.generationResults = response.results || {};
       // 从响应中提取sub_questions_count和summaries_count
@@ -997,21 +1038,34 @@ const PipelinePage = {
       const startTime = Date.now();
       const response = await window.DocumentAPI.importToMilvus(this.currentDocId);
       const endTime = Date.now();
-      this.timings.import = endTime - startTime;
+      // 优先使用后端返回的处理时间，其次使用前端计算的时间
+      this.timings.import = response.processing_time_ms || (endTime - startTime);
       
       // 从response中提取信息，如果没有详细信息，使用默认值
+      // 时间格式化函数，将毫秒转换为合适的单位并保留两位小数
+      const formatTime = (ms) => {
+        if (!ms) return 'N/A';
+        if (ms < 1000) {
+          return ms.toFixed(2) + 'ms';
+        } else {
+          return (ms / 1000).toFixed(2) + 's';
+        }
+      };
+      
+      const totalTimeMs = this.timings.upload + this.timings.split + this.timings.generate + this.timings.import;
+      
       this.importResults = {
         chunk_count: response.chunk_count || this.chunks.length || 0,
         vector_count: response.vector_count || this.chunks.length || 0,
         sub_question_count: response.sub_question_count || Object.keys(this.generationResults).length || 0,
         vector_dim: response.vector_dim || 1024,
-        total_time: (this.timings.upload + this.timings.split + this.timings.generate + this.timings.import) / 1000 + 's',
+        total_time: formatTime(totalTimeMs),
         timeline: {
-          upload: this.timings.upload ? this.timings.upload + 'ms' : 'N/A',
-          split: this.timings.split ? this.timings.split + 'ms' : 'N/A',
-          generate: this.timings.generate ? this.timings.generate + 'ms' : 'N/A',
+          upload: formatTime(this.timings.upload),
+          split: formatTime(this.timings.split),
+          generate: formatTime(this.timings.generate),
           embed: 'N/A',
-          import: this.timings.import ? this.timings.import + 'ms' : 'N/A'
+          import: formatTime(this.timings.import)
         }
       };
       
@@ -1058,17 +1112,36 @@ const PipelinePage = {
 
     // 时间线
     const tl = r.timeline || {};
-    setEl('tl-upload',   tl.upload   || (this.timings.upload   ? this.timings.upload   + 'ms' : 'N/A'));
-    setEl('tl-split',    tl.split    || (this.timings.split    ? this.timings.split    + 'ms' : 'N/A'));
-    setEl('tl-generate', tl.generate || (this.timings.generate ? this.timings.generate + 'ms' : 'N/A'));
+    // 时间格式化函数，将毫秒转换为合适的单位并保留两位小数
+    const formatTime = (ms) => {
+      if (!ms) return 'N/A';
+      if (ms < 1000) {
+        return ms.toFixed(2) + 'ms';
+      } else {
+        return (ms / 1000).toFixed(2) + 's';
+      }
+    };
+    setEl('tl-upload',   tl.upload   || formatTime(this.timings.upload));
+    setEl('tl-split',    tl.split    || formatTime(this.timings.split));
+    setEl('tl-generate', tl.generate || formatTime(this.timings.generate));
     setEl('tl-embed',    tl.embed    || 'N/A');
-    setEl('tl-import',   tl.import   || (this.timings.import   ? this.timings.import   + 'ms' : 'N/A'));
+    setEl('tl-import',   tl.import   || formatTime(this.timings.import));
     setEl('tl-chunk-count', this.chunks.length || r.chunk_count || 0);
 
     // action bar 总耗时
     const totalBar = document.getElementById('step4-total-time');
     if (totalBar) {
-      totalBar.innerHTML = `总耗时 <strong style="color: var(--green)">${r.total_time || '—'}</strong> · Collection: <strong style="color: var(--text)">rag_knowledge_base</strong>`;
+      // 时间格式化函数，将毫秒转换为合适的单位并保留两位小数
+      const formatTime = (ms) => {
+        if (!ms) return '0.00s';
+        if (ms < 1000) {
+          return ms.toFixed(2) + 'ms';
+        } else {
+          return (ms / 1000).toFixed(2) + 's';
+        }
+      };
+      const totalTime = r.total_time || formatTime(this.timings.upload + this.timings.split + this.timings.generate + this.timings.import);
+      totalBar.innerHTML = `总耗时 <strong style="color: var(--green)">${totalTime}</strong> · Collection: <strong style="color: var(--text)">rag_knowledge_base</strong>`;
     }
   },
 
@@ -1134,17 +1207,9 @@ const PipelinePage = {
               }
               break;
             case 2:
-              // Step 3: 生成增强
-              try {
-                this.showLoading('正在生成增强内容...');
-                await window.DocumentAPI.generate(this.currentDocId);
-                this.steps[this.currentStep].status = 'done';
-                window.App.showToast('增强内容生成成功', 'success');
-              } catch (error) {
-                window.App.showToast('增强内容生成失败: ' + error.message, 'error');
-                this.hideLoading();
-                return;
-              }
+              // Step 3: 生成增强（已在loadGenerationResults中完成）
+              this.steps[this.currentStep].status = 'done';
+              window.App.showToast('增强内容生成成功', 'success');
               break;
           }
         }

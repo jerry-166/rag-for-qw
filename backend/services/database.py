@@ -122,6 +122,10 @@ class Database:
                     status TEXT DEFAULT 'uploaded',
                     metadata JSONB,
                     processing_time REAL,
+                    upload_time REAL, -- 上传时间（毫秒）
+                    split_time REAL, -- 切割时间（毫秒）
+                    generate_time REAL, -- 生成时间（毫秒）
+                    import_time REAL, -- 导入时间（毫秒）
                     user_id INTEGER,
                     knowledge_base_id INTEGER,
                     file_hash TEXT, -- 文件哈希值，用于判断是否为相同文档
@@ -394,17 +398,17 @@ class Database:
         return self.fetchone(query, (email,))
     
     # 文档相关方法
-    def add_document(self, filename, file_path, enhanced_md_path=None, status='uploaded', metadata=None, processing_time=None, user_id=None, knowledge_base_id=None, file_hash=None):
+    def add_document(self, filename, file_path, enhanced_md_path=None, status='uploaded', metadata=None, processing_time=None, upload_time=None, user_id=None, knowledge_base_id=None, file_hash=None):
         """添加文档"""
         query = '''
-            INSERT INTO document (filename, file_path, enhanced_md_path, status, metadata, processing_time, user_id, knowledge_base_id, file_hash)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO document (filename, file_path, enhanced_md_path, status, metadata, processing_time, upload_time, user_id, knowledge_base_id, file_hash)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
         '''
         try:
             # 将metadata转换为JSON字符串
             metadata_json = json.dumps(metadata) if metadata else None
-            self.cursor.execute(query, (filename, file_path, enhanced_md_path, status, metadata_json, processing_time, user_id, knowledge_base_id, file_hash))
+            self.cursor.execute(query, (filename, file_path, enhanced_md_path, status, metadata_json, processing_time, upload_time, user_id, knowledge_base_id, file_hash))
             return self.cursor.fetchone()['id']
         except Exception as e:
             logger.error(f"添加文档失败: {e}")
