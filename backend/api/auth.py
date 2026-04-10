@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from datetime import timedelta
 
-from config import init_logger
+from config import init_logger, settings
 from services.database import db
 from services.auth import get_password_hash, verify_password, create_access_token, get_current_user
 
@@ -102,7 +102,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             )
 
         # 创建访问令牌，包含用户ID和角色
-        access_token_expires = timedelta(minutes=30)
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user["username"], "user_id": user["id"], "role": user["role"]},
             expires_delta=access_token_expires

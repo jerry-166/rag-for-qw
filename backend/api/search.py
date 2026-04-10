@@ -1,3 +1,16 @@
+"""
+搜索 API 模块 — 提供三种检索端点
+
+架构:
+  1. 多路并行召回（Milvus 向量 + ES 关键词）
+  2. RRF 融合排序
+  3. PostgreSQL 补全完整内容
+  4. 可选 Reranker 精排
+  5. 返回 Top-K 结果
+
+Reranker 已抽离至 services/reranker.py，通过 get_reranker() 获取实例。
+"""
+
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 import asyncio
@@ -6,299 +19,277 @@ from config import init_logger, settings
 from services.database import db
 from services.auth import get_current_user
 from services.elasticsearch_client import es_client
-from langchain_openai import OpenAI
+from services.reranker import get_reranker
 
 logger = init_logger(__name__)
 router = APIRouter()
 
-# 支持metadata过滤
 class QueryRequest(BaseModel):
+    """通用查询请求"""
     query: str
     limit: int = 5
     metadata_filter: dict = None
     knowledge_base_id: int = None
+    use_rerank: bool = True  # 是否启用 rerank 精排
 
 
-def rrf(rankings, k=60):
-    """Reciprocal Rank Fusion算法"""
+_RRF_DEFAULT_K = 60
+
+
+def rrf_fusion(rankings, k=_RRF_DEFAULT_K):
+    """
+    Reciprocal Rank Fusion — 合并多路召回结果并返回 (ID列表, 分数字典)。
+
+    Args:
+        rankings: 多路结果列表，每路为有序 dict 列表（需包含 id/chunk_id）
+        k: RRF 平滑参数，默认 60
+
+    Returns:
+        (sorted_ids, scores_dict) — 排序后的 ID 列表和对应的分数映射
+    """
     scores = {}
     for ranking in rankings:
         for rank, item in enumerate(ranking, 1):
             item_id = item['id'] if 'id' in item else item.get('chunk_id')
-            if item_id not in scores:
-                scores[item_id] = 0
-            scores[item_id] += 1 / (k + rank)
-    # 按分数排序
+            if item_id is not None:
+                scores[item_id] = scores.get(item_id, 0.0) + 1 / (k + rank)
+
     sorted_items = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    return [item[0] for item in sorted_items]
+    return [item[0] for item in sorted_items], dict(sorted_items)
 
 
-def rerank_results(query, results, top_k=5):
-    """使用OpenAI模型对搜索结果进行重新排序
-    
-    Args:
-        query: 查询文本
-        results: 搜索结果列表
-        top_k: 返回的结果数量
-    
-    Returns:
-        重新排序后的结果列表
-    """
-    if not results:
+def _build_metadata_filter(request: QueryRequest, current_user: dict) -> dict:
+    """构建 Milvus metadata 过滤条件（含权限控制）。"""
+    f = request.metadata_filter.copy() if request.metadata_filter else {}
+    if current_user["role"] != "admin":
+        f["user_id"] = current_user["id"]
+    if request.knowledge_base_id:
+        f["knowledge_base_id"] = request.knowledge_base_id
+    return f
+
+
+def _build_es_filters(request: QueryRequest) -> dict:
+    """构建 Elasticsearch 过滤条件。"""
+    f = request.metadata_filter.copy() if request.metadata_filter else {}
+    if request.knowledge_base_id:
+        f["knowledge_base_id"] = request.knowledge_base_id
+    return f
+
+
+async def _es_search(request: QueryRequest, current_user: dict) -> list:
+    """执行 ES 关键词检索。"""
+    filters = _build_es_filters(request)
+    multiplier = 2 if request.use_rerank else 1
+    return es_client.search(
+        query=request.query,
+        user_id=current_user["id"],
+        size=request.limit * multiplier,
+        filters=filters,
+    )
+
+
+async def _milvus_search(request: QueryRequest, req: Request, current_user: dict) -> list:
+    """执行 Milvus 向量检索。"""
+    milvus_client = req.app.state['milvus_client']
+    metadata_filter = _build_metadata_filter(request, current_user)
+    multiplier = 2 if request.use_rerank else 1
+    return milvus_client.query(
+        query_text=request.query,
+        limit=request.limit * multiplier,
+        metadata_filter=metadata_filter,
+    )
+
+
+def _enrich_results(final_ids: list, rrf_scores: dict) -> list:
+    """从 PostgreSQL 补充完整 chunk 内容，并附加 RRF 分数。"""
+    if not final_ids:
         return []
-    
-    try:
-        # 初始化OpenAI客户端
-        openai_client = OpenAI(
-            api_key=settings.LITELLM_API_KEY,
-            base_url=settings.LITELLM_BASE_URL
-        )
-        
-        # 构建rerank提示
-        prompt = f"请根据以下查询语句，对提供的搜索结果按相关性从高到低排序：\n\n查询语句：{query}\n\n搜索结果：\n"
-        
-        for i, result in enumerate(results, 1):
-            content = result.get('content', result.get('chunk_text', ''))
-            prompt += f"{i}. {content[:500]}...\n"
-        
-        prompt += "\n请返回排序后的结果编号，格式为逗号分隔的数字列表，例如：1,3,2,5,4"
-        
-        # 调用OpenAI API
-        response = openai_client.chat.completions.create(
-            model=settings.LLM_MODEL,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "你是一个专业的信息检索助手，擅长根据查询语句对搜索结果进行相关性排序。"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0.1,
-            max_tokens=100
-        )
-        
-        # 解析响应
-        sorted_indices_str = response.choices[0].message.content.strip()
-        sorted_indices = [int(idx.strip()) - 1 for idx in sorted_indices_str.split(',')]
-        
-        # 过滤有效的索引
-        valid_indices = [idx for idx in sorted_indices if 0 <= idx < len(results)]
-        
-        # 构建重新排序的结果
-        reranked_results = [results[idx] for idx in valid_indices[:top_k]]
-        
-        return reranked_results
-    except Exception as e:
-        logger.error(f"Rerank失败: {str(e)}")
-        # 如果rerank失败，返回原始结果
-        return results[:top_k]
 
+    chunks = db.get_document_chunks_by_ids(final_ids)
+    id_to_chunk = {chunk['id']: chunk for chunk in chunks}
+
+    results = []
+    for cid in final_ids:
+        if cid in id_to_chunk:
+            chunk = id_to_chunk[cid]
+            chunk['score'] = rrf_scores.get(cid, 0.0)
+            results.append(chunk)
+
+    return results
+
+
+def _optional_rerank(query: str, results: list, top_k: int, enabled: bool) -> list:
+    """根据 enabled 决定是否执行 Rerank 精排。"""
+    if not enabled or not results:
+        return results[:top_k] if results else []
+
+    reranker = get_reranker()
+    return reranker.rerank(query, results, top_k)
+
+
+# ============================================================
+# API 端点
+# ============================================================
 
 @router.post("/milvus/query")
-async def query_milvus(request: QueryRequest, req: Request, current_user=Depends(get_current_user)):
-    """查询Milvus数据"""
-    logger.info(f"开始查询Milvus数据，查询文本: {request.query}")
+async def query_milvus(
+    request: QueryRequest,
+    req: Request,
+    current_user=Depends(get_current_user),
+):
+    """
+    纯向量检索 — 仅使用 Milvus 做语义相似度匹配。
+
+    流程: Query → Embedding → Milvus ANN Search → [可选] Rerank → Top-K
+    """
+    logger.info(f"开始 Milvus 向量检索, 查询文本: {request.query}")
+
     try:
-        # 使用全局Milvus客户端实例
         milvus_client = req.app.state['milvus_client']
+        metadata_filter = _build_metadata_filter(request, current_user)
 
-        # 执行查询，传递用户权限信息
-        # 构建metadata_filter，包含用户权限信息
-        metadata_filter = request.metadata_filter or {}
-
-        # 非管理员只能访问自己的文档和有权限的知识库
-        if current_user["role"] != "admin":
-            metadata_filter["user_id"] = current_user["id"]
-
-        # 如果指定了知识库ID，添加到过滤条件
-        if request.knowledge_base_id:
-            metadata_filter["knowledge_base_id"] = request.knowledge_base_id
-
-        # 获取更多结果以进行rerank
+        # 召回：use_rerank 时多取几条供精排使用
+        multiplier = 3 if request.use_rerank else 1
         raw_results = milvus_client.query(
             query_text=request.query,
-            limit=request.limit * 3,  # 获取3倍结果用于rerank
-            metadata_filter=metadata_filter
+            limit=request.limit * multiplier,
+            metadata_filter=metadata_filter,
         )
 
-        # 对结果进行重新排序
-        results = rerank_results(request.query, raw_results, request.limit)
+        # 可选精排
+        results = _optional_rerank(
+            request.query, raw_results, request.limit, request.use_rerank
+        )
 
-        logger.debug(f"查询完成，返回 {len(results)} 条结果")
+        logger.debug(f"Milvus 检索完成, 返回 {len(results)} 条结果")
+        logger.info("Milvus 向量检索成功")
 
-        logger.info(f"查询Milvus数据成功")
         return {
             "status": "success",
             "query": request.query,
-            "results": results
+            "results": results,
         }
+
     except Exception as e:
-        logger.error(f"查询失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"查询失败: {str(e)}")
+        logger.error(f"Milvus 检索失败: {e}")
+        raise HTTPException(status_code=500, detail=f"检索失败: {e}")
 
 
 @router.get("/milvus/info")
 async def get_milvus_info(req: Request, current_user=Depends(get_current_user)):
-    """获取Milvus集合信息"""
-    logger.info("开始获取Milvus集合信息")
-    try:
-        # 只有管理员可以获取Milvus集合信息
-        if current_user["role"] != "admin":
-            logger.warning(f"非管理员用户尝试获取Milvus集合信息: {current_user['username']}")
-            raise HTTPException(status_code=403, detail="无权限访问该接口")
+    """获取 Milvus 集合信息（仅管理员）。"""
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="无权限访问该接口")
 
-        # 使用全局Milvus客户端实例
-        milvus_client = req.app.state['milvus_client']
-
-        # 获取集合信息
-        info = milvus_client.get_collection_info()
-        logger.debug(f"获取集合信息: {info}")
-
-        logger.info("获取Milvus集合信息成功")
-        return {
-            "status": "success",
-            "info": info
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"获取Milvus信息失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"获取Milvus信息失败: {str(e)}")
+    milvus_client = req.app.state['milvus_client']
+    info = milvus_client.get_collection_info()
+    return {"status": "success", "info": info}
 
 
 @router.post("/elasticsearch/search")
-async def search_elasticsearch(request: QueryRequest, current_user=Depends(get_current_user)):
-    """Elasticsearch关键词检索"""
-    logger.info(f"开始Elasticsearch关键词检索，查询文本: {request.query}")
+async def search_elasticsearch(
+    request: QueryRequest,
+    current_user=Depends(get_current_user),
+):
+    """
+    纯全文检索 — 仅使用 Elasticsearch 做 BM25 关键词匹配。
+
+    流程: Query → ES Match → [可选] Rerank → Top-K
+    """
+    logger.info(f"开始 Elasticsearch 关键词检索, 查询文本: {request.query}")
+
     try:
-        # 构建filters，包含知识库ID
-        filters = request.metadata_filter or {}
-        if request.knowledge_base_id:
-            filters["knowledge_base_id"] = request.knowledge_base_id
-        
-        # 执行关键词搜索
-        # 获取更多结果以进行rerank
+        filters = _build_es_filters(request)
+
+        # 召回
+        multiplier = 3 if request.use_rerank else 1
         raw_results = es_client.search(
             query=request.query,
             user_id=current_user["id"],
-            size=request.limit * 3,  # 获取3倍结果用于rerank
-            filters=filters
+            size=request.limit * multiplier,
+            filters=filters,
         )
 
-        # 对结果进行重新排序
-        results = rerank_results(request.query, raw_results, request.limit)
+        # 可选精排
+        results = _optional_rerank(
+            request.query, raw_results, request.limit, request.use_rerank
+        )
 
-        logger.debug(f"搜索完成，返回 {len(results)} 条结果")
+        logger.debug(f"ES 检索完成, 返回 {len(results)} 条结果")
+        logger.info("Elasticsearch 关键词检索成功")
 
-        logger.info("Elasticsearch关键词检索成功")
         return {
             "status": "success",
             "query": request.query,
-            "results": results
+            "results": results,
         }
+
     except Exception as e:
-        logger.error(f"搜索失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"搜索失败: {str(e)}")
+        logger.error(f"ES 检索失败: {e}")
+        raise HTTPException(status_code=500, detail=f"检索失败: {e}")
 
 
 @router.post("/hybrid/search")
-async def hybrid_search(request: QueryRequest, req: Request, current_user=Depends(get_current_user)):
-    """混合检索（关键词 + 向量）"""
-    logger.info(f"开始混合检索，查询文本: {request.query}")
+async def hybrid_search(
+    request: QueryRequest,
+    req: Request,
+    current_user=Depends(get_current_user),
+):
+    """
+    混合检索 — 并行调用 ES + Milvus，经 RRF 融合后可选 Rerank 精排。
+
+    完整流程:
+      1. 并行召回: ES(关键词) + Milvus(向量·摘要+子问题)
+      2. RRF 融合: 合并多路结果、去重、按排名打分
+      3. 数据补全: 通过 PostgreSQL 获取完整 chunk 内容
+      4. 精排:   可选 Cross-Encoder / LLM 重排序
+      5. 返回:   最终 Top-K 结果
+    """
+    logger.info(f"开始混合检索, 查询文本: {request.query}")
+
     try:
-        # 并行执行检索
-
-        # 执行Elasticsearch关键词检索
-        async def es_search():
-            filters = request.metadata_filter or {}
-            # 如果指定了知识库ID，添加到过滤条件
-            if request.knowledge_base_id:
-                filters["knowledge_base_id"] = request.knowledge_base_id
-            return es_client.search(
-                query=request.query,
-                user_id=current_user["id"],
-                size=request.limit * 2,  # 获取更多结果以提高RRF效果
-                filters=filters
-            )
-
-        # 执行Milvus向量检索
-        async def milvus_search():
-            milvus_client = req.app.state['milvus_client']
-            metadata_filter = request.metadata_filter or {}
-            if current_user["role"] != "admin":
-                metadata_filter["user_id"] = current_user["id"]
-            # 如果指定了知识库ID，添加到过滤条件
-            if request.knowledge_base_id:
-                metadata_filter["knowledge_base_id"] = request.knowledge_base_id
-            return milvus_client.query(
-                query_text=request.query,
-                limit=request.limit * 2,  # 获取更多结果以提高RRF效果
-                metadata_filter=metadata_filter
-            )
-
-        # 并行执行两个检索
+        # ---- Step 1: 并行召回 ----
         es_results, milvus_results = await asyncio.gather(
-            es_search(),
-            milvus_search()
+            _es_search(request, current_user),
+            _milvus_search(request, req, current_user),
         )
 
-        # 准备RRF输入
+        # ---- Step 2: RRF 融合 ----
         rankings = []
-
-        # 处理ES结果
         if es_results:
             rankings.append(es_results)
-
-        # 处理Milvus结果
         if milvus_results:
             rankings.append(milvus_results)
 
-        # 使用RRF合并结果
-        if rankings:
-            final_ids = rrf(rankings)
-            # 限制返回结果数量
-            final_ids = final_ids[:request.limit]
+        if not rankings:
+            return {
+                "status": "success",
+                "query": request.query,
+                "results": [],
+            }
 
-            # 从PostgreSQL获取完整的chunk信息
-            if final_ids:
-                chunks = db.get_document_chunks_by_ids(final_ids)
-                # 构建结果列表，保持RRF排序
-                final_results = []
-                id_to_chunk = {chunk['id']: chunk for chunk in chunks}
-                # 计算RRF分数
-                scores = {}
-                for ranking in rankings:
-                    for rank, item in enumerate(ranking, 1):
-                        item_id = item['id'] if 'id' in item else item.get('chunk_id')
-                        if item_id not in scores:
-                            scores[item_id] = 0
-                        scores[item_id] += 1 / (60 + rank)
+        final_ids, rrf_scores = rrf_fusion(rankings)
+        # 截断到合理数量再查 PG（减少 DB 压力）
+        rerank_pool_size = request.limit * 3 if request.use_rerank else request.limit
+        final_ids = final_ids[:rerank_pool_size]
 
-                for chunk_id in final_ids:
-                    if chunk_id in id_to_chunk:
-                        chunk = id_to_chunk[chunk_id]
-                        # 使用RRF分数
-                        chunk['score'] = scores.get(chunk_id, 0.0)
-                        final_results.append(chunk)
-            else:
-                final_results = []
-        else:
-            final_results = []
+        # ---- Step 3: PG 补全内容 ----
+        final_results = _enrich_results(final_ids, rrf_scores)
 
-        # 对混合检索结果进行重新排序
-        reranked_results = rerank_results(request.query, final_results, request.limit)
+        # ---- Step 4: 可选 Rerank 精排 ----
+        reranked = _optional_rerank(
+            request.query, final_results, request.limit, request.use_rerank
+        )
 
-        logger.debug(f"混合检索完成，返回 {len(reranked_results)} 条结果")
-
+        logger.debug(f"混合检索完成, 返回 {len(reranked)} 条结果")
         logger.info("混合检索成功")
+
         return {
             "status": "success",
             "query": request.query,
-            "results": reranked_results
+            "results": reranked,
         }
+
     except Exception as e:
-        logger.error(f"混合检索失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"混合检索失败: {str(e)}")
+        logger.error(f"混合检索失败: {e}")
+        raise HTTPException(status_code=500, detail=f"混合检索失败: {e}")

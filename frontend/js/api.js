@@ -168,24 +168,44 @@ const DocumentAPI = {
 
 // ===== 检索 API =====
 const SearchAPI = {
-  async vectorSearch(query, limit = 5, knowledge_base_id = null) {
+  /**
+   * @param {Object} opts
+   * @param {string} opts.query
+   * @param {number} [opts.limit=5]
+   * @param {number|null} [opts.knowledge_base_id]
+   * @param {boolean} [opts.use_rerank=true]  是否启用 Reranker 精排
+   * @param {Object|null} [opts.metadata_filter]
+   */
+  _buildBody(opts) {
+    const { query, limit = 5, knowledge_base_id = null, use_rerank = true, metadata_filter = null } = opts;
+    const body = { query, limit };
+    if (knowledge_base_id) body.knowledge_base_id = knowledge_base_id;
+    if (use_rerank !== undefined) body.use_rerank = use_rerank;
+    if (metadata_filter) body.metadata_filter = metadata_filter;
+    return JSON.stringify(body);
+  },
+
+  async vectorSearch(query, limit = 5, knowledge_base_id = null, options = {}) {
+    const opts = { query, limit, knowledge_base_id, ...options };
     return request('/api/milvus/query', {
       method: 'POST',
-      body: JSON.stringify({ query, limit, knowledge_base_id }),
+      body: this._buildBody(opts),
     });
   },
 
-  async keywordSearch(query, limit = 5, knowledge_base_id = null) {
+  async keywordSearch(query, limit = 5, knowledge_base_id = null, options = {}) {
+    const opts = { query, limit, knowledge_base_id, ...options };
     return request('/api/elasticsearch/search', {
       method: 'POST',
-      body: JSON.stringify({ query, limit, knowledge_base_id }),
+      body: this._buildBody(opts),
     });
   },
 
-  async hybridSearch(query, limit = 5, knowledge_base_id = null) {
+  async hybridSearch(query, limit = 5, knowledge_base_id = null, options = {}) {
+    const opts = { query, limit, knowledge_base_id, ...options };
     return request('/api/hybrid/search', {
       method: 'POST',
-      body: JSON.stringify({ query, limit, knowledge_base_id }),
+      body: this._buildBody(opts),
     });
   },
 };

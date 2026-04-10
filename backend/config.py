@@ -78,8 +78,13 @@ class Settings(BaseSettings):
     LOG_CONSOLE_LEVEL: int = logging.INFO  # 控制台日志级别
     LOG_FILE_LEVEL: int = logging.DEBUG  # 文件日志级别
     
+    # Reranker 配置
+    RERANKER_TYPE: str = os.getenv("RERANKER_TYPE", "cross_encoder")  # llm / cross_encoder / none
+    RERANKER_MODEL: str = os.getenv("RERANKER_MODEL", r"C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70")
+
     # 认证配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "lrj669761379123")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
     class Config:
         env_file = Path(__file__).parent / ".env"
