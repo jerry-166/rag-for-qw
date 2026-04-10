@@ -637,7 +637,7 @@ const PipelinePage = {
       const response = await window.DocumentAPI.split(this.currentDocId);
       const endTime = Date.now();
       // 优先使用后端返回的处理时间，其次使用前端计算的时间
-      this.timings.split = response.processing_time_ms || (endTime - startTime);
+      this.timings.split = response.processing_time_ms !== undefined ? response.processing_time_ms : (endTime - startTime);
       
       if (response.chunks && Array.isArray(response.chunks)) {
         this.chunks = response.chunks.map(chunk => {
@@ -861,7 +861,7 @@ const PipelinePage = {
       const response = await window.DocumentAPI.generate(this.currentDocId);
       const endTime = Date.now();
       // 优先使用后端返回的处理时间，其次使用前端计算的时间
-      this.timings.generate = response.processing_time_ms || (endTime - startTime);
+      this.timings.generate = response.processing_time_ms !== undefined ? response.processing_time_ms : (endTime - startTime);
       
       this.generationResults = response.results || {};
       // 从响应中提取sub_questions_count和summaries_count
@@ -1039,7 +1039,7 @@ const PipelinePage = {
       const response = await window.DocumentAPI.importToMilvus(this.currentDocId);
       const endTime = Date.now();
       // 优先使用后端返回的处理时间，其次使用前端计算的时间
-      this.timings.import = response.processing_time_ms || (endTime - startTime);
+      this.timings.import = response.processing_time_ms !== undefined ? response.processing_time_ms : (endTime - startTime);
       
       // 从response中提取信息，如果没有详细信息，使用默认值
       // 时间格式化函数，将毫秒转换为合适的单位并保留两位小数

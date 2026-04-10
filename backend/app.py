@@ -495,25 +495,25 @@ async def split_document(file_id: str, current_user=Depends(get_current_user)):
             raise HTTPException(status_code=403, detail="无权限访问该知识库")
 
         # 检查数据库中是否已经存在切割结果
-            existing_chunks = db.get_document_chunks(file_id)
-            if existing_chunks and len(existing_chunks) > 0:
-                logger.info(f"文档已切割，直接返回数据库中的切割结果，文件ID: {file_id}")
-                chunks = [chunk["content"] for chunk in existing_chunks]
-                chunks_count = len(chunks)
-                # 计算平均chunk大小
-                total_size = sum(len(chunk) for chunk in chunks)
-                avg_chunk_size = total_size / chunks_count if chunks_count > 0 else 0
-                # 使用数据库中已有的split_time，而不是重新计算
-                processing_time_ms = doc.get("split_time", (time.time() - start_time) * 1000)
-                return {
-                    "file_id": file_id,
-                    "status": "success",
-                    "chunks": chunks,
-                    "chunks_count": chunks_count,
-                    "avg_chunk_size": avg_chunk_size,
-                    "processing_time_ms": processing_time_ms,
-                    "message": "文档已切割，直接返回数据库中的切割结果"
-                }
+        existing_chunks = db.get_document_chunks(file_id)
+        if existing_chunks and len(existing_chunks) > 0:
+            logger.info(f"文档已切割，直接返回数据库中的切割结果，文件ID: {file_id}")
+            chunks = [chunk["content"] for chunk in existing_chunks]
+            chunks_count = len(chunks)
+            # 计算平均chunk大小
+            total_size = sum(len(chunk) for chunk in chunks)
+            avg_chunk_size = total_size / chunks_count if chunks_count > 0 else 0
+            # 使用数据库中已有的split_time，而不是重新计算
+            processing_time_ms = doc.get("split_time") or (time.time() - start_time) * 1000
+            return {
+                "file_id": file_id,
+                "status": "success",
+                "chunks": chunks,
+                "chunks_count": chunks_count,
+                "avg_chunk_size": avg_chunk_size,
+                "processing_time_ms": processing_time_ms,
+                "message": "文档已切割，直接返回数据库中的切割结果"
+            }
 
         # 初始化文档处理器
         processor = DocumentProcessor()
@@ -664,7 +664,7 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 if data.get("summary"):
                     summaries_count += 1
             # 使用数据库中已有的generate_time，而不是重新计算
-            processing_time_ms = doc.get("generate_time", (time.time() - start_time) * 1000)
+            processing_time_ms = doc.get("generate_time") or (time.time() - start_time) * 1000
             logger.info(f"文档已生成增强内容，直接返回数据库中的结果，文件ID: {file_id}")
             return {
                 "file_id": file_id,
@@ -904,7 +904,7 @@ async def import_to_milvus(file_id: str, current_user=Depends(get_current_user))
                 knowledge_base_id=doc["knowledge_base_id"]
             )
             # 使用数据库中已有的import_time，而不是重新计算
-            processing_time_ms = doc.get("import_time", (time.time() - start_time) * 1000)
+            processing_time_ms = doc.get("import_time") or (time.time() - start_time) * 1000
 
         # 计算统计数据
         chunk_count = len(chunks)
