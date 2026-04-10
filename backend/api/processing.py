@@ -1,0 +1,610 @@
+from fastapi import APIRouter, HTTPException, Depends, Request
+import time
+
+from config import init_logger, settings
+from services.database import db
+from services.auth import get_current_user
+from services.document_processor import DocumentProcessor, StoredData
+from services.milvus_client import MilvusClient
+from services.elasticsearch_client import es_client
+from services.storage import get_storage
+
+logger = init_logger(__name__)
+router = APIRouter()
+
+
+@router.post("/split/{file_id}")
+async def split_document(file_id: str, current_user=Depends(get_current_user)):
+    """MD切割接口"""
+    logger.info(f"开始切割文档，文件ID: {file_id}")
+    start_time = time.time()
+    try:
+        # 从数据库中获取文档信息
+        doc = db.get_document(file_id)
+        if not doc:
+            logger.warning(f"文件未找到，文件ID: {file_id}")
+            raise HTTPException(status_code=404, detail="文件未找到")
+
+        # 只要文件不是处理失败状态，就可以进行文档切割
+        if doc["status"] == "failed":
+            logger.warning(f"文件处理失败，文件ID: {file_id}")
+            raise HTTPException(status_code=400, detail="文件处理失败")
+
+        # 验证用户权限
+        if not db.check_kb_permission(current_user["id"], doc["knowledge_base_id"]):
+            logger.warning(
+                f"用户无权限访问知识库，用户: {current_user['username']}, 知识库ID: {doc['knowledge_base_id']}")
+            raise HTTPException(status_code=403, detail="无权限访问该知识库")
+
+        # 检查数据库中是否已经存在切割结果
+        existing_chunks = db.get_document_chunks(file_id)
+        if existing_chunks and len(existing_chunks) > 0:
+            logger.info(f"文档已切割，直接返回数据库中的切割结果，文件ID: {file_id}")
+            chunks = [chunk["content"] for chunk in existing_chunks]
+            chunks_count = len(chunks)
+            # 计算平均chunk大小
+            total_size = sum(len(chunk) for chunk in chunks)
+            avg_chunk_size = total_size / chunks_count if chunks_count > 0 else 0
+            # 使用数据库中已有的split_time，而不是重新计算
+            processing_time_ms = doc.get("split_time") or (time.time() - start_time) * 1000
+            return {
+                "file_id": file_id,
+                "status": "success",
+                "chunks": chunks,
+                "chunks_count": chunks_count,
+                "avg_chunk_size": avg_chunk_size,
+                "processing_time_ms": processing_time_ms,
+                "message": "文档已切割，直接返回数据库中的切割结果"
+            }
+
+        # 初始化文档处理器
+        processor = DocumentProcessor()
+        storage = get_storage()
+
+        # 读取Markdown内容
+        markdown_content = storage.read(doc["enhanced_md_path"])
+        if not markdown_content:
+            raise HTTPException(status_code=404, detail="Markdown文件未找到")
+
+        # 切割文档
+        process_result = processor.split_document(markdown_content)
+        logger.debug(f"文档切割完成，生成 {len(process_result['chunks'])} 个段落")
+
+        # 存储文档块到PostgreSQL并索引到Elasticsearch
+        chunks = process_result['chunks']
+        chunk_ids = []
+        for i, chunk in enumerate(chunks):
+            # 添加到PostgreSQL
+            chunk_id = db.add_document_chunk(
+                document_id=file_id,
+                chunk_index=i,
+                content=chunk,
+                metadata={"source": doc["filename"]},
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+            if chunk_id:
+                chunk_ids.append(chunk_id)
+                # 索引到Elasticsearch
+                es_client.index_chunk(
+                    chunk_id=chunk_id,
+                    user_id=current_user["id"],
+                    document_id=file_id,
+                    knowledge_base_id=doc["knowledge_base_id"],
+                    chunk_index=i,
+                    content=chunk,
+                    metadata={"source": doc["filename"]}
+                )
+
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
+        # 确保时间不为0，否则存储为NULL
+        split_time = processing_time_ms if processing_time_ms > 0.1 else None
+        
+        # 更新数据库中的文档状态和处理时间
+        db.update_document(
+            file_id,
+            status="chunk_done",
+            es_indexed=True,
+            split_time=split_time
+        )
+
+        # 记录工作流日志
+        processing_time = time.time() - start_time
+        db.add_workflow_log(
+            document_id=file_id,
+            operation="split_document",
+            status="completed",
+            message=f"文档切割成功，生成 {len(chunks)} 个段落",
+            knowledge_base_id=doc["knowledge_base_id"],
+            processing_time=processing_time
+        )
+
+        chunks_count = len(process_result["chunks"])
+        # 计算平均chunk大小
+        total_size = sum(len(chunk) for chunk in process_result["chunks"])
+        avg_chunk_size = total_size / chunks_count if chunks_count > 0 else 0
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
+        logger.info(f"文档切割成功，文件ID: {file_id}, 段落数: {chunks_count}")
+        return {
+            "file_id": file_id,
+            "status": "success",
+            "chunks": process_result["chunks"],
+            "chunks_count": chunks_count,
+            "avg_chunk_size": avg_chunk_size,
+            "processing_time_ms": processing_time_ms,
+            "message": "文档切割成功"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        # 记录失败日志
+        doc = db.get_document(file_id)
+        if doc:
+            db.add_workflow_log(
+                document_id=file_id,
+                operation="split_document",
+                status="failed",
+                message=str(e),
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+        logger.error(f"文档切割失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"文档切割失败: {str(e)}")
+
+
+@router.post("/generate/{file_id}")
+async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(get_current_user)):
+    """生成子问题和摘要接口"""
+    logger.info(f"开始生成子问题和摘要，文件ID: {file_id}")
+    start_time = time.time()
+    try:
+        # 从数据库中获取文档信息
+        doc = db.get_document(file_id)
+        if not doc:
+            logger.warning(f"文件未找到，文件ID: {file_id}")
+            raise HTTPException(status_code=404, detail="文件未找到")
+
+        # 只要文件不是处理失败状态，就可以生成增强内容
+        if doc["status"] == "failed":
+            logger.warning(f"文件处理失败，文件ID: {file_id}")
+            raise HTTPException(status_code=400, detail="文件处理失败")
+
+        # 验证用户权限
+        if not db.check_kb_permission(current_user["id"], doc["knowledge_base_id"]):
+            logger.warning(
+                f"用户无权限访问知识库，用户: {current_user['username']}, 知识库ID: {doc['knowledge_base_id']}")
+            raise HTTPException(status_code=403, detail="无权限访问该知识库")
+
+        # 从数据库中获取文档块
+        chunks = db.get_document_chunks(file_id)
+        
+        # 检查数据库中是否已经存在生成结果
+        has_generated_data = False
+        results = {}
+        for chunk in chunks:
+            sub_questions = db.get_sub_questions_by_chunk(chunk["id"])
+            summary = db.get_chunk_summary(chunk["id"])
+            if sub_questions or summary:
+                has_generated_data = True
+                chunk_index = chunk["chunk_index"]
+                results[chunk_index] = {
+                    "sub_questions": [sq["content"] for sq in sub_questions],
+                    "summary": summary["content"] if summary else ""
+                }
+        
+        if has_generated_data:
+            # 确保文档状态是 generated（缓存命中时状态可能仍为 chunk_done）
+            # 立即更新状态，确保后续逻辑能正确判断文档状态
+            if doc["status"] != "generated":
+                db.update_document(file_id, status="generated")
+                # 更新doc对象中的状态，确保后续代码使用最新状态
+                doc["status"] = "generated"
+
+            # 计算子问题和摘要数量
+            sub_questions_count = 0
+            summaries_count = 0
+            for chunk_index, data in results.items():
+                sub_questions_count += len(data.get("sub_questions", []))
+                if data.get("summary"):
+                    summaries_count += 1
+            # 使用数据库中已有的generate_time，而不是重新计算
+            processing_time_ms = doc.get("generate_time") or (time.time() - start_time) * 1000
+            logger.info(f"文档已生成增强内容，直接返回数据库中的结果，文件ID: {file_id}")
+            return {
+                "file_id": file_id,
+                "status": "success",
+                "results": results,
+                "sub_questions_count": sub_questions_count,
+                "summaries_count": summaries_count,
+                "processing_time_ms": processing_time_ms,
+                "message": "文档已生成增强内容，直接返回数据库中的结果"
+            }
+
+        # 初始化文档处理器
+        processor = DocumentProcessor()
+
+        # 构建数据对象
+        datas = []
+        for i, chunk in enumerate(chunks):
+            data = StoredData(
+                id=f"doc_{chunk['id']}",
+                chunk=chunk["content"],
+                sub_questions=[],
+                subq_embeddings=[],
+                summary="",
+                summary_embedding=[],
+                metadata={"source": doc["filename"], "document_id": file_id}
+            )
+            datas.append(data)
+
+        # 批量生成子问题和摘要
+        await processor.generate_batches_async_concurrent(datas, batch_size=16, max_concurrency=8)
+
+        # 存储子问题和摘要到数据库，并构建结果
+        sub_questions_count = 0
+        summaries_count = 0
+        results = {}
+        for i, chunk in enumerate(chunks):
+            data = datas[i]
+            chunk_index = chunk["chunk_index"]
+            results[chunk_index] = {
+                "sub_questions": data.sub_questions,
+                "summary": data.summary
+            }
+
+            # 存储子问题
+            for subq in data.sub_questions:
+                db.add_sub_question(
+                    document_id=file_id,
+                    chunk_id=chunk["id"],
+                    content=subq,
+                    metadata={"source": doc["filename"]},
+                    knowledge_base_id=doc["knowledge_base_id"]
+                )
+                sub_questions_count += 1
+
+            # 存储摘要
+            if data.summary:
+                db.add_chunk_summary(
+                    document_id=file_id,
+                    chunk_id=chunk["id"],
+                    content=data.summary,
+                    metadata={"source": doc["filename"]},
+                    knowledge_base_id=doc["knowledge_base_id"]
+                )
+                summaries_count += 1
+
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
+        # 确保时间不为0，否则存储为NULL
+        generate_time = processing_time_ms if processing_time_ms > 0.1 else None
+        
+        # 更新数据库中的文档状态和处理时间
+        db.update_document(
+            file_id,
+            status="generated",
+            generate_time=generate_time
+        )
+
+        # 记录工作流日志
+        processing_time = time.time() - start_time
+        db.add_workflow_log(
+            document_id=file_id,
+            operation="generate_sub_questions_and_summary",
+            status="completed",
+            message=f"生成子问题和摘要成功，生成 {sub_questions_count} 个子问题",
+            knowledge_base_id=doc["knowledge_base_id"],
+            processing_time=processing_time
+        )
+
+        # 计算处理时间（毫秒）
+        processing_time_ms = (time.time() - start_time) * 1000
+        logger.info(f"生成子问题和摘要成功，文件ID: {file_id}, 子问题数: {sub_questions_count}")
+        return {
+            "file_id": file_id,
+            "status": "success",
+            "results": results,
+            "sub_questions_count": sub_questions_count,
+            "summaries_count": summaries_count,
+            "processing_time_ms": processing_time_ms,
+            "message": "生成子问题和摘要成功"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        # 记录失败日志
+        doc = db.get_document(file_id)
+        if doc:
+            db.add_workflow_log(
+                document_id=file_id,
+                operation="generate_sub_questions_and_summary",
+                status="failed",
+                message=str(e),
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+        logger.error(f"生成子问题和摘要失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"生成子问题和摘要失败: {str(e)}")
+
+
+@router.post("/import/{file_id}")
+async def import_to_milvus(file_id: str, request: Request, current_user=Depends(get_current_user)):
+    """导入到Milvus"""
+    logger.info(f"开始导入到Milvus，文件ID: {file_id}")
+    start_time = time.time()
+    try:
+        # 从数据库中获取文档信息
+        doc = db.get_document(file_id)
+        if not doc:
+            logger.warning(f"文件未找到，文件ID: {file_id}")
+            raise HTTPException(status_code=404, detail="文件未找到")
+
+        if doc["status"] not in ["generated", "completed"]:
+            logger.warning(f"文件状态错误，文件ID: {file_id}")
+            raise HTTPException(status_code=400, detail="文件尚未生成子问题和摘要")
+
+        # 验证用户权限
+        if not db.check_kb_permission(current_user["id"], doc["knowledge_base_id"]):
+            logger.warning(
+                f"用户无权限访问知识库，用户: {current_user['username']}, 知识库ID: {doc['knowledge_base_id']}")
+            raise HTTPException(status_code=403, detail="无权限访问该知识库")
+
+        # 初始化文档处理器和Milvus客户端
+        processor = DocumentProcessor()
+        # 从请求对象中获取应用实例，再获取app_state
+        app_state = request.app.state
+        milvus_client = app_state['milvus_client']
+
+        # 从数据库中获取文档块、子问题和摘要
+        chunks = db.get_document_chunks(file_id)
+        
+        # 构建数据对象
+        datas = []
+        for i, chunk in enumerate(chunks):
+            # 获取子问题
+            sub_questions = db.get_sub_questions_by_chunk(chunk["id"])
+            sub_questions_list = [sq["content"] for sq in sub_questions]
+            
+            # 获取摘要
+            summary = db.get_chunk_summary(chunk["id"])
+            summary_text = summary["content"] if summary else ""
+            
+            # 创建数据对象
+            data = StoredData(
+                id=f"doc_{chunk['id']}",
+                chunk=chunk["content"],
+                sub_questions=sub_questions_list,
+                subq_embeddings=[],
+                summary=summary_text,
+                summary_embedding=[],
+                metadata={"source": doc["filename"], "document_id": file_id}
+            )
+            datas.append(data)
+        
+        # 只有当文档状态不是completed时，才生成嵌入向量和更新时间
+        if doc["status"] != "completed":
+            # 生成嵌入向量
+            await processor.generate_and_fill_embeddings(datas)
+            
+            # 批量导入到Milvus
+            import_result = milvus_client.import_data(
+                datas,
+                user_id=current_user["id"],
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+
+            # 计算处理时间（毫秒）
+            processing_time_ms = (time.time() - start_time) * 1000
+            # 确保时间不为0，否则存储为NULL
+            import_time = processing_time_ms if processing_time_ms > 0.1 else None
+            
+            # 更新数据库中的文档状态和处理时间
+            db.update_document(
+                file_id,
+                status="completed",
+                import_time=import_time
+            )
+        else:
+            logger.info(f"文档状态已完成，跳过嵌入生成和导入，直接返回结果，文件ID: {file_id}")
+            # 批量导入到Milvus
+            import_result = milvus_client.import_data(
+                datas,
+                user_id=current_user["id"],
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+            # 使用数据库中已有的import_time，而不是重新计算
+            processing_time_ms = doc.get("import_time") or (time.time() - start_time) * 1000
+
+        # 计算统计数据
+        chunk_count = len(chunks)
+        sub_question_count = 0
+        vector_count = 0
+        vector_dim = 0
+        
+        # 计算子问题数量和向量数量
+        for i, chunk in enumerate(chunks):
+            data = datas[i]
+            sub_question_count += len(data.sub_questions)
+            # 每个chunk有一个向量
+            vector_count += 1
+            # 每个子问题有一个向量
+            vector_count += len(data.sub_questions)
+            # 获取向量维度（假设所有向量维度相同）
+            if data.summary_embedding:
+                vector_dim = len(data.summary_embedding)
+            elif data.subq_embeddings and len(data.subq_embeddings) > 0:
+                vector_dim = len(data.subq_embeddings[0])
+
+        # 记录工作流日志
+        processing_time = time.time() - start_time
+        db.add_workflow_log(
+            document_id=file_id,
+            operation="import_to_milvus",
+            status="completed",
+            message="导入到Milvus成功",
+            knowledge_base_id=doc["knowledge_base_id"],
+            processing_time=processing_time
+        )
+
+        logger.info(f"导入到Milvus成功，文件ID: {file_id}")
+        return {
+            "file_id": file_id,
+            "status": "success",
+            "chunk_count": chunk_count,
+            "vector_count": vector_count,
+            "sub_question_count": sub_question_count,
+            "vector_dim": vector_dim,
+            "processing_time_ms": processing_time_ms,
+            "message": "导入到Milvus成功"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        # 记录失败日志
+        doc = db.get_document(file_id)
+        if doc:
+            db.add_workflow_log(
+                document_id=file_id,
+                operation="import_to_milvus",
+                status="failed",
+                message=str(e),
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+        logger.error(f"导入到Milvus失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"导入到Milvus失败: {str(e)}")
+
+
+@router.post("/full/{file_id}")
+async def full_process(file_id: str, current_user=Depends(get_current_user)):
+    """一键式完整处理接口"""
+    logger.info(f"开始一键式完整处理，文件ID: {file_id}")
+    start_time = time.time()
+    try:
+        # 从数据库中获取文档信息
+        doc = db.get_document(file_id)
+        if not doc:
+            logger.warning(f"文件未找到，文件ID: {file_id}")
+            raise HTTPException(status_code=404, detail="文件未找到")
+
+        # 验证用户权限
+        if not db.check_kb_permission(current_user["id"], doc["knowledge_base_id"]):
+            logger.warning(
+                f"用户无权限访问知识库，用户: {current_user['username']}, 知识库ID: {doc['knowledge_base_id']}")
+            raise HTTPException(status_code=403, detail="无权限访问该知识库")
+
+        # 步骤1: 切割文档（如果尚未切割）
+        if doc["status"] == "uploaded":
+            logger.info(f"开始切割文档，文件ID: {file_id}")
+            # 调用切割接口
+            split_response = await split_document(file_id, current_user)
+            doc = db.get_document(file_id)  # 重新获取文档信息
+
+        # 步骤2: 生成子问题和摘要（如果尚未生成）
+        generate_results = {}
+        if doc["status"] == "chunk_done":
+            logger.info(f"开始生成子问题和摘要，文件ID: {file_id}")
+            # 调用生成接口
+            generate_response = await generate_sub_questions_and_summary(file_id, current_user)
+            generate_results = generate_response.get("results", {})
+            doc = db.get_document(file_id)  # 重新获取文档信息
+
+        # 步骤3: 导入到Milvus（如果尚未导入）
+        if doc["status"] == "generated":
+            logger.info(f"开始导入到Milvus，文件ID: {file_id}")
+            # 调用导入接口
+            import_response = await import_to_milvus(file_id, current_user)
+            doc = db.get_document(file_id)  # 重新获取文档信息
+
+        # 记录工作流日志
+        processing_time = time.time() - start_time
+        db.add_workflow_log(
+            document_id=file_id,
+            operation="full_process",
+            status="completed",
+            message="一键式完整处理成功",
+            knowledge_base_id=doc["knowledge_base_id"],
+            processing_time=processing_time
+        )
+
+        logger.info(f"一键式完整处理成功，文件ID: {file_id}")
+        # todo：一键处理也可展示所有中间结果呢
+        return {
+            "file_id": file_id,
+            "status": "success",
+            "message": "一键式完整处理成功",
+            "document_status": doc["status"],
+            "results": generate_results
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        # 记录失败日志
+        doc = db.get_document(file_id)
+        if doc:
+            db.add_workflow_log(
+                document_id=file_id,
+                operation="full_process",
+                status="failed",
+                message=str(e),
+                knowledge_base_id=doc["knowledge_base_id"]
+            )
+        logger.error(f"一键式完整处理失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"一键式完整处理失败: {str(e)}")
+
+
+@router.get("/result/{file_id}")
+async def get_process_result(file_id: str, current_user=Depends(get_current_user)):
+    """获取文档处理结果"""
+    logger.info(f"开始获取文档处理结果，文件ID: {file_id}")
+    try:
+        # 从数据库中获取文档信息
+        doc = db.get_document(file_id)
+        if not doc:
+            logger.warning(f"文件未找到，文件ID: {file_id}")
+            raise HTTPException(status_code=404, detail="文件未找到")
+
+        # 验证用户权限
+        if not db.check_kb_permission(current_user["id"], doc["knowledge_base_id"]):
+            logger.warning(
+                f"用户无权限访问知识库，用户: {current_user['username']}, 知识库ID: {doc['knowledge_base_id']}")
+            raise HTTPException(status_code=403, detail="无权限访问该文档")
+
+        if doc["status"] != "completed":
+            logger.warning(f"文件尚未处理完成，文件ID: {file_id}")
+            raise HTTPException(status_code=400, detail="文件尚未处理完成")
+
+        # 从数据库中获取文档块、子问题和摘要
+        chunks = db.get_document_chunks(file_id)
+
+        # 构建结果
+        chunks_list = []
+        sub_questions_list = []
+        summaries_list = []
+
+        for chunk in chunks:
+            chunks_list.append(chunk["content"])
+
+            # 获取子问题
+            sub_questions = db.get_sub_questions_by_chunk(chunk["id"])
+            sub_questions_list.append([sq["content"] for sq in sub_questions])
+
+            # 获取摘要
+            summary = db.get_chunk_summary(chunk["id"])
+            summaries_list.append(summary["content"] if summary else "")
+
+        logger.info(f"获取文档处理结果成功，文件ID: {file_id}")
+        return {
+            "file_id": file_id,
+            "chunks": chunks_list,
+            "sub_questions": sub_questions_list,
+            "summaries": summaries_list,
+            "status": doc["status"],  # 返回文档的实际处理状态
+            "upload_time": doc.get("upload_time"),
+            "split_time": doc.get("split_time"),
+            "generate_time": doc.get("generate_time"),
+            "import_time": doc.get("import_time")
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取处理结果失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"获取处理结果失败: {str(e)}")

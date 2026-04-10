@@ -69,6 +69,18 @@ class FileStorage(ABC):
             是否删除成功
         """
         pass
+    
+    @abstractmethod
+    def get_file_size(self, file_path: str) -> Optional[int]:
+        """获取文件大小
+        
+        Args:
+            file_path: 文件路径
+            
+        Returns:
+            文件大小（字节），如果文件不存在返回None
+        """
+        pass
 
 
 class LocalFileStorage(FileStorage):
@@ -146,6 +158,16 @@ class LocalFileStorage(FileStorage):
             return True
         except Exception:
             return False
+    
+    def get_file_size(self, file_path: str) -> Optional[int]:
+        """获取本地文件大小"""
+        full_path = settings.DOC_STORAGE_DIR / file_path
+        if not full_path.exists():
+            return None
+        try:
+            return full_path.stat().st_size
+        except Exception:
+            return None
 
 
 class OSSFileStorage(FileStorage):
@@ -233,6 +255,19 @@ class OSSFileStorage(FileStorage):
             return True
         except Exception:
             return False
+    
+    def get_file_size(self, file_path: str) -> Optional[int]:
+        """获取OSS文件大小"""
+        # 构建OSS对象键
+        oss_key = settings.OSS_PREFIX + file_path
+        try:
+            # 使用head_object获取文件元数据
+            result = self.bucket.head_object(oss_key)
+            return result.content_length
+        except oss2.exceptions.NoSuchKey:
+            return None
+        except Exception:
+            return None
 
 
 def get_storage() -> FileStorage:

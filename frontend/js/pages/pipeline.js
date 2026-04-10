@@ -850,6 +850,10 @@ const PipelinePage = {
           this.stats.subQuestionsCount = subQuestionsCount;
           this.stats.summariesCount = summariesCount;
           this.updateGenChunkList();
+          // 如果有生成结果，自动选择第一个chunk
+          if (Object.keys(this.generationResults).length > 0) {
+            this.selectGenChunk(0);
+          }
           return;
         }
       } catch (error) {
@@ -858,11 +862,14 @@ const PipelinePage = {
       
       // 如果getResult失败，再调用generate
       const startTime = Date.now();
+      this.showLoading('正在处理');
       const response = await window.DocumentAPI.generate(this.currentDocId);
+      this.hideLoading();
       const endTime = Date.now();
       // 优先使用后端返回的处理时间，其次使用前端计算的时间
       this.timings.generate = response.processing_time_ms !== undefined ? response.processing_time_ms : (endTime - startTime);
       
+      // 处理后端返回的results对象
       this.generationResults = response.results || {};
       // 从响应中提取sub_questions_count和summaries_count
       if (response.sub_questions_count) {
@@ -872,7 +879,12 @@ const PipelinePage = {
         this.stats.summariesCount = response.summaries_count;
       }
       this.updateGenChunkList();
+      // 如果有生成结果，自动选择第一个chunk
+      if (Object.keys(this.generationResults).length > 0) {
+        this.selectGenChunk(0);
+      }
     } catch (error) {
+      this.hideLoading();
       document.getElementById('gen-chunk-list').innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
     }
   },
@@ -1182,7 +1194,7 @@ const PipelinePage = {
   async nextStep() {
     if (this.currentStep < this.steps.length - 1) {
       // 显示加载状态
-      this.showLoading('处理中...');
+      this.showLoading('正在处理');
       
       try {
         // 检查当前步骤是否已完成
@@ -1196,20 +1208,28 @@ const PipelinePage = {
             case 1:
               // Step 2: 文档切割
               try {
-                this.showLoading('正在切割文档...');
+                this.showLoading('正在处理');
                 await window.DocumentAPI.split(this.currentDocId);
                 this.steps[this.currentStep].status = 'done';
-                window.App.showToast('文档切割成功', 'success');
+                window.App.showToast('处理完成', 'success');
               } catch (error) {
-                window.App.showToast('文档切割失败: ' + error.message, 'error');
+                window.App.showToast('处理失败: ' + error.message, 'error');
                 this.hideLoading();
                 return;
               }
               break;
             case 2:
-              // Step 3: 生成增强（已在loadGenerationResults中完成）
-              this.steps[this.currentStep].status = 'done';
-              window.App.showToast('增强内容生成成功', 'success');
+              // Step 3: 生成增强
+              try {
+                this.showLoading('正在处理');
+                await window.DocumentAPI.generate(this.currentDocId);
+                this.steps[this.currentStep].status = 'done';
+                window.App.showToast('处理完成', 'success');
+              } catch (error) {
+                window.App.showToast('处理失败: ' + error.message, 'error');
+                this.hideLoading();
+                return;
+              }
               break;
           }
         }
