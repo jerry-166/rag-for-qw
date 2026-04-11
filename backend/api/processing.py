@@ -414,11 +414,11 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
         
         # 幂等保护：只有当文档状态不是 completed 时才执行嵌入和导入
         if doc["status"] != "completed":
-            # 设置处理中状态（防并发：标记为 importing）
-            db.update_document(file_id, status="importing")
-            logger.info(f"文档状态已设为 importing（防并发），文件ID: {file_id}")
-            
             try:
+                # 设置处理中状态（防并发：标记为 importing）
+                db.update_document(file_id, status="importing")
+                logger.info(f"文档状态已设为 importing（防并发），文件ID: {file_id}")
+                
                 # 生成嵌入向量
                 await processor.generate_and_fill_embeddings(datas)
                 
@@ -443,7 +443,10 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
             except Exception as inner_err:
                 # 导入失败时回滚状态到 generated，允许重试
                 logger.error(f"嵌入导入失败，回滚文档状态: {str(inner_err)}")
-                db.update_document(file_id, status="generated")
+                try:
+                    db.update_document(file_id, status="generated")
+                except Exception as rollback_err:
+                    logger.error(f"回滚文档状态失败: {str(rollback_err)}")
                 raise inner_err  # 继续向上抛出，由外层 catch 处理
         else:
             logger.info(f"文档已完成，跳过嵌入生成和导入（幂等命中），文件ID: {file_id}")
