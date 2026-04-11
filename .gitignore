@@ -1,6 +1,9 @@
 # 依赖目录
 frontend/node_modules/
 
+.gitignore
+.workbuddy/
+.workbuddy/memory/
 backend/logs/
 backend/data/
 backend/output/
@@ -44,3 +47,4 @@ build/
 *.sqlite3
 
 frontend_design/
+
