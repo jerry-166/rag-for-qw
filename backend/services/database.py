@@ -137,7 +137,7 @@ class Database:
                 )
             ''')
             
-            # 创建文档块表
+            # 创建文档块表（同一文档的 chunk_index 必须唯一，防止重复切割入库）
             self.cursor.execute('''
                 CREATE TABLE IF NOT EXISTS document_chunk (
                     id SERIAL PRIMARY KEY,
@@ -148,11 +148,12 @@ class Database:
                     metadata JSONB,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (document_id) REFERENCES document (id),
-                    FOREIGN KEY (knowledge_base_id) REFERENCES knowledge_base (id)
+                    FOREIGN KEY (knowledge_base_id) REFERENCES knowledge_base (id),
+                    UNIQUE (document_id, chunk_index)
                 )
             ''')
             
-            # 创建子问题表
+            # 创建子问题表（防止同一 chunk_id 重复插入子问题）
             self.cursor.execute('''
                 CREATE TABLE IF NOT EXISTS sub_question (
                     id SERIAL PRIMARY KEY,
@@ -578,10 +579,13 @@ class Database:
     
     # 文档块相关方法
     def add_document_chunk(self, document_id, chunk_index, content, metadata=None, knowledge_base_id=None):
-        """添加文档块"""
+        """添加文档块（幂等：同一 document_id + chunk_index 重复插入时更新内容）"""
         query = '''
             INSERT INTO document_chunk (document_id, knowledge_base_id, chunk_index, content, metadata)
             VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (document_id, chunk_index) DO UPDATE SET
+                content = EXCLUDED.content,
+                metadata = COALESCE(EXCLUDED.metadata, document_chunk.metadata)
             RETURNING id
         '''
         try:
@@ -655,6 +659,30 @@ class Database:
         """获取块的摘要"""
         query = "SELECT * FROM chunk_summary WHERE chunk_id = %s"
         return self.fetchone(query, (chunk_id,))
+    
+    def delete_sub_questions_by_document(self, document_id):
+        """删除文档的所有子问题（用于重新生成时的幂等保护）"""
+        query = "DELETE FROM sub_question WHERE document_id = %s"
+        try:
+            self.cursor.execute(query, (document_id,))
+            count = self.cursor.rowcount
+            logger.info(f"已清理文档 {document_id} 的 {count} 条子问题")
+            return count
+        except Exception as e:
+            logger.error(f"清理文档子问题失败: {e}")
+            return 0
+    
+    def delete_summaries_by_document(self, document_id):
+        """删除文档的所有摘要（用于重新生成时的幂等保护）"""
+        query = "DELETE FROM chunk_summary WHERE document_id = %s"
+        try:
+            self.cursor.execute(query, (document_id,))
+            count = self.cursor.rowcount
+            logger.info(f"已清理文档 {document_id} 的 {count} 条摘要")
+            return count
+        except Exception as e:
+            logger.error(f"清理文档摘要失败: {e}")
+            return 0
     
     # 工作流日志相关方法
     def add_workflow_log(self, document_id, operation, status, message=None, knowledge_base_id=None, processing_time=None):

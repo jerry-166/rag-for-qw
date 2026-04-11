@@ -193,11 +193,10 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 }
         
         if has_generated_data:
-            # 确保文档状态是 generated（缓存命中时状态可能仍为 chunk_done）
-            # 立即更新状态，确保后续逻辑能正确判断文档状态
-            if doc["status"] != "generated":
+            # 缓存命中：仅当文档尚未完成时才更新为 generated
+            # 如果已是 completed 状态，绝对不能降级！（否则会导致 import 重复执行）
+            if doc["status"] not in ["generated", "completed"]:
                 db.update_document(file_id, status="generated")
-                # 更新doc对象中的状态，确保后续代码使用最新状态
                 doc["status"] = "generated"
 
             # 计算子问题和摘要数量
@@ -236,6 +235,11 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 metadata={"source": doc["filename"], "document_id": file_id}
             )
             datas.append(data)
+
+        # 幂等保护：先清理该文档已有的子问题和摘要数据（防止重复生成时累积）
+        db.delete_sub_questions_by_document(file_id)
+        db.delete_summaries_by_document(file_id)
+        logger.info(f"已清理文档 {file_id} 的旧增强数据，开始重新生成")
 
         # 批量生成子问题和摘要
         await processor.generate_batches_async_concurrent(datas, batch_size=16, max_concurrency=8)
@@ -338,8 +342,36 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
             logger.warning(f"文件未找到，文件ID: {file_id}")
             raise HTTPException(status_code=404, detail="文件未找到")
 
-        if doc["status"] not in ["generated", "completed"]:
-            logger.warning(f"文件状态错误，文件ID: {file_id}")
+        # 【硬保险】已完成的文档直接返回已有数据，绝不重复导入
+        # 即使前端因状态不同步而误发请求，后端也能正确幂等处理
+        if doc["status"] == "completed":
+            logger.info(f"文档已完成入库，跳过重复嵌入和导入（服务端幂等命中），文件ID: {file_id}")
+            
+            # 获取统计数据用于返回
+            chunks = db.get_document_chunks(file_id)
+            chunk_count = len(chunks)
+            sub_question_count = 0
+            for chunk in chunks:
+                sub_questions = db.get_sub_questions_by_chunk(chunk["id"])
+                sub_question_count += len(sub_questions)
+            
+            vector_count = chunk_count + sub_question_count
+            processing_time_ms = doc.get("import_time") or (time.time() - start_time) * 1000
+            
+            logger.info(f"导入到Milvus成功（缓存），文件ID: {file_id}")
+            return {
+                "file_id": file_id,
+                "status": "success",
+                "chunk_count": chunk_count,
+                "vector_count": vector_count,
+                "sub_question_count": sub_question_count,
+                "vector_dim": 1024,
+                "processing_time_ms": processing_time_ms,
+                "message": "文档已完成入库，直接返回结果"
+            }
+
+        if doc["status"] not in ["generated", "importing"]:
+            logger.warning(f"文件状态错误，文件ID: {file_id}, 当前状态: {doc['status']}")
             raise HTTPException(status_code=400, detail="文件尚未生成子问题和摘要")
 
         # 验证用户权限
@@ -380,37 +412,41 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
             )
             datas.append(data)
         
-        # 只有当文档状态不是completed时，才生成嵌入向量和更新时间
+        # 幂等保护：只有当文档状态不是 completed 时才执行嵌入和导入
         if doc["status"] != "completed":
-            # 生成嵌入向量
-            await processor.generate_and_fill_embeddings(datas)
+            # 设置处理中状态（防并发：标记为 importing）
+            db.update_document(file_id, status="importing")
+            logger.info(f"文档状态已设为 importing（防并发），文件ID: {file_id}")
             
-            # 批量导入到Milvus
-            import_result = milvus_client.import_data(
-                datas,
-                user_id=current_user["id"],
-                knowledge_base_id=doc["knowledge_base_id"]
-            )
+            try:
+                # 生成嵌入向量
+                await processor.generate_and_fill_embeddings(datas)
+                
+                # 批量导入到Milvus
+                import_result = milvus_client.import_data(
+                    datas,
+                    user_id=current_user["id"],
+                    knowledge_base_id=doc["knowledge_base_id"]
+                )
 
-            # 计算处理时间（毫秒）
-            processing_time_ms = (time.time() - start_time) * 1000
-            # 确保时间不为0，否则存储为NULL
-            import_time = processing_time_ms if processing_time_ms > 0.1 else None
-            
-            # 更新数据库中的文档状态和处理时间
-            db.update_document(
-                file_id,
-                status="completed",
-                import_time=import_time
-            )
+                # 计算处理时间（毫秒）
+                processing_time_ms = (time.time() - start_time) * 1000
+                # 确保时间不为0，否则存储为NULL
+                import_time = processing_time_ms if processing_time_ms > 0.1 else None
+                
+                # 更新数据库中的文档状态和处理时间
+                db.update_document(
+                    file_id,
+                    status="completed",
+                    import_time=import_time
+                )
+            except Exception as inner_err:
+                # 导入失败时回滚状态到 generated，允许重试
+                logger.error(f"嵌入导入失败，回滚文档状态: {str(inner_err)}")
+                db.update_document(file_id, status="generated")
+                raise inner_err  # 继续向上抛出，由外层 catch 处理
         else:
-            logger.info(f"文档状态已完成，跳过嵌入生成和导入，直接返回结果，文件ID: {file_id}")
-            # 批量导入到Milvus
-            import_result = milvus_client.import_data(
-                datas,
-                user_id=current_user["id"],
-                knowledge_base_id=doc["knowledge_base_id"]
-            )
+            logger.info(f"文档已完成，跳过嵌入生成和导入（幂等命中），文件ID: {file_id}")
             # 使用数据库中已有的import_time，而不是重新计算
             processing_time_ms = doc.get("import_time") or (time.time() - start_time) * 1000
 

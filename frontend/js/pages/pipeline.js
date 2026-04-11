@@ -104,40 +104,23 @@ const PipelinePage = {
 
   async loadDocumentInfo() {
     try {
-      // 尝试获取文档信息
+      // 直接用 getPreview 获取文档基本信息（包含 status 和时间字段）
+      // 不再使用 getResult 做探针——它要求 status=completed，新文档必然失败，白白浪费一次请求
       let docStatus = 'uploaded'; // 默认状态
       
       try {
-        const result = await window.DocumentAPI.getResult(this.currentDocId);
-        this.documentData = result;
-        docStatus = result.status;
+        const docInfo = await window.DocumentAPI.getPreview(this.currentDocId);
+        this.documentData = docInfo;
+        docStatus = docInfo.status;
         // 从数据库中提取时间字段，更新timings对象
-        if (result.upload_time) this.timings.upload = result.upload_time;
-        if (result.split_time) this.timings.split = result.split_time;
-        if (result.generate_time) this.timings.generate = result.generate_time;
-        if (result.import_time) this.timings.import = result.import_time;
-      } catch (error) {
-        // 如果获取结果失败（例如文件尚未处理完成），尝试获取文档基本信息
-        try {
-          const docInfo = await window.DocumentAPI.getPreview(this.currentDocId);
-          this.documentData = docInfo;
-          docStatus = docInfo.status;
-          // 从数据库中提取时间字段，更新timings对象
-          if (docInfo.upload_time) this.timings.upload = docInfo.upload_time;
-          if (docInfo.split_time) this.timings.split = docInfo.split_time;
-          if (docInfo.generate_time) this.timings.generate = docInfo.generate_time;
-          if (docInfo.import_time) this.timings.import = docInfo.import_time;
-        } catch (e) {
-          // 如果获取基本信息也失败，显示错误提示，但继续设置默认状态
-          console.error('加载文档信息失败:', e);
-          window.App.showToast('加载文档信息失败，使用默认状态', 'warning');
-          // 设置默认的documentData，避免后续操作出错
-          this.documentData = {
-            filename: '未知文件',
-            status: 'uploaded',
-            file_size: 0
-          };
-        }
+        if (docInfo.upload_time) this.timings.upload = docInfo.upload_time;
+        if (docInfo.split_time) this.timings.split = docInfo.split_time;
+        if (docInfo.generate_time) this.timings.generate = docInfo.generate_time;
+        if (docInfo.import_time) this.timings.import = docInfo.import_time;
+      } catch (e) {
+        console.error('加载文档信息失败:', e);
+        window.App.showToast('加载文档信息失败，使用默认状态', 'warning');
+        this.documentData = { filename: '未知文件', status: 'uploaded', file_size: 0 };
       }
       
       // 更新步骤状态
@@ -611,30 +594,12 @@ const PipelinePage = {
 
   async loadChunks() {
     try {
-      // 尝试从getResult获取已有chunk数据
-      try {
-        const result = await window.DocumentAPI.getResult(this.currentDocId);
-        if (result.chunks && Array.isArray(result.chunks)) {
-          this.chunks = result.chunks.map(chunk => {
-            if (typeof chunk === 'string') {
-              return { content: chunk, type: '文本' };
-            }
-            return chunk;
-          });
-          // 从响应中提取chunks_count
-          if (result.chunks_count) {
-            this.stats.chunksCount = result.chunks_count;
-          }
-          this.updateChunkList();
-          return;
-        }
-      } catch (error) {
-        console.log('getResult失败，尝试调用split:', error);
-      }
-      
-      // 如果getResult失败，再调用split
+      // 直接调用 split 接口（后端有幂等保护：已切割的文档会直接返回缓存结果）
+      // 不再使用 getResult 做探针——新文档必然失败，白白浪费一次请求
       const startTime = Date.now();
+      this.showLoading('正在切割文档...');
       const response = await window.DocumentAPI.split(this.currentDocId);
+      this.hideLoading();
       const endTime = Date.now();
       // 优先使用后端返回的处理时间，其次使用前端计算的时间
       this.timings.split = response.processing_time_ms !== undefined ? response.processing_time_ms : (endTime - startTime);
@@ -653,22 +618,31 @@ const PipelinePage = {
       } else {
         this.chunks = [];
       }
+      
+      // 切割完成后标记步骤完成（如果尚未标记）
+      if (this.steps[1] && this.steps[1].status !== 'done') {
+        this.steps[1].status = 'done';
+        this.updateStepsUI();
+      }
+      
       this.updateChunkList();
     } catch (error) {
-      document.getElementById('chunk-list').innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
+      this.hideLoading();
+      const el = document.getElementById('chunk-list');
+      if (el) el.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
     }
   },
 
   _stripMarkdown(text) {
     // 去掉 markdown 语法符号，让预览文字干净
-    // 按行处理，保留标题结构
+    // 按行处理，只保留文本内容
     const lines = text.split('\n');
     const cleanedLines = lines.map(line => {
       // 检查是否是标题行
       const titleMatch = line.match(/^(#{1,6})\s+(.+)$/);
       if (titleMatch) {
-        // 保留标题结构，只移除markdown符号
-        return titleMatch[1] + ' ' + titleMatch[2]
+        // 只保留标题文本，不保留Markdown标题符号
+        return titleMatch[2]
           .replace(/\*\*(.+?)\*\*/g, '$1') // 粗体
           .replace(/\*(.+?)\*/g, '$1')     // 斜体
           .replace(/`(.+?)`/g, '$1')       // 行内代码
@@ -676,7 +650,7 @@ const PipelinePage = {
           .replace(/\[(.+?)\]\(.*?\)/g, '$1');    // 链接
       } else {
         // 非标题行，移除所有markdown符号
-        return line
+        let cleaned = line
           .replace(/\*\*(.+?)\*\*/g, '$1') // 粗体
           .replace(/\*(.+?)\*/g, '$1')     // 斜体
           .replace(/`(.+?)`/g, '$1')       // 行内代码
@@ -684,13 +658,46 @@ const PipelinePage = {
           .replace(/\[(.+?)\]\(.*?\)/g, '$1')    // 链接
           .replace(/^[-*+]\s+/, '')      // 无序列表
           .replace(/^\d+\.\s+/, '');      // 有序列表
+        
+        // 处理markdown表格：移除表格分隔符，但保留单元格内容
+        // 避免表格分割线（如 |---|---|）占据太多预览空间
+        if (cleaned.includes('|')) {
+          // 移除表格分隔行（通常包含连续的 - 或 =）
+          if (cleaned.match(/^[\s\|]*[-=]+[\s\|]*$/)) {
+            return ''; // 表格分隔行直接忽略
+          }
+          // 对于表格内容行，移除 | 符号，用空格分隔单元格
+          // 首先移除行首尾的 |，然后分割单元格
+          cleaned = cleaned.replace(/^\||\|$/g, ''); // 移除行首尾的 |
+          // 分割单元格，过滤空单元格，合并内容
+          const cells = cleaned.split('|').map(cell => cell.trim()).filter(cell => cell);
+          if (cells.length > 0) {
+            // 取前两个单元格内容，避免表格内容过长
+            cleaned = cells.slice(0, 2).join(' - ');
+          } else {
+            cleaned = '';
+          }
+        }
+        
+        return cleaned;
       }
-    });
+    }).filter(line => line.trim() !== ''); // 过滤空行
     
-    return cleanedLines
+    // 限制总长度，避免过长的预览
+    const result = cleanedLines
       .join(' ')
       .replace(/\s{2,}/g, ' ')
       .trim();
+    
+    // 如果结果仍然太长，进一步截断
+    return result.length > 200 ? result.substring(0, 197) + '...' : result;
+  },
+
+  _escapeHtml(text) {
+    // 转义 HTML 特殊字符，防止内容中的 < > 等被解析为标签
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   },
 
   updateChunkList() {
@@ -702,12 +709,12 @@ const PipelinePage = {
     
     chunkList.innerHTML = this.chunks.map((chunk, index) => {
       const rawPreview = chunk.content.substring(0, 120);
-      const cleanPreview = this._stripMarkdown(rawPreview).substring(0, 80);
+      const cleanPreview = this._escapeHtml(this._stripMarkdown(rawPreview).substring(0, 80));
       return `
         <div class="chunk-item ${this.selectedChunk === index ? 'active' : ''}" onclick="PipelinePage.selectChunk(${index})">
           <div class="chunk-item-header">
             <span class="chunk-num">#${index + 1}</span>
-            <span class="chunk-type">${chunk.type || '文本'}</span>
+            <span class="chunk-type">${this._escapeHtml(chunk.type || '文本')}</span>
           </div>
           <div class="chunk-preview">${cleanPreview}${cleanPreview.length >= 80 ? '...' : ''}</div>
         </div>
@@ -821,48 +828,52 @@ const PipelinePage = {
       </div>
     `;
     
+    // 确保_chunks数据已加载（防止跳过第2步直接进入第3步时chunks为空导致报错）
+    await this._ensureChunksLoaded();
     // 加载生成结果
     await this.loadGenerationResults();
   },
 
+  /**
+   * 确保_chunks数据已加载
+   * 当用户跳过第2步（文档切割）直接进入第3/4步时，
+   * this.chunks仍为空数组，会导致后续读取chunk.content时报错
+   * 此方法在渲染step3/4前静默加载chunks数据（后端split接口对已切割文档返回缓存）
+   */
+  async _ensureChunksLoaded() {
+    if (this.chunks.length > 0) {
+      return; // 已有数据，无需重复加载
+    }
+    try {
+      console.log('检测到chunks为空，静默加载切割数据...');
+      const response = await window.DocumentAPI.split(this.currentDocId);
+      if (response.chunks && Array.isArray(response.chunks)) {
+        this.chunks = response.chunks.map(chunk => {
+          if (typeof chunk === 'string') {
+            return { content: chunk, type: '文本' };
+          }
+          return chunk;
+        });
+        if (response.chunks_count) {
+          this.stats.chunksCount = response.chunks_count;
+        }
+        console.log(`静默加载完成，共 ${this.chunks.length} 个Chunk`);
+        // 更新UI中的chunk计数显示
+        const countBadge = document.querySelector('.chunk-count-badge');
+        if (countBadge) countBadge.textContent = this.chunks.length;
+      }
+    } catch (error) {
+      console.error('静默加载chunks失败:', error);
+      // 不阻断流程，让后续方法处理空chunks的情况
+    }
+  },
+
   async loadGenerationResults() {
     try {
-      // 尝试从getResult获取已有生成结果
-      try {
-        const result = await window.DocumentAPI.getResult(this.currentDocId);
-        if (result.sub_questions && result.summaries) {
-          this.generationResults = {};
-          result.sub_questions.forEach((subqs, index) => {
-            this.generationResults[index] = {
-              sub_questions: subqs,
-              summary: result.summaries[index] || ''
-            };
-          });
-          // 计算子问题和摘要数量
-          let subQuestionsCount = 0;
-          let summariesCount = 0;
-          result.sub_questions.forEach((subqs, index) => {
-            subQuestionsCount += subqs.length;
-            if (result.summaries[index]) {
-              summariesCount++;
-            }
-          });
-          this.stats.subQuestionsCount = subQuestionsCount;
-          this.stats.summariesCount = summariesCount;
-          this.updateGenChunkList();
-          // 如果有生成结果，自动选择第一个chunk
-          if (Object.keys(this.generationResults).length > 0) {
-            this.selectGenChunk(0);
-          }
-          return;
-        }
-      } catch (error) {
-        console.log('getResult失败，尝试调用generate:', error);
-      }
-      
-      // 如果getResult失败，再调用generate
+      // 直接调用 generate 接口（后端有幂等保护：已生成的文档会直接返回缓存结果）
+      // 不再使用 getResult 做探针——新文档必然失败，白白浪费一次请求
       const startTime = Date.now();
-      this.showLoading('正在处理');
+      this.showLoading('正在生成增强内容...');
       const response = await window.DocumentAPI.generate(this.currentDocId);
       this.hideLoading();
       const endTime = Date.now();
@@ -878,6 +889,13 @@ const PipelinePage = {
       if (response.summaries_count) {
         this.stats.summariesCount = response.summaries_count;
       }
+      
+      // 生成完成后标记步骤完成（如果尚未标记）
+      if (this.steps[2] && this.steps[2].status !== 'done') {
+        this.steps[2].status = 'done';
+        this.updateStepsUI();
+      }
+      
       this.updateGenChunkList();
       // 如果有生成结果，自动选择第一个chunk
       if (Object.keys(this.generationResults).length > 0) {
@@ -885,7 +903,8 @@ const PipelinePage = {
       }
     } catch (error) {
       this.hideLoading();
-      document.getElementById('gen-chunk-list').innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
+      const el = document.getElementById('gen-chunk-list');
+      if (el) el.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
     }
   },
 
@@ -898,13 +917,16 @@ const PipelinePage = {
     
     chunkList.innerHTML = this.chunks.map((chunk, index) => {
       const hasResult = this.generationResults[index] !== undefined;
+      const chunkObj = typeof chunk === 'string' ? { content: chunk, type: '文本' } : chunk;
+      const rawPreview = (chunkObj.content || '').substring(0, 120);
+      const cleanPreview = this._escapeHtml(this._stripMarkdown(rawPreview).substring(0, 80));
       return `
         <div class="chunk-item ${this.selectedChunk === index ? 'active' : ''}" onclick="PipelinePage.selectGenChunk(${index})">
           <div class="chunk-item-header">
             <span class="chunk-num">#${index + 1}</span>
             <span class="chunk-type" style="color: ${hasResult ? 'var(--green)' : 'var(--text3)'}">${hasResult ? '✓ 已生成' : '待处理'}</span>
           </div>
-          <div class="chunk-preview">${chunk.type || '文本'}</div>
+          <div class="chunk-preview">${cleanPreview}${cleanPreview.length >= 80 ? '...' : ''}</div>
         </div>
       `;
     }).join('');
@@ -913,6 +935,7 @@ const PipelinePage = {
   selectGenChunk(index) {
     this.selectedChunk = index;
     const result = this.generationResults[index];
+    const chunk = this.chunks[index] || { content: '', type: '未知' }; // 防御：chunk不存在时用默认值
     
     if (result) {
       document.getElementById('subq-list').innerHTML = result.sub_questions.map((q, i) => `
@@ -925,7 +948,7 @@ const PipelinePage = {
       document.getElementById('summary-box').innerHTML = result.summary || '<div style="padding: 16px; text-align: center; color: var(--text3);">暂无摘要</div>';
       
       document.getElementById('gen-stats').innerHTML = `
-        <div class="stat-chip">🔤 摘要压缩比：${result.summary ? (this.chunks[index].content.length / result.summary.length).toFixed(1) + 'x' : 'N/A'}</div>
+        <div class="stat-chip">🔤 摘要压缩比：${result.summary ? (chunk.content.length / result.summary.length).toFixed(1) + 'x' : 'N/A'}</div>
         <div class="stat-chip">📊 关键词：${result.keywords ? result.keywords.join(', ') : 'N/A'}</div>
       `;
     } else {
@@ -1042,13 +1065,39 @@ const PipelinePage = {
     `;
     
     // 加载导入结果
+    await this._ensureChunksLoaded();
     await this.loadImportResults();
   },
 
   async loadImportResults() {
     try {
       const startTime = Date.now();
+      
+      // 幂等优化：如果文档已完成，直接用已有数据展示，不重复调用 import 接口
+      if (this.documentData?.status === 'completed') {
+        console.log('文档已入库完成，跳过重复导入请求');
+        this.importResults = {
+          chunk_count: this.chunks.length || 0,
+          vector_count: this.stats.vectorCount || this.chunks.length || 0,
+          sub_question_count: Object.keys(this.generationResults).length || 0,
+          vector_dim: this.stats.vectorDim || 1024,
+        };
+        // 时间线使用已有数据
+        this._fillImportStats();
+        await this.loadStatsOverview();
+        
+        // 标记步骤完成
+        if (this.steps[3] && this.steps[3].status !== 'done') {
+          this.steps[3].status = 'done';
+          this.updateStepsUI();
+        }
+        return;
+      }
+      
+      // 文档未完成，执行导入
+      this.showLoading('正在嵌入入库...');
       const response = await window.DocumentAPI.importToMilvus(this.currentDocId);
+      this.hideLoading();
       const endTime = Date.now();
       // 优先使用后端返回的处理时间，其次使用前端计算的时间
       this.timings.import = response.processing_time_ms !== undefined ? response.processing_time_ms : (endTime - startTime);
@@ -1101,6 +1150,7 @@ const PipelinePage = {
         this.updateStepsUI();
       }
     } catch (error) {
+      this.hideLoading();
       window.App.showToast('加载导入结果失败: ' + error.message, 'error');
       // 即使失败也要回填（显示 0）
       this._fillImportStats();
@@ -1193,74 +1243,26 @@ const PipelinePage = {
 
   async nextStep() {
     if (this.currentStep < this.steps.length - 1) {
-      // 显示加载状态
-      this.showLoading('正在处理');
-      
-      try {
-        // 检查当前步骤是否已完成
-        if (this.steps[this.currentStep].status !== 'done') {
-          // 根据当前步骤执行相应的处理
-          switch (this.currentStep) {
-            case 0:
-              // Step 1: 解析PDF -> Markdown（已经完成）
-              this.steps[this.currentStep].status = 'done';
-              break;
-            case 1:
-              // Step 2: 文档切割
-              try {
-                this.showLoading('正在处理');
-                await window.DocumentAPI.split(this.currentDocId);
-                this.steps[this.currentStep].status = 'done';
-                window.App.showToast('处理完成', 'success');
-              } catch (error) {
-                window.App.showToast('处理失败: ' + error.message, 'error');
-                this.hideLoading();
-                return;
-              }
-              break;
-            case 2:
-              // Step 3: 生成增强
-              try {
-                this.showLoading('正在处理');
-                await window.DocumentAPI.generate(this.currentDocId);
-                this.steps[this.currentStep].status = 'done';
-                window.App.showToast('处理完成', 'success');
-              } catch (error) {
-                window.App.showToast('处理失败: ' + error.message, 'error');
-                this.hideLoading();
-                return;
-              }
-              break;
-          }
-        }
-        
-        // 跳转到下一步
-        this.currentStep++;
-        
-        // 检查是否是嵌入入库步骤，且文档状态已完成
-        if (this.currentStep === 3 && this.documentData?.status === 'completed') {
-          // 文档已完成，跳过嵌入入库步骤
-          this.steps[this.currentStep].status = 'done';
-          window.App.showToast('文档已完成处理，跳过嵌入入库步骤', 'info');
-          this.updateStepsUI();
-          await this.renderStepContent();
-        } else {
-          // 如果是嵌入入库步骤，renderStep4 内部会调用 loadImportResults
-          if (this.currentStep === 3) {
-            // 不在这里调 API，renderStep4 -> loadImportResults 会统一处理
-            this.steps[this.currentStep].status = 'active';
-          } else {
-            this.steps[this.currentStep].status = 'active';
-          }
-          this.updateStepsUI();
-          await this.renderStepContent();
-        }
-      } catch (error) {
-        window.App.showToast('操作失败: ' + error.message, 'error');
-      } finally {
-        // 隐藏加载状态
-        this.hideLoading();
+      // 标记当前步骤为已完成（步骤1/2/3 的实际处理由各步骤的 loadXxx 方法负责调用后端接口）
+      // nextStep 本身只做导航推进，不重复调接口
+      if (this.steps[this.currentStep].status !== 'done') {
+        this.steps[this.currentStep].status = 'done';
+        window.App.showToast('处理完成', 'success');
       }
+      
+      // 跳转到下一步
+      this.currentStep++;
+      
+      // 更新目标步骤状态
+      if (this.currentStep === 3 && this.documentData?.status === 'completed') {
+        // 文档已完成，直接标记完成
+        this.steps[this.currentStep].status = 'done';
+        window.App.showToast('文档已完成全部处理流程', 'info');
+      } else {
+        this.steps[this.currentStep].status = 'active';
+      }
+      this.updateStepsUI();
+      await this.renderStepContent();
     }
   },
 
