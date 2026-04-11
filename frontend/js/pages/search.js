@@ -94,24 +94,14 @@ const SearchPage = {
             <!-- 检索流水线提示 -->
             <div class="pipeline-hint" id="pipeline-hint">
               <span class="pipeline-step-badge vector">向量检索</span>
-              → <span class="pipeline-step-badge keyword" style="display:none;">关键词检索</span>
-              <span class="pipeline-arrow">→</span>
+              <span class="pipeline-step-badge keyword" style="display:none;">关键词检索</span>
               <span class="pipeline-step-badge fusion" style="display:none;">RRF 融合</span>
-              <span class="pipeline-arrow" style="display:none;">→</span>
               <span class="pipeline-step-badge rerank">LLM Rerank</span>
-              <span class="pipeline-arrow">→</span>
               <span class="pipeline-step-badge result">结果</span>
             </div>
           </div>
 
-          <!-- 搜索历史 -->
-          <div class="search-history-panel" id="search-history-panel" style="display:none;">
-            <div class="history-header">
-              <span>🕐 最近搜索</span>
-              <button class="btn btn-sm btn-ghost" onclick="SearchPage.toggleHistory()">收起</button>
-            </div>
-            <div class="history-list" id="history-list"></div>
-          </div>
+
 
           <!-- 结果区 -->
           <div id="search-results" class="search-results">
@@ -132,6 +122,14 @@ const SearchPage = {
             <div class="card-body" id="kb-selector">
               <div style="padding:16px; text-align:center; color:var(--text3);">加载中...</div>
             </div>
+          </div>
+
+          <!-- 最近搜索 -->
+          <div class="card" style="margin-top:16px;" id="search-history-card">
+            <div class="card-header">
+              <div class="card-title">🕐 最近搜索</div>
+            </div>
+            <div class="card-body" id="history-list"></div>
           </div>
 
           <!-- 搜索统计 -->
@@ -180,15 +178,49 @@ const SearchPage = {
     const hint = document.getElementById('pipeline-hint');
     if (!hint) return;
 
-    // 根据模式显示不同步骤
-    hint.querySelector('.keyword').style.display = (mode !== 'vector') ? '' : 'none';
-    hint.querySelector('.fusion').style.display = (mode === 'hybrid') ? '' : 'none';
+    const vectorBadge = hint.querySelector('.vector');
+    const keywordBadge = hint.querySelector('.keyword');
+    const fusionBadge = hint.querySelector('.fusion');
+    const rerankBadge = hint.querySelector('.rerank');
+    const arrows = hint.querySelectorAll('.pipeline-arrow');
 
-    // 所有箭头都显示
-    hint.querySelectorAll('.pipeline-arrow').forEach(el => el.style.display = '');
+    // 隐藏所有箭头
+    arrows.forEach(el => el.style.display = 'none');
+
+    // 根据模式显示不同步骤
+    if (mode === 'vector') {
+      // 向量检索模式
+      vectorBadge.style.display = '';
+      keywordBadge.style.display = 'none';
+      fusionBadge.style.display = 'none';
+      
+      // 显示第一个箭头（向量 → rerank）
+      if (arrows[0]) arrows[0].style.display = '';
+      
+      // 隐藏第二个箭头
+      if (arrows[1]) arrows[1].style.display = 'none';
+    } else if (mode === 'keyword') {
+      // 关键词检索模式
+      vectorBadge.style.display = 'none';
+      keywordBadge.style.display = '';
+      fusionBadge.style.display = 'none';
+      
+      // 显示第一个箭头（关键词 → rerank）
+      if (arrows[0]) arrows[0].style.display = '';
+      
+      // 隐藏第二个箭头
+      if (arrows[1]) arrows[1].style.display = 'none';
+    } else if (mode === 'hybrid') {
+      // 混合检索模式
+      vectorBadge.style.display = '';
+      keywordBadge.style.display = '';
+      fusionBadge.style.display = '';
+      
+      // 显示所有箭头
+      arrows.forEach(el => el.style.display = '');
+    }
 
     // Rerank 步骤
-    const rerankBadge = hint.querySelector('.rerank');
     if (rerankOn) {
       rerankBadge.style.display = '';
       rerankBadge.textContent = 'LLM Rerank';
@@ -371,7 +403,8 @@ const SearchPage = {
 
   _renderResultCard(result, index) {
     const score = result.score ?? result.rerank_score ?? null;
-    const content = result.content || result.chunk_text || '';
+    const content = result.content || '';
+    const chunkText = result.chunk_text || '';
     const scoreDisplay = score != null ? this._formatScore(score) : '-';
     const scoreClass = score != null ? this._getScoreClass(score) : '';
 
@@ -407,21 +440,20 @@ const SearchPage = {
           </button>
         </div>
         <div class="result-content-preview">
-          ${this._highlightQuery(this._truncate(content, 280), queryText)}
+          ${this._highlightQuery(this._truncate(chunkText, 280), queryText)}
         </div>
         <div class="result-detail" id="detail-${index}" style="display:none;">
           <div class="detail-inner">
             <div class="detail-section">
-              <span class="detail-label">完整内容</span>
+              <span class="detail-label">匹配内容</span>
               <pre class="detail-content-text">${this._escapeHtml(content)}</pre>
             </div>
-            ${(rrfScore || rerankScore) ? `
             <div class="detail-meta-row">
-              ${rrfScore ? `<span class="detail-tag">RRF分: ${rrfScore}</span>` : ''}
-              ${rerankScore ? `<span class="detail-tag">Rerank: ${rerankScore}</span>` : ''}
-              ${result.document_id ? `<span class="detail-tag">文档ID: ${result.document_id}</span>` : ''}
-              ${result.chunk_index != null ? `<span class="detail-tag">Chunk #${result.chunk_index}</span>` : ''}
-            </div>` : ''}
+              <span class="detail-tag">RRF分: ${rrfScore}</span>
+              <span class="detail-tag">Rerank: ${rerankScore}</span>
+              <span class="detail-tag">文档ID: ${result.document_id}</span>
+              <span class="detail-tag">Chunk #${result.chunk_index}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -549,18 +581,15 @@ const SearchPage = {
       ...entry,
       ts: Date.now(),
     });
-    // 保留最近 50 条
-    if (this.searchHistory.length > 50) this.searchHistory.length = 50;
+    // 保留最近 5 条
+    if (this.searchHistory.length > 5) this.searchHistory.length = 5;
     try {
       localStorage.setItem('rag_search_history', JSON.stringify(this.searchHistory));
     } catch {}
     this._renderHistory();
   },
 
-  toggleHistory() {
-    const panel = document.getElementById('search-history-panel');
-    if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
-  },
+
 
   clearHistory() {
     this.searchHistory = [];
@@ -570,18 +599,16 @@ const SearchPage = {
   },
 
   _renderHistory() {
-    const panel = document.getElementById('search-history-panel');
     const list = document.getElementById('history-list');
-    if (!panel || !list) return;
+    if (!list) return;
 
     if (this.searchHistory.length === 0) {
-      panel.style.display = 'none';
+      list.innerHTML = '<div style="padding:12px; text-align:center; color:var(--text3);">暂无搜索历史</div>';
       return;
     }
 
-    panel.style.display = '';
-    list.innerHTML = this.searchHistory.slice(0, 10).map(item => `
-      <div class="history-item" onclick="SearchPage.replayHistory('${this._escapeHtml(item.query).replace(/'/g, "\\'")}', '${item.mode}')">
+    list.innerHTML = this.searchHistory.slice(0, 5).map(item => `
+      <div class="history-item" onclick="SearchPage.replayHistory('${this._escapeHtml(item.query).replace(/'/g, "\'")}', '${item.mode}')">
         <span class="history-q">${this._escapeHtml(this._truncate(item.query, 50))}</span>
         <span class="history-meta">
           <span class="badge badge-sm mode-badge-${item.mode}">${this._getModeShort(item.mode)}</span>

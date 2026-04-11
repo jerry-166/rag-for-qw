@@ -30,10 +30,18 @@ const KnowledgeBasesPage = {
   async loadKnowledgeBases() {
     const container = document.getElementById('kb-list');
     try {
+      // 兼容性检查：确保 API 已挂载
+      if (!window.KnowledgeBaseAPI || typeof window.KnowledgeBaseAPI.list !== 'function') {
+        throw new Error('KnowledgeBaseAPI 未就绪，请刷新页面重试');
+      }
       const response = await window.KnowledgeBaseAPI.list();
-      const knowledgeBases = response.knowledge_bases || [];
+      // 确保 response 存在且有 knowledge_bases 属性
+      if (!response || !Array.isArray(response.knowledge_bases)) {
+        throw new Error('Invalid response format');
+      }
+      this.knowledgeBases = response.knowledge_bases;
       
-      if (knowledgeBases.length === 0) {
+      if (this.knowledgeBases.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
             <div class="empty-icon">🗂️</div>
@@ -44,7 +52,7 @@ const KnowledgeBasesPage = {
         return;
       }
       
-      container.innerHTML = knowledgeBases.map(kb => `
+      container.innerHTML = this.knowledgeBases.map(kb => `
         <div class="kb-card" data-kb-id="${kb.id}">
           <div class="kb-card-header">
             <div class="kb-icon">📚</div>
@@ -67,7 +75,7 @@ const KnowledgeBasesPage = {
       `;
       
       // 添加点击事件
-      knowledgeBases.forEach(kb => {
+      this.knowledgeBases.forEach(kb => {
         const card = document.querySelector(`.kb-card[data-kb-id="${kb.id}"]`);
         if (card) {
           card.addEventListener('click', (e) => {
@@ -78,6 +86,7 @@ const KnowledgeBasesPage = {
         }
       });
     } catch (error) {
+      console.error('加载知识库失败:', error);
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">❌</div>
@@ -150,8 +159,10 @@ const KnowledgeBasesPage = {
   },
 
   editKnowledgeBase(kbId) {
-    // 这里可以实现编辑功能
-    window.App.showToast('编辑功能待实现', 'info');
+    const kb = this.knowledgeBases.find(kb => kb.id === kbId);
+    if (kb) {
+      this.showCreateModal(kb);
+    }
   },
 
   async deleteKnowledgeBase(kbId) {
@@ -168,9 +179,23 @@ const KnowledgeBasesPage = {
     }
   },
 
-  updateKnowledgeBase(kbId) {
-    // 这里可以实现更新功能
-    window.App.showToast('更新功能待实现', 'info');
+  async updateKnowledgeBase(kbId) {
+    const name = document.getElementById('kb-name').value.trim();
+    const description = document.getElementById('kb-description').value.trim();
+    
+    if (!name) {
+      window.App.showToast('请输入知识库名称', 'error');
+      return;
+    }
+    
+    try {
+      await window.KnowledgeBaseAPI.update(kbId, name, description);
+      window.App.showToast('知识库更新成功', 'success');
+      document.querySelector('.modal-overlay').remove();
+      this.loadKnowledgeBases();
+    } catch (error) {
+      window.App.showToast('更新失败: ' + error.message, 'error');
+    }
   }
 };
 

@@ -11,6 +11,9 @@ class App {
 
   async init() {
     try {
+      // 初始化主题
+      this.initTheme();
+      
       // 检查登录状态
       const token = localStorage.getItem('rag_token');
       const user = localStorage.getItem('rag_user');
@@ -28,6 +31,46 @@ class App {
     } finally {
       // 隐藏加载屏
       document.getElementById('loading-screen').classList.add('hidden');
+    }
+  }
+
+  initTheme() {
+    // 读取存储的主题设置
+    const savedTheme = localStorage.getItem('rag_theme');
+    const isLightMode = savedTheme === 'light';
+    
+    // 应用主题
+    if (isLightMode) {
+      document.body.classList.add('light-mode');
+    }
+  }
+
+  initThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      // 更新图标
+      this.updateThemeIcon();
+      
+      // 添加点击事件
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+        const isLightMode = document.body.classList.contains('light-mode');
+        
+        // 保存设置
+        localStorage.setItem('rag_theme', isLightMode ? 'light' : 'dark');
+        
+        // 更新图标
+        this.updateThemeIcon();
+      });
+    }
+  }
+
+  updateThemeIcon() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      const isLightMode = document.body.classList.contains('light-mode');
+      themeToggle.textContent = isLightMode ? '🌙' : '☀️';
+      themeToggle.title = isLightMode ? '切换到黑夜模式' : '切换到白天模式';
     }
   }
 
@@ -111,13 +154,21 @@ class App {
     // 初始化侧边栏
     this.initSidebarEvents();
     
-    // 初始化统计预览
-    this.initStatsPreview();
+    // 初始化主题切换
+    this.initThemeToggle();
     
-    // 渲染页面内容
+    // 并行加载统计数据和页面内容
     const pageContainer = document.getElementById('page-container');
     pageContainer.innerHTML = '';
-    await contentCallback();
+    
+    // 并行执行
+    await Promise.all([
+      this.loadStatsData(), // 加载统计数据
+      contentCallback()     // 渲染页面内容
+    ]);
+    
+    // 初始化统计预览（在数据加载后）
+    this.initStatsPreview();
   }
 
   updateUserInfo() {
@@ -137,7 +188,7 @@ class App {
     }
   }
 
-  async initStatsPreview() {
+  initStatsPreview() {
     // 统计预览展开/收起功能
     const statsToggle = document.getElementById('stats-toggle');
     const statsContent = document.getElementById('sidebar-stats-content');
@@ -148,29 +199,44 @@ class App {
         statsToggle.classList.toggle('collapsed');
       });
     }
-    
-    // 获取统计数据
-    await this.loadStatsData();
   }
 
   async loadStatsData() {
     try {
+      // 兼容性检查
+      if (!window.DocumentAPI || typeof window.DocumentAPI.getStatsOverview !== 'function') {
+        console.warn('DocumentAPI.getStatsOverview 未就绪，跳过统计数据加载');
+        return;
+      }
       const response = await window.DocumentAPI.getStatsOverview();
       console.log('统计数据响应:', response);
+      
+      // 确保 response 存在
+      if (!response) {
+        throw new Error('Empty response');
+      }
+      
+      // 后端返回格式: { status: "success", data: { total_documents, ... } }
       const stats = response.data || response;
+      
+      // 确保 stats 是对象
+      if (!stats || typeof stats !== 'object') {
+        console.warn('统计数据格式异常:', stats);
+        throw new Error('Invalid stats data');
+      }
       
       // 更新统计数据
       if (document.getElementById('stats-documents')) {
-        document.getElementById('stats-documents').textContent = stats.total_documents || 0;
+        document.getElementById('stats-documents').textContent = stats.total_documents ?? 0;
       }
       if (document.getElementById('stats-chunks')) {
-        document.getElementById('stats-chunks').textContent = stats.total_chunks || 0;
+        document.getElementById('stats-chunks').textContent = stats.total_chunks ?? 0;
       }
       if (document.getElementById('stats-sub-questions')) {
-        document.getElementById('stats-sub-questions').textContent = stats.total_sub_questions || 0;
+        document.getElementById('stats-sub-questions').textContent = stats.total_sub_questions ?? 0;
       }
       if (document.getElementById('stats-summaries')) {
-        document.getElementById('stats-summaries').textContent = stats.total_summaries || 0;
+        document.getElementById('stats-summaries').textContent = stats.total_summaries ?? 0;
       }
       
       // 如果是admin用户，添加用户统计
@@ -183,11 +249,11 @@ class App {
             userStatsItem.className = 'stats-item';
             userStatsItem.innerHTML = `
               <span class="stats-item-label">总用户数</span>
-              <span class="stats-item-value" id="stats-users">${stats.total_users || 0}</span>
+              <span class="stats-item-value" id="stats-users">${stats.total_users ?? 0}</span>
             `;
             statsContent.appendChild(userStatsItem);
           } else if (document.getElementById('stats-users')) {
-            document.getElementById('stats-users').textContent = stats.total_users || 0;
+            document.getElementById('stats-users').textContent = stats.total_users ?? 0;
           }
         }
       }
@@ -431,16 +497,16 @@ class App {
 
 // 当DOM加载完成后初始化应用
 document.addEventListener('DOMContentLoaded', function() {
-  // 初始化应用
-  window.App = new App();
-  // 调用init方法
-  window.App.init();
-
-  // 暴露API
+  // 先暴露API（必须在 init() 之前，否则异步 navigate 时 API 尚未挂载）
   window.TokenManager = TokenManager;
   window.UserManager = UserManager;
   window.AuthAPI = AuthAPI;
   window.KnowledgeBaseAPI = KnowledgeBaseAPI;
   window.DocumentAPI = DocumentAPI;
   window.SearchAPI = SearchAPI;
+
+  // 初始化应用
+  window.App = new App();
+  // 调用init方法
+  window.App.init();
 });

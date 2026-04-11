@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 
 from config import init_logger, settings
@@ -17,6 +17,10 @@ class KnowledgeBaseCreate(BaseModel):
     kb_name: str
     description: str = None
     metadata: dict = None
+
+class KnowledgeBaseUpdate(BaseModel):
+    kb_name: str = None
+    description: str = None
 
 class KnowledgeBaseResponse(BaseModel):
     id: int
@@ -79,7 +83,7 @@ async def get_knowledge_bases(current_user=Depends(get_current_user)):
 
 
 @router.delete("/{kb_id}")
-async def delete_knowledge_base(kb_id: int, current_user=Depends(get_current_user)):
+async def delete_knowledge_base(kb_id: int, req: Request, current_user=Depends(get_current_user)):
     """删除知识库（统一调度：Milvus + ES + 文件存储 + temp/output + 数据库）"""
     logger.info(f"开始删除知识库，知识库ID: {kb_id}")
     try:
@@ -100,8 +104,7 @@ async def delete_knowledge_base(kb_id: int, current_user=Depends(get_current_use
         docs = db.fetchall(docs_query, (kb_id,))
 
         # ---------- 2. 删除 Milvus 向量数据 ----------
-        from app import app_state
-        milvus_client = app_state.get('milvus_client')
+        milvus_client = req.app.state.get('milvus_client')
         if milvus_client:
             milvus_client.delete_data_by_knowledge_base(kb_id)
             logger.info(f"Milvus 数据删除完成，知识库ID: {kb_id}")
@@ -154,3 +157,49 @@ async def delete_knowledge_base(kb_id: int, current_user=Depends(get_current_use
     except Exception as e:
         logger.error(f"删除知识库失败: {str(e)}")
         raise HTTPException(status_code=500, detail=f"删除知识库失败: {str(e)}")
+
+
+@router.put("/{kb_id}")
+async def update_knowledge_base(kb_id: int, kb_update: KnowledgeBaseUpdate, current_user=Depends(get_current_user)):
+    """更新知识库（名称和描述）"""
+    logger.info(f"开始更新知识库，知识库ID: {kb_id}")
+    try:
+        # 获取知识库信息
+        kb = db.get_knowledge_base(kb_id)
+        if not kb:
+            logger.warning(f"知识库未找到，知识库ID: {kb_id}")
+            raise HTTPException(status_code=404, detail="知识库未找到")
+
+        # 验证用户权限（只有知识库创建者可以更新）
+        if kb["user_id"] != current_user["id"] and current_user["role"] != "admin":
+            logger.warning(
+                f"用户无权限更新知识库，用户: {current_user['username']}, 知识库ID: {kb_id}")
+            raise HTTPException(status_code=403, detail="无权限更新该知识库")
+
+        # 更新知识库
+        update_data = {}
+        if kb_update.kb_name is not None:
+            update_data["kb_name"] = kb_update.kb_name
+        if kb_update.description is not None:
+            update_data["description"] = kb_update.description
+
+        if update_data:
+            result = db.update_knowledge_base(kb_id, update_data)
+            if result:
+                logger.info(f"知识库更新成功，知识库ID: {kb_id}")
+                return {
+                    "status": "success",
+                    "message": "知识库更新成功"
+                }
+            else:
+                raise HTTPException(status_code=500, detail="更新知识库失败")
+        else:
+            return {
+                "status": "success",
+                "message": "没有需要更新的内容"
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"更新知识库失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"更新知识库失败: {str(e)}")

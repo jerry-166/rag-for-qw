@@ -103,6 +103,13 @@ const KnowledgeBaseAPI = {
     });
   },
 
+  async update(kb_id, kb_name, description = '') {
+    return request(`/api/knowledge-bases/${kb_id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ kb_name, description }),
+    });
+  },
+
   async delete(kb_id) {
     return request(`/api/knowledge-bases/${kb_id}`, { method: 'DELETE' });
   },

@@ -340,6 +340,27 @@ class Database:
         except Exception as e:
             logger.error(f"获取知识库详情失败: {e}")
             return None
+
+    def update_knowledge_base(self, kb_id, update_data):
+        """更新知识库信息"""
+        set_clauses = []
+        params = []
+        for key, value in update_data.items():
+            set_clauses.append(f"{key} = %s")
+            params.append(value)
+        params.append(kb_id)
+        
+        query = f'''
+            UPDATE knowledge_base
+            SET {', '.join(set_clauses)}
+            WHERE id = %s
+        '''
+        try:
+            self.cursor.execute(query, params)
+            return True
+        except Exception as e:
+            logger.error(f"更新知识库失败: {e}")
+            return False
     
     def add_user_kb_permission(self, user_id, knowledge_base_id, permission='read'):
         """添加用户知识库权限"""
