@@ -7,7 +7,6 @@ from config import init_logger, settings
 from services.database import db
 from services.auth import get_current_user
 from services.storage import get_storage
-from services.elasticsearch_client import es_client
 
 logger = init_logger(__name__)
 router = APIRouter()
@@ -160,12 +159,13 @@ async def delete_document(file_id: str, request: Request, current_user=Depends(g
             milvus_client.delete_data_by_document(file_id)
             logger.info(f"Milvus 数据删除完成，文件ID: {file_id}")
 
-        # ---------- 2. 删除 ES 索引 ----------
+        # ---------- 2. 删除搜索索引 ----------
         try:
-            es_client.delete_document_chunks(file_id, current_user["id"])
-            logger.info(f"ES 索引删除完成，文件ID: {file_id}")
+            search_client = request.app.state['search_client']
+            search_client.delete_document_chunks(file_id, current_user["id"])
+            logger.info(f"搜索索引删除完成，文件ID: {file_id}")
         except Exception as e:
-            logger.warning(f"ES 索引删除失败（非致命）: {e}")
+            logger.warning(f"搜索索引删除失败（非致命）: {e}")
 
         # ---------- 3. 删除文件存储（doc_storage 下的文档目录） ----------
         storage = get_storage()

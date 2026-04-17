@@ -13,7 +13,6 @@ from services.auth import get_current_user
 from services.pdf_parser import PDFParser
 from services.storage import get_storage
 from services.milvus_client import MilvusClient
-from services.elasticsearch_client import es_client
 import shutil
 
 logger = init_logger(__name__)
@@ -135,9 +134,9 @@ async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), curr
         raise
     except Exception as e:
         # 记录失败日志
-        if 'file_id' in locals():
+        if 'doc_id' in locals():
             db.add_workflow_log(
-                document_id=file_id,
+                document_id=doc_id,
                 operation="upload_pdf",
                 status="failed",
                 message=str(e),

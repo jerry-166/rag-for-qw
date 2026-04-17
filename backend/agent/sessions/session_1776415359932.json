@@ -1,0 +1,23 @@
+{
+  "session_id": "session_1776415359932",
+  "created_at": "2026-04-17T16:42:58.246960",
+  "updated_at": "2026-04-17T16:42:58.279623",
+  "title": "刘瑞杰是谁？",
+  "messages": [
+    {
+      "role": "user",
+      "content": "刘瑞杰是谁？",
+      "timestamp": "2026-04-17T16:42:58.263888"
+    },
+    {
+      "role": "assistant",
+      "content": "检索到的文档中没有提到“刘瑞杰”是谁。",
+      "timestamp": "2026-04-17T16:42:58.279623",
+      "metadata": {
+        "intent": "retrieval",
+        "sources_count": 5,
+        "processing_time_ms": 8285
+      }
+    }
+  ]
+}

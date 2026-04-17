@@ -173,6 +173,127 @@ const DocumentAPI = {
   },
 };
 
+// ===== Agent API =====
+const AgentAPI = {
+  /**
+   * 列出所有已注册的 Agent
+   * @returns {Promise<{agents: Array, default: string}>}
+   */
+  async list() {
+    return request('/api/agent/list');
+  },
+
+  /**
+   * 查询 Agent 预热状态
+   * @returns {Promise<{status: string, ready: boolean, label: string, elapsed_s?: number, error?: string}>}
+   */
+  async preheatStatus() {
+    return request('/api/agent/preheat-status');
+  },
+
+  /**
+   * Agent 服务健康检查
+   * @returns {Promise<{registry: string, agents: object}>}
+   */
+  async health() {
+    return request('/api/agent/health');
+  },
+
+  /**
+   * 单 Agent 对话（非流式）
+   * @param {Object} opts
+   * @param {string}   opts.query            - 用户查询
+   * @param {string}   [opts.agent_type='claw'] - simple | advanced | claw
+   * @param {string}   [opts.session_id]      - 会话 ID
+   * @param {Array}    [opts.chat_history]    - 对话历史 [{role, content}]
+   * @param {number}   [opts.knowledge_base_id]
+   */
+  async chat({ query, agent_type = 'claw', session_id = null, chat_history = [], knowledge_base_id = null }) {
+    return request('/api/agent/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        query,
+        agent_type,
+        session_id,
+        chat_history,
+        ...(knowledge_base_id ? { knowledge_base_id } : {}),
+      }),
+    });
+  },
+
+  /**
+   * 流式对话（SSE）
+   * 返回一个 ReadableStream reader，消费者可通过 read() 逐条获取 SSE 行
+   *
+   * @param {Object} opts
+   * @param {string}   opts.query
+   * @param {string}   [opts.agent_type='claw']
+   * @param {string}   [opts.session_id]
+   * @param {Array}    [opts.chat_history]
+   * @param {number}   [opts.knowledge_base_id]
+   * @returns {Promise<ReadableStream>}  SSE 流
+   */
+  async chatStream({ query, agent_type = 'claw', session_id = null, chat_history = [], knowledge_base_id = null }) {
+    const token = TokenManager.get();
+    const body = {
+      query,
+      agent_type,
+      session_id,
+      chat_history,
+    };
+    if (knowledge_base_id) body.knowledge_base_id = knowledge_base_id;
+
+    const resp = await fetch(`${API_BASE}/api/agent/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.ok) {
+      const data = await resp.json().catch(() => ({}));
+      throw new Error(data.detail || `请求失败 (${resp.status})`);
+    }
+
+    return resp.body;
+  },
+
+  /**
+   * 多 Agent 对比
+   * @param {Object} opts
+   * @param {string}   opts.query
+   * @param {string[]} [opts.agent_types]  - 指定类型，不传则对比全部
+   * @param {string}   [opts.session_id]
+   * @param {Array}    [opts.chat_history]
+   * @returns {Promise<{status, comparison: {query, total_time_ms, results}}>}
+   */
+  async compare({ query, agent_types = null, session_id = null, chat_history = [] }) {
+    return request('/api/agent/compare', {
+      method: 'POST',
+      body: JSON.stringify({ query, agent_types, session_id, chat_history }),
+    });
+  },
+
+  /**
+   * 获取会话历史
+   * @param {string} sessionId
+   * @param {number} [limit=20]
+   */
+  async getHistory(sessionId, limit = 20) {
+    return request(`/api/agent/session/${encodeURIComponent(sessionId)}/history?limit=${limit}`);
+  },
+
+  /**
+   * 清空会话
+   * @param {string} sessionId
+   */
+  async clearSession(sessionId) {
+    return request(`/api/agent/session/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
+  },
+};
+
 // ===== 检索 API =====
 const SearchAPI = {
   /**

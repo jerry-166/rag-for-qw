@@ -14,4 +14,10 @@ bcrypt
 python-jose[cryptography]
 psycopg2-binary
 elasticsearch
+langgraph
+langsmith
+pytest
+pytest-asyncio
 # aliyun-oss-python-sdk
+rank_bm25 
+jieba

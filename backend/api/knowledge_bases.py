@@ -5,7 +5,6 @@ from config import init_logger, settings
 from services.database import db
 from services.auth import get_current_user
 from services.milvus_client import MilvusClient
-from services.elasticsearch_client import es_client
 from services.storage import get_storage
 import shutil
 
@@ -109,14 +108,14 @@ async def delete_knowledge_base(kb_id: int, req: Request, current_user=Depends(g
             milvus_client.delete_data_by_knowledge_base(kb_id)
             logger.info(f"Milvus 数据删除完成，知识库ID: {kb_id}")
 
-        # ---------- 3. 删除 ES 索引 ----------
+        # ---------- 3. 删除搜索索引 ----------
+        search_client = req.app.state['search_client']
         for doc in docs:
             try:
-                # 使用文档实际 owner 的 user_id 作为 routing
-                es_client.delete_document_chunks(doc["id"], doc["user_id"])
+                search_client.delete_document_chunks(doc["id"], doc["user_id"])
             except Exception as e:
-                logger.warning(f"ES 索引删除失败（非致命），文档ID: {doc['id']}: {e}")
-        logger.info(f"ES 索引删除完成，知识库ID: {kb_id}")
+                logger.warning(f"搜索索引删除失败（非致命），文档ID: {doc['id']}: {e}")
+        logger.info(f"搜索索引删除完成，知识库ID: {kb_id}")
 
         # ---------- 4. 删除文件存储 ----------
         storage = get_storage()

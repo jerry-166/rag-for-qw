@@ -18,7 +18,7 @@ from services.pdf_parser import PDFParser
 from services.database import db
 from services.auth import get_password_hash, verify_password, create_access_token, get_current_user, check_permission
 from services.storage import get_storage
-from services.elasticsearch_client import es_client
+from services.bm25_client import get_search_client, get_backend_type
 
 # 导入api路由
 from api import api_router
@@ -26,6 +26,51 @@ from api import api_router
 # 初始化日志记录器
 logger = init_logger(__name__)
 
+
+async def _preheat_agents(app_ref):
+    """
+    异步预热所有 Agent（simple / advanced / claw）
+    
+    在事件循环内运行，避免 Windows 上后台线程文件锁冲突。
+    通过 asyncio.create_task 调用，不阻塞请求处理。
+    """
+    try:
+        preheat = getattr(app_ref.state, 'agent_preheat', None)
+        if preheat:
+            preheat['status'] = 'warming'
+            preheat['started_at'] = time.time()
+        logger.info("[Agent预热] 开始后台预热所有 Agent...")
+
+        from agent.registry import get_registry, setup_registry, AgentType
+        from agent.claw_agent.memory.memory_manager import MemoryManager
+        from agent.claw_agent.memory.session_store import SessionStore
+
+        memory_manager = MemoryManager()
+        session_store = SessionStore()
+
+        registry = setup_registry(
+            claw_memory_manager=memory_manager,
+            claw_session_store=session_store,
+        )
+
+        # 预热所有三种 Agent
+        for at in [AgentType.SIMPLE, AgentType.ADVANCED, AgentType.CLAW]:
+            start = time.time()
+            registry.get(at)
+            elapsed = round((time.time() - start), 2)
+            logger.info(f"[Agent预热] {at.value} Agent 预热完成 ({elapsed}s)")
+
+        if preheat:
+            preheat['status'] = 'ready'
+            preheat['finished_at'] = time.time()
+
+    except Exception as e:
+        logger.error(f"[Agent预热] 预热失败: {e}")
+        preheat = getattr(app_ref.state, 'agent_preheat', None)
+        if preheat:
+            preheat['status'] = 'error'
+            preheat['error'] = str(e)
+            preheat['finished_at'] = time.time()
 
 
 @asynccontextmanager
@@ -41,9 +86,34 @@ async def lifespan(app: FastAPI):
     app.state['milvus_client'] = MilvusClient()
     logger.info("Milvus客户端初始化完成")
 
+    # 初始化搜索引擎（BM25 或 Elasticsearch）
+    search_client = get_search_client()
+    app.state['search_client'] = search_client
+    backend_type = get_backend_type()
+
+    # 如果是 BM25 模式，从 PG 全量加载索引到内存
+    if backend_type == 'bm25':
+        chunk_count = search_client.load_from_database()
+        logger.info(f"BM25 索引加载完成，共 {chunk_count} 条 chunk")
+    else:
+        logger.info(f"搜索引擎已就绪: {backend_type}")
+
     # 初始化存储实例
     app.state['storage'] = get_storage()
     logger.info(f"存储实例初始化完成，存储类型: {settings.STORAGE_TYPE}")
+
+    # ── Agent 预热状态 ──
+    app.state['agent_preheat'] = {
+        'status': 'pending',
+        'started_at': None,
+        'finished_at': None,
+        'error': None,
+    }
+
+    # ── 启动后台异步预热任务（不阻塞启动）──
+    import asyncio
+    asyncio.create_task(_preheat_agents(app))
+    logger.info("[Agent预热] 后台预热异步任务已启动（预热全部 Agent）")
 
     yield
 

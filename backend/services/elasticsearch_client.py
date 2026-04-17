@@ -227,5 +227,16 @@ class ElasticsearchClient:
             logger.error(f"删除文档块索引失败: {e}")
             return False
 
-# 全局Elasticsearch客户端实例
-es_client = ElasticsearchClient()
+# ──────────────────────────────────────────────────────────────
+# 全局实例：仅在 SEARCH_BACKEND=elasticsearch 时才实例化，
+# 避免 BM25 模式下 import 本文件就触发 ES 连接尝试。
+# ──────────────────────────────────────────────────────────────
+def _make_es_client_if_needed():
+    from config import settings
+    backend = getattr(settings, "SEARCH_BACKEND", "bm25").lower().strip()
+    if backend == "elasticsearch":
+        return ElasticsearchClient()
+    # BM25 模式：返回一个空壳，防止旧代码使用 es_client.xxx 直接 crash
+    return None
+
+es_client = _make_es_client_if_needed()

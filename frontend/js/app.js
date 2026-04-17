@@ -126,6 +126,18 @@ class App {
           this.navigate('auth');
         }
         break;
+      case 'agent':
+        console.log('[App] navigate(agent) 被调用, isAuthenticated:', this.isAuthenticated);
+        if (this.isAuthenticated) {
+          await this.renderAppLayout('AI Agent', async () => {
+            if (window.AgentPage) {
+              await window.AgentPage.render();
+            }
+          });
+        } else {
+          this.navigate('auth');
+        }
+        break;
       default:
         this.navigate('knowledge-bases');
     }
@@ -161,11 +173,9 @@ class App {
     const pageContainer = document.getElementById('page-container');
     pageContainer.innerHTML = '';
     
-    // 并行执行
-    await Promise.all([
-      this.loadStatsData(), // 加载统计数据
-      contentCallback()     // 渲染页面内容
-    ]);
+    // 先渲染布局，再加载数据（避免竞态）
+    await contentCallback();
+    await this.loadStatsData(); // 加载统计数据
     
     // 初始化统计预览（在数据加载后）
     this.initStatsPreview();
@@ -504,6 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.KnowledgeBaseAPI = KnowledgeBaseAPI;
   window.DocumentAPI = DocumentAPI;
   window.SearchAPI = SearchAPI;
+  window.AgentAPI = AgentAPI;
 
   // 初始化应用
   window.App = new App();

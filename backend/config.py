@@ -53,7 +53,12 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "rag_system")
 
-    # Elasticsearch配置
+    # 搜索引擎后端选择
+    # 'bm25'          → 纯内存 BM25（推荐，零外部依赖，节省内存）
+    # 'elasticsearch'  → Elasticsearch（需要 ES 服务）
+    SEARCH_BACKEND: str = os.getenv("SEARCH_BACKEND", "bm25")
+
+    # Elasticsearch配置（仅在 SEARCH_BACKEND=elasticsearch 时生效）
     ELASTICSEARCH_HOST: str = os.getenv("ELASTICSEARCH_HOST", "localhost")
     ELASTICSEARCH_PORT: int = int(os.getenv("ELASTICSEARCH_PORT", "9200"))
     ELASTICSEARCH_USER: str = os.getenv("ELASTICSEARCH_USER", "elastic")

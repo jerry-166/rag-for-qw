@@ -6,7 +6,6 @@ from services.database import db
 from services.auth import get_current_user
 from services.document_processor import DocumentProcessor, StoredData
 from services.milvus_client import MilvusClient
-from services.elasticsearch_client import es_client
 from services.storage import get_storage
 
 logger = init_logger(__name__)
@@ -14,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("/split/{file_id}")
-async def split_document(file_id: str, current_user=Depends(get_current_user)):
+async def split_document(file_id: str, req: Request, current_user=Depends(get_current_user)):
     """MD切割接口"""
     logger.info(f"开始切割文档，文件ID: {file_id}")
     start_time = time.time()
@@ -84,8 +83,9 @@ async def split_document(file_id: str, current_user=Depends(get_current_user)):
             )
             if chunk_id:
                 chunk_ids.append(chunk_id)
-                # 索引到Elasticsearch
-                es_client.index_chunk(
+                # 索引到搜索引擎（BM25 或 ES）
+                search_client = req.app.state['search_client']
+                search_client.index_chunk(
                     chunk_id=chunk_id,
                     user_id=current_user["id"],
                     document_id=file_id,

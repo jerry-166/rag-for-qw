@@ -18,8 +18,8 @@ import asyncio
 from config import init_logger, settings
 from services.database import db
 from services.auth import get_current_user
-from services.elasticsearch_client import es_client
 from services.reranker import get_reranker
+from services.bm25_client import get_backend_type
 
 logger = init_logger(__name__)
 router = APIRouter()
@@ -76,11 +76,12 @@ def _build_es_filters(request: QueryRequest) -> dict:
     return f
 
 
-async def _es_search(request: QueryRequest, current_user: dict) -> list:
-    """执行 ES 关键词检索。"""
+async def _es_search(request: QueryRequest, req, current_user: dict) -> list:
+    """执行关键词检索（BM25 或 ES，由 SEARCH_BACKEND 配置决定）。"""
+    search_client = req.app.state['search_client']
     filters = _build_es_filters(request)
     multiplier = 2 if request.use_rerank else 1
-    return es_client.search(
+    return search_client.search(
         query=request.query,
         user_id=current_user["id"],
         size=request.limit * multiplier,
@@ -189,21 +190,23 @@ async def get_milvus_info(req: Request, current_user=Depends(get_current_user)):
 @router.post("/elasticsearch/search")
 async def search_elasticsearch(
     request: QueryRequest,
+    req: Request,
     current_user=Depends(get_current_user),
 ):
     """
-    纯全文检索 — 仅使用 Elasticsearch 做 BM25 关键词匹配。
+    纯关键词检索 — 使用配置的搜索引擎（BM25 或 ES）做关键词匹配。
 
-    流程: Query → ES Match → [可选] Rerank → Top-K
+    流程: Query → Search Match → [可选] Rerank → Top-K
     """
-    logger.info(f"开始 Elasticsearch 关键词检索, 查询文本: {request.query}")
+    logger.info(f"开始关键词检索, 查询文本: {request.query}, 后端={get_backend_type()}")
 
     try:
         filters = _build_es_filters(request)
+        search_client = req.app.state['search_client']
 
         # 召回
         multiplier = 3 if request.use_rerank else 1
-        raw_results = es_client.search(
+        raw_results = search_client.search(
             query=request.query,
             user_id=current_user["id"],
             size=request.limit * multiplier,
@@ -250,7 +253,7 @@ async def hybrid_search(
     try:
         # ---- Step 1: 并行召回 ----
         es_results, milvus_results = await asyncio.gather(
-            _es_search(request, current_user),
+            _es_search(request, req, current_user),
             _milvus_search(request, req, current_user),
         )
 
