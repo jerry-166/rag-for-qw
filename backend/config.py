@@ -87,6 +87,9 @@ class Settings(BaseSettings):
     RERANKER_TYPE: str = os.getenv("RERANKER_TYPE", "cross_encoder")  # llm / cross_encoder / none
     RERANKER_MODEL: str = os.getenv("RERANKER_MODEL", r"C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70")
 
+    # RAG 检索配置
+    RETRIEVAL_MIN_SCORE: float = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.3"))  # 检索结果最低相关度阈值（0-1），低于此分数的结果将被丢弃
+
     # 认证配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "lrj669761379123")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))

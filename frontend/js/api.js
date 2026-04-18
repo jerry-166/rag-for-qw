@@ -286,11 +286,27 @@ const AgentAPI = {
   },
 
   /**
-   * 清空会话
+   * 列出所有历史会话
+   * @param {number} [limit=50]
+   */
+  async listSessions(limit = 50) {
+    return request(`/api/agent/sessions?limit=${limit}`);
+  },
+
+  /**
+   * 清空会话（只清消息，保留文件）
    * @param {string} sessionId
    */
   async clearSession(sessionId) {
     return request(`/api/agent/session/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
+  },
+
+  /**
+   * 彻底删除会话文件
+   * @param {string} sessionId
+   */
+  async deleteSession(sessionId) {
+    return request(`/api/agent/session/${encodeURIComponent(sessionId)}?action=delete`, { method: 'DELETE' });
   },
 };
 

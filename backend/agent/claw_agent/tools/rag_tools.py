@@ -138,7 +138,30 @@ def rag_hybrid_search(
             seen.add(key)
             deduped.append(r)
 
-    final = deduped[:top_k]
+    # ── 分数阈值过滤 ──────────────────────────────────────
+    min_score = getattr(settings, 'RETRIEVAL_MIN_SCORE', 0.3)
+    # RRF 分数归一化到 0-1 范围（RRF 最大约 2*(1/(60+1)) ≈ 0.065，需要缩放）
+    # 实际上 RRF 分数范围是 [0, ~0.066]，用原始 score（distance/BM25）来判断更合理
+    # 这里的 score 来自 Milvus distance (越小越相似) 或 BM25 score (越大越好)
+    # 统一处理：对 vector 结果，distance < (1 - min_score) 视为合格
+    # 对 keyword 结果，score > min_score 视为合格
+    filtered = []
+    for r in deduped:
+        src = r.get("source", "")
+        sc = r.get("score", 0)
+        if src == "vector":
+            # Milvus distance: 0=最相似, 1=不相似。转换为相似度: 1 - distance
+            similarity = 1.0 - max(0.0, min(1.0, float(sc)))
+            if similarity >= min_score:
+                r["_similarity"] = round(similarity, 4)
+                filtered.append(r)
+        else:
+            # keyword / reranked: score 越大越好，已经是正分
+            if float(sc) >= min_score:
+                r["_similarity"] = round(float(sc), 4)
+                filtered.append(r)
+
+    final = filtered[:top_k]
     
     # ── 精排（Rerank）───────────────────────────────────────
     if use_rerank and final:
@@ -155,8 +178,12 @@ def rag_hybrid_search(
                 })
 
             reranked = reranker.rerank(query=query, results=normalized, top_k=rerank_top_k)
-            final = reranked
-            logger.info(f"精排完成，保留 {len(final)} 条结果")
+            
+            # 精排后再次过滤低分结果
+            min_score = getattr(settings, 'RETRIEVAL_MIN_SCORE', 0.3)
+            final_filtered = [r for r in reranked if float(r.get("rerank_score", 0)) >= min_score]
+            final = final_filtered if final_filtered else reranked[:3]  # 至少保留前3条
+            logger.info(f"精排完成（阈值 {min_score}），保留 {len(final)} 条结果")
 
         except Exception as e:
             logger.error(f"精排失败，使用原始结果: {e}")

@@ -197,6 +197,7 @@ class SimpleAgentAdapter:
                 agent_type=self.agent_type.value,
                 session_id=session_id or str(uuid.uuid4()),
                 metadata={"raw_metadata": response.metadata},
+                sources_count=response.metadata.get("sources_count", 0) if isinstance(response.metadata, dict) else 0,
                 processing_time=response.processing_time or (datetime.now() - start).total_seconds(),
             )
 
@@ -290,6 +291,7 @@ class AdvancedAgentAdapter:
                 confidence=confidence,
                 entities=[{"name": e.name, "type": e.type, "confidence": e.confidence}
                           for e in (response.entities or [])],
+                sources_count=response.metadata.get("sources_count", 0) if isinstance(response.metadata, dict) else 0,
                 subtasks=[{"id": t.id, "description": t.description, "status": t.status.value}
                           for t in (response.subtasks or [])],
                 tool_calls=response.tool_calls or [],
@@ -572,14 +574,22 @@ class ClawAgentAdapter:
                                     chunk="",
                                     done=False,
                                     event_type="retrieved",
-                                    metadata={"count": ev.get("count", 0)}
+                                    metadata={
+                                        "count": ev.get("count", 0),
+                                        # 检索结果列表（供前端展示来源卡片）
+                                        "results": ev.get("results", []),
+                                    }
                                 )
                             elif ev.get("type") == "reranked":
                                 yield StreamChunk(
                                     chunk="",
                                     done=False,
                                     event_type="reranked",
-                                    metadata={"count": ev.get("count", 0)}
+                                    metadata={
+                                        "count": ev.get("count", 0),
+                                        # 精排后结果列表（最终来源）
+                                        "results": ev.get("results", []),
+                                    }
                                 )
 
                 elif event_name == "on_chain_end":
@@ -622,6 +632,31 @@ class ClawAgentAdapter:
                             )
                             if not done:
                                 await asyncio.sleep(0.02)
+
+                        # 【兜底】流结束后发送 sources_final 事件，确保前端拿到完整来源数据
+                        # 前端的 retrieved/reranked 事件可能因为时序问题被覆盖，这里再发一次
+                        reranked_results = final_state.get("reranked_results", [])
+                        if reranked_results:
+                            yield StreamChunk(
+                                chunk="",
+                                done=False,
+                                event_type="sources_final",
+                                metadata={
+                                    "count": len(reranked_results),
+                                    "results": [
+                                        {
+                                            "content": r.get("content", "")[:300] if r.get("content") else "",
+                                            "chunk_text": r.get("chunk_text", "")[:500] if r.get("chunk_text") else "",
+                                            "score": r.get("rerank_score", r.get("_similarity", r.get("rrf_score", 0))),
+                                            "source": r.get("source", "unknown"),
+                                            "type": r.get("type", ""),
+                                            "metadata": r.get("metadata", {}),
+                                        }
+                                        for r in reranked_results
+                                    ],
+                                    "sources_count": len(reranked_results),
+                                },
+                            )
                     else:
                         # 无回答（可能有错误）
                         error = final_state.get("error") or final_state.get("metadata", {}).get("error_details")

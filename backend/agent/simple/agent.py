@@ -140,9 +140,18 @@ class SimpleRAGAgent(BaseAgent):
             
             print(f"Processing query: {query}")
             print(f"Chat history: {history_messages}")
-            # 获取上下文
+            # 获取上下文（同时统计检索结果数量）
             context = self._get_context(query)
             # print(f"Context: {context}")
+            # 统计检索到的文档数量
+            sources_count = 0
+            if "retriever" in self.tools:
+                try:
+                    retriever_results = self.tools["retriever"](query)
+                    sources_count = len(retriever_results) if retriever_results else 0
+                except Exception:
+                    pass
+            
             print(f"Prompt: {self.prompt.format(context=context, question=query, chat_history=history_messages)}")
             # 执行chain
             result = await self.chain.ainvoke({
@@ -157,6 +166,7 @@ class SimpleRAGAgent(BaseAgent):
                 metadata={
                     "session_id": session_id,
                     "has_context": "暂无相关检索信息" not in self._get_context(query),
+                    "sources_count": sources_count,
                 },
                 processing_time=processing_time
             )

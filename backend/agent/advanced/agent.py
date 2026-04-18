@@ -300,7 +300,21 @@ class AdvancedRAGAgent(BaseAgent):
             
             processing_time = time.time() - start_time
             
-            # 构建响应
+            # 构建响应，提取检索文档数
+            # 从工作流状态中获取检索到的文档数量
+            sources_count = 0
+            # 尝试从 metadata 或子任务中提取检索数量
+            meta = result.get("metadata") or {}
+            if isinstance(meta, dict):
+                sources_count = meta.get("retrieved_count", 0) or 0
+            # 如果 metadata 没有记录，尝试从 subtasks 中统计 knowledge_retrieval 结果
+            if sources_count == 0:
+                for st in result.get("subtasks", []):
+                    tr = result.get("task_results", {}).get(st.id)
+                    if tr and isinstance(tr, list):
+                        sources_count = len(tr)
+                        break
+
             return AgentResponse(
                 content=result.get("final_answer", "抱歉，处理失败。"),
                 intent=result.get("intent"),
@@ -314,6 +328,7 @@ class AdvancedRAGAgent(BaseAgent):
                     "session_id": session_id,
                     "is_follow_up": is_follow_up,
                     "error": result.get("error"),
+                    "sources_count": sources_count,
                     **result.get("metadata", {}),
                 },
                 processing_time=processing_time,

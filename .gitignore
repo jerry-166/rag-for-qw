@@ -22,6 +22,8 @@ logs/
 output/
 temp/
 
+backend/agent/sessions/
+
 # 环境变量文件
 .env
 .env.local

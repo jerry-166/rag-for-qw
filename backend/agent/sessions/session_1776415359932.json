@@ -1,22 +1,62 @@
 {
   "session_id": "session_1776415359932",
   "created_at": "2026-04-17T16:42:58.246960",
-  "updated_at": "2026-04-17T16:42:58.279623",
-  "title": "刘瑞杰是谁？",
+  "updated_at": "2026-04-17T22:51:52.756747",
+  "title": "你好",
   "messages": [
     {
       "role": "user",
-      "content": "刘瑞杰是谁？",
-      "timestamp": "2026-04-17T16:42:58.263888"
+      "content": "你好",
+      "timestamp": "2026-04-17T20:15:19.109634"
     },
     {
       "role": "assistant",
-      "content": "检索到的文档中没有提到“刘瑞杰”是谁。",
-      "timestamp": "2026-04-17T16:42:58.279623",
+      "content": "你好！我是你的知识助手，请问有什么可以帮忙的吗？",
+      "timestamp": "2026-04-17T20:15:19.123887"
+    },
+    {
+      "role": "user",
+      "content": "MCP是什么？",
+      "timestamp": "2026-04-17T22:41:06.672515"
+    },
+    {
+      "role": "assistant",
+      "content": "根据检索到的文档，MCP 是 Model Context Protocol 的缩写。它是一种协议，用于搭建服务端和客户端之间的通信，支持多种传输协议（如 HTTP 和 SSE）。在服务端，它可以通过 FastMCP 框架构建，支持身份校验和安全通信；在客户端，可以集成多个服务并适配不同的传输协议。\n\n来源：[1]",
+      "timestamp": "2026-04-17T22:41:06.685611",
       "metadata": {
         "intent": "retrieval",
-        "sources_count": 5,
-        "processing_time_ms": 8285
+        "sources_count": 1,
+        "processing_time_ms": 25208
+      }
+    },
+    {
+      "role": "user",
+      "content": "MCP能干嘛？",
+      "timestamp": "2026-04-17T22:43:38.329011"
+    },
+    {
+      "role": "assistant",
+      "content": "MCP（Model Context Protocol）主要用于服务端和客户端之间的通信，具有以下功能：\n\n1. **服务端功能**：可以通过 FastMCP 框架搭建服务，支持邮件发送工具、Prompt 模板和系统配置资源的定义。同时，MCP 配置了 JWT RSA 密钥对认证机制，用于身份校验，保障服务通信的安全性。\n\n2. **客户端功能**：支持多服务的集成，适配 Streamable HTTP 和 SSE 两种传输协议，能够对接本地 Python MCP 服务、日期调度 MCP 服务等，并封装不同服务的连接配置（如 URL、认证头和传输协议）。\n\n来源：[1]",
+      "timestamp": "2026-04-17T22:43:38.336605",
+      "metadata": {
+        "intent": "retrieval",
+        "sources_count": 2,
+        "processing_time_ms": 11169
+      }
+    },
+    {
+      "role": "user",
+      "content": "RAG是什么？",
+      "timestamp": "2026-04-17T22:51:52.712984"
+    },
+    {
+      "role": "assistant",
+      "content": "RAG（Retrieval-Augmented Generation）是一种智能问答系统架构，结合了检索和生成的能力。它通过检索相关文档（使用关键词检索或向量检索）来增强生成模型的回答能力，从而提供高效、准确的文档检索和问答服务。RAG支持多模态文档处理（如PDF、Markdown），并包含文档解析、索引构建、混合检索、结果重排和基于Agent的问答生成等核心功能。\n\n来源：[1]",
+      "timestamp": "2026-04-17T22:51:52.755730",
+      "metadata": {
+        "intent": "retrieval",
+        "sources_count": 2,
+        "processing_time_ms": 10119
       }
     }
   ]

@@ -512,26 +512,69 @@ async def get_session_history(
         raise HTTPException(status_code=500, detail=f"获取会话历史失败: {str(e)}")
 
 
-@router.delete("/session/{session_id}")
-async def clear_session(
-    session_id: str,
+@router.get("/sessions")
+async def list_all_sessions(
+    limit: int = 50,
     current_user=Depends(get_current_user),
 ):
     """
-    清空指定会话
+    列出所有历史会话（按更新时间降序）
 
-    删除会话的所有历史消息。
+    返回 sessions/ 目录下所有 .json 会话文件的摘要信息。
     """
     try:
         from agent.claw_agent.memory.session_store import SessionStore
         store = SessionStore()
-        store.clear_session(session_id)
+        sessions = store.list_sessions(limit=limit)
 
         return {
             "status": "success",
-            "message": f"会话 {session_id} 已清空",
+            "sessions": sessions,
+            "total": len(sessions),
         }
 
     except Exception as e:
-        logger.error(f"[Agent API] 清空会话失败: {e}")
-        raise HTTPException(status_code=500, detail=f"清空会话失败: {str(e)}")
+        logger.error(f"[Agent API] 列出会话失败: {e}")
+        raise HTTPException(status_code=500, detail=f"列出会话失败: {str(e)}")
+
+
+@router.delete("/session/{session_id}")
+async def delete_or_clear_session(
+    session_id: str,
+    action: Optional[str] = None,  # action=delete 真正删除文件，默认只清空消息
+    current_user=Depends(get_current_user),
+):
+    """
+    清空或删除指定会话
+
+    - 无 action 参数（或 action=clear）：清空会话的所有历史消息，保留会话文件
+    - action=delete：彻底删除会话文件（不可恢复）
+    """
+    try:
+        from agent.claw_agent.memory.session_store import SessionStore
+        store = SessionStore()
+
+        if action == "delete":
+            # 真正删除会话文件
+            success = store.delete_session(session_id)
+            if not success:
+                raise HTTPException(status_code=404, detail=f"会话 {session_id} 不存在")
+            return {
+                "status": "success",
+                "message": f"会话 {session_id} 已删除",
+                "action": "deleted",
+            }
+        else:
+            # 只清空消息（保留会话）
+            store.clear_session(session_id)
+            return {
+                "status": "success",
+                "message": f"会话 {session_id} 已清空",
+                "action": "cleared",
+            }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[Agent API] 操作会话失败: {e}")
+        raise HTTPException(status_code=500, detail=f"操作会话失败: {str(e)}")

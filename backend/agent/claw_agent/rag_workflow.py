@@ -249,24 +249,37 @@ def create_rag_workflow(memory_manager=None, session_store=None):
         # 并行检索所有子查询
         results_list = await asyncio.gather(*[search_one(q) for q in queries])
 
-        # 合并结果（去重）
+        # 合并结果（基于 chunk_text 去重）
         seen_keys = set()
         for results in results_list:
             for r in results:
-                key = r.get("content", "")[:200]
+                chunk_text = r.get("chunk_text", r.get("content", ""))
+                key = chunk_text[:300]  # 基于 chunk 前300字符去重
                 if key not in seen_keys:
                     seen_keys.add(key)
                     all_results.append(r)
 
         state["raw_results"] = all_results
         state["metadata"]["retrieved_count"] = len(all_results)
-        logger.info(f"[rag_workflow] 检索完成，共获得 {len(all_results)} 个候选文档片段")
+        logger.info(f"[rag_workflow] 检索完成，共获得 {len(all_results)} 个候选文档片段（去重后）")
 
         _emit_event(
             state,
             "retrieved",
             f"检索完成，共获得 {len(all_results)} 个候选文档片段",
             count=len(all_results),
+            # 附带检索结果详情（供前端展示来源）
+            results=[
+                {
+                    "content": r.get("content", "")[:300],
+                    "chunk_text": r.get("chunk_text", "")[:400],
+                    "score": r.get("_similarity", r.get("score", 0)),
+                    "source": r.get("source", "unknown"),
+                    "type": r.get("type", ""),
+                    "metadata": r.get("metadata", {}),
+                }
+                for r in all_results[:10]  # 最多传10条
+            ],
         )
 
         return state
@@ -320,6 +333,18 @@ def create_rag_workflow(memory_manager=None, session_store=None):
             "reranked",
             f"精排完成，选取最相关的 {len(reranked)} 条文档",
             count=len(reranked),
+            # 附带精排结果详情（供前端展示最终来源）
+            results=[
+                {
+                    "content": r.get("content", "")[:300],
+                    "chunk_text": r.get("chunk_text", "")[:400],
+                    "score": r.get("rerank_score", r.get("_similarity", r.get("rrf_score", 0))),
+                    "source": r.get("source", "unknown"),
+                    "type": r.get("type", ""),
+                    "metadata": r.get("metadata", {}),
+                }
+                for r in reranked
+            ],
         )
         logger.info(f"[rag_workflow] 精排完成，选取最相关的 {len(reranked)} 条文档")
         return state
@@ -378,7 +403,21 @@ def create_rag_workflow(memory_manager=None, session_store=None):
             # ── 写入会话存储 ──────────────────────────────────
             if session_store:
                 logger.info(f"[rag_workflow] 写入会话存储，会话ID: {state['session_id']}")
-            
+
+                # 构造持久化的 sources 数据（精排结果）
+                reranked_results = state.get("reranked_results", [])
+                sources_data = [
+                    {
+                        "content": r.get("content", "")[:300],
+                        "chunk_text": r.get("chunk_text", "")[:500],
+                        "score": r.get("rerank_score", r.get("_similarity", r.get("rrf_score", 0))),
+                        "source": r.get("source", "unknown"),
+                        "type": r.get("type", ""),
+                        "metadata": r.get("metadata", {}),
+                    }
+                    for r in reranked_results
+                ]
+
                 session_store.append_message(
                     state["session_id"], "user", query
                 )
@@ -392,6 +431,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
                         "processing_time_ms": int(
                             (datetime.now() - datetime.fromisoformat(state["start_time"])).total_seconds() * 1000
                         ),
+                        "sources": sources_data,
                     },
                 )
 
