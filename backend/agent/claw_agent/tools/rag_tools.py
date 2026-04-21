@@ -177,7 +177,11 @@ def rag_hybrid_search(
                     "content": r.get("content") or r.get("chunk_text", ""),
                 })
 
-            reranked = reranker.rerank(query=query, results=normalized, top_k=rerank_top_k)
+            # 同步函数内调用异步 reranker
+            # 本工具通过 asyncio.to_thread 在线程池中执行，线程内无运行中的事件循环
+            reranked = asyncio.run(
+                reranker.rerank(query=query, results=normalized, top_k=rerank_top_k)
+            )
             
             # 精排后再次过滤低分结果
             min_score = getattr(settings, 'RETRIEVAL_MIN_SCORE', 0.3)

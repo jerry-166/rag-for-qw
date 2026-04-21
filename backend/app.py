@@ -60,6 +60,20 @@ async def _preheat_agents(app_ref):
             elapsed = round((time.time() - start), 2)
             logger.info(f"[Agent预热] {at.value} Agent 预热完成 ({elapsed}s)")
 
+        # 预热 Reranker（CrossEncoder 模型约 5-8 秒，提前加载避免首请求延迟）
+        try:
+            from services.reranker import get_reranker
+            reranker_start = time.time()
+            reranker = get_reranker()
+            if hasattr(reranker, '_ensure_model_loaded'):
+                await reranker._ensure_model_loaded()
+                elapsed = round((time.time() - reranker_start), 2)
+                logger.info(f"[Agent预热] Reranker 模型预热完成 ({elapsed}s)")
+            else:
+                logger.info("[Agent预热] Reranker 非模型类型，跳过预热")
+        except Exception as e:
+            logger.warning(f"[Agent预热] Reranker 预热失败（不影响主流程）: {e}")
+
         if preheat:
             preheat['status'] = 'ready'
             preheat['finished_at'] = time.time()
@@ -101,6 +115,20 @@ async def lifespan(app: FastAPI):
     # 初始化存储实例
     app.state['storage'] = get_storage()
     logger.info(f"存储实例初始化完成，存储类型: {settings.STORAGE_TYPE}")
+
+    # ── 初始化追踪后端（Phoenix / Langfuse / None）──
+    try:
+        from evaluation.tracing import setup_tracing, get_tracer_info
+        tracing_result = setup_tracing()
+        app.state['tracer_info'] = get_tracer_info()
+        logger.info(f"[Tracing] 初始化完成: backend={tracing_result['backend']}, status={tracing_result['status']}")
+        if 'url' in tracing_result:
+            logger.info(f"[Tracing] Phoenix UI → {tracing_result['url']}")
+        elif 'host' in tracing_result:
+            logger.info(f"[Tracing] Langfuse Host → {tracing_result['host']}")
+    except Exception as e:
+        logger.warning(f"[Tracing] 初始化失败（不影响主流程）: {e}")
+        app.state['tracer_info'] = {"backend": "none", "initialized": False, "error": str(e)}
 
     # ── Agent 预热状态 ──
     app.state['agent_preheat'] = {

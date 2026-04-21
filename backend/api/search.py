@@ -119,13 +119,13 @@ def _enrich_results(final_ids: list, rrf_scores: dict) -> list:
     return results
 
 
-def _optional_rerank(query: str, results: list, top_k: int, enabled: bool) -> list:
+async def _optional_rerank(query: str, results: list, top_k: int, enabled: bool) -> list:
     """根据 enabled 决定是否执行 Rerank 精排。"""
     if not enabled or not results:
         return results[:top_k] if results else []
 
     reranker = get_reranker()
-    return reranker.rerank(query, results, top_k)
+    return await reranker.rerank(query, results, top_k)
 
 
 # ============================================================
@@ -158,7 +158,7 @@ async def query_milvus(
         )
 
         # 可选精排
-        results = _optional_rerank(
+        results = await _optional_rerank(
             request.query, raw_results, request.limit, request.use_rerank
         )
 
@@ -214,7 +214,7 @@ async def search_elasticsearch(
         )
 
         # 可选精排
-        results = _optional_rerank(
+        results = await _optional_rerank(
             request.query, raw_results, request.limit, request.use_rerank
         )
 
@@ -280,7 +280,7 @@ async def hybrid_search(
         final_results = _enrich_results(final_ids, rrf_scores)
 
         # ---- Step 4: 可选 Rerank 精排 ----
-        reranked = _optional_rerank(
+        reranked = await _optional_rerank(
             request.query, final_results, request.limit, request.use_rerank
         )
 

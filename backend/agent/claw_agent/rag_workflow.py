@@ -106,6 +106,8 @@ def create_rag_workflow(memory_manager=None, session_store=None):
         state["events"].append(event)
         logger.debug(f"[SSE Event] {event_type}: {content[:80]}")
 
+
+
     # 节点 1: classify_intent
     async def classify_intent(state: RAGAgentState) -> RAGAgentState:
         """意图分类节点：使用规则优先 + LLM 兜底的混合策略"""
@@ -389,8 +391,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
                 HumanMessage(content=user_message),
             ]
 
-            response = await llm.ainvoke(messages)
-            answer = response.content
+            answer = (await llm.ainvoke(messages)).content
             state["final_answer"] = answer
 
             _emit_event(
@@ -466,11 +467,10 @@ def create_rag_workflow(memory_manager=None, session_store=None):
             system_prompt = memory_manager.get_system_prompt(include_memory=False)
 
         try:
-            response = await llm.ainvoke([
+            answer = (await llm.ainvoke([
                 SystemMessage(content=system_prompt),
                 HumanMessage(content=state["query"]),
-            ])
-            answer = response.content
+            ])).content
             state["final_answer"] = answer
 
             _emit_event(state, "response_generated", answer)
