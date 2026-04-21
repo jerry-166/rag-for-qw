@@ -18,6 +18,22 @@ from config import settings, init_logger
 # 初始化日志记录器
 logger = init_logger(__name__)
 
+
+def _strip_markdown_json(text: str) -> str:
+    """
+    清理 LLM 输出中的 markdown 代码块包裹。
+    
+    LLM 经常返回 ```json\n{...}\n``` 格式，PydanticOutputParser 无法直接解析。
+    此函数在解析前清理掉代码块标记。
+    """
+    text = text.strip()
+    # 匹配 ```json ... ``` 或 ``` ... ```
+    pattern = r'^```(?:json)?\s*\n?(.*?)\n?\s*```$'
+    match = re.search(pattern, text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return text
+
 class StoredData(BaseModel):
     id: str
     chunk: str
@@ -148,45 +164,85 @@ class DocumentProcessor:
         }
     
     async def process_batch(self, chunk, batch_idx):
-        """处理批次"""
-        inputs = [{"document_text": d[:3000]} for d in chunk]
+        """
+        处理批次：使用 abatch 并发调用 LLM 生成子问题和摘要。
+        
+        防御策略：
+        1. LLM 输出 markdown 代码块包裹 → _strip_markdown_json 清理
+        2. 单条解析失败 → OutputFixingParser 修复，最终降级返回空
+        """
         logger.info(f"开始处理批次 {batch_idx}，包含 {len(chunk)} 个文档")
         start_time = time.time()
+        
+        # 构建 chain 输入列表（PromptTemplate 需要 document_text 参数）
+        inputs = [{"document_text": doc[:3000]} for doc in chunk]
+        
+        # 使用 abatch 并发调用
         try:
-            results = await self.gen_chain.abatch(inputs)  # results 是列表
-            end_time = time.time()
-            logger.info(f"批次 {batch_idx} 处理完成，耗时: {end_time - start_time:.2f}秒")
-            # 返回每个文档的结果
-            return {
-                "idx": batch_idx,
-                "results": [
-                    {"subqs": r.subqs, "summary": r.summary} for r in results
-                ]
-            }
+            raw_results = await self.gen_chain.abatch(inputs)
         except Exception as e:
-            end_time = time.time()
-            logger.error(f"批次 {batch_idx} 处理异常: {e}，耗时: {end_time - start_time:.2f}秒")
-            # 返回空结果
-            return {
-                "idx": batch_idx,
-                "results": [
-                    {"subqs": [], "summary": ""} for _ in chunk
-                ]
-            }
+            logger.error(f"批次 {batch_idx} abatch 调用失败: {e}")
+            # abatch 整体失败时，降级为逐条调用
+            raw_results = []
+            for inp in inputs:
+                try:
+                    result = await self.gen_chain.ainvoke(inp)
+                    raw_results.append(result)
+                except Exception as inner_e:
+                    logger.warning(f"批次 {batch_idx} 单条调用失败: {inner_e}")
+                    raw_results.append(None)
+        
+        # 解析结果
+        results = []
+        for i, raw in enumerate(raw_results):
+            if raw is None:
+                results.append({"subqs": [], "summary": ""})
+                continue
+            try:
+                # fixing_parser 成功时直接返回 SubqAndSummary 对象
+                if isinstance(raw, SubqAndSummary):
+                    results.append({"subqs": raw.subqs, "summary": raw.summary})
+                    continue
+                # 字符串情况：先清理 markdown 代码块再 JSON 解析
+                if isinstance(raw, str):
+                    cleaned = _strip_markdown_json(raw)
+                    parsed = json.loads(cleaned)
+                    results.append({"subqs": parsed.get("subqs", []), "summary": parsed.get("summary", "")})
+                    continue
+                # 其他情况尝试直接取属性
+                results.append({"subqs": getattr(raw, 'subqs', []), "summary": getattr(raw, 'summary', '')})
+            except (json.JSONDecodeError, AttributeError, TypeError) as e:
+                logger.warning(f"批次 {batch_idx} 第 {i} 条解析失败: {e}")
+                results.append({"subqs": [], "summary": ""})
+        
+        end_time = time.time()
+        logger.info(f"批次 {batch_idx} 处理完成，耗时: {end_time - start_time:.2f}秒")
+        return {
+            "idx": batch_idx,
+            "results": results,
+        }
     
     async def generate_batches_async_concurrent(self, datas, batch_size=settings.BATCH_SIZE, max_concurrency=settings.MAX_CONCURRENCY):
-        """并发生成批次"""
+        """
+        并发生成批次。
+        
+        策略：
+        - 外层 Semaphore 控制批次并发
+        - 每个批次内使用 abatch 并发调用 LLM
+        - ChatModel 自带 max_retries 应对 429 限流
+        """
         start_time = time.time()
         docs = [d.chunk for d in datas]
         batches = [docs[i:i+batch_size] for i in range(0, len(docs), batch_size)]
+
         sem = asyncio.Semaphore(max_concurrency)
-        
+
         async def sem_task(chunk, batch_idx):
             async with sem:
                 return await self.process_batch(chunk, batch_idx)
-        
+
         tasks = [sem_task(chunk, idx) for idx, chunk in enumerate(batches)]
-        logger.info(f"开始生成子问题和摘要，共 {len(batches)} 个批次，并发数: {max_concurrency}")
+        logger.info(f"开始生成子问题和摘要，共 {len(batches)} 个批次，并发数: {max_concurrency}（批次大小: {batch_size}）")
         results_list = await asyncio.gather(*tasks)
         end_time = time.time()
         logger.info(f"全部批次处理完成，总耗时: {end_time - start_time:.2f}秒")
