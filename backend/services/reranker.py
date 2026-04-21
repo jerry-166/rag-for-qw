@@ -13,6 +13,7 @@ Reranker 服务模块 — 独立的重排序服务
 """
 
 from abc import ABC, abstractmethod
+import asyncio
 from typing import List, Dict, Optional
 
 from config import settings, init_logger
@@ -24,7 +25,7 @@ class BaseReranker(ABC):
     """Reranker 抽象基类 — 统一接口"""
 
     @abstractmethod
-    def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
+    async def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
         """
         对搜索结果进行重排序。
 
@@ -71,7 +72,7 @@ class LLMReranker(BaseReranker):
     def is_available(self) -> bool:
         return bool(self._api_key and self._base_url)
 
-    def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
+    async def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
         if not results:
             return []
 
@@ -141,14 +142,45 @@ class CrossEncoderReranker(BaseReranker):
     效果通常优于 LLM Prompt 方式，且延迟更低、更稳定。
 
     需要安装: pip install sentence-transformers
+
+    线程安全：模型加载使用 asyncio.Lock 保护，防止并发请求重复加载。
     """
 
     def __init__(self, model_name: str = "BAAI/bge-reranker-v2-m3"):
         self._model = None
         self._model_name = model_name
+        self._load_lock = None  # 延迟创建，避免 event loop 未就绪时报错
+
+    def _get_load_lock(self):
+        """延迟创建 asyncio.Lock（必须在 event loop 内创建）。"""
+        if self._load_lock is None:
+            self._load_lock = asyncio.Lock()
+        return self._load_lock
+
+    async def _ensure_model_loaded(self):
+        """
+        加载 CrossEncoder 模型（带并发锁保护）。
+
+        解决 asyncio.gather 并行检索时多个协程同时触发懒加载的竞态问题：
+        - 第一个协程获取锁，加载模型
+        - 其余协程等待锁释放后，发现 self._model 已不为 None，直接跳过加载
+        """
+        if self._model is not None:
+            return  # 模型已加载，快速返回
+
+        lock = self._get_load_lock()
+        async with lock:
+            # double-check：拿到锁后再检查一次，避免等待期间另一个协程已加载
+            if self._model is not None:
+                return
+
+            from sentence_transformers import CrossEncoder
+            logger.info(f"[CrossEncoderReranker] 开始加载模型: {self._model_name}...")
+            self._model = CrossEncoder(self._model_name)
+            logger.info(f"[CrossEncoderReranker] 模型加载完成: {self._model_name}")
 
     def _get_model(self):
-        """懒加载 CrossEncoder 模型（全局只加载一次）。"""
+        """同步获取模型（仅用于兼容场景，推荐用 _ensure_model_loaded）。"""
         if self._model is None:
             from sentence_transformers import CrossEncoder
             self._model = CrossEncoder(self._model_name)
@@ -163,12 +195,13 @@ class CrossEncoderReranker(BaseReranker):
             logger.warning("sentence_transformers 未安装，CrossEncoderReranker 不可用")
             return False
 
-    def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
+    async def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
         if not results:
             return []
 
         try:
-            model = self._get_model()
+            await self._ensure_model_loaded()
+            model = self._model
 
             # 构造 (query, doc) 对
             pairs = [
@@ -199,7 +232,7 @@ class NoopReranker(BaseReranker):
     def is_available(self) -> bool:
         return True
 
-    def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
+    async def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
         return results[:top_k]
 
 
