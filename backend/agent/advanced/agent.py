@@ -246,6 +246,7 @@ class AdvancedRAGAgent(BaseAgent):
         self.tool_manager.register_tool(name, description or name, func, parameters)
     
     async def process(self, query: str, session_id: Optional[str] = None,
+                     callbacks: Optional[List] = None,
                      **kwargs) -> AgentResponse:
         """
         处理用户查询
@@ -253,6 +254,7 @@ class AdvancedRAGAgent(BaseAgent):
         Args:
             query: 用户查询
             session_id: 会话ID（可选，自动创建）
+            callbacks: LangChain callbacks（用于追踪，如 Langfuse CallbackHandler）
             **kwargs: 额外参数
             
         Returns:
@@ -295,8 +297,11 @@ class AdvancedRAGAgent(BaseAgent):
                 "start_time": datetime.now(),
             }
             
-            # 执行工作流
-            result = await self.workflow.ainvoke(initial_state)
+            # 执行工作流，注入追踪 callbacks
+            invoke_config = {}
+            if callbacks:
+                invoke_config["callbacks"] = callbacks
+            result = await self.workflow.ainvoke(initial_state, config=invoke_config if invoke_config else None)
             
             processing_time = time.time() - start_time
             
@@ -348,15 +353,19 @@ class AdvancedRAGAgent(BaseAgent):
                 processing_time=processing_time,
             )
     
-    async def process_stream(self, query: str, session_id: Optional[str] = None):
+    async def process_stream(self, query: str, session_id: Optional[str] = None,
+                              callbacks: Optional[List] = None):
         """
         流式处理（模拟）
         
         由于LangGraph的限制，这里模拟流式输出
+
+        Args:
+            callbacks: LangChain callbacks（透传给 process）
         """
         logger.info(f"[AdvancedRAGAgent] 流式处理")
 
-        response = await self.process(query, session_id)
+        response = await self.process(query, session_id, callbacks=callbacks)
         
         # 模拟流式输出
         content = response.content

@@ -114,6 +114,7 @@ class SimpleRAGAgent(BaseAgent):
     
     async def process(self, query: str, session_id: Optional[str] = None,
                      chat_history: Optional[List[Dict]] = None,
+                     callbacks: Optional[List] = None,
                      **kwargs) -> AgentResponse:
         """
         处理用户查询
@@ -122,6 +123,7 @@ class SimpleRAGAgent(BaseAgent):
             query: 用户查询
             session_id: 会话ID（简单版本不使用）
             chat_history: 对话历史
+            callbacks: LangChain callbacks（用于追踪，如 Langfuse CallbackHandler）
             
         Returns:
             AgentResponse: Agent响应
@@ -153,11 +155,17 @@ class SimpleRAGAgent(BaseAgent):
                     pass
             
             print(f"Prompt: {self.prompt.format(context=context, question=query, chat_history=history_messages)}")
-            # 执行chain
-            result = await self.chain.ainvoke({
-                "question": query,
-                "chat_history": history_messages,
-            })
+            # 执行chain，注入追踪 callbacks
+            invoke_kwargs = {}
+            if callbacks:
+                invoke_kwargs["config"] = {"callbacks": callbacks}
+            result = await self.chain.ainvoke(
+                {
+                    "question": query,
+                    "chat_history": history_messages,
+                },
+                **invoke_kwargs,
+            )
             
             processing_time = time.time() - start_time
             
@@ -188,13 +196,17 @@ class SimpleRAGAgent(BaseAgent):
         """
         self.register_tool("retriever", retriever_func)
     
-    async def stream_process(self, query: str, chat_history: Optional[List[Dict]] = None):
+    async def stream_process(self, query: str, chat_history: Optional[List[Dict]] = None,
+                              callbacks: Optional[List] = None, **kwargs):
         """
         流式处理（简单版本：异步调用 process 后模拟分块输出）
 
         协议要求：返回 AsyncGenerator[StreamChunk, None]
+
+        Args:
+            callbacks: LangChain callbacks（透传给 process）
         """
-        result = await self.process(query, chat_history=chat_history)
+        result = await self.process(query, chat_history=chat_history, callbacks=callbacks)
         content = result.content
         chunk_size = 15
         for i in range(0, len(content), chunk_size):

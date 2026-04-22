@@ -29,6 +29,7 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from langfuse import observe, propagate_attributes
 
 from config import init_logger
 from services.auth import get_current_user
@@ -264,6 +265,7 @@ async def agent_health(
     return health_status
 
 
+@observe(as_type="span", name="chat")
 @router.post("/chat")
 async def chat(
     request: ChatRequest,
@@ -298,23 +300,30 @@ async def chat(
 
     try:
         agent = registry.get(agent_type=agent_type)
-        response = await agent.process(
-            query=request.query,
-            session_id=request.session_id,
-            chat_history=request.chat_history,
-            knowledge_base_id=request.knowledge_base_id,
-        )
 
-        return {
-            "status": "success",
-            "response": response.to_dict(),
-        }
+        # 获取追踪 callbacks（Phoenix 全局模式返回 []，Langfuse 返回 [CallbackHandler]）
+        from evaluation.tracing import get_callbacks
+        callbacks = get_callbacks()
+
+        with propagate_attributes(session_id=request.session_id, user_id=str(current_user["id"])):
+            response = await agent.process(
+                query=request.query,
+                session_id=request.session_id,
+                chat_history=request.chat_history,
+                knowledge_base_id=request.knowledge_base_id,
+                callbacks=callbacks,
+            )
+
+            return {
+                "status": "success",
+                "response": response.to_dict(),
+            }
 
     except Exception as e:
         logger.error(f"[Agent API] chat 失败 ({agent_type_str}): {e}")
         raise HTTPException(status_code=500, detail=f"Agent 处理失败: {str(e)}")
 
-
+@observe(as_type="span", name="chat_stream")
 @router.post("/chat/stream")
 async def chat_stream(
     request: ChatRequest,
@@ -359,31 +368,37 @@ async def chat_stream(
         try:
             agent = registry.get(agent_type=agent_type)
 
+            # 获取追踪 callbacks
+            from evaluation.tracing import get_callbacks
+            callbacks = get_callbacks()
+
             # 发射连接成功事件
             import json
             yield f"data: {json.dumps({'type': 'connected', 'session_id': session_id, 'agent_type': agent_type_str})}\n\n".encode("utf-8")
 
             # 判断是否支持真正的流式
-            if hasattr(agent, "stream_process") and agent_type == AgentType.CLAW:
-                # ClawAgent 支持真正的流式
-                async for chunk in agent.stream_process(
-                    query=request.query,
-                    session_id=session_id,
-                    chat_history=request.chat_history,
-                    knowledge_base_id=request.knowledge_base_id,
-                ):
-                    yield chunk.to_sse().encode("utf-8")
-            else:
-                # 其他 Agent 模拟流式
-                async for chunk in agent.stream_process(
-                    query=request.query,
-                    session_id=session_id,
-                    chat_history=request.chat_history,
-                ):
-                    yield chunk.to_sse().encode("utf-8")
-
-            # 发射结束事件
-            yield f"data: {json.dumps({'type': 'done', 'session_id': session_id})}\n\n".encode("utf-8")
+            with propagate_attributes(session_id=session_id, user_id=str(current_user["id"])):
+                if hasattr(agent, "stream_process") and agent_type == AgentType.CLAW:
+                    # ClawAgent 支持真正的流式
+                    async for chunk in agent.stream_process(
+                        query=request.query,
+                        session_id=session_id,
+                        chat_history=request.chat_history,
+                        knowledge_base_id=request.knowledge_base_id,
+                        callbacks=callbacks,
+                    ):
+                        yield chunk.to_sse().encode("utf-8")
+                else:
+                    # 其他 Agent 模拟流式
+                    async for chunk in agent.stream_process(
+                        query=request.query,
+                        session_id=session_id,
+                        chat_history=request.chat_history,
+                        callbacks=callbacks,
+                    ):
+                        yield chunk.to_sse().encode("utf-8")
+                # 发射结束事件
+                yield f"data: {json.dumps({'type': 'done', 'session_id': session_id})}\n\n".encode("utf-8")
 
         except Exception as e:
             logger.error(f"[Agent API] 流式处理失败 ({agent_type_str}): {e}")
@@ -439,6 +454,9 @@ async def compare_agents(
         target_types = None
 
     start_time = datetime.now()
+    # 获取追踪 callbacks
+    from evaluation.tracing import get_callbacks
+    callbacks = get_callbacks()
 
     try:
         # 并行执行所有 Agent
@@ -446,6 +464,7 @@ async def compare_agents(
             query=request.query,
             session_id=request.session_id,
             chat_history=request.chat_history,
+            callbacks=callbacks,
         )
 
         # 过滤指定的类型

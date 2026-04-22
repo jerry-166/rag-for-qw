@@ -180,6 +180,7 @@ class SimpleAgentAdapter:
         query: str,
         session_id: Optional[str] = None,
         chat_history: Optional[List[Dict]] = None,
+        callbacks: Optional[List] = None,
         **kwargs
     ) -> UnifiedResponse:
         start = datetime.now()
@@ -189,6 +190,7 @@ class SimpleAgentAdapter:
                 query=query,
                 session_id=session_id,
                 chat_history=chat_history or [],
+                callbacks=callbacks,
                 **kwargs
             )
 
@@ -216,10 +218,11 @@ class SimpleAgentAdapter:
         query: str,
         session_id: Optional[str] = None,
         chat_history: Optional[List[Dict]] = None,
+        callbacks: Optional[List] = None,
         **kwargs
     ) -> AsyncGenerator[StreamChunk, None]:
         """Simple Agent 模拟流式输出"""
-        response = await self.process(query, session_id, chat_history, **kwargs)
+        response = await self.process(query, session_id, chat_history, callbacks=callbacks, **kwargs)
         logger.info(f"[SimpleAgentAdapter] 流式处理查询: {query}")
         if response.error:
             logger.error(f"[SimpleAgentAdapter] 流式处理查询失败: {response.error}")
@@ -265,6 +268,7 @@ class AdvancedAgentAdapter:
         query: str,
         session_id: Optional[str] = None,
         chat_history: Optional[List[Dict]] = None,
+        callbacks: Optional[List] = None,
         **kwargs
     ) -> UnifiedResponse:
         start = datetime.now()
@@ -273,6 +277,7 @@ class AdvancedAgentAdapter:
             response = await self._agent.process(
                 query=query,
                 session_id=session_id,
+                callbacks=callbacks,
                 **kwargs
             )
 
@@ -314,10 +319,11 @@ class AdvancedAgentAdapter:
         query: str,
         session_id: Optional[str] = None,
         chat_history: Optional[List[Dict]] = None,
+        callbacks: Optional[List] = None,
         **kwargs
     ) -> AsyncGenerator[StreamChunk, None]:
         """Advanced Agent 模拟流式输出"""
-        response = await self.process(query, session_id, chat_history, **kwargs)
+        response = await self.process(query, session_id, chat_history, callbacks=callbacks, **kwargs)
         logger.info(f"[AdvancedAgentAdapter] 流式处理查询: {query}")
 
         if response.error:
@@ -403,6 +409,7 @@ class ClawAgentAdapter:
         session_id: Optional[str] = None,
         chat_history: Optional[List[Dict]] = None,
         knowledge_base_id: Optional[int] = None,
+        callbacks: Optional[List] = None,
         **kwargs
     ) -> UnifiedResponse:
         """
@@ -413,6 +420,7 @@ class ClawAgentAdapter:
             session_id: 会话 ID（自动生成）
             chat_history: 对话历史（可选，但建议提供）
             knowledge_base_id: 知识库 ID（覆盖默认）
+            callbacks: LangChain callbacks（用于追踪，如 Langfuse CallbackHandler）
             **kwargs: 额外参数
         """
         from agent.claw_agent.rag_workflow import build_initial_state
@@ -429,22 +437,38 @@ class ClawAgentAdapter:
                 knowledge_base_id=knowledge_base_id,
             )
 
-            # 执行工作流，添加必要的checkpoint keys
-            result = await workflow.ainvoke(
-                initial_state,
-                config={
-                    "configurable": {
-                        "thread_id": session_id,
-                        "checkpoint_ns": "claw_agent",
-                        "checkpoint_id": f"{session_id}_{datetime.now().timestamp()}"
-                    }
+            # 构建 LangGraph config，合并追踪 callbacks
+            invoke_config: Dict[str, Any] = {
+                "configurable": {
+                    "thread_id": session_id,
+                    "checkpoint_ns": "claw_agent",
+                    "checkpoint_id": f"{session_id}_{datetime.now().timestamp()}"
                 }
-            )
+            }
+            if callbacks:
+                invoke_config["callbacks"] = callbacks
+
+            # 执行工作流
+            result = await workflow.ainvoke(initial_state, config=invoke_config)
 
             # 提取意图信息
             intent_obj = result.get("intent")
             intent_str = intent_obj.type.value if intent_obj else None
             confidence = intent_obj.confidence if intent_obj else None
+
+            # 透传 reranked_results 供评估器提取 contexts
+            reranked_results = result.get("reranked_results", [])
+            sources_data = [
+                {
+                    "content": r.get("content", ""),
+                    "chunk_text": r.get("chunk_text", ""),
+                    "score": r.get("rerank_score", r.get("rrf_score", 0)),
+                    "source": r.get("source", ""),
+                    "type": r.get("type", ""),
+                    "metadata": r.get("metadata", {}),
+                }
+                for r in reranked_results
+            ]
 
             return UnifiedResponse(
                 content=result.get("final_answer", ""),
@@ -458,6 +482,7 @@ class ClawAgentAdapter:
                     "expanded_queries": result.get("expanded_queries", []),
                     "retrieved_count": result.get("metadata", {}).get("retrieved_count", 0),
                     "error_details": result.get("metadata", {}).get("error_details"),
+                    "sources": sources_data,  # 供评估器提取 contexts
                 },
                 processing_time=result.get("metadata", {}).get(
                     "processing_time_ms",
@@ -481,6 +506,7 @@ class ClawAgentAdapter:
         session_id: Optional[str] = None,
         chat_history: Optional[List[Dict]] = None,
         knowledge_base_id: Optional[int] = None,
+        callbacks: Optional[List] = None,
         **kwargs
     ) -> AsyncGenerator[StreamChunk, None]:
         """
@@ -489,6 +515,9 @@ class ClawAgentAdapter:
         ClawAgent 支持真正的流式输出：
         1. 先发射 thinking 事件（客户端可展示"正在思考..."）
         2. 再逐块发射回答内容
+
+        Args:
+            callbacks: LangChain callbacks（用于追踪，如 Langfuse CallbackHandler）
         """
         from agent.claw_agent.rag_workflow import build_initial_state
         logger.info(f"[ClawAgentAdapter] 流式处理查询: {query}")
@@ -506,17 +535,22 @@ class ClawAgentAdapter:
 
             answer_sent = False  # 防止多个 on_chain_end 重复输出答案
 
-            # 使用异步迭代器流式执行，添加必要的checkpoint keys
+            # 构建 LangGraph config，合并追踪 callbacks
+            stream_config: Dict[str, Any] = {
+                "configurable": {
+                    "thread_id": session_id,
+                    "checkpoint_ns": "claw_agent",
+                    "checkpoint_id": f"{session_id}_{datetime.now().timestamp()}"
+                }
+            }
+            if callbacks:
+                stream_config["callbacks"] = callbacks
+
+            # 使用异步迭代器流式执行
             async for event in workflow.astream_events(
                 initial_state, 
                 version="v2",
-                config={
-                    "configurable": {
-                        "thread_id": session_id,
-                        "checkpoint_ns": "claw_agent",
-                        "checkpoint_id": f"{session_id}_{datetime.now().timestamp()}"
-                    }
-                }
+                config=stream_config
             ):
                 # 确保event是字典
                 if not isinstance(event, dict):
@@ -810,6 +844,7 @@ class AgentRegistry:
         query: str,
         session_id: Optional[str] = None,
         chat_history: Optional[List[Dict]] = None,
+        callbacks: Optional[List] = None,
     ) -> Dict[str, UnifiedResponse]:
         """
         批量对比所有已注册的 Agent
@@ -818,7 +853,8 @@ class AgentRegistry:
             query: 查询文本
             session_id: 会话 ID（每个 Agent 会生成独立的 session_id）
             chat_history: 对话历史
-
+            callbacks: LangChain callbacks（透传给 process 方法）
+        
         Returns:
             { agent_type: UnifiedResponse } 字典
         """
@@ -832,6 +868,7 @@ class AgentRegistry:
                     query=query,
                     session_id=f"{session_id}_{agent_type.value}" if session_id else None,
                     chat_history=chat_history,
+                    callbacks=callbacks,
                 )
                 results[agent_type.value] = response
             except Exception as e:

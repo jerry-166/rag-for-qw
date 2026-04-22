@@ -23,6 +23,8 @@ output/
 temp/
 
 backend/agent/sessions/
+backend/evaluation/reports/
+backend/evaluation/testsets/
 
 # 环境变量文件
 .env

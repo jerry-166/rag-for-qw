@@ -1,8 +1,12 @@
 import os
 import logging
 from pathlib import Path
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from concurrent_log_handler import ConcurrentTimedRotatingFileHandler
+
+# 显式加载 .env 文件到系统环境变量，确保所有 os.getenv() 都能读取到
+load_dotenv(dotenv_path=Path(__file__).parent / ".env", override=False)
 
 
 class Settings(BaseSettings):

@@ -10,6 +10,7 @@ from .processing import router as processing_router
 from .search import router as search_router
 from .stats import router as stats_router
 from .agent import router as agent_router
+from .evaluation import router as evaluation_router
 
 api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 api_router.include_router(knowledge_bases_router, prefix="/knowledge-bases", tags=["knowledge-bases"])
@@ -19,3 +20,4 @@ api_router.include_router(processing_router, prefix="/process", tags=["processin
 api_router.include_router(search_router, tags=["search"])
 api_router.include_router(stats_router, prefix="/stats", tags=["stats"])
 api_router.include_router(agent_router, tags=["agent"])
+api_router.include_router(evaluation_router, tags=["evaluation"])
