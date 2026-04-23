@@ -266,6 +266,7 @@ async def agent_health(
     return health_status
 
 
+@observe(as_type="span", name="chat")
 @router.post("/chat")
 async def chat(
     request: ChatRequest,
