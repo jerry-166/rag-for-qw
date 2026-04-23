@@ -298,10 +298,10 @@ class AdvancedRAGAgent(BaseAgent):
             }
             
             # 执行工作流，注入追踪 callbacks
-            invoke_config = {}
             if callbacks:
-                invoke_config["callbacks"] = callbacks
-            result = await self.workflow.ainvoke(initial_state, config=invoke_config if invoke_config else None)
+                result = await self.workflow.ainvoke(initial_state, config={"callbacks": callbacks})
+            else:
+                result = await self.workflow.ainvoke(initial_state)
             
             processing_time = time.time() - start_time
             

@@ -308,6 +308,29 @@ const AgentAPI = {
   async deleteSession(sessionId) {
     return request(`/api/agent/session/${encodeURIComponent(sessionId)}?action=delete`, { method: 'DELETE' });
   },
+
+  /**
+   * 提交消息反馈（点赞 / 点踩）并同步到 Langfuse
+   * @param {Object} opts
+   * @param {string}  opts.traceId       - Langfuse trace ID（确定性 ID，由后端 SSE 事件下发）
+   * @param {number}  opts.value         - 1=点赞 / 0=点踩
+   * @param {string}  [opts.comment]     - 可选评论
+   * @param {number}  [opts.messageIndex] - 消息在会话中的下标
+   * @param {string}  [opts.sessionId]    - 会话 ID（fallback，后端用它计算确定性 trace_id）
+   * @returns {Promise<{status, trace_id, value, synced_to_langfuse}>}
+   */
+  async feedback({ traceId, value, comment = null, messageIndex = null, sessionId = null }) {
+    return request('/api/agent/feedback', {
+      method: 'POST',
+      body: JSON.stringify({
+        trace_id: traceId,
+        value,
+        ...(comment !== null ? { comment } : {}),
+        ...(messageIndex !== null ? { message_index: messageIndex } : {}),
+        ...(sessionId !== null ? { session_id: sessionId } : {}),
+      }),
+    });
+  },
 };
 
 // ===== 检索 API =====

@@ -62,10 +62,14 @@ class LLMReranker(BaseReranker):
     def _get_client(self):
         """懒加载 OpenAI 客户端（复用连接）。"""
         if self._client is None:
-            from langchain_openai import OpenAI
-            self._client = OpenAI(
+            
+            from langchain_openai import ChatOpenAI
+            self._client = ChatOpenAI(
                 api_key=self._api_key,
                 base_url=self._base_url,
+                model=self._model,
+                temperature=0.1,
+                max_tokens=200,
             )
         return self._client
 
@@ -94,25 +98,14 @@ class LLMReranker(BaseReranker):
                 "请以 JSON 格式返回，例如：{\"order\": [1,3,2,5,4]}"
             )
 
-            response = client.chat.completions.create(
-                model=self._model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "你是一个专业的信息检索助手，擅长根据查询语句对搜索结果进行相关性排序。"
-                            "只返回 JSON，不要包含其他文字。"
-                        )
-                    },
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.1,
-                max_tokens=200,
-            )
-
-            # 解析响应
-            raw_content = response.choices[0].message.content.strip()
-
+            # langchain_openai.ChatOpenAI — 使用 invoke()
+            from langchain_core.messages import SystemMessage, HumanMessage
+            lc_response = client.invoke([
+                SystemMessage(content="你是一个专业的信息检索助手，擅长根据查询语句对搜索结果进行相关性排序。只返回 JSON，不要包含其他文字。"),
+                HumanMessage(content=prompt),
+            ])
+            raw_content = lc_response.content.strip()
+            
             # 尝试 JSON 解析
             import json, re
             order = list(range(len(results)))  # 默认顺序作为降级

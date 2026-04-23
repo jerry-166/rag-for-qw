@@ -1,6 +1,11 @@
 # 依赖目录
 frontend/node_modules/
 
+# uv 虚拟环境和依赖文件
+.venv/
+uv.lock
+
+# 其他忽略项
 *.md
 .gitignore
 .workbuddy/
@@ -52,4 +57,3 @@ build/
 *.sqlite3
 
 frontend_design/
-

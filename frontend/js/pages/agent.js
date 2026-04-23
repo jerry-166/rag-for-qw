@@ -466,6 +466,8 @@ window.AgentPage = window.AgentPage || {
     const isStreaming = msg._streaming || false;
     const citations = msg.citations || [];
     const sources = msg.sources || [];   // 精排后来源
+    // 反馈状态：null | 'up' | 'down'
+    const feedback = msg.feedback || null;
 
     return `
       <div class="message message-agent" data-idx="${idx}">
@@ -497,7 +499,48 @@ window.AgentPage = window.AgentPage || {
               </div>
             </div>
           ` : ''}
+          ${!isStreaming ? this._renderFeedbackBar(idx, feedback) : ''}
         </div>
+      </div>
+    `;
+  },
+
+  _renderFeedbackBar(msgIdx, feedback, comment = '') {
+    const upActive   = feedback === 'up'   ? 'active' : '';
+    const downActive = feedback === 'down' ? 'active' : '';
+    // 点踩且尚未最终提交时显示评论框；若已有 comment 说明已提交
+    const showCommentBox = feedback === 'down' && !comment;
+    const showThanks     = (feedback === 'up') || (feedback === 'down' && comment !== undefined && comment !== null && comment !== '__skip__');
+    const showSkipThanks = feedback === 'down' && comment === '__skip__';
+
+    return `
+      <div class="feedback-bar" data-msg-idx="${msgIdx}">
+        <div class="feedback-row">
+          <span class="feedback-label">对此回答：</span>
+          <button class="feedback-btn feedback-up ${upActive}"
+                  title="这个回答很有帮助"
+                  data-feedback-idx="${msgIdx}" data-feedback-value="1">
+            👍
+          </button>
+          <button class="feedback-btn feedback-down ${downActive}"
+                  title="这个回答需要改进"
+                  data-feedback-idx="${msgIdx}" data-feedback-value="0">
+            👎
+          </button>
+          ${(showThanks || showSkipThanks) ? '<span class="feedback-thanks">已反馈，感谢！</span>' : ''}
+        </div>
+        ${showCommentBox ? `
+          <div class="feedback-comment-box" data-comment-idx="${msgIdx}">
+            <textarea class="feedback-comment-input"
+                      placeholder="（可选）请简述问题所在，帮助我们改进……"
+                      maxlength="300"
+                      rows="2"></textarea>
+            <div class="feedback-comment-actions">
+              <button class="feedback-comment-submit" data-comment-idx="${msgIdx}">提交</button>
+              <button class="feedback-comment-skip"   data-comment-idx="${msgIdx}">跳过</button>
+            </div>
+          </div>
+        ` : ''}
       </div>
     `;
   },
@@ -784,6 +827,39 @@ window.AgentPage = window.AgentPage || {
     document.querySelectorAll('.citation-card').forEach(card => {
       card.addEventListener('click', () => card.classList.toggle('expanded'));
     });
+
+    // 反馈按钮（事件委托，挂在消息容器上）
+    const messagesEl = document.getElementById('agent-messages');
+    if (messagesEl) {
+      messagesEl.addEventListener('click', (e) => {
+        // 点赞 / 点踩按钮
+        const btn = e.target.closest('.feedback-btn');
+        if (btn) {
+          const idx = parseInt(btn.dataset.feedbackIdx, 10);
+          const value = parseInt(btn.dataset.feedbackValue, 10);
+          if (!isNaN(idx) && !isNaN(value)) {
+            this._handleFeedback(idx, value);
+          }
+          return;
+        }
+
+        // 点踩评论框 — 提交
+        const submitBtn = e.target.closest('.feedback-comment-submit');
+        if (submitBtn) {
+          const idx = parseInt(submitBtn.dataset.commentIdx, 10);
+          if (!isNaN(idx)) this._submitFeedbackComment(idx, false);
+          return;
+        }
+
+        // 点踩评论框 — 跳过
+        const skipBtn = e.target.closest('.feedback-comment-skip');
+        if (skipBtn) {
+          const idx = parseInt(skipBtn.dataset.commentIdx, 10);
+          if (!isNaN(idx)) this._submitFeedbackComment(idx, true);
+          return;
+        }
+      });
+    }
   },
 
   _bindSidebarEvents() {
@@ -947,6 +1023,10 @@ window.AgentPage = window.AgentPage || {
 
           switch (data.type) {
             case 'connected':
+              // 保存 Langfuse trace_id（由后端 @observe() 上下文生成）
+              if (data.trace_id) {
+                session.messages[msgIdx].trace_id = data.trace_id;
+              }
               console.log('[Agent SSE] 已连接:', data);
               break;
 
@@ -965,6 +1045,10 @@ window.AgentPage = window.AgentPage || {
               // 流结束 — 标记状态 + 兜底渲染来源面板
               session.messages[msgIdx]._streaming = false;
               session.messages[msgIdx].content = fullContent || '（无回复内容）';
+              // done 事件中的 trace_id 比 connected 更可靠（CallbackHandler 执行后 trace 才确定）
+              if (data.trace_id) {
+                session.messages[msgIdx].trace_id = data.trace_id;
+              }
               if (msgContentEl) {
                 msgContentEl.innerHTML = this._renderMarkdown(fullContent || '（无回复内容）');
                 msgContentEl.classList.remove('streaming-text');
@@ -1109,6 +1193,109 @@ window.AgentPage = window.AgentPage || {
   },
 
   // ── 工具函数 ────────────────────────────────────────────────
+
+  async _handleFeedback(msgIdx, value) {
+    const session = this.activeSession;
+    if (!session || !session.messages[msgIdx]) return;
+
+    const msg = session.messages[msgIdx];
+    const newFeedback = value === 1 ? 'up' : 'down';
+
+    // 再次点击同一按钮 = 取消反馈
+    if (msg.feedback === newFeedback) {
+      msg.feedback = null;
+      msg.feedbackComment = null;
+      this._updateFeedbackBar(msgIdx, null, null);
+      return;
+    }
+
+    msg.feedback = newFeedback;
+    msg.feedbackComment = null;   // 重置旧评论
+
+    if (value === 1) {
+      // 点赞：立即提交，无需评论
+      this._updateFeedbackBar(msgIdx, 'up', 'ok');   // 'ok' 表示已提交
+      await this._submitFeedbackToBackend(msgIdx, 1, null);
+    } else {
+      // 点踩：先展示评论框，等用户填写
+      this._updateFeedbackBar(msgIdx, 'down', null);  // null = 评论框展开中
+    }
+  },
+
+  async _submitFeedbackComment(msgIdx, skip) {
+    /**
+     * 用户点击"提交"或"跳过"后，发送点踩反馈到后端
+     * skip=true 时不带 comment
+     */
+    const session = this.activeSession;
+    if (!session || !session.messages[msgIdx]) return;
+
+    const msg = session.messages[msgIdx];
+
+    // 读取输入框内容
+    const msgEl = document.querySelector(`.message-agent[data-idx="${msgIdx}"]`);
+    let comment = null;
+    if (!skip && msgEl) {
+      const textarea = msgEl.querySelector('.feedback-comment-input');
+      comment = textarea ? textarea.value.trim() : null;
+    }
+
+    // 用 __skip__ 作为"明确跳过"标记，和 null（未提交）区分
+    msg.feedbackComment = skip ? '__skip__' : (comment || '__skip__');
+
+    // 更新 UI（关闭评论框，显示感谢）
+    this._updateFeedbackBar(msgIdx, 'down', msg.feedbackComment);
+
+    // 提交后端
+    await this._submitFeedbackToBackend(msgIdx, 0, skip ? null : comment);
+  },
+
+  async _submitFeedbackToBackend(msgIdx, value, comment) {
+    const session = this.activeSession;
+    if (!session) return;
+    const msg = session.messages[msgIdx];
+    const traceId = (msg && msg.trace_id) || null;
+    // 传 trace_id + session_id：后端优先用 trace_id，
+    // 若 trace_id 不像 Langfuse UUID 则从 session_id 重新计算
+    try {
+      await AgentAPI.feedback({
+        traceId,
+        value,
+        comment,
+        messageIndex: msgIdx,
+        sessionId: this.activeSessionId,  // fallback
+      });
+      console.log(`[AgentPage] 反馈已提交: traceId=${traceId} sessionId=${this.activeSessionId} value=${value} comment=${comment} idx=${msgIdx}`);
+    } catch (err) {
+      console.warn('[AgentPage] 反馈提交失败（不影响使用）:', err.message);
+    }
+  },
+
+  _updateFeedbackBar(msgIdx, feedback, comment) {
+    /**
+     * 局部更新指定消息的反馈栏，不重渲染整个消息列表
+     * feedback : null | 'up' | 'down'
+     * comment  : null（点踩展开评论框中） | '__skip__'（明确跳过） | string（已提交） | 'ok'（点赞已提交）
+     */
+    const msgEl = document.querySelector(`.message-agent[data-idx="${msgIdx}"]`);
+    if (!msgEl) return;
+
+    const barEl = msgEl.querySelector('.feedback-bar');
+    if (!barEl) {
+      const bubble = msgEl.querySelector('.message-bubble');
+      if (bubble) {
+        bubble.insertAdjacentHTML('beforeend', this._renderFeedbackBar(msgIdx, feedback, comment));
+      }
+      return;
+    }
+
+    // 用 innerHTML 重渲整个反馈栏（状态复杂，局部 patch 容易出错）
+    const newHtml = this._renderFeedbackBar(msgIdx, feedback, comment);
+    const tmp = document.createElement('div');
+    tmp.innerHTML = newHtml;
+    const newBar = tmp.querySelector('.feedback-bar');
+    if (newBar) barEl.replaceWith(newBar);
+  },
 
   _formatHistory(messages) {
     return (messages || []).slice(-20).map(msg => ({

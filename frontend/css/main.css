@@ -2487,6 +2487,118 @@ td {
   opacity: .6;
 }
 
+/* ---- 消息反馈栏（点赞 / 点踩） ---- */
+.feedback-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.feedback-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feedback-label {
+  font-size: .72rem;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+.feedback-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: background .15s, border-color .15s, transform .1s;
+  color: var(--text2);
+}
+.feedback-btn:hover {
+  background: var(--surface3);
+  border-color: var(--border-light);
+  transform: scale(1.08);
+}
+.feedback-btn.active.feedback-up {
+  background: var(--green-bg);
+  border-color: var(--green);
+  color: var(--green);
+}
+.feedback-btn.active.feedback-down {
+  background: var(--red-bg);
+  border-color: var(--red);
+  color: var(--red);
+}
+.feedback-thanks {
+  font-size: .72rem;
+  color: var(--text3);
+  animation: fadeIn .3s ease;
+}
+/* 点踩评论框 */
+.feedback-comment-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fadeIn .2s ease;
+}
+.feedback-comment-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text1);
+  font-size: .78rem;
+  resize: none;
+  outline: none;
+  transition: border-color .15s;
+  font-family: inherit;
+  line-height: 1.5;
+}
+.feedback-comment-input:focus {
+  border-color: var(--primary);
+}
+.feedback-comment-input::placeholder {
+  color: var(--text3);
+  opacity: .7;
+}
+.feedback-comment-actions {
+  display: flex;
+  gap: 6px;
+}
+.feedback-comment-submit,
+.feedback-comment-skip {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: .75rem;
+  cursor: pointer;
+  transition: background .15s, opacity .15s;
+  border: 1px solid var(--border);
+}
+.feedback-comment-submit {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.feedback-comment-submit:hover { opacity: .88; }
+.feedback-comment-skip {
+  background: transparent;
+  color: var(--text3);
+}
+.feedback-comment-skip:hover { background: var(--surface3); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ---- 输入区 ---- */
 /* ── Agent 预热状态提示 ── */
 .agent-preheat-hint {

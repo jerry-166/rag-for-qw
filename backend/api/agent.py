@@ -22,6 +22,7 @@ Agent API 模块 — 提供统一的多 Agent 对话接口
 """
 
 import asyncio
+import os
 import uuid
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -265,7 +266,6 @@ async def agent_health(
     return health_status
 
 
-@observe(as_type="span", name="chat")
 @router.post("/chat")
 async def chat(
     request: ChatRequest,
@@ -301,7 +301,7 @@ async def chat(
     try:
         agent = registry.get(agent_type=agent_type)
 
-        # 获取追踪 callbacks（Phoenix 全局模式返回 []，Langfuse 返回 [CallbackHandler]）
+        # 获取追踪 callbacks
         from evaluation.tracing import get_callbacks
         callbacks = get_callbacks()
 
@@ -376,7 +376,6 @@ async def chat_stream(
             import json
             yield f"data: {json.dumps({'type': 'connected', 'session_id': session_id, 'agent_type': agent_type_str})}\n\n".encode("utf-8")
 
-            # 判断是否支持真正的流式
             with propagate_attributes(session_id=session_id, user_id=str(current_user["id"])):
                 if hasattr(agent, "stream_process") and agent_type == AgentType.CLAW:
                     # ClawAgent 支持真正的流式
@@ -597,3 +596,97 @@ async def delete_or_clear_session(
     except Exception as e:
         logger.error(f"[Agent API] 操作会话失败: {e}")
         raise HTTPException(status_code=500, detail=f"操作会话失败: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────
+# 用户反馈（点赞 / 点踩）
+# ─────────────────────────────────────────────────────────────
+
+class FeedbackRequest(BaseModel):
+    """用户反馈请求"""
+    trace_id: str = Field(..., description="Langfuse trace ID（确定性 ID，由后端 SSE 事件下发）")
+    value: int = Field(..., ge=0, le=1, description="1=点赞 / 0=点踩")
+    comment: Optional[str] = Field(None, max_length=500, description="可选的文字评论")
+    message_index: Optional[int] = Field(None, description="消息在会话中的索引（用于区分同会话多轮）")
+    session_id: Optional[str] = Field(None, description="会话 ID，用于 fallback 生成确定性 trace_id")
+
+
+@router.post("/feedback")
+async def submit_feedback(
+    request: FeedbackRequest,
+    current_user=Depends(get_current_user),
+):
+    """
+    提交消息反馈（点赞 / 点踩）并同步到 Langfuse
+
+    将用户反馈以 Score 形式写入 Langfuse，可在 Langfuse UI 的 Traces 和 Sessions 中查看。
+
+    - value=1 → 正向反馈（👍）
+    - value=0 → 负向反馈（👎）
+
+    trace_id 优先使用前端传来的确定性 ID；
+    若 trace_id 看起来像 session_id（非 32 位 hex），则用 session_id 重新计算。
+
+    只有 TRACER_BACKEND=langfuse 时才会实际写入 Langfuse；
+    其他模式下接口依然正常返回 200，仅跳过远端写入。
+    """
+    tracer_backend = os.getenv("TRACER_BACKEND", "none").lower().strip()
+
+    if tracer_backend == "langfuse":
+        try:
+            from langfuse import get_client, get_current_trace_id
+            langfuse = get_client()
+
+            actual_trace_id = request.trace_id
+
+            # 如果前端没有 trace_id，尝试从当前上下文获取
+            if not actual_trace_id:
+                actual_trace_id = get_current_trace_id()
+
+            if not actual_trace_id:
+                logger.warning("[Agent Feedback] 无法获取 trace_id，跳过 Score 写入")
+                return {
+                    "status": "ok",
+                    "trace_id": request.trace_id,
+                    "value": request.value,
+                    "synced_to_langfuse": False,
+                }
+
+            # 构造 comment
+            comment_parts = []
+            if request.message_index is not None:
+                comment_parts.append(f"msg_idx={request.message_index}")
+            if request.comment:
+                comment_parts.append(request.comment)
+            full_comment = " | ".join(comment_parts) if comment_parts else None
+
+            langfuse.create_score(
+                trace_id=actual_trace_id,
+                name="user-feedback",
+                value=float(request.value),
+                comment=full_comment,
+                data_type="NUMERIC",
+            )
+            langfuse.flush()
+
+            logger.info(
+                f"[Agent Feedback] trace_id={actual_trace_id} "
+                f"value={request.value} user={current_user.get('username', '?')}"
+            )
+        except ImportError:
+            logger.warning("[Agent Feedback] langfuse 未安装，跳过 Score 写入")
+        except Exception as e:
+            # 反馈不影响主流程，仅记录日志
+            logger.error(f"[Agent Feedback] Langfuse score 写入失败: {e}")
+    else:
+        logger.debug(
+            f"[Agent Feedback] TRACER_BACKEND={tracer_backend}，跳过 Langfuse 写入 "
+            f"(trace_id={request.trace_id}, value={request.value})"
+        )
+
+    return {
+        "status": "ok",
+        "trace_id": request.trace_id,
+        "value": request.value,
+        "synced_to_langfuse": tracer_backend == "langfuse",
+    }

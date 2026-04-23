@@ -156,16 +156,21 @@ class SimpleRAGAgent(BaseAgent):
             
             print(f"Prompt: {self.prompt.format(context=context, question=query, chat_history=history_messages)}")
             # 执行chain，注入追踪 callbacks
-            invoke_kwargs = {}
             if callbacks:
-                invoke_kwargs["config"] = {"callbacks": callbacks}
-            result = await self.chain.ainvoke(
-                {
-                    "question": query,
-                    "chat_history": history_messages,
-                },
-                **invoke_kwargs,
-            )
+                result = await self.chain.ainvoke(
+                    {
+                        "question": query,
+                        "chat_history": history_messages,
+                    },
+                    config={"callbacks": callbacks},
+                )
+            else:
+                result = await self.chain.ainvoke(
+                    {
+                        "question": query,
+                        "chat_history": history_messages,
+                    },
+                )
             
             processing_time = time.time() - start_time
             

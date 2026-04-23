@@ -1,0 +1,9 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "一个可以生成增强子问题和摘要的RAG以及不同agent策略下的Agent"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "sentence-transformers>=5.4.1",
+]
