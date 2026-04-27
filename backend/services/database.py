@@ -683,6 +683,32 @@ class Database:
         except Exception as e:
             logger.error(f"清理文档摘要失败: {e}")
             return 0
+
+    def delete_sub_questions_by_chunk(self, chunk_id):
+        """删除指定块的所有子问题（用于增量重新生成时的幂等保护）"""
+        query = "DELETE FROM sub_question WHERE chunk_id = %s"
+        try:
+            self.cursor.execute(query, (chunk_id,))
+            count = self.cursor.rowcount
+            if count > 0:
+                logger.info(f"已清理块 {chunk_id} 的 {count} 条子问题")
+            return count
+        except Exception as e:
+            logger.error(f"清理块子问题失败: {e}")
+            return 0
+
+    def delete_summary_by_chunk(self, chunk_id):
+        """删除指定块的摘要（用于增量重新生成时的幂等保护）"""
+        query = "DELETE FROM chunk_summary WHERE chunk_id = %s"
+        try:
+            self.cursor.execute(query, (chunk_id,))
+            count = self.cursor.rowcount
+            if count > 0:
+                logger.info(f"已清理块 {chunk_id} 的摘要")
+            return count
+        except Exception as e:
+            logger.error(f"清理块摘要失败: {e}")
+            return 0
     
     # 工作流日志相关方法
     def add_workflow_log(self, document_id, operation, status, message=None, knowledge_base_id=None, processing_time=None):

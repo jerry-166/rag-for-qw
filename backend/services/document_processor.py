@@ -222,19 +222,74 @@ class DocumentProcessor:
             "results": results,
         }
     
-    async def generate_batches_async_concurrent(self, datas, batch_size=settings.BATCH_SIZE, max_concurrency=settings.MAX_CONCURRENCY):
+    async def generate_batches_async_concurrent(
+        self,
+        datas,
+        batch_size=settings.BATCH_SIZE,
+        max_concurrency=settings.MAX_CONCURRENCY,
+        document_id=None,
+        knowledge_base_id=None,
+    ):
         """
-        并发生成批次。
-        
-        策略：
-        - 外层 Semaphore 控制批次并发
-        - 每个批次内使用 abatch 并发调用 LLM
-        - ChatModel 自带 max_retries 应对 429 限流
+        并发生成批次（支持增量模式）。
+
+        增量模式（document_id 不为 None）：
+        - 先查 DB，逐块检查是否已有 sub_questions + summary
+        - 只对缺失的块调用 LLM
+        - 每个批次完成后立即写 DB（边生成边持久化）
+
+        全量模式（document_id 为 None）：
+        - 直接对所有 datas 调用 LLM，行为同原版
         """
         start_time = time.time()
         docs = [d.chunk for d in datas]
-        batches = [docs[i:i+batch_size] for i in range(0, len(docs), batch_size)]
+        total = len(docs)
 
+        # ==================== 增量模式 ====================
+        if document_id is not None:
+            from services.database import db
+
+            # 第 1 步：查询 DB，找出每个块是否已有 sub_questions + summary
+            miss_indices = []
+            for idx, d in enumerate(datas):
+                chunk_db_id = d.metadata.get("chunk_id")
+                if chunk_db_id is None:
+                    # 找不到 chunk_id，跳过（走全量逻辑）
+                    miss_indices.append(idx)
+                    continue
+                subqs = db.get_sub_questions_by_chunk(chunk_db_id)
+                summary = db.get_chunk_summary(chunk_db_id)
+                if not subqs or not summary:
+                    miss_indices.append(idx)
+
+            if not miss_indices:
+                logger.info(f"所有 {total} 个块均已生成，跳过 LLM 调用")
+                return
+            logger.info(f"增量模式：{total} 个块中 {len(miss_indices)} 个需要生成")
+
+            # 第 2 步：构建 miss 批次，按 batch_size 分组
+            miss_chunks = [docs[i] for i in miss_indices]
+            miss_datas = [datas[i] for i in miss_indices]
+            miss_batches = [miss_chunks[i : i + batch_size] for i in range(0, len(miss_chunks), batch_size)]
+            miss_data_batches = [miss_datas[i : i + batch_size] for i in range(0, len(miss_datas), batch_size)]
+
+            sem = asyncio.Semaphore(max_concurrency)
+
+            async def sem_task(chunk, batch_data, batch_idx):
+                async with sem:
+                    # 内部处理 + 写 DB
+                    await self._process_and_persist_batch(
+                        chunk, batch_data, batch_idx, document_id, knowledge_base_id
+                    )
+
+            tasks = [sem_task(cb, mb, idx) for idx, (cb, mb) in enumerate(zip(miss_batches, miss_data_batches))]
+            await asyncio.gather(*tasks)
+            end_time = time.time()
+            logger.info(f"增量批次处理完成，总耗时: {end_time - start_time:.2f}秒")
+            return
+
+        # ==================== 全量模式（原有逻辑） ====================
+        batches = [docs[i : i + batch_size] for i in range(0, len(docs), batch_size)]
         sem = asyncio.Semaphore(max_concurrency)
 
         async def sem_task(chunk, batch_idx):
@@ -246,8 +301,8 @@ class DocumentProcessor:
         results_list = await asyncio.gather(*tasks)
         end_time = time.time()
         logger.info(f"全部批次处理完成，总耗时: {end_time - start_time:.2f}秒")
-        
-        # 统计生成的子问题和摘要数量
+
+        # 统计
         total_sub_questions = 0
         total_summaries = 0
         for results in results_list:
@@ -261,8 +316,89 @@ class DocumentProcessor:
                 total_sub_questions += len(datas[idx].sub_questions)
                 if datas[idx].summary:
                     total_summaries += 1
-        
+
         logger.info(f"子问题和摘要生成完成，共生成 {total_sub_questions} 个子问题，{total_summaries} 个摘要")
+
+    async def _process_and_persist_batch(
+        self, chunk, batch_data, batch_idx, document_id, knowledge_base_id
+    ):
+        """
+        处理单个批次 + 立即写 DB。
+        用于增量模式，每个批次完成后立即持久化，不用等全部完成。
+        """
+        logger.info(f"增量批次 {batch_idx} 开始，包含 {len(chunk)} 个块")
+        start_time = time.time()
+
+        inputs = [{"document_text": doc[:3000]} for doc in chunk]
+
+        try:
+            raw_results = await self.gen_chain.abatch(inputs)
+        except Exception as e:
+            logger.error(f"增量批次 {batch_idx} abatch 失败: {e}")
+            raw_results = []
+            for inp in inputs:
+                try:
+                    result = await self.gen_chain.ainvoke(inp)
+                    raw_results.append(result)
+                except Exception as inner_e:
+                    logger.warning(f"增量批次 {batch_idx} 单条失败: {inner_e}")
+                    raw_results.append(None)
+
+        # 解析结果
+        results = []
+        for i, raw in enumerate(raw_results):
+            if raw is None:
+                results.append({"subqs": [], "summary": ""})
+                continue
+            try:
+                if isinstance(raw, SubqAndSummary):
+                    results.append({"subqs": raw.subqs, "summary": raw.summary})
+                    continue
+                if isinstance(raw, str):
+                    cleaned = _strip_markdown_json(raw)
+                    parsed = json.loads(cleaned)
+                    results.append({"subqs": parsed.get("subqs", []), "summary": parsed.get("summary", "")})
+                    continue
+                results.append({"subqs": getattr(raw, "subqs", []), "summary": getattr(raw, "summary", "")})
+            except (json.JSONDecodeError, AttributeError, TypeError) as e:
+                logger.warning(f"增量批次 {batch_idx} 第 {i} 条解析失败: {e}")
+                results.append({"subqs": [], "summary": ""})
+
+        # 立即写 DB
+        from services.database import db
+
+        for i, data in enumerate(batch_data):
+            chunk_db_id = data.metadata.get("chunk_id")
+            if chunk_db_id is None:
+                continue
+            parsed = results[i]
+
+            # 幂等：先清理旧数据，再写入新数据
+            db.delete_sub_questions_by_chunk(chunk_db_id)
+            db.delete_summary_by_chunk(chunk_db_id)
+
+            # 写子问题
+            for sq in parsed["subqs"]:
+                db.add_sub_question(
+                    document_id=document_id,
+                    chunk_id=chunk_db_id,
+                    content=sq,
+                    metadata=data.metadata,
+                    knowledge_base_id=knowledge_base_id,
+                )
+
+            # 写摘要
+            if parsed["summary"]:
+                db.add_chunk_summary(
+                    document_id=document_id,
+                    chunk_id=chunk_db_id,
+                    content=parsed["summary"],
+                    metadata=data.metadata,
+                    knowledge_base_id=knowledge_base_id,
+                )
+
+        end_time = time.time()
+        logger.info(f"增量批次 {batch_idx} 完成并已持久化，耗时: {end_time - start_time:.2f}秒")
     
     async def batch_embed_texts(self, texts, batch_size=settings.EMBEDDING_BATCH_SIZE, max_concurrency=settings.MAX_CONCURRENCY):
         """批量生成嵌入（并行处理）"""

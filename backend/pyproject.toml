@@ -5,5 +5,7 @@ description = "一个可以生成增强子问题和摘要的RAG以及不同agent
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "arize-phoenix-otel>=0.16.0",
+    "openinference-instrumentation-langchain>=0.1.63",
     "sentence-transformers>=5.4.1",
 ]

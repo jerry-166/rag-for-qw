@@ -31,6 +31,8 @@ datasets>=2.0.0
 sentence_transformers
 langfuse
 
+arize-phoenix-otel
+openinference-instrumentation-langchain
 # 追踪（可选，按需安装）
 # Phoenix: pip install arize-phoenix openinference-instrumentation-langchain
 # Langfuse: pip install langfuse

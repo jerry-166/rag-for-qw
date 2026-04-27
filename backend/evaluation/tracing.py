@@ -84,17 +84,13 @@ def _setup_phoenix():
     global _phoenix_session
 
     try:
-        import phoenix as px
+        from phoenix.otel import register
 
-        # 启动 Phoenix server（后台进程）
-        _phoenix_session = px.launch_app()
-        logger.info(f"[Tracing] Phoenix 已启动 → {_phoenix_session.url}")
-
-        # 注册 LangChain Instrumentation（全局拦截）
-        from openinference.instrumentation.langchain import LangChainInstrumentor
-
-        LangChainInstrumentor().instrument()
-        logger.info("[Tracing] Phoenix LangChain Instrumentation 已注册")
+        tracer_provider = register(
+            project_name="rag_for_qw",
+            auto_instrument=True
+        )
+        logger.info("[Tracing] Phoenix tracing 已成功注册")
 
     except ImportError as e:
         missing = []

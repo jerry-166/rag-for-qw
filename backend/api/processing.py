@@ -154,7 +154,7 @@ async def split_document(file_id: str, req: Request, current_user=Depends(get_cu
 
 @router.post("/generate/{file_id}")
 async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(get_current_user)):
-    """生成子问题和摘要接口"""
+    """生成子问题和摘要接口（支持增量模式，断点续跑）"""
     logger.info(f"开始生成子问题和摘要，文件ID: {file_id}")
     start_time = time.time()
     try:
@@ -177,38 +177,33 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
 
         # 从数据库中获取文档块
         chunks = db.get_document_chunks(file_id)
-        
-        # 检查数据库中是否已经存在生成结果
-        has_generated_data = False
+
+        # ==============================================================
+        # 增量缓存检查：只有 ALL chunks 都有 sub_questions + summary
+        # 才算缓存命中，避免部分生成时返回不完整数据
+        # ==============================================================
+        all_complete = True
         results = {}
         for chunk in chunks:
             sub_questions = db.get_sub_questions_by_chunk(chunk["id"])
             summary = db.get_chunk_summary(chunk["id"])
-            if sub_questions or summary:
-                has_generated_data = True
-                chunk_index = chunk["chunk_index"]
-                results[chunk_index] = {
-                    "sub_questions": [sq["content"] for sq in sub_questions],
-                    "summary": summary["content"] if summary else ""
-                }
-        
-        if has_generated_data:
-            # 缓存命中：仅当文档尚未完成时才更新为 generated
-            # 如果已是 completed 状态，绝对不能降级！（否则会导致 import 重复执行）
+            chunk_index = chunk["chunk_index"]
+            results[chunk_index] = {
+                "sub_questions": [sq["content"] for sq in sub_questions],
+                "summary": summary["content"] if summary else "",
+            }
+            if not sub_questions or not summary:
+                all_complete = False
+
+        if all_complete and chunks:
+            # 缓存命中：已全部生成，直接返回
             if doc["status"] not in ["generated", "completed"]:
                 db.update_document(file_id, status="generated")
-                doc["status"] = "generated"
 
-            # 计算子问题和摘要数量
-            sub_questions_count = 0
-            summaries_count = 0
-            for chunk_index, data in results.items():
-                sub_questions_count += len(data.get("sub_questions", []))
-                if data.get("summary"):
-                    summaries_count += 1
-            # 使用数据库中已有的generate_time，而不是重新计算
+            sub_questions_count = sum(len(r["sub_questions"]) for r in results.values())
+            summaries_count = sum(1 for r in results.values() if r["summary"])
             processing_time_ms = doc.get("generate_time") or (time.time() - start_time) * 1000
-            logger.info(f"文档已生成增强内容，直接返回数据库中的结果，文件ID: {file_id}")
+            logger.info(f"文档已生成增强内容（全部完成），直接返回，文件ID: {file_id}")
             return {
                 "file_id": file_id,
                 "status": "success",
@@ -216,13 +211,15 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 "sub_questions_count": sub_questions_count,
                 "summaries_count": summaries_count,
                 "processing_time_ms": processing_time_ms,
-                "message": "文档已生成增强内容，直接返回数据库中的结果"
+                "message": "文档已生成增强内容（全部完成），直接返回数据库中的结果",
             }
 
-        # 初始化文档处理器
+        # ==============================================================
+        # 需要增量生成
+        # ==============================================================
         processor = DocumentProcessor()
 
-        # 构建数据对象
+        # 构建数据对象（带 chunk_id，方便 processor 增量检查和写 DB）
         datas = []
         for i, chunk in enumerate(chunks):
             data = StoredData(
@@ -232,78 +229,55 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 subq_embeddings=[],
                 summary="",
                 summary_embedding=[],
-                metadata={"source": doc["filename"], "document_id": file_id}
+                metadata={
+                    "source": doc["filename"],
+                    "document_id": file_id,
+                    "chunk_id": chunk["id"],      # 传给 processor 用于 DB 操作
+                    "chunk_index": chunk["chunk_index"],
+                },
             )
             datas.append(data)
 
-        # 幂等保护：先清理该文档已有的子问题和摘要数据（防止重复生成时累积）
-        db.delete_sub_questions_by_document(file_id)
-        db.delete_summaries_by_document(file_id)
-        logger.info(f"已清理文档 {file_id} 的旧增强数据，开始重新生成")
+        # 增量调用：processor 内部自动跳过已有块，每批次完成后立即写 DB
+        await processor.generate_batches_async_concurrent(
+            datas,
+            batch_size=16,
+            max_concurrency=8,
+            document_id=file_id,
+            knowledge_base_id=doc["knowledge_base_id"],
+        )
 
-        # 批量生成子问题和摘要
-        await processor.generate_batches_async_concurrent(datas, batch_size=16, max_concurrency=8)
-
-        # 存储子问题和摘要到数据库，并构建结果
-        sub_questions_count = 0
-        summaries_count = 0
+        # 重新从 DB 读取结果（processor 已写入）
         results = {}
-        for i, chunk in enumerate(chunks):
-            data = datas[i]
+        for chunk in chunks:
+            sub_questions = db.get_sub_questions_by_chunk(chunk["id"])
+            summary = db.get_chunk_summary(chunk["id"])
             chunk_index = chunk["chunk_index"]
             results[chunk_index] = {
-                "sub_questions": data.sub_questions,
-                "summary": data.summary
+                "sub_questions": [sq["content"] for sq in sub_questions],
+                "summary": summary["content"] if summary else "",
             }
 
-            # 存储子问题
-            for subq in data.sub_questions:
-                db.add_sub_question(
-                    document_id=file_id,
-                    chunk_id=chunk["id"],
-                    content=subq,
-                    metadata={"source": doc["filename"]},
-                    knowledge_base_id=doc["knowledge_base_id"]
-                )
-                sub_questions_count += 1
-
-            # 存储摘要
-            if data.summary:
-                db.add_chunk_summary(
-                    document_id=file_id,
-                    chunk_id=chunk["id"],
-                    content=data.summary,
-                    metadata={"source": doc["filename"]},
-                    knowledge_base_id=doc["knowledge_base_id"]
-                )
-                summaries_count += 1
+        sub_questions_count = sum(len(r["sub_questions"]) for r in results.values())
+        summaries_count = sum(1 for r in results.values() if r["summary"])
 
         # 计算处理时间（毫秒）
         processing_time_ms = (time.time() - start_time) * 1000
-        # 确保时间不为0，否则存储为NULL
         generate_time = processing_time_ms if processing_time_ms > 0.1 else None
-        
-        # 更新数据库中的文档状态和处理时间
-        db.update_document(
-            file_id,
-            status="generated",
-            generate_time=generate_time
-        )
 
-        # 记录工作流日志
+        db.update_document(file_id, status="generated", generate_time=generate_time)
+
         processing_time = time.time() - start_time
         db.add_workflow_log(
             document_id=file_id,
             operation="generate_sub_questions_and_summary",
             status="completed",
-            message=f"生成子问题和摘要成功，生成 {sub_questions_count} 个子问题",
+            message=f"生成子问题和摘要成功（增量模式），生成 {sub_questions_count} 个子问题",
             knowledge_base_id=doc["knowledge_base_id"],
-            processing_time=processing_time
+            processing_time=processing_time,
         )
 
-        # 计算处理时间（毫秒）
-        processing_time_ms = (time.time() - start_time) * 1000
-        logger.info(f"生成子问题和摘要成功，文件ID: {file_id}, 子问题数: {sub_questions_count}")
+        logger.info(f"生成子问题和摘要成功（增量），文件ID: {file_id}, 子问题数: {sub_questions_count}")
         return {
             "file_id": file_id,
             "status": "success",
@@ -311,7 +285,7 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
             "sub_questions_count": sub_questions_count,
             "summaries_count": summaries_count,
             "processing_time_ms": processing_time_ms,
-            "message": "生成子问题和摘要成功"
+            "message": "生成子问题和摘要成功（增量模式）",
         }
     except HTTPException:
         raise
