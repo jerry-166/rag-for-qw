@@ -435,6 +435,7 @@ class ClawAgentAdapter:
                 query=query,
                 session_id=session_id,
                 knowledge_base_id=knowledge_base_id,
+                retrieval_mode=kwargs.get("retrieval_mode"),
             )
 
             # 构建 LangGraph config，合并追踪 callbacks
@@ -531,6 +532,7 @@ class ClawAgentAdapter:
                 query=query,
                 session_id=session_id,
                 knowledge_base_id=knowledge_base_id,
+                retrieval_mode=kwargs.get("retrieval_mode"),
             )
 
             answer_sent = False  # 防止多个 on_chain_end 重复输出答案

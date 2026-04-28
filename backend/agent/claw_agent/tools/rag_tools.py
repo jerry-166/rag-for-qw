@@ -36,6 +36,7 @@ def rag_hybrid_search(
     use_keyword: bool = True,
     use_rerank: bool = True,
     rerank_top_k: int = 5,
+    retrieval_mode: Optional[str] = "advanced",
 ) -> str:
     """
     混合检索工具：同时执行向量语义检索（Milvus）和关键词检索（Elasticsearch），
@@ -49,6 +50,7 @@ def rag_hybrid_search(
         use_keyword: 是否启用关键词检索
         use_rerank: 是否启用精排
         rerank_top_k: 精排后保留的结果数量
+        retrieval_mode: 向量检索模式：native(原文) | advanced(摘要+子问题) | hybrid(三路融合)
 
     Returns:
         JSON 字符串，包含 results 列表和 total_count
@@ -69,10 +71,13 @@ def rag_hybrid_search(
             if knowledge_base_id is not None:
                 metadata_filter["knowledge_base_id"] = knowledge_base_id
 
+            logger.info(f"[rag_tools] 向量检索开始，query={query[:50]}, retrieval_mode={retrieval_mode}, knowledge_base_id={knowledge_base_id}")
+
             raw = milvus.query(
                 query_text=query,
                 limit=per_k,
                 metadata_filter=metadata_filter if metadata_filter else None,
+                retrieval_mode=retrieval_mode,
             )
 
             for item in raw:

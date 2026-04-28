@@ -31,6 +31,7 @@ class QueryRequest(BaseModel):
     metadata_filter: dict = None
     knowledge_base_id: int = None
     use_rerank: bool = True  # 是否启用 rerank 精排
+    retrieval_mode: str = "advanced"  # Milvus向量检索策略: native | advanced | hybrid
 
 
 _RRF_DEFAULT_K = 60
@@ -98,6 +99,7 @@ async def _milvus_search(request: QueryRequest, req: Request, current_user: dict
         query_text=request.query,
         limit=request.limit * multiplier,
         metadata_filter=metadata_filter,
+        retrieval_mode=request.retrieval_mode,
     )
 
 
@@ -143,7 +145,7 @@ async def query_milvus(
 
     流程: Query → Embedding → Milvus ANN Search → [可选] Rerank → Top-K
     """
-    logger.info(f"开始 Milvus 向量检索, 查询文本: {request.query}")
+    logger.info(f"开始 Milvus 向量检索, 查询文本: {request.query}, mode={request.retrieval_mode}")
 
     try:
         milvus_client = req.app.state['milvus_client']
@@ -155,6 +157,7 @@ async def query_milvus(
             query_text=request.query,
             limit=request.limit * multiplier,
             metadata_filter=metadata_filter,
+            retrieval_mode=request.retrieval_mode,
         )
 
         # 可选精排

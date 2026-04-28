@@ -393,15 +393,27 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
                 db.update_document(file_id, status="importing")
                 logger.info(f"文档状态已设为 importing（防并发），文件ID: {file_id}")
                 
-                # 生成嵌入向量
+                # 生成嵌入向量（摘要 + 子问题）
                 await processor.generate_and_fill_embeddings(datas)
                 
-                # 批量导入到Milvus
-                import_result = milvus_client.import_data(
-                    datas,
-                    user_id=current_user["id"],
-                    knowledge_base_id=doc["knowledge_base_id"]
+                # 生成 chunk 原文向量（Native检索）
+                await processor.generate_chunk_embeddings(datas)
+                
+                # 批量导入到Milvus（同步方法，用 executor 避免阻塞 asyncio 事件循环）
+                import asyncio
+                import functools
+                loop = asyncio.get_event_loop()
+                import_result = await loop.run_in_executor(
+                    None,
+                    functools.partial(
+                        milvus_client.import_data,
+                        datas,
+                        user_id=current_user["id"],
+                        knowledge_base_id=doc["knowledge_base_id"]
+                    )
                 )
+
+                # logger.info(f"导入到Milvus成功，文件ID: {file_id}")
 
                 # 计算处理时间（毫秒）
                 processing_time_ms = (time.time() - start_time) * 1000

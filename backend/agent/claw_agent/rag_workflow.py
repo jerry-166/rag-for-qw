@@ -48,11 +48,17 @@ class RAGAgentState(TypedDict):
 
     SSE 事件通过 events 列表累积，每个节点 append 事件，
     流式输出层从 events 中消费并推送给客户端。
+
+    检索模式说明：
+    - native: 仅检索 chunk 原文向量
+    - advanced: 检索 summaries + subquestions（默认）
+    - hybrid: 三路并行检索 + RRF 融合
     """
     # ── 输入 ──────────────────────────────────────────────────
     query: str                          # 用户原始查询
     session_id: str                     # 会话 ID
     knowledge_base_id: Optional[int]    # 目标知识库 ID（可选）
+    retrieval_mode: Optional[str]       # 检索模式: native | advanced | hybrid
 
     # ── 中间状态 ──────────────────────────────────────────────
     intent: Optional[Intent]            # 意图识别结果
@@ -218,10 +224,15 @@ def create_rag_workflow(memory_manager=None, session_store=None):
     async def hybrid_retrieval(state: RAGAgentState) -> RAGAgentState:
         """混合检索节点：对每路查询并行执行 Milvus + ES 混合检索"""
         _emit_event(state, "thinking", "正在从知识库检索相关文档...")
-        logger.info(f"[rag_workflow] 开始从知识库检索相关文档，查询: {state['query']}")
-        
+        retrieval_mode = state.get("retrieval_mode", "advanced")
         queries = state.get("expanded_queries", [state["query"]])
         knowledge_base_id = state.get("knowledge_base_id")
+        logger.info(
+            f"[rag_workflow] 开始检索, query={state['query'][:50]}, "
+            f"retrieval_mode={retrieval_mode}, "
+            f"knowledge_base_id={knowledge_base_id}, "
+            f"queries_count={len(queries)}"
+        )
 
         all_results = []
 
@@ -240,6 +251,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
                         "use_keyword": True,
                         "use_rerank": True,
                         "rerank_top_k": 5,
+                        "retrieval_mode": state.get("retrieval_mode", "advanced"),
                     }
                 )
                 data = json.loads(result_json)
@@ -597,12 +609,14 @@ def build_initial_state(
     query: str,
     session_id: str,
     knowledge_base_id: Optional[int] = None,
+    retrieval_mode: Optional[str] = None,
 ) -> RAGAgentState:
     """构建工作流初始状态"""
     return {
         "query": query,
         "session_id": session_id,
         "knowledge_base_id": knowledge_base_id,
+        "retrieval_mode": retrieval_mode or "advanced",
         "intent": None,
         "expanded_queries": [],
         "raw_results": [],

@@ -76,6 +76,16 @@ const SearchPage = {
                 </button>
               </div>
 
+              <!-- 向量检索策略 -->
+              <div class="search-vector-strategy">
+                <span class="strategy-label">向量策略:</span>
+                <select id="vector-strategy" style="width:auto;">
+                  <option value="advanced" selected>摘要+子问题</option>
+                  <option value="native">原文匹配</option>
+                  <option value="hybrid">三路融合</option>
+                </select>
+              </div>
+
               <!-- 快捷设置 -->
               <div class="search-quick-settings">
                 <label class="toggle-switch" title="启用后会对召回结果进行 LLM/CrossEncoder 重排序，精度更高但稍慢">
@@ -306,25 +316,26 @@ const SearchPage = {
     const mode = document.querySelector('.mode-btn.active')?.dataset.mode || 'hybrid';
     const limit = parseInt(document.getElementById('search-limit').value) || 5;
     const useRerank = document.getElementById('toggle-rerank').checked;
+    const retrievalMode = document.getElementById('vector-strategy').value;
 
     // 记录搜索开始时间
     const startTime = performance.now();
 
     this.isSearching = true;
-    this.lastSearchMeta = { query, mode, limit, useRerank };
+    this.lastSearchMeta = { query, mode, limit, useRerank, retrievalMode };
     this._updateResultsUI('loading');
 
     try {
       let results;
       switch (mode) {
         case 'vector':
-          results = await window.SearchAPI.vectorSearch(query, limit, this.selectedKbId, { use_rerank: useRerank });
+          results = await window.SearchAPI.vectorSearch(query, limit, this.selectedKbId, { use_rerank: useRerank, retrieval_mode: retrievalMode });
           break;
         case 'keyword':
           results = await window.SearchAPI.keywordSearch(query, limit, this.selectedKbId, { use_rerank: useRerank });
           break;
         case 'hybrid':
-          results = await window.SearchAPI.hybridSearch(query, limit, this.selectedKbId, { use_rerank: useRerank });
+          results = await window.SearchAPI.hybridSearch(query, limit, this.selectedKbId, { use_rerank: useRerank, retrieval_mode: retrievalMode });
           break;
       }
 
@@ -440,7 +451,7 @@ const SearchPage = {
           </button>
         </div>
         <div class="result-content-preview">
-          ${this._highlightQuery(this._truncate(chunkText, 280), queryText)}
+          ${this._highlightQuery(this._truncate(this._escapeHtml(chunkText), 280), queryText)}
         </div>
         <div class="result-detail" id="detail-${index}" style="display:none;">
           <div class="detail-inner">

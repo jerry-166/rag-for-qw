@@ -51,6 +51,7 @@ class ChatRequest(BaseModel):
     chat_history: Optional[List[Dict[str, str]]] = Field(default=[], description="对话历史")
     knowledge_base_id: Optional[int] = Field(None, description="知识库 ID")
     stream: bool = Field(default=False, description="是否启用流式输出")
+    retrieval_mode: Optional[str] = Field(None, description="检索模式: native | advanced | hybrid")
 
 
 class CompareRequest(BaseModel):
@@ -312,6 +313,7 @@ async def chat(
                 session_id=request.session_id,
                 chat_history=request.chat_history,
                 knowledge_base_id=request.knowledge_base_id,
+                retrieval_mode=request.retrieval_mode,
                 callbacks=callbacks,
             )
 
@@ -385,6 +387,7 @@ async def chat_stream(
                         session_id=session_id,
                         chat_history=request.chat_history,
                         knowledge_base_id=request.knowledge_base_id,
+                        retrieval_mode=request.retrieval_mode,
                         callbacks=callbacks,
                     ):
                         yield chunk.to_sse().encode("utf-8")
@@ -394,6 +397,7 @@ async def chat_stream(
                         query=request.query,
                         session_id=session_id,
                         chat_history=request.chat_history,
+                        retrieval_mode=request.retrieval_mode,
                         callbacks=callbacks,
                     ):
                         yield chunk.to_sse().encode("utf-8")

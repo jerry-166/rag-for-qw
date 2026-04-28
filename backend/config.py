@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     MILVUS_DB_NAME: str = os.getenv("MILVUS_DB_NAME", "rag_system")
     MILVUS_SUMMARIES_COLLECTION: str = os.getenv("MILVUS_SUMMARIES_COLLECTION", "chunk_summaries")
     MILVUS_SUBQUESTIONS_COLLECTION: str = os.getenv("MILVUS_SUBQUESTIONS_COLLECTION", "chunk_subquestions")
+    MILVUS_CHUNKS_COLLECTION: str = os.getenv("MILVUS_CHUNKS_COLLECTION", "chunk_vectors")  # chunk原文向量集合名
 
     # PostgreSQL配置
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")

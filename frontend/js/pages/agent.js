@@ -25,6 +25,9 @@ window.AgentPage = window.AgentPage || {
   knowledgeBases: [],
   selectedKbId: null,      // null = 不使用知识库
 
+  // 检索模式
+  selectedRetrievalMode: 'advanced',  // native | advanced | hybrid
+
   // 流式状态
   isStreaming: false,
   abortController: null,
@@ -354,6 +357,15 @@ window.AgentPage = window.AgentPage || {
               ${this._buildKbChips()}
             </div>
           </div>
+          <!-- 检索模式选择器 -->
+          <div class="retrieval-mode-selector">
+            <span class="mode-label">🔮 检索模式：</span>
+            <select id="retrieval-mode-select" class="mode-select">
+              <option value="advanced" ${this.selectedRetrievalMode === 'advanced' ? 'selected' : ''}>摘要+子问题</option>
+              <option value="native" ${this.selectedRetrievalMode === 'native' ? 'selected' : ''}>原文匹配</option>
+              <option value="hybrid" ${this.selectedRetrievalMode === 'hybrid' ? 'selected' : ''}>三路融合</option>
+            </select>
+          </div>
           ${selectedKb ? `
             <div class="kb-active-hint">
               <span class="kb-active-badge">✅ 已选：${this._escapeHTML(selectedKb.kb_name)}</span>
@@ -565,7 +577,7 @@ window.AgentPage = window.AgentPage || {
                   <span class="source-score-text">${typeof s.score === 'number' ? (s.score * 100).toFixed(1) + '%' : s.score}</span>
                 </span>
               </div>
-              ${s.source === 'keyword' ? `
+              ${(s.source === 'keyword' || s.type === 'native') ? `
                 ${s.chunk_text ? `
                   <div class="source-section">
                     <div class="source-section-label">📄 原文内容</div>
@@ -575,7 +587,7 @@ window.AgentPage = window.AgentPage || {
               ` : `
                 ${s.content ? `
                   <div class="source-section">
-                    <div class="source-section-label">📝 ${s.type === 'subquestion' ? '匹配子问题' : '匹配摘要'}</div>
+                    <div class="source-section-label">📝 ${s.type === 'subquestion' ? '匹配子问题' : (s.type === 'native' ? '原文匹配' : '匹配摘要')}</div>
                     <div class="source-snippet">${this._escapeHTML(s.content.slice(0, 300))}${s.content.length > 300 ? '…' : ''}</div>
                   </div>
                 ` : ''}
@@ -786,6 +798,14 @@ window.AgentPage = window.AgentPage || {
       });
     }
 
+    // 检索模式选择器
+    const retrievalModeSelect = document.getElementById('retrieval-mode-select');
+    if (retrievalModeSelect) {
+      retrievalModeSelect.addEventListener('change', () => {
+        this.selectedRetrievalMode = retrievalModeSelect.value;
+      });
+    }
+
     // 对话输入
     const inputEl = document.getElementById('agent-input');
     const sendBtn = document.getElementById('agent-send-btn');
@@ -978,6 +998,7 @@ window.AgentPage = window.AgentPage || {
         session_id: this.activeSessionId,
         chat_history: this._formatHistory(session.messages.slice(0, aiMsgIdx)),
         knowledge_base_id: this.selectedKbId,
+        retrieval_mode: this.selectedRetrievalMode,
       });
 
       await this._processStream(stream, aiMsgIdx);

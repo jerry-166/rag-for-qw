@@ -709,6 +709,72 @@ class Database:
         except Exception as e:
             logger.error(f"清理块摘要失败: {e}")
             return 0
+
+    def save_chunk_enhanced_data_batch(self, chunk_data_list):
+        """
+        批量保存块的增强数据（子问题+摘要），使用事务确保原子性。
+
+        chunk_data_list: List[dict], 每个元素包含:
+            - chunk_db_id: int
+            - document_id: int
+            - knowledge_base_id: int
+            - metadata: dict
+            - subqs: List[str] 子问题列表
+            - summary: str 摘要内容
+
+        事务保护：如果任何一步失败，整个批次回滚。
+        """
+        if not chunk_data_list:
+            return True
+
+        # 使用 psycopg2 的上下文管理器来处理事务
+        try:
+            # 使用连接的事务上下文
+            with self.conn.cursor() as cur:
+                for item in chunk_data_list:
+                    chunk_db_id = item["chunk_db_id"]
+                    document_id = item["document_id"]
+                    knowledge_base_id = item["knowledge_base_id"]
+                    metadata = item["metadata"]
+                    subqs = item.get("subqs", [])
+                    summary = item.get("summary", "")
+
+                    # 幂等：先清理旧数据
+                    cur.execute("DELETE FROM sub_question WHERE chunk_id = %s", (chunk_db_id,))
+                    cur.execute("DELETE FROM chunk_summary WHERE chunk_id = %s", (chunk_db_id,))
+
+                    # 写入子问题
+                    metadata_json = json.dumps(metadata) if metadata else None
+                    for sq in subqs:
+                        cur.execute(
+                            """
+                            INSERT INTO sub_question (document_id, knowledge_base_id, chunk_id, content, metadata)
+                            VALUES (%s, %s, %s, %s, %s)
+                            """,
+                            (document_id, knowledge_base_id, chunk_db_id, sq, metadata_json)
+                        )
+
+                    # 写入摘要
+                    if summary:
+                        cur.execute(
+                            """
+                            INSERT INTO chunk_summary (document_id, knowledge_base_id, chunk_id, content, metadata)
+                            VALUES (%s, %s, %s, %s, %s)
+                            """,
+                            (document_id, knowledge_base_id, chunk_db_id, summary, metadata_json)
+                        )
+
+                self.conn.commit()
+                logger.info(f"批量保存 {len(chunk_data_list)} 个块的增强数据成功")
+                return True
+
+        except Exception as e:
+            logger.error(f"批量保存增强数据失败，执行回滚: {e}")
+            try:
+                self.conn.rollback()
+            except Exception as rollback_e:
+                logger.error(f"回滚失败: {rollback_e}")
+            return False
     
     # 工作流日志相关方法
     def add_workflow_log(self, document_id, operation, status, message=None, knowledge_base_id=None, processing_time=None):

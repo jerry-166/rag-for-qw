@@ -233,7 +233,7 @@ const AgentAPI = {
    * @param {number}   [opts.knowledge_base_id]
    * @returns {Promise<ReadableStream>}  SSE 流
    */
-  async chatStream({ query, agent_type = 'claw', session_id = null, chat_history = [], knowledge_base_id = null }) {
+  async chatStream({ query, agent_type = 'claw', session_id = null, chat_history = [], knowledge_base_id = null, retrieval_mode = null }) {
     const token = TokenManager.get();
     const body = {
       query,
@@ -242,6 +242,7 @@ const AgentAPI = {
       chat_history,
     };
     if (knowledge_base_id) body.knowledge_base_id = knowledge_base_id;
+    if (retrieval_mode) body.retrieval_mode = retrieval_mode;
 
     const resp = await fetch(`${API_BASE}/api/agent/chat/stream`, {
       method: 'POST',
@@ -344,11 +345,12 @@ const SearchAPI = {
    * @param {Object|null} [opts.metadata_filter]
    */
   _buildBody(opts) {
-    const { query, limit = 5, knowledge_base_id = null, use_rerank = true, metadata_filter = null } = opts;
+    const { query, limit = 5, knowledge_base_id = null, use_rerank = true, metadata_filter = null, retrieval_mode = null } = opts;
     const body = { query, limit };
     if (knowledge_base_id) body.knowledge_base_id = knowledge_base_id;
     if (use_rerank !== undefined) body.use_rerank = use_rerank;
     if (metadata_filter) body.metadata_filter = metadata_filter;
+    if (retrieval_mode) body.retrieval_mode = retrieval_mode;
     return JSON.stringify(body);
   },
 

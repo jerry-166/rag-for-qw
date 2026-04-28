@@ -41,6 +41,7 @@ class StoredData(BaseModel):
     subq_embeddings: list[list[float]]
     summary: str
     summary_embedding: list[float]
+    chunk_embedding: list[float] = []  # [新增] chunk原文向量，用于Native检索
     metadata: dict
 
 class SubqAndSummary(BaseModel):
@@ -364,38 +365,28 @@ class DocumentProcessor:
                 logger.warning(f"增量批次 {batch_idx} 第 {i} 条解析失败: {e}")
                 results.append({"subqs": [], "summary": ""})
 
-        # 立即写 DB
+        # 构建批量写入数据列表
         from services.database import db
 
+        chunk_data_list = []
         for i, data in enumerate(batch_data):
             chunk_db_id = data.metadata.get("chunk_id")
             if chunk_db_id is None:
                 continue
             parsed = results[i]
+            chunk_data_list.append({
+                "chunk_db_id": chunk_db_id,
+                "document_id": document_id,
+                "knowledge_base_id": knowledge_base_id,
+                "metadata": data.metadata,
+                "subqs": parsed["subqs"],
+                "summary": parsed["summary"],
+            })
 
-            # 幂等：先清理旧数据，再写入新数据
-            db.delete_sub_questions_by_chunk(chunk_db_id)
-            db.delete_summary_by_chunk(chunk_db_id)
-
-            # 写子问题
-            for sq in parsed["subqs"]:
-                db.add_sub_question(
-                    document_id=document_id,
-                    chunk_id=chunk_db_id,
-                    content=sq,
-                    metadata=data.metadata,
-                    knowledge_base_id=knowledge_base_id,
-                )
-
-            # 写摘要
-            if parsed["summary"]:
-                db.add_chunk_summary(
-                    document_id=document_id,
-                    chunk_id=chunk_db_id,
-                    content=parsed["summary"],
-                    metadata=data.metadata,
-                    knowledge_base_id=knowledge_base_id,
-                )
+        # 事务性批量保存（原子性保护）
+        success = db.save_chunk_enhanced_data_batch(chunk_data_list)
+        if not success:
+            logger.error(f"增量批次 {batch_idx} 批量保存失败")
 
         end_time = time.time()
         logger.info(f"增量批次 {batch_idx} 完成并已持久化，耗时: {end_time - start_time:.2f}秒")
@@ -472,6 +463,26 @@ class DocumentProcessor:
         
         total_end = time.time()
         logger.info(f"嵌入生成和填充总耗时: {total_end - start_time:.2f}秒")
+    
+    async def generate_chunk_embeddings(self, datas):
+        """
+        生成 chunk 原文向量（用于 Native 检索）。
+        直接对原始 chunk 文本进行向量化，信息保真度高。
+        """
+        if not datas:
+            return
+        start_time = time.time()
+        logger.info(f"开始生成 chunk 原文向量，共 {len(datas)} 个 chunk...")
+        chunk_texts = [d.chunk for d in datas]
+        chunk_embeddings = await self.batch_embed_texts(
+            chunk_texts,
+            batch_size=settings.EMBEDDING_BATCH_SIZE,
+            max_concurrency=settings.MAX_CONCURRENCY,
+        )
+        for i, d in enumerate(datas):
+            d.chunk_embedding = chunk_embeddings[i]
+        end_time = time.time()
+        logger.info(f"chunk 原文向量生成完成，耗时: {end_time - start_time:.2f}秒")
     
     async def process_document_async(self, markdown_path):
         """异步处理文档"""
