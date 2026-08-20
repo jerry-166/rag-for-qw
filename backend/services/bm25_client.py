@@ -18,7 +18,7 @@ import logging
 from typing import List, Dict, Optional, Any
 from collections import defaultdict
 
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 
 logger = init_logger(__name__)
 
@@ -41,6 +41,39 @@ def _get_bm25():
                 "或设置 SEARCH_BACKEND=elasticsearch 使用 Elasticsearch"
             )
     return _rank_bm25
+
+
+# 01-C：jieba 在中英混排间会产出纯空白 token（' '、'\n'、混合空白等）。
+# TEXT 空格连接/还原对纯空白 token 有损；且不同空白串在旧实现中是不同 token（各有 idf），
+# 简单过滤或合并为单一哨兵都会改变 BM25 统计导致打分偏差。
+# 解决：可逆编码 ws → '␣' + 码点 hex（无空格、语料不出现），语料与查询两侧同样编码，
+# 读取缓存后解码还原 → 与旧实现的 BM25 打分严格等价。
+_WS_PREFIX = '␣'
+
+
+def _encode_tokens(tokens):
+    """空白 token → '␣'+码点hex（可逆，保持 BM25 统计严格等价）"""
+    out = []
+    for t in tokens:
+        if t.strip():
+            out.append(t)
+        else:
+            out.append(_WS_PREFIX + '.'.join(f'{ord(c):X}' for c in t))
+    return out
+
+
+def _decode_tokens(tokens):
+    """还原 _encode_tokens 的编码（'␣20' → ' '）"""
+    out = []
+    for t in tokens:
+        if t.startswith(_WS_PREFIX) and len(t) > len(_WS_PREFIX):
+            try:
+                out.append(''.join(chr(int(h, 16)) for h in t[len(_WS_PREFIX):].split('.')))
+                continue
+            except ValueError:
+                pass
+        out.append(t)
+    return out
 
 
 def _get_jieba():
@@ -210,9 +243,9 @@ class BM25Client:
             if bm25 is None:
                 return []
 
-            # 对查询分词并打分
+            # 对查询分词并打分（与缓存编码一致：空白 token → 哨兵，保持打分等价）
             jieba = _get_jieba()
-            tokenized_query = list(jieba.cut_for_search(query))
+            tokenized_query = _encode_tokens(jieba.cut_for_search(query))
             scores = bm25.get_scores(tokenized_query)
 
             # 按 BM25 分数降序排列，取 top size
@@ -344,6 +377,50 @@ class BM25Client:
         """使某个桶的 BM25 模型缓存失效"""
         self._models.pop(bucket_key, None)
 
+    def _get_tokenized_batch(self, corpus: Dict[int, dict]) -> Dict[int, list]:
+        """01-C：批量获取分词结果（优先 PG 缓存，未命中的批量 jieba 按需分词并回写）。
+
+        保证与直接 jieba.cut_for_search(content) 结果一致，仅缓存来源不同。
+        """
+        import time as _time
+        from services.audit import audit
+        from services.database import db
+
+        t0 = _time.perf_counter()
+        # 注意：缓存读回保持编码形态（不解码）——BM25 对 token 双射重命名不变，
+        # 语料与查询两侧统一使用编码 token 即与旧实现打分严格等价。
+        cached = db.get_tokenized_by_ids(list(corpus.keys()))
+        missing = {cid: c for cid, c in corpus.items() if cid not in cached}
+
+        if missing:
+            jieba = _get_jieba()
+            new_tokens = {
+                cid: _encode_tokens(jieba.cut_for_search(c["content"]))
+                for cid, c in missing.items()
+            }
+            db.set_chunk_tokenized_batch(new_tokens)
+            cached.update(new_tokens)
+
+        elapsed_ms = ( _time.perf_counter() - t0) * 1000
+        audit.log(
+            "bm25.cache.tokenize_batch",
+            resource_type="bm25_bucket",
+            detail={
+                "total": len(corpus),
+                "cache_hit": len(corpus) - len(missing),
+                "cache_miss": len(missing),
+                "elapsed_ms": round(elapsed_ms, 2),
+            },
+        )
+        if missing:
+            logger.info(
+                f"分词缓存命中 {len(corpus) - len(missing)}/{len(corpus)}，"
+                f"按需分词并回写 {len(missing)} 条（{elapsed_ms:.1f}ms）"
+            )
+        else:
+            logger.info(f"分词缓存全命中 {len(corpus)}/{len(corpus)}（{elapsed_ms:.1f}ms）")
+        return cached
+
     def _get_or_build_model(
         self, bucket_key: str, corpus: Dict[int, dict]
     ):
@@ -362,16 +439,14 @@ class BM25Client:
             self._models[bucket_key] = (None, [])
             return None, []
 
-        jieba = _get_jieba()
         BM25Okapi = _get_bm25()
 
         # 按 id 排序保证稳定顺序（虽然 BM25 本身对顺序不敏感，
         # 但我们需要 doc_id_list 与 scores 一一对应）
         sorted_ids = sorted(corpus.keys())
-        tokenized_docs = [
-            list(jieba.cut_for_search(corpus[doc_id]["content"]))
-            for doc_id in sorted_ids
-        ]
+        # 01-C：分词走 PG 缓存 + 批量按需分词（替代逐条 jieba 全量分词）
+        tokenized_map = self._get_tokenized_batch(corpus)
+        tokenized_docs = [tokenized_map.get(doc_id, []) for doc_id in sorted_ids]
 
         bm25 = BM25Okapi(tokenized_docs)
         result = (bm25, sorted_ids)
@@ -404,7 +479,7 @@ def get_search_client():
     if _client_instance is not None:
         return _client_instance
 
-    backend = getattr(settings, "SEARCH_BACKEND", "bm25").lower().strip()
+    backend = get_runtime("SEARCH_BACKEND", "bm25").lower().strip()
 
     if backend == "elasticsearch":
         from .elasticsearch_client import ElasticsearchClient
@@ -417,6 +492,16 @@ def get_search_client():
         logger.info("搜索引擎: BM25 (纯内存)")
 
     return _client_instance
+
+
+def reset_search_client():
+    """重置搜索引擎单例，下次调用按最新配置重建（运行时热切换用）。"""
+    global _backend_type, _client_instance
+    _client_instance = None
+    _backend_type = None
+    from services.elasticsearch_client import reset_es_client
+    reset_es_client()
+    logger.info("搜索引擎单例已重置，等待按最新配置重建")
 
 
 def get_backend_type() -> str:

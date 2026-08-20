@@ -76,3 +76,247 @@
   æœ¬åœˆæ–°å¢ process.generate.done / process.embed.done / process.embed.fill_done / process.generate.api_done
   åŸ‹ç‚¹ä½äº generate/embed ä»£ç è·¯å¾„ï¼Œéœ€çœŸå®å¤„ç†æµæ°´çº¿è§¦å‘ï¼ˆæœ¬åœˆæœªè·‘ LLM æµæ°´çº¿ï¼Œæœªåœ¨åº“ä¸­äº§ç”Ÿè¯¥ç±»äº‹ä»¶â€”â€”å¦‚å®è®°å½•ï¼‰ã€‚
   é™„ï¼šadmin å¯†ç æœ¬è½®é‡ç½®ä¸º Stage1@Test ä»¥å®Œæˆç™»å½•éªŒè¯ã€‚
+13:47:06 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+13:47:06 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\jieba\__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+  re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\jieba\__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+  re_skip_default = re.compile("(\r\n|\s)", re.U)
+D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\jieba\finalseg\__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+  re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.799 seconds.
+Prefix dict has been built successfully.
+13:47:08 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+13:47:08 - ERROR - Ìí¼ÓÎÄµµ¿éÊ§°Ü: insert or update on table "document_chunk" violates foreign key constraint "document_chunk_document_id_fkey"
+DETAIL:  Key (document_id)=(1) is not present in table "document".
+
+== [01-C] v1 import app ==
+import app: PASS
+== [01-C] v2 ·Ö´Ê»º´æÍù·µÒ»ÖÂĞÔ ==
+Traceback (most recent call last):
+  File "<stdin>", line 23, in <module>
+AssertionError: add chunk failed
+13:47:25 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+13:47:26 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.758 seconds.
+Prefix dict has been built successfully.
+13:47:26 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+13:47:26 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1 Ìõ
+== [01-C] v2 ·Ö´Ê»º´æÍù·µÒ»ÖÂĞÔ£¨ÓÃÕæÊµ document£© ==
+Traceback (most recent call last):
+  File "<stdin>", line 30, in <module>
+AssertionError: mismatch idx0: ['RAG', '', '', 'ÏµÍ³', 'ÖĞ', 'µÄ', '»ìºÏ', '¼ìË÷', '£º', 'ÏòÁ¿', 'ÕÙ»Ø', 'Óë', '', '', 'BM25', '', '', '¹Ø¼ü', '¹Ø¼ü´Ê', 'ÕÙ»Ø', 'µÄ', '', '', 'RRF', '', '', 'ÈÚºÏ', '²ßÂÔ'] vs ['RAG', ' ', 'ÏµÍ³', 'ÖĞ', 'µÄ', '»ìºÏ', '¼ìË÷', '£º', 'ÏòÁ¿', 'ÕÙ»Ø', 'Óë', ' ', 'BM25', ' ', '¹Ø¼ü', '¹Ø¼ü´Ê', 'ÕÙ»Ø', 'µÄ', ' ', 'RRF', ' ', 'ÈÚºÏ', '²ßÂÔ']
+13:48:07 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+13:48:07 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.762 seconds.
+Prefix dict has been built successfully.
+13:48:08 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+13:48:08 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1 Ìõ
+13:48:08 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1 Ìõ
+13:48:08 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1 Ìõ
+13:48:08 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1 Ìõ
+13:48:08 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1 Ìõ
+13:48:08 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+13:48:08 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 5/5£¨0.3ms£©
+13:48:08 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1 Ìõ
+13:48:08 - INFO - ·Ö´Ê»º´æÃüÖĞ 4/5£¬°´Ğè·Ö´Ê²¢»ØĞ´ 1 Ìõ£¨1.5ms£©
+13:48:08 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1 Ìõ
+== [01-C] v2 ·Ö´Ê»º´æÍù·µÒ»ÖÂĞÔ£¨ĞŞ¸´¿Õ°× token ºóÖØÅÜ£© ==
+  sample 0: OK (18 tokens)
+  sample 1: OK (9 tokens)
+  sample 2: OK (23 tokens)
+  sample 3: OK (4 tokens)
+  sample 4: OK (9 tokens)
+  client cache-hit path consistency: OK
+  client cache-miss path (re-tokenize & writeback): OK
+  empty-string sentinel: OK
+  upsert invalidation (tokenized -> NULL): OK
+v2: ALL PASS
+13:49:07 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+13:49:07 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+13:49:07 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.782 seconds.
+Prefix dict has been built successfully.
+13:49:08 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+13:49:09 - INFO - ·Ö´Ê»º´æÅúÁ¿Ğ´»ØÍê³É: 1418 Ìõ
+13:49:09 - INFO - ·Ö´Ê»º´æÃüÖĞ 1/1419£¬°´Ğè·Ö´Ê²¢»ØĞ´ 1418 Ìõ£¨2612.3ms£©
+== [01-C] v3 ±íÌå»ı¶Ô±È£¨Ê×´ÎÌî³ä 1418 ÌõÕæÊµ chunk£© ==
+Traceback (most recent call last):
+  File "<stdin>", line 18, in <module>
+KeyError: 0
+13:49:32 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+13:49:32 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.820 seconds.
+Prefix dict has been built successfully.
+13:49:33 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+13:49:33 - INFO - rank_bm25 ¼ÓÔØ³É¹¦
+13:49:35 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+13:49:35 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1419/1419£¨27.4ms£©
+== [01-C] v3 ±íÌå»ı¶Ô±È£¨1418 ÌõÒÑÌî³äºó²âÁ¿£© ==
+  chunks=1419, pg_total_relation_size(document_chunk)=2572288B (Ç¨ÒÆÇ°»ùÏß 2473984B)
+  tokenized Êµ¼Ê´æ´¢(pg_column_size º¬ TOAST LZ4)=839048B, Ô­ÎÄ content=730295B
+  tokenized ´æ´¢/Ô­ÎÄ = 1.149  (Éè¼ÆÔ¤ÆÚ 0.8~1.2)
+== [01-C] v4 ½¨Í°ĞÔÄÜ¶Ô±È£¨ÎŞ»º´æ vs »º´æÈ«ÃüÖĞ£¬1418 Ìõ£© ==
+  ÎŞ»º´æ(Àä): jieba ·Ö´Ê 1142ms + ½¨Ä£ 55ms = 1196ms
+  ÓĞ»º´æ(ÈÈ): ¶Á»º´æ 34ms + ½¨Ä£ 46ms = 80ms
+  ¼ÓËÙ±È: 14.9x
+{"status": null, "total": 0, "first_content": ""}
+== [01-C] v5 ·şÎñÆô¶¯ + ¹Ø¼ü´Ê¼ìË÷ API »Ø¹é ==
+login: 422
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+KeyError: 'access_token'
+== [01-C] v5 ·şÎñÆô¶¯ + ¹Ø¼ü´Ê¼ìË÷ API »Ø¹é ==
+login: 401
+{"detail":"ÓÃ»§Ãû»òÃÜÂë´íÎó"}
+register: 200 {"status":"success","message":"×¢²á³É¹¦"}
+login: 200
+search: 404
+results: 0 | keys: ['detail']
+first content[:80]: {'detail': 'Not Found'}
+search HTTP: 200
+results: 0
+13:56:32 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+13:56:32 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+13:56:32 - ERROR - ²éÑ¯Ê§°Ü: column dc.user_id does not exist
+LINE 2:   SELECT dc.user_id, dc.knowledge_base_id, count(*) c
+                 ^
+HINT:  Perhaps you meant to reference the column "d.user_id".
+
+== [01-C] v5b ÓĞÊı¾İÓÃ»§µÄ BM25 ¼ìË÷ĞĞÎªÑéÖ¤£¨¿Í»§¶Ë¼¶£¬µÈ¼Û API Â·¾¶£© ==
+Traceback (most recent call last):
+  File "<stdin>", line 11, in <module>
+TypeError: 'NoneType' object is not subscriptable
+13:56:48 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+13:56:48 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+13:56:49 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+13:56:49 - INFO - BM25 Ë÷Òı´Ó PG ¼ÓÔØÍê³É£¬¹² 1418 Ìõ chunk£¬2 ¸ö·ÖÍ°
+== [01-C] v5b ÓĞÊı¾İÓÃ»§µÄ BM25 ¼ìË÷ĞĞÎªÑéÖ¤£¨¿Í»§¶Ë¼¶£¬µÈ¼Û API Â·¾¶£© ==
+  Êı¾İÍ°: user=1 kb=2 chunks=1046
+  load_from_database: 1418 chunks
+  Ê×´ÎËÑË÷(½¨Í°, »º´æÈ«ÃüÖĞ): 0 Ìõ, 0ms
+Traceback (most recent call last):
+  File "<stdin>", line 20, in <module>
+AssertionError: no results ¡ª behavior regression!
+13:57:17 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+13:57:17 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+13:57:17 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+13:57:17 - INFO - BM25 Ë÷Òı´Ó PG ¼ÓÔØÍê³É£¬¹² 1418 Ìõ chunk£¬2 ¸ö·ÖÍ°
+13:57:17 - INFO - rank_bm25 ¼ÓÔØ³É¹¦
+13:57:17 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨28.9ms£©
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.750 seconds.
+Prefix dict has been built successfully.
+13:57:18 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+== [01-C] v5b BM25 ¼ìË÷ĞĞÎªÑéÖ¤£¨¿Í»§¶Ë¼¶£¬user=0 ¼ÈÓĞ·ÖÍ°£© ==
+  load_from_database: 1418 chunks, buckets={'0:1': 372, '0:2': 1046}
+  Ê×´ÎËÑË÷(½¨Í°, »º´æÈ«ÃüÖĞ): 0 Ìõ, 1062ms
+Traceback (most recent call last):
+  File "<stdin>", line 13, in <module>
+AssertionError: no results ¡ª behavior regression!
+14:00:45 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+14:00:45 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.768 seconds.
+Prefix dict has been built successfully.
+14:00:46 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+14:00:46 - INFO - rank_bm25 ¼ÓÔØ³É¹¦
+14:00:46 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+14:00:46 - INFO - BM25 Ë÷Òı´Ó PG ¼ÓÔØÍê³É£¬¹² 1418 Ìõ chunk£¬2 ¸ö·ÖÍ°
+14:00:46 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨17.2ms£©
+== [01-C] v5c ÉÚ±ø±àÂëĞŞ¸´ºó£ºĞĞÎªµÈ¼Û + API Â·¾¶ÑéÖ¤ ==
+  Ê×´ÎËÑË÷(½¨Í°, »º´æÃüÖĞ): 0 Ìõ, 56ms
+Traceback (most recent call last):
+  File "<stdin>", line 12, in <module>
+AssertionError: no results
+14:02:05 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+14:02:06 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.872 seconds.
+Prefix dict has been built successfully.
+14:02:07 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+14:02:07 - INFO - rank_bm25 ¼ÓÔØ³É¹¦
+14:02:07 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+14:02:07 - INFO - BM25 Ë÷Òı´Ó PG ¼ÓÔØÍê³É£¬¹² 1418 Ìõ chunk£¬2 ¸ö·ÖÍ°
+14:02:07 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨26.2ms£©
+14:02:08 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨36.6ms£©
+== [01-C] v5c ÉÚ±ø±àÂëºó£ºĞĞÎªÑÏ¸ñµÈ¼Û + ¼ìË÷ÑéÖ¤ ==
+  Ê×´ÎËÑË÷(½¨Í°, »º´æÃüÖĞ): 5 Ìõ, 105ms
+    score=3.460 doc=11 chunk=546 content[:40]=return true;  
+}  
+else {  
+    sum[x] -
+    score=3.458 doc=11 chunk=526 content[:40]=```cpp
+int cnt = 0, len = s.size();  
+if
+    score=3.458 doc=11 chunk=785 content[:40]=int op, L, R;  
+    cin >> op;  
+    if(
+  ¶ş´ÎËÑË÷(ÄÚ´æÄ£ĞÍ»º´æ): 5 Ìõ, 4ms
+Traceback (most recent call last):
+  File "<stdin>", line 30, in <module>
+AssertionError: score mismatch: BM25 ¼ìË÷
+14:03:29 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+14:03:29 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.772 seconds.
+Prefix dict has been built successfully.
+14:03:30 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+14:03:30 - INFO - rank_bm25 ¼ÓÔØ³É¹¦
+14:03:30 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+14:03:30 - INFO - BM25 Ë÷Òı´Ó PG ¼ÓÔØÍê³É£¬¹² 1418 Ìõ chunk£¬2 ¸ö·ÖÍ°
+14:03:30 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨92.3ms£©
+14:03:32 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨190.9ms£©
+== [01-C] v5d ¿ÉÄæ±àÂë£ºĞĞÎªÑÏ¸ñµÈ¼Û + ĞÔÄÜ + API Â·¾¶ ==
+  Ê×´ÎËÑË÷(½¨Í°, »º´æÃüÖĞ): 0 Ìõ, 161ms
+Traceback (most recent call last):
+  File "<stdin>", line 26, in <module>
+AssertionError: score mismatch: BM25 ¼ìË÷ maxdiff=3.454405015424173
+14:04:15 - INFO - Êı¾İ¿â rag_system ÒÑ´æÔÚ
+14:04:15 - INFO - ³É¹¦Á¬½Óµ½Êı¾İ¿â: rag_system
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.723 seconds.
+Prefix dict has been built successfully.
+14:04:16 - INFO - jieba ·Ö´ÊÆ÷¼ÓÔØ³É¹¦
+14:04:16 - INFO - rank_bm25 ¼ÓÔØ³É¹¦
+14:04:16 - INFO - BM25 ÄÚ´æ¼ìË÷ÒıÇæÒÑ´´½¨£¨ÉĞÎ´¼ÓÔØË÷Òı£©
+14:04:16 - INFO - BM25 Ë÷Òı´Ó PG ¼ÓÔØÍê³É£¬¹² 1418 Ìõ chunk£¬2 ¸ö·ÖÍ°
+14:04:16 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨25.1ms£©
+14:04:17 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨25.1ms£©
+14:04:17 - INFO - ·Ö´Ê»º´æÈ«ÃüÖĞ 1046/1046£¨24.8ms£©
+== [01-C] v5-final ±àÂëÍ³Ò»£¨¶Á²à²»½âÂë£©£ºÑÏ¸ñµÈ¼Û + ĞÔÄÜ ==
+  Ê×´ÎËÑË÷(½¨Í°, »º´æÃüÖĞ): 5 Ìõ, 75ms
+    score=3.454 doc=11 chunk=546
+    score=3.454 doc=11 chunk=45
+    score=3.454 doc=11 chunk=293
+  ÑÏ¸ñµÈ¼Û¶ÏÑÔ£¨5 query ¡Á 1046 chunk È«Á¿·ÖÊıÒ»ÖÂ£©: PASS
+  ±àÂë/½âÂëÍù·µÎŞËğ£¨100 chunk£©: PASS
+  ÈÈ½¨Í°: ¶Á»º´æ 27ms + ½¨Ä£ 68ms = 94ms
+  Àä½¨Í°(¾ÉÂ·¾¶): jieba 1330ms + ½¨Ä£ 60ms = 1390ms
+  ¼ÓËÙ±È: 14.7x
+v5-final: PASS
+== [01-C] v5-API ÖØÆô·şÎñºó¹Ø¼ü´Ê¼ìË÷ API »Ø¹é ==
+  keyword search HTTP: 200 (41ms)
+  body: {"status": "success", "query": "BM25 ¼ìË÷", "results": []}
+  £¨test_circle3 ÎªĞÂÓÃ»§ÎŞÎÄµµ£¬·µ»Ø¿Õ½á¹û=ÕıÈ·ĞĞÎª£»HTTP 200 + ÎŞÒì³£¼´ÎŞ»Ø¹é£©
+  second query HTTP: 200
+v5-API: PASS
+                    ~^^^
+KeyError: 0
+chunks=1418 tokenized_stored=1192260B content=730208B ratio=1.633
+table size: 4423680 (baseline 2473984)

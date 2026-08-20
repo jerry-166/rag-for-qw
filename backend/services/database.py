@@ -219,6 +219,13 @@ class Database:
             ''')
 
             # 创建索引
+            # 01-C：分词缓存列（TEXT 空格连接，靠 TOAST LZ4 压缩，PG14+ 生效，低版本自动忽略/退化 pglz）
+            try:
+                self.cursor.execute('ALTER TABLE document_chunk ADD COLUMN IF NOT EXISTS tokenized TEXT')
+                self.cursor.execute('ALTER TABLE document_chunk ALTER COLUMN tokenized SET COMPRESSION lz4')
+            except Exception as e:
+                # PG < 14 不支持 SET COMPRESSION lz4 → 退化为默认 pglz 压缩（设计 §3.2）
+                logger.warning(f"tokenized 列 LZ4 压缩设置失败（PG<14 退化为默认压缩）: {e}")
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_status ON document (status)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_user_id ON document (user_id)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_knowledge_base_id ON document (knowledge_base_id)')
@@ -680,7 +687,8 @@ class Database:
             VALUES (%s, %s, %s, %s, %s)
             ON CONFLICT (document_id, chunk_index) DO UPDATE SET
                 content = EXCLUDED.content,
-                metadata = COALESCE(EXCLUDED.metadata, document_chunk.metadata)
+                metadata = COALESCE(EXCLUDED.metadata, document_chunk.metadata),
+                tokenized = NULL  -- 01-C：内容变更自动置脏分词缓存
             RETURNING id
         '''
         try:
@@ -711,6 +719,37 @@ class Database:
         query = f"SELECT * FROM document_chunk WHERE id IN ({placeholders})"
         return self.fetchall(query, chunk_ids)
     
+    def set_chunk_tokenized_batch(self, mapping):
+        """01-C：批量写回分词缓存。mapping: {chunk_id: [tokens]}，TEXT 空格连接存储。
+
+        返回成功写入条数。"""
+        if not mapping:
+            return 0
+        query = 'UPDATE document_chunk SET tokenized = %s WHERE id = %s'
+        try:
+            rows = [( ' '.join(tokens), cid) for cid, tokens in mapping.items()]
+            self.cursor.executemany(query, rows)
+            logger.info(f"分词缓存批量写回完成: {len(rows)} 条")
+            return len(rows)
+        except Exception as e:
+            logger.error(f"批量写回分词缓存失败: {e}")
+            return 0
+
+    def get_tokenized_by_ids(self, chunk_ids):
+        """01-C：批量读取分词缓存。返回 {chunk_id: [tokens]}，仅含已缓存（tokenized 非NULL）的条目。
+
+        空串特判为 []（已分词但为空，防御性三态语义）。"""
+        if not chunk_ids:
+            return {}
+        placeholders = ','.join(['%s'] * len(chunk_ids))
+        query = f"SELECT id, tokenized FROM document_chunk WHERE id IN ({placeholders}) AND tokenized IS NOT NULL"
+        rows = self.fetchall(query, list(chunk_ids))
+        result = {}
+        for row in rows:
+            text = row['tokenized']
+            result[row['id']] = [] if text == '' else text.split(' ')
+        return result
+
     # 子问题相关方法
     def add_sub_question(self, document_id, chunk_id, content, metadata=None, knowledge_base_id=None):
         """添加子问题"""
