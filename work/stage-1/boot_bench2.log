@@ -1,0 +1,134 @@
+INFO:     Started server process [37984]
+INFO:     Waiting for application startup.
+16:14:27 - INFO - 正在初始化应用...
+16:14:27 - INFO - 存储实例初始化完成，存储类型: local
+16:14:27 - INFO - [预热] 后台并发预热已启动：milvus / search / agents
+16:14:27 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+INFO:     Application startup complete.
+16:14:27 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+16:14:27 - INFO - 搜索引擎: BM25 (纯内存)
+INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
+16:14:27 - INFO - [Agent预热] 开始后台预热所有 Agent...
+16:14:27 - INFO - 数据库 rag_system 已存在
+16:14:28 - INFO - 成功连接到数据库: rag_system
+16:14:28 - INFO - BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+16:14:28 - INFO - BM25 索引加载完成，共 1418 条 chunk
+16:14:28 - INFO - BM25 分桶: bucket=0:1, chunks=372
+16:14:28 - INFO - BM25 分桶: bucket=0:2, chunks=1046
+16:14:28 - INFO - [Readiness] search 就绪
+16:14:28 - INFO - 访问根路径
+INFO:     127.0.0.1:64914 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64916 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:64917 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:64918 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:64919 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:64925 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:64926 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+16:14:30 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:51: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(
+INFO:     127.0.0.1:62868 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62871 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62874 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+16:14:30 - INFO - [Tracing] Langfuse 连接验证: 成功
+16:14:30 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+16:14:30 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+INFO:     127.0.0.1:62875 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:61: PyMilvusDeprecationWarning: `db.using_database` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  db.using_database(self.db_name)
+16:14:31 - INFO - Zilliz Cloud 连接成功，使用数据库: rag_system
+16:14:31 - INFO - [Readiness] milvus 就绪
+INFO:     127.0.0.1:62876 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62877 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62878 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62879 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62880 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62881 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62882 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62883 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62884 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62886 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62887 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62888 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62889 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62890 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62891 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62893 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62894 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62896 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62898 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:56428 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:56429 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50827 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50828 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50829 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50834 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50835 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:62989 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63499 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63501 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63502 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63503 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63504 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63505 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63506 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63507 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63124 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63125 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63127 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63128 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63129 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63130 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+16:14:44 - INFO - [memory_manager] MemoryManager 初始化，workspace: D:\workspace\rag-for-qw\backend\agent\workspace
+16:14:44 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw\backend\agent\sessions
+16:14:44 - INFO - [AgentRegistry] 初始化完成
+16:14:44 - INFO - [AgentRegistry] 注册 Agent: simple
+16:14:44 - INFO - [AgentRegistry] 注册 Agent: advanced
+16:14:44 - INFO - [AgentRegistry] 注册 Agent: claw
+16:14:44 - INFO - [AgentRegistry] 设置默认 Agent: claw
+16:14:44 - INFO - [AgentRegistry] Agent 注册中心配置完成，默认: claw
+INFO:     127.0.0.1:63131 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63132 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63133 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63134 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63135 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63136 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63138 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63139 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:63142 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+16:14:47 - INFO - [SimpleAgentAdapter] 初始化完成
+16:14:47 - INFO - [AgentRegistry] 获取 Agent 实例: simple
+16:14:47 - INFO - [Agent预热] simple Agent 预热完成 (3.11s)
+16:14:47 - INFO - [AdvancedRAGAgent] 设置工具
+16:14:47 - INFO - [intent_classifier] 意图分类器初始化完成
+16:14:47 - INFO - [EntityExtractor] 实体提取器初始化完成
+16:14:47 - INFO - 任务规划器初始化完成
+16:14:47 - INFO - 工具管理器初始化
+16:14:47 - INFO - [ToolManager] 注册工具 clarify
+16:14:47 - INFO - [ToolManager] 注册工具 generate_answer
+16:14:47 - INFO - [ToolManager] 注册工具 analyze
+16:14:47 - INFO - [ToolManager] 注册工具 summarize
+16:14:47 - INFO - [ToolManager] 注册工具 knowledge_retrieval
+INFO:     127.0.0.1:63146 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+16:14:47 - INFO - [AdvancedRAGAgent] 注册内置工具完成
+16:14:47 - INFO - [ConversationManager] 对话管理器初始化完成
+16:14:47 - INFO - [ResponseGenerator] 初始化完成，LLM: metadata={'lc_versions': {'langchain-core': '1.5.6', 'langchain': '1.3.15', 'langchain-openai': '1.5.1'}} profile={'name': 'GPT-4o', 'release_date': '2024-05-13', 'last_updated': '2024-08-06', 'open_weights': False, 'max_input_tokens': 128000, 'max_output_tokens': 16384, 'text_inputs': True, 'image_inputs': True, 'audio_inputs': False, 'pdf_inputs': True, 'video_inputs': False, 'text_outputs': True, 'image_outputs': False, 'audio_outputs': False, 'video_outputs': False, 'reasoning_output': False, 'tool_calling': True, 'structured_output': True, 'attachment': True, 'temperature': True, 'image_url_inputs': True, 'pdf_tool_message': True, 'image_tool_message': True, 'tool_choice': True, 'tool_call_streaming': True} client=<openai.resources.chat.completions.completions.Completions object at 0x000002E59E03C7D0> async_client=<openai.resources.chat.completions.completions.AsyncCompletions object at 0x000002E59E03CB90> root_client=<openai.OpenAI object at 0x000002E59E03C550> root_async_client=<openai.AsyncOpenAI object at 0x000002E59E03C910> model_name='gpt-4o' temperature=0.7 model_kwargs={} openai_api_key=SecretStr('**********') openai_api_base='http://localhost:4000' stream_chunk_timeout=120.0
+16:14:47 - INFO - [AdvancedRAGAgent] 构建工作流
+16:14:47 - INFO - [workflow] 工作流编译完成
+16:14:47 - INFO - [AdvancedRAGAgent] 初始化完成
+16:14:47 - INFO - [AdvancedAgentAdapter] 初始化完成
+16:14:47 - INFO - [AgentRegistry] 获取 Agent 实例: advanced
+16:14:47 - INFO - [Agent预热] advanced Agent 预热完成 (0.09s)
+16:14:47 - INFO - [ClawAgentAdapter] 初始化完成
+16:14:47 - INFO - [AgentRegistry] 获取 Agent 实例: claw
+16:14:47 - INFO - [Agent预热] claw Agent 预热完成 (0.01s)
+16:15:02 - INFO - Reranker 初始化完成，类型: CrossEncoderReranker
+16:15:02 - INFO - [CrossEncoderReranker] 开始加载模型: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70...
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 2131.99it/s]
+16:15:08 - INFO - [CrossEncoderReranker] 模型加载完成: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70
+16:15:08 - INFO - [Agent预热] Reranker 模型预热完成 (20.4s)
+16:15:08 - INFO - [Readiness] agents 就绪
+INFO:     127.0.0.1:60269 - "GET /healthz HTTP/1.1" 200 OK
+16:15:08 - INFO - 开始用户登录，用户名: admin
+16:15:08 - INFO - 用户登录成功，用户名: admin
+INFO:     127.0.0.1:60270 - "POST /api/auth/login HTTP/1.1" 200 OK

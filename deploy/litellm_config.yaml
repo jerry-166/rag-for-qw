@@ -1,0 +1,63 @@
+# ===================================================================
+# LiteLLM Proxy 配置
+# 文档: https://docs.litellm.ai/docs/proxy/configs
+# 模型列表 + 429 Fallback 策略
+# ===================================================================
+
+model_list:
+  # ============ 主模型 gpt-4o ============
+  - model_name: gpt-4o
+    litellm_params:
+      model: gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+      # 如走 Azure，改为：
+      # model: azure/gpt-4o-deployment
+      # api_base: os.environ/AZURE_API_BASE
+      # api_key: os.environ/AZURE_API_KEY
+
+  # gpt-4o 备用（同名即 fallback，主模型 429 时自动切换）
+  - model_name: gpt-4o
+    litellm_params:
+      model: gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+
+  # ============ gpt-4o-mini 独立模型 ============
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+
+  # ============ Embedding 模型 ============
+  # 走 GitHub Copilot 的 embedding（你项目默认配置）
+  - model_name: github_copilot/text-embedding-ada-002
+    litellm_params:
+      model: github_copilot/text-embedding-ada-002
+      api_key: os.environ/GITHUB_COPILOT_API_KEY
+
+  # 备用 embedding（OpenAI 直连）
+  - model_name: github_copilot/text-embedding-ada-002
+    litellm_params:
+      model: text-embedding-ada-002
+      api_key: os.environ/OPENAI_API_KEY
+
+# ============ 429 Fallback 策略 ============
+# 主模型限流时自动切换备用模型
+fallbacks:
+  - gpt-4o: ["gpt-4o-mini"]
+  - github_copilot/text-embedding-ada-002: ["github_copilot/text-embedding-ada-002"]
+
+# ============ 全局设置 ============
+litellm_settings:
+  # 请求超时（秒）
+  request_timeout: 120
+  # 重试次数
+  num_retries: 2
+  # 重试间隔
+  retry_after: 5
+
+general_settings:
+  # 用 PostgreSQL 存日志和 virtual keys
+  database_url: os.environ/DATABASE_URL
+  master_key: os.environ/LITELLM_MASTER_KEY
+  # 允许通过 UI 管理模型
+  disable_spend_logs: false

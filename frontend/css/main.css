@@ -3191,3 +3191,169 @@ td {
   .agent-content { padding: 0 12px; }
   .agent-kb-bar { padding: 6px 12px 4px; }
 }
+
+/* ===== 设置页面 ===== */
+.settings-layout {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+
+.settings-header { margin-bottom: 28px; }
+.settings-header h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+.settings-desc { color: var(--text3); font-size: .85rem; }
+
+.settings-loading {
+  display: flex; align-items: center; gap: 12px;
+  justify-content: center; padding: 60px 0;
+  color: var(--text3);
+}
+.settings-loading .loading-spinner { width: 22px; height: 22px; }
+
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.settings-section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 4px;
+}
+.settings-section-header h3 { font-size: 1rem; font-weight: 600; }
+.settings-section-desc { color: var(--text3); font-size: .8rem; margin-bottom: 18px; }
+
+.settings-field {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settings-field:last-child { border-bottom: none; padding-bottom: 0; }
+
+.settings-field-label {
+  display: flex; flex-direction: column; gap: 2px;
+  flex: 1; min-width: 0;
+}
+.settings-field-name { font-size: .88rem; font-weight: 500; }
+.settings-field-key {
+  font-size: .72rem;
+  color: var(--text3);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.settings-field-desc { font-size: .78rem; color: var(--text3); }
+
+.settings-field-control {
+  flex-shrink: 0;
+  width: 200px;
+}
+
+.settings-input {
+  width: 100%;
+}
+
+.settings-range-group {
+  display: flex; align-items: center; gap: 10px;
+}
+.settings-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--surface3);
+  border-radius: 3px;
+  outline: none;
+}
+.settings-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.settings-number {
+  width: 70px;
+  text-align: center;
+}
+
+.settings-password-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-password-group .settings-input {
+  flex: 1;
+}
+.settings-secret-state {
+  flex-shrink: 0;
+  font-size: .72rem;
+  color: var(--text3);
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--surface3);
+  white-space: nowrap;
+}
+.settings-secret-state.has {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.settings-secret-clear.btn-link {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  font-size: .72rem;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.settings-secret-clear.btn-link:hover { opacity: .8; }
+.settings-secret-clear.btn-link.pending {
+  color: var(--yellow);
+  text-decoration: none;
+  background: var(--yellow-bg);
+  border-radius: 10px;
+}
+
+.settings-field-readonly {
+  display: flex; align-items: center; gap: 8px;
+}
+.settings-field-readonly code {
+  font-size: .82rem;
+  color: var(--text2);
+  background: var(--surface2);
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  word-break: break-all;
+}
+
+.settings-badge {
+  font-size: .68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.badge-writable {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.badge-readonly {
+  background: var(--surface3);
+  color: var(--text3);
+}
+.badge-restart {
+  background: var(--yellow-bg);
+  color: var(--yellow);
+}
+
+.settings-actions {
+  display: flex; gap: 12px;
+  justify-content: flex-end;
+  padding-top: 8px;
+}

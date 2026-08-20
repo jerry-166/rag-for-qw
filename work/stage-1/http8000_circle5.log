@@ -1,0 +1,10 @@
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:18] "GET /index.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:18] "GET /js/api.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:19] "GET /js/pages/search.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:19] "GET /js/pages/documents.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:19] "GET /js/app.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:19] "GET /js/pages/agent.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:19] "GET /js/pages/pipeline.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:19] code 404, message File not found
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:19] "GET /js/auth.js HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [20/Aug/2026 15:41:19] "GET /js/api.js HTTP/1.1" 200 -

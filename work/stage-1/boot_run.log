@@ -1,0 +1,68 @@
+14:40:27 - INFO - 数据库 rag_system 已存在
+14:40:28 - INFO - 成功连接到数据库: rag_system
+INFO:     Started server process [16892]
+INFO:     Waiting for application startup.
+14:40:28 - INFO - 正在初始化应用...
+14:40:28 - INFO - 存储实例初始化完成，存储类型: local
+14:40:31 - INFO - [Tracing] Langfuse 连接验证: 成功
+14:40:31 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+14:40:31 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+14:40:31 - INFO - [预热] 后台并发预热已启动：milvus / search / agents
+14:40:31 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+INFO:     Application startup complete.
+14:40:31 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+14:40:31 - INFO - 搜索引擎: BM25 (纯内存)
+14:40:31 - INFO - [Agent预热] 开始后台预热所有 Agent...
+14:40:31 - INFO - BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+14:40:32 - INFO - [memory_manager] MemoryManager 初始化，workspace: D:\workspace\rag-for-qw\backend\agent\workspace
+14:40:32 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw\backend\agent\sessions
+14:40:32 - INFO - [AgentRegistry] 初始化完成
+14:40:32 - INFO - [AgentRegistry] 注册 Agent: simple
+14:40:32 - INFO - [AgentRegistry] 注册 Agent: advanced
+14:40:32 - INFO - [AgentRegistry] 注册 Agent: claw
+14:40:32 - INFO - [AgentRegistry] 设置默认 Agent: claw
+14:40:32 - INFO - [AgentRegistry] Agent 注册中心配置完成，默认: claw
+14:40:31 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:44: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(
+14:40:33 - INFO - [SimpleAgentAdapter] 初始化完成
+14:40:33 - INFO - [AgentRegistry] 获取 Agent 实例: simple
+14:40:33 - INFO - [Agent预热] simple Agent 预热完成 (1.46s)
+14:40:33 - INFO - [AdvancedRAGAgent] 设置工具
+14:40:33 - INFO - [intent_classifier] 意图分类器初始化完成
+14:40:33 - INFO - [EntityExtractor] 实体提取器初始化完成
+14:40:33 - INFO - 任务规划器初始化完成
+14:40:33 - INFO - 工具管理器初始化
+14:40:33 - INFO - [ToolManager] 注册工具 clarify
+14:40:33 - INFO - [ToolManager] 注册工具 generate_answer
+14:40:33 - INFO - [ToolManager] 注册工具 analyze
+14:40:33 - INFO - [ToolManager] 注册工具 summarize
+14:40:33 - INFO - [ToolManager] 注册工具 knowledge_retrieval
+14:40:33 - INFO - [AdvancedRAGAgent] 注册内置工具完成
+14:40:33 - INFO - [ConversationManager] 对话管理器初始化完成
+14:40:33 - INFO - [ResponseGenerator] 初始化完成，LLM: metadata={'lc_versions': {'langchain-core': '1.5.6', 'langchain': '1.3.15', 'langchain-openai': '1.5.1'}} profile={'name': 'GPT-4o', 'release_date': '2024-05-13', 'last_updated': '2024-08-06', 'open_weights': False, 'max_input_tokens': 128000, 'max_output_tokens': 16384, 'text_inputs': True, 'image_inputs': True, 'audio_inputs': False, 'pdf_inputs': True, 'video_inputs': False, 'text_outputs': True, 'image_outputs': False, 'audio_outputs': False, 'video_outputs': False, 'reasoning_output': False, 'tool_calling': True, 'structured_output': True, 'attachment': True, 'temperature': True, 'image_url_inputs': True, 'pdf_tool_message': True, 'image_tool_message': True, 'tool_choice': True, 'tool_call_streaming': True} client=<openai.resources.chat.completions.completions.Completions object at 0x0000023447445BD0> async_client=<openai.resources.chat.completions.completions.AsyncCompletions object at 0x0000023447445F90> root_client=<openai.OpenAI object at 0x0000023447445950> root_async_client=<openai.AsyncOpenAI object at 0x0000023447445D10> model_name='gpt-4o' temperature=0.7 model_kwargs={} openai_api_key=SecretStr('**********') openai_api_base='http://localhost:4000' stream_chunk_timeout=120.0
+14:40:33 - INFO - [AdvancedRAGAgent] 构建工作流
+14:40:33 - INFO - [workflow] 工作流编译完成
+14:40:33 - INFO - [AdvancedRAGAgent] 初始化完成
+14:40:33 - INFO - [AdvancedAgentAdapter] 初始化完成
+14:40:33 - INFO - [AgentRegistry] 获取 Agent 实例: advanced
+14:40:33 - INFO - [Agent预热] advanced Agent 预热完成 (0.08s)
+14:40:33 - INFO - [ClawAgentAdapter] 初始化完成
+14:40:33 - INFO - [AgentRegistry] 获取 Agent 实例: claw
+14:40:33 - INFO - [Agent预热] claw Agent 预热完成 (0.01s)
+14:40:33 - INFO - Reranker 初始化完成，类型: CrossEncoderReranker
+14:40:33 - INFO - [CrossEncoderReranker] 开始加载模型: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70...
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:54: PyMilvusDeprecationWarning: `db.using_database` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  db.using_database(self.db_name)
+14:40:33 - INFO - Zilliz Cloud 连接成功，使用数据库: rag_system
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights:  88%|████████▊ | 176/201 [00:00<00:00, 1731.48it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 1793.74it/s]
+14:40:38 - INFO - [CrossEncoderReranker] 模型加载完成: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70
+14:40:38 - INFO - [Agent预热] Reranker 模型预热完成 (5.09s)
+14:40:38 - INFO - [Readiness] agents 就绪
+14:40:38 - INFO - BM25 索引加载完成，共 1418 条 chunk
+14:40:38 - INFO - [Readiness] search 就绪
+14:40:38 - INFO - [Readiness] milvus 就绪
+INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
+14:40:39 - INFO - 访问根路径
+INFO:     127.0.0.1:54358 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54359 - "GET /healthz HTTP/1.1" 200 OK

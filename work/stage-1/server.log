@@ -1,0 +1,111 @@
+13:26:04 - INFO - 数据库 rag_system 已存在
+13:26:04 - INFO - 成功连接到数据库: rag_system
+INFO:     Started server process [15108]
+INFO:     Waiting for application startup.
+13:26:05 - INFO - 正在初始化应用...
+13:26:05 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:43: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:53: PyMilvusDeprecationWarning: `db.using_database` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  db.using_database(self.db_name)
+13:26:06 - INFO - Zilliz Cloud 连接成功，使用数据库: rag_system
+13:26:06 - INFO - Milvus客户端初始化完成
+13:26:06 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+13:26:06 - INFO - 搜索引擎: BM25 (纯内存)
+13:26:06 - INFO - BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+13:26:06 - INFO - BM25 索引加载完成，共 1418 条 chunk
+13:26:06 - INFO - 存储实例初始化完成，存储类型: local
+13:26:08 - INFO - [Tracing] Langfuse 连接验证: 成功
+13:26:08 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+13:26:08 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+13:26:08 - INFO - [Agent预热] 后台预热异步任务已启动（预热全部 Agent）
+13:26:08 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+13:26:08 - INFO - [Agent预热] 开始后台预热所有 Agent...
+13:26:09 - INFO - [memory_manager] MemoryManager 初始化，workspace: D:\workspace\rag-for-qw\backend\agent\workspace
+13:26:09 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw\backend\agent\sessions
+13:26:09 - INFO - [AgentRegistry] 初始化完成
+13:26:09 - INFO - [AgentRegistry] 注册 Agent: simple
+13:26:09 - INFO - [AgentRegistry] 注册 Agent: advanced
+13:26:09 - INFO - [AgentRegistry] 注册 Agent: claw
+13:26:09 - INFO - [AgentRegistry] 设置默认 Agent: claw
+13:26:09 - INFO - [AgentRegistry] Agent 注册中心配置完成，默认: claw
+13:26:10 - INFO - [SimpleAgentAdapter] 初始化完成
+13:26:10 - INFO - [AgentRegistry] 获取 Agent 实例: simple
+13:26:10 - INFO - [Agent预热] simple Agent 预热完成 (1.29s)
+13:26:10 - INFO - [AdvancedRAGAgent] 设置工具
+13:26:10 - INFO - [intent_classifier] 意图分类器初始化完成
+13:26:10 - INFO - [EntityExtractor] 实体提取器初始化完成
+13:26:10 - INFO - 任务规划器初始化完成
+13:26:10 - INFO - 工具管理器初始化
+13:26:10 - INFO - [ToolManager] 注册工具 clarify
+13:26:10 - INFO - [ToolManager] 注册工具 generate_answer
+13:26:10 - INFO - [ToolManager] 注册工具 analyze
+13:26:10 - INFO - [ToolManager] 注册工具 summarize
+13:26:10 - INFO - [ToolManager] 注册工具 knowledge_retrieval
+13:26:10 - INFO - [AdvancedRAGAgent] 注册内置工具完成
+13:26:10 - INFO - [ConversationManager] 对话管理器初始化完成
+13:26:10 - INFO - [ResponseGenerator] 初始化完成，LLM: metadata={'lc_versions': {'langchain-core': '1.5.6', 'langchain': '1.3.15', 'langchain-openai': '1.5.1'}} profile={'name': 'GPT-4o', 'release_date': '2024-05-13', 'last_updated': '2024-08-06', 'open_weights': False, 'max_input_tokens': 128000, 'max_output_tokens': 16384, 'text_inputs': True, 'image_inputs': True, 'audio_inputs': False, 'pdf_inputs': True, 'video_inputs': False, 'text_outputs': True, 'image_outputs': False, 'audio_outputs': False, 'video_outputs': False, 'reasoning_output': False, 'tool_calling': True, 'structured_output': True, 'attachment': True, 'temperature': True, 'image_url_inputs': True, 'pdf_tool_message': True, 'image_tool_message': True, 'tool_choice': True, 'tool_call_streaming': True} client=<openai.resources.chat.completions.completions.Completions object at 0x000002C6DB78D950> async_client=<openai.resources.chat.completions.completions.AsyncCompletions object at 0x000002C6DB78DD10> root_client=<openai.OpenAI object at 0x000002C6DB78D6D0> root_async_client=<openai.AsyncOpenAI object at 0x000002C6DB78DA90> model_name='gpt-4o' temperature=0.7 model_kwargs={} openai_api_key=SecretStr('**********') openai_api_base='http://localhost:4000' stream_chunk_timeout=120.0
+13:26:10 - INFO - [AdvancedRAGAgent] 构建工作流
+13:26:10 - INFO - [workflow] 工作流编译完成
+13:26:10 - INFO - [AdvancedRAGAgent] 初始化完成
+13:26:10 - INFO - [AdvancedAgentAdapter] 初始化完成
+13:26:10 - INFO - [AgentRegistry] 获取 Agent 实例: advanced
+13:26:10 - INFO - [Agent预热] advanced Agent 预热完成 (0.08s)
+13:26:10 - INFO - [ClawAgentAdapter] 初始化完成
+13:26:10 - INFO - [AgentRegistry] 获取 Agent 实例: claw
+13:26:10 - INFO - [Agent预热] claw Agent 预热完成 (0.01s)
+13:26:10 - INFO - Reranker 初始化完成，类型: CrossEncoderReranker
+13:26:10 - INFO - [CrossEncoderReranker] 开始加载模型: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70...
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights:  85%|████████▌ | 171/201 [00:00<00:00, 1680.75it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 1795.11it/s]
+13:26:14 - INFO - [CrossEncoderReranker] 模型加载完成: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70
+13:26:14 - INFO - [Agent预热] Reranker 模型预热完成 (4.06s)
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
+13:26:19 - INFO - 访问根路径
+INFO:     127.0.0.1:65134 - "GET / HTTP/1.1" 200 OK
+13:26:31 - INFO - 开始用户登录，用户名: admin
+13:26:32 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:62943 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:62944 - "GET /api/audit HTTP/1.1" 401 Unauthorized
+13:27:11 - INFO - 开始用户注册，用户名: audit_tester
+13:27:12 - INFO - 用户注册成功，用户名: audit_tester
+INFO:     127.0.0.1:54877 - "POST /api/auth/register HTTP/1.1" 200 OK
+13:27:12 - INFO - 开始用户登录，用户名: audit_tester
+13:27:12 - INFO - 用户登录成功，用户名: audit_tester
+INFO:     127.0.0.1:54878 - "POST /api/auth/login HTTP/1.1" 200 OK
+13:27:12 - INFO - 开始用户登录，用户名: audit_tester
+13:27:13 - INFO - 用户登录成功，用户名: audit_tester
+INFO:     127.0.0.1:54879 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54880 - "GET /api/audit?page=1&page_size=5 HTTP/1.1" 401 Unauthorized
+13:27:29 - INFO - 开始用户登录，用户名: audit_tester
+13:27:29 - INFO - 用户登录成功，用户名: audit_tester
+INFO:     127.0.0.1:54749 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53301 - "GET /api/audit?page=1&page_size=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53302 - "GET /api/audit?request_id=reg-audit-test HTTP/1.1" 200 OK
+13:27:46 - INFO - 开始用户登录，用户名: admin
+13:27:47 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60234 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:60235 - "GET /api/audit?page=1&page_size=3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:60236 - "GET /api/audit?request_id=reg-audit-test HTTP/1.1" 401 Unauthorized
+13:28:52 - INFO - 开始用户登录，用户名: admin
+13:28:53 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:63630 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:62261 - "GET /api/audit?page=1&page_size=3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:62262 - "GET /api/audit?request_id=reg-audit-test HTTP/1.1" 401 Unauthorized
+13:29:06 - INFO - 开始用户登录，用户名: admin
+13:29:06 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:55503 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+13:29:38 - INFO - 开始用户登录，用户名: admin
+13:29:39 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:54976 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49290 - "GET /api/audit?page=1&page_size=3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49291 - "GET /api/audit?request_id=reg-audit-test HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49292 - "GET /api/audit HTTP/1.1" 401 Unauthorized
+13:29:51 - INFO - 开始用户登录，用户名: admin
+13:29:52 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:55460 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+13:30:01 - INFO - 开始用户登录，用户名: audit_tester
+13:30:01 - INFO - 用户登录成功，用户名: audit_tester
+INFO:     127.0.0.1:61212 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61214 - "GET /api/audit?page=1&page_size=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61215 - "GET /api/audit?request_id=reg-audit-test HTTP/1.1" 200 OK

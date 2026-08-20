@@ -1,0 +1,140 @@
+14:59:05 - INFO - 数据库 rag_system 已存在
+14:59:05 - INFO - 成功连接到数据库: rag_system
+INFO:     Started server process [6108]
+INFO:     Waiting for application startup.
+14:59:06 - INFO - 正在初始化应用...
+14:59:06 - INFO - 存储实例初始化完成，存储类型: local
+14:59:08 - INFO - [Tracing] Langfuse 连接验证: 成功
+14:59:08 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+14:59:08 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+14:59:08 - INFO - [预热] 后台并发预热已启动：milvus / search / agents
+14:59:08 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+INFO:     Application startup complete.
+14:59:08 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:44: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(
+14:59:08 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+14:59:09 - INFO - 搜索引擎: BM25 (纯内存)
+INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
+14:59:09 - INFO - [Agent预热] 开始后台预热所有 Agent...
+14:59:09 - INFO - BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+14:59:09 - INFO - BM25 索引加载完成，共 1418 条 chunk
+14:59:09 - INFO - [Readiness] search 就绪
+INFO:     127.0.0.1:61178 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:54: PyMilvusDeprecationWarning: `db.using_database` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  db.using_database(self.db_name)
+14:59:09 - INFO - Zilliz Cloud 连接成功，使用数据库: rag_system
+14:59:09 - INFO - [Readiness] milvus 就绪
+INFO:     127.0.0.1:61179 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:61180 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:61181 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:61182 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:61183 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:61184 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:61185 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:61186 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] 远程主机强迫关闭了一个现有的连接。
+INFO:     127.0.0.1:61187 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:61188 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50639 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50640 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50641 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50642 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50643 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:56207 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60525 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60526 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60527 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60528 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60529 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60530 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60531 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60829 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60830 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+14:59:22 - INFO - [memory_manager] MemoryManager 初始化，workspace: D:\workspace\rag-for-qw\backend\agent\workspace
+14:59:22 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw\backend\agent\sessions
+14:59:22 - INFO - [AgentRegistry] 初始化完成
+14:59:22 - INFO - [AgentRegistry] 注册 Agent: simple
+14:59:22 - INFO - [AgentRegistry] 注册 Agent: advanced
+14:59:22 - INFO - [AgentRegistry] 注册 Agent: claw
+14:59:22 - INFO - [AgentRegistry] 设置默认 Agent: claw
+14:59:22 - INFO - [AgentRegistry] Agent 注册中心配置完成，默认: claw
+INFO:     127.0.0.1:60831 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60833 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60836 - "GET /healthz HTTP/1.1" 503 Service Unavailable
+14:59:24 - INFO - [SimpleAgentAdapter] 初始化完成
+14:59:24 - INFO - [AgentRegistry] 获取 Agent 实例: simple
+14:59:24 - INFO - [Agent预热] simple Agent 预热完成 (1.43s)
+14:59:24 - INFO - [AdvancedRAGAgent] 设置工具
+14:59:24 - INFO - [intent_classifier] 意图分类器初始化完成
+14:59:24 - INFO - [EntityExtractor] 实体提取器初始化完成
+14:59:24 - INFO - 任务规划器初始化完成
+14:59:24 - INFO - 工具管理器初始化
+14:59:24 - INFO - [ToolManager] 注册工具 clarify
+14:59:24 - INFO - [ToolManager] 注册工具 generate_answer
+14:59:24 - INFO - [ToolManager] 注册工具 analyze
+14:59:24 - INFO - [ToolManager] 注册工具 summarize
+14:59:24 - INFO - [ToolManager] 注册工具 knowledge_retrieval
+14:59:24 - INFO - [AdvancedRAGAgent] 注册内置工具完成
+14:59:24 - INFO - [ConversationManager] 对话管理器初始化完成
+14:59:24 - INFO - [ResponseGenerator] 初始化完成，LLM: metadata={'lc_versions': {'langchain-core': '1.5.6', 'langchain': '1.3.15', 'langchain-openai': '1.5.1'}} profile={'name': 'GPT-4o', 'release_date': '2024-05-13', 'last_updated': '2024-08-06', 'open_weights': False, 'max_input_tokens': 128000, 'max_output_tokens': 16384, 'text_inputs': True, 'image_inputs': True, 'audio_inputs': False, 'pdf_inputs': True, 'video_inputs': False, 'text_outputs': True, 'image_outputs': False, 'audio_outputs': False, 'video_outputs': False, 'reasoning_output': False, 'tool_calling': True, 'structured_output': True, 'attachment': True, 'temperature': True, 'image_url_inputs': True, 'pdf_tool_message': True, 'image_tool_message': True, 'tool_choice': True, 'tool_call_streaming': True} client=<openai.resources.chat.completions.completions.Completions object at 0x000001FE7F5F4E10> async_client=<openai.resources.chat.completions.completions.AsyncCompletions object at 0x000001FE7F5F51D0> root_client=<openai.OpenAI object at 0x000001FE7F5F4B90> root_async_client=<openai.AsyncOpenAI object at 0x000001FE7F5F4F50> model_name='gpt-4o' temperature=0.7 model_kwargs={} openai_api_key=SecretStr('**********') openai_api_base='http://localhost:4000' stream_chunk_timeout=120.0
+14:59:24 - INFO - [AdvancedRAGAgent] 构建工作流
+14:59:24 - INFO - [workflow] 工作流编译完成
+14:59:24 - INFO - [AdvancedRAGAgent] 初始化完成
+14:59:24 - INFO - [AdvancedAgentAdapter] 初始化完成
+14:59:24 - INFO - [AgentRegistry] 获取 Agent 实例: advanced
+14:59:24 - INFO - [Agent预热] advanced Agent 预热完成 (0.07s)
+14:59:24 - INFO - [ClawAgentAdapter] 初始化完成
+14:59:24 - INFO - [AgentRegistry] 获取 Agent 实例: claw
+14:59:24 - INFO - [Agent预热] claw Agent 预热完成 (0.01s)
+14:59:36 - INFO - Reranker 初始化完成，类型: CrossEncoderReranker
+14:59:36 - INFO - [CrossEncoderReranker] 开始加载模型: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70...
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 2723.21it/s]
+14:59:44 - INFO - [CrossEncoderReranker] 模型加载完成: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70
+14:59:44 - INFO - [Agent预热] Reranker 模型预热完成 (20.0s)
+14:59:44 - INFO - [Readiness] agents 就绪
+INFO:     127.0.0.1:59428 - "GET /healthz HTTP/1.1" 200 OK
+14:59:44 - INFO - 开始用户登录，用户名: admin
+14:59:45 - INFO - 用户登录成功，用户名: admin
+INFO:     127.0.0.1:59429 - "POST /api/auth/login HTTP/1.1" 200 OK
+14:59:45 - INFO - 开始 Milvus 向量检索, 查询文本: Milvus, mode=advanced
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:122: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  list_collections()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:110: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  return list_collections()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:157: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.summaries_collection = Collection(name=summaries_collection)
+14:59:46 - INFO - 摘要集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:187: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.subquestions_collection = Collection(name=subquestions_collection)
+14:59:47 - INFO - 子问题集合已存在，直接使用
+14:59:47 - INFO - 开始处理chunk原文向量集合: chunk_vectors
+14:59:47 - INFO - chunk原文向量集合已存在，直接获取...
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:218: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.chunks_collection = Collection(name=chunks_collection)
+14:59:47 - INFO - chunk原文向量集合已存在，直接使用
+14:59:49 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=5, query_len=6
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:94: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:94: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+14:59:49 - INFO - [MilvusClient] advanced 模式检索完成，返回 5 条结果
+14:59:49 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:59430 - "POST /api/milvus/query HTTP/1.1" 200 OK
+14:59:49 - INFO - 开始关键词检索, 查询文本: Milvus, 后端=bm25
+14:59:49 - INFO - Elasticsearch 关键词检索成功
+INFO:     127.0.0.1:59434 - "POST /api/elasticsearch/search HTTP/1.1" 200 OK
+14:59:49 - INFO - 开始混合检索, 查询文本: Milvus
+14:59:50 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=5, query_len=6
+14:59:51 - INFO - [MilvusClient] advanced 模式检索完成，返回 5 条结果
+14:59:51 - INFO - 混合检索成功
+INFO:     127.0.0.1:59435 - "POST /api/hybrid/search HTTP/1.1" 200 OK

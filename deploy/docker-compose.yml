@@ -1,0 +1,156 @@
+# ===================================================================
+# RAG System - Docker Compose 编排（4核8G 优化版 + Zilliz Cloud）
+# 适配腾讯云蜂驰型 BF1 4核8G / 同等级服务器
+# Milvus 用 Zilliz Cloud 云托管（省 3GB 内存 + 3 个容器运维）
+# 部署方式: docker compose --env-file .env.production up -d
+# ===================================================================
+
+services:
+  # ============ PostgreSQL 关系数据库 ============
+  postgres:
+    image: postgres:15-alpine
+    container_name: rag-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-raguser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-rag_system}
+      - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c effective_cache_size=512MB
+      -c work_mem=8MB
+      -c max_connections=50
+      -c log_min_duration_statement=1000
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"  # 仅本机访问
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-raguser}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ============ LiteLLM Proxy (LLM 网关) ============
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: rag-litellm
+    restart: unless-stopped
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml:ro
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - LITELLM_SALT_KEY=${LITELLM_SALT_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-raguser}:${POSTGRES_PASSWORD}@postgres:5432/litellm
+      - STORE_MODEL_IN_DB=True
+    command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "1"]
+    ports:
+      - "127.0.0.1:4000:4000"  # 仅本机访问
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health/liveliness"]
+      interval: 30s
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  # ============ RAG 应用 (FastAPI + Reranker) ============
+  rag-app:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: rag-app
+    restart: unless-stopped
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8003
+      # ─── Milvus（Zilliz Cloud 云托管，填了 URI 就走云端）───
+      - MILVUS_URI=${MILVUS_URI:-}
+      - MILVUS_TOKEN=${MILVUS_TOKEN:-}
+      - MILVUS_HOST=${MILVUS_HOST:-milvus}  # 本地模式时用，Zilliz Cloud 模式忽略
+      - MILVUS_PORT=${MILVUS_PORT:-19530}
+      - MILVUS_DB_NAME=${MILVUS_DB_NAME:-default}
+      # ─── PostgreSQL ───
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-raguser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-rag_system}
+      # ─── LiteLLM ───
+      - BASE_URL=http://litellm:4000
+      - API_KEY=${LITELLM_MASTER_KEY}
+      # ─── 搜索后端：bm25（纯内存，不依赖 ES）───
+      - SEARCH_BACKEND=bm25
+      # ─── Reranker：用模型名自动下载，不用本地路径 ───
+      - RERANKER_TYPE=cross_encoder
+      - RERANKER_MODEL=BAAI/bge-reranker-base
+      # ─── 安全配置 ───
+      - SECRET_KEY=${SECRET_KEY}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      # ─── 外部 API ───
+      - MINERU_API_KEY=${MINERU_API_KEY}
+      - MINERU_BASE_URL=https://mineru.net
+      # ─── 模型配置 ───
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-github_copilot/text-embedding-ada-002}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-gpt-4o}
+      # ─── Langfuse（可选，默认关闭省内存）───
+      - TRACER_BACKEND=${TRACER_BACKEND:-none}
+      # ─── 处理并发调低，适配 4 核 ───
+      - MAX_CONCURRENCY=4
+      - EMBEDDING_BATCH_SIZE=32
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+      - app_temp:/app/temp
+      - app_output:/app/output
+      - hf_cache:/root/.cache/huggingface  # Reranker 模型缓存
+    ports:
+      - "127.0.0.1:8003:8003"  # 仅本机，由 nginx 反代
+    depends_on:
+      postgres:
+        condition: service_healthy
+      litellm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/"]
+      interval: 30s
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1500M
+
+  # ============ Nginx 前端 + 反向代理 ============
+  nginx:
+    image: nginx:alpine
+    container_name: rag-nginx
+    restart: unless-stopped
+    volumes:
+      - ../frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - rag-app
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+volumes:
+  pg_data:
+  app_data:
+  app_logs:
+  app_temp:
+  app_output:
+  hf_cache:
