@@ -1,18 +1,20 @@
 import uuid
 import shutil
 import time
+import asyncio
 from pathlib import Path
 from datetime import timedelta
 from contextlib import asynccontextmanager
 from typing import Optional
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, status, Form, Response, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
-from config import settings, init_logger
-from services.document_processor import DocumentProcessor
+from config import settings, init_logger, get_runtime
+# 01-B：document_processor 顶层拉起 sentence_transformers（~15s import），且 app.py 未直接使用，延迟导入
 from services.milvus_client import MilvusClient
 from services.pdf_parser import PDFParser
 from services.database import db
@@ -27,38 +29,69 @@ from api import api_router
 logger = init_logger(__name__)
 
 
-async def _preheat_agents(app_ref):
-    """
-    异步预热所有 Agent（simple / advanced / claw）
-    
-    在事件循环内运行，避免 Windows 上后台线程文件锁冲突。
-    通过 asyncio.create_task 调用，不阻塞请求处理。
-    """
+async def _preheat_milvus(app_ref):
+    """01-B：Milvus 连接后台预热（同步 connect 移入线程池，不阻塞 HTTP 启动）。"""
+    from services.startup import readiness
+    loop = asyncio.get_running_loop()
     try:
-        preheat = getattr(app_ref.state, 'agent_preheat', None)
-        if preheat:
-            preheat['status'] = 'warming'
-            preheat['started_at'] = time.time()
-        logger.info("[Agent预热] 开始后台预热所有 Agent...")
+        ok = await loop.run_in_executor(None, app_ref.state['milvus_client'].connect)
+        readiness.mark('milvus', None if ok else 'Milvus 连接失败（Zilliz Cloud 与本地均不可用）')
+    except Exception as e:
+        readiness.mark('milvus', str(e))
 
-        from agent.registry import get_registry, setup_registry, AgentType
-        from agent.claw_agent.memory.memory_manager import MemoryManager
-        from agent.claw_agent.memory.session_store import SessionStore
 
-        memory_manager = MemoryManager()
-        session_store = SessionStore()
+async def _preheat_search(app_ref):
+    """01-B：搜索引擎（BM25 语料加载 / ES 连接）后台预热。"""
+    from services.startup import readiness
+    loop = asyncio.get_running_loop()
+    try:
+        client = get_search_client()
+        backend_type = get_backend_type()
+        if backend_type == 'bm25':
+            count = await loop.run_in_executor(None, client.load_from_database)
+            logger.info(f"BM25 索引加载完成，共 {count} 条 chunk")
+        else:
+            logger.info(f"搜索引擎已就绪: {backend_type}")
+        app_ref.state['search_client'] = client
+        readiness.mark('search')
+    except Exception as e:
+        readiness.mark('search', str(e))
 
-        registry = setup_registry(
-            claw_memory_manager=memory_manager,
-            claw_session_store=session_store,
-        )
 
-        # 预热所有三种 Agent
-        for at in [AgentType.SIMPLE, AgentType.ADVANCED, AgentType.CLAW]:
-            start = time.time()
-            registry.get(at)
-            elapsed = round((time.time() - start), 2)
-            logger.info(f"[Agent预热] {at.value} Agent 预热完成 ({elapsed}s)")
+def _preheat_agents_sync(app_ref):
+    """同步预热部分（imports + registry 构建较重，放线程池避免阻塞事件循环）。"""
+    preheat = getattr(app_ref.state, 'agent_preheat', None)
+    if preheat:
+        preheat['status'] = 'warming'
+        preheat['started_at'] = time.time()
+    logger.info("[Agent预热] 开始后台预热所有 Agent...")
+
+    from agent.registry import setup_registry, AgentType
+    from agent.claw_agent.memory.memory_manager import MemoryManager
+    from agent.claw_agent.memory.session_store import SessionStore
+
+    memory_manager = MemoryManager()
+    session_store = SessionStore()
+
+    registry = setup_registry(
+        claw_memory_manager=memory_manager,
+        claw_session_store=session_store,
+    )
+
+    # 预热所有三种 Agent
+    for at in [AgentType.SIMPLE, AgentType.ADVANCED, AgentType.CLAW]:
+        start = time.time()
+        registry.get(at)
+        elapsed = round((time.time() - start), 2)
+        logger.info(f"[Agent预热] {at.value} Agent 预热完成 ({elapsed}s)")
+
+
+async def _preheat_agents(app_ref):
+    """01-B：Agent 预热（同步部分走线程池 + reranker 异步加载），不阻塞事件循环。"""
+    from services.startup import readiness
+    loop = asyncio.get_running_loop()
+    try:
+        await loop.run_in_executor(None, _preheat_agents_sync, app_ref)
 
         # 预热 Reranker（CrossEncoder 模型约 5-8 秒，提前加载避免首请求延迟）
         try:
@@ -74,9 +107,11 @@ async def _preheat_agents(app_ref):
         except Exception as e:
             logger.warning(f"[Agent预热] Reranker 预热失败（不影响主流程）: {e}")
 
+        preheat = getattr(app_ref.state, 'agent_preheat', None)
         if preheat:
             preheat['status'] = 'ready'
             preheat['finished_at'] = time.time()
+        readiness.mark('agents')
 
     except Exception as e:
         logger.error(f"[Agent预热] 预热失败: {e}")
@@ -85,6 +120,7 @@ async def _preheat_agents(app_ref):
             preheat['status'] = 'error'
             preheat['error'] = str(e)
             preheat['finished_at'] = time.time()
+        readiness.mark('agents', str(e))
 
 
 @asynccontextmanager
@@ -96,21 +132,18 @@ async def lifespan(app: FastAPI):
     # 初始化应用状态
     app.state = {}
 
-    # 初始化Milvus客户端
+    # 初始化Milvus客户端（01-B：构造不再阻塞连接，连接移入后台预热）
     app.state['milvus_client'] = MilvusClient()
-    logger.info("Milvus客户端初始化完成")
 
-    # 初始化搜索引擎（BM25 或 Elasticsearch）
-    search_client = get_search_client()
-    app.state['search_client'] = search_client
-    backend_type = get_backend_type()
-
-    # 如果是 BM25 模式，从 PG 全量加载索引到内存
-    if backend_type == 'bm25':
-        chunk_count = search_client.load_from_database()
-        logger.info(f"BM25 索引加载完成，共 {chunk_count} 条 chunk")
+    # ── 01-B：readiness 信号（milvus / search / agents 三组件）──
+    from services.startup import readiness as _readiness
+    for _name in ('milvus', 'search', 'agents'):
+        _readiness.set_pending(_name)
+    # 搜索客户端占位：BM25 构造零成本可即时创建；ES 构造含 ping（最长数秒）留 None 待预热填充
+    if get_backend_type() == 'bm25':
+        app.state['search_client'] = get_search_client()
     else:
-        logger.info(f"搜索引擎已就绪: {backend_type}")
+        app.state['search_client'] = None
 
     # 初始化存储实例
     app.state['storage'] = get_storage()
@@ -138,10 +171,23 @@ async def lifespan(app: FastAPI):
         'error': None,
     }
 
-    # ── 启动后台异步预热任务（不阻塞启动）──
+    # ── 启动后台并发预热任务（01-B：不阻塞 HTTP 服务启动）──
     import asyncio
-    asyncio.create_task(_preheat_agents(app))
-    logger.info("[Agent预热] 后台预热异步任务已启动（预热全部 Agent）")
+    preheat_enabled = str(get_runtime("STARTUP_PREHEAT", "true")).lower() not in ("0", "false", "no")
+    if preheat_enabled:
+        async def _preheat_all():
+            await asyncio.gather(
+                _preheat_milvus(app),
+                _preheat_search(app),
+                _preheat_agents(app),
+            )
+        asyncio.create_task(_preheat_all())
+        logger.info("[预热] 后台并发预热已启动：milvus / search / agents")
+    else:
+        from services.startup import readiness as _r
+        for _name in ('milvus', 'search', 'agents'):
+            _r.mark(_name)
+        logger.info("[预热] STARTUP_PREHEAT=false，跳过预热（纯懒加载）")
 
     # ── 审计管道（文档 07）：启动后台批量落库任务 ──
     from services.audit import audit
@@ -247,6 +293,16 @@ async def root():
     """根路径"""
     logger.info("访问根路径")
     return {"message": "RAG System API"}
+
+
+@app.get("/healthz")
+async def healthz():
+    """01-B：就绪探针 — 全部预热组件就绪返回 200，否则 503（服务本身已可响应）。"""
+    from services.startup import readiness
+    snap = readiness.snapshot()
+    if readiness.all_ready():
+        return {"status": "ok", "components": snap}
+    return JSONResponse(status_code=503, content={"status": "not_ready", "components": snap})
 
 
 if __name__ == "__main__":

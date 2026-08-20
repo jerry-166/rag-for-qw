@@ -2,32 +2,81 @@ from typing import Optional
 from pymilvus import connections, Collection, FieldSchema, CollectionSchema, DataType, list_collections
 import time
 
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 
 # 初始化日志记录器
 logger = init_logger(__name__)
 
 class MilvusClient:
-    def __init__(self, host=settings.MILVUS_HOST, port=settings.MILVUS_PORT, db_name=settings.MILVUS_DB_NAME):
+    def __init__(self, host=None, port=None, db_name=None):
+        host = host or get_runtime("MILVUS_HOST", settings.MILVUS_HOST)
+        port = port or get_runtime("MILVUS_PORT", settings.MILVUS_PORT)
+        db_name = db_name or get_runtime("MILVUS_DB_NAME", settings.MILVUS_DB_NAME)
         self.host = host
         self.port = port
         self.db_name = db_name
         self.summaries_collection = None
         self.subquestions_collection = None
         self.chunks_collection = None  # [新增] chunk原文向量集合（Native检索）
-        self.connect()
+        # 01-B：连接从构造剥离，移入 app 启动后台预热（不阻塞 HTTP 服务）。
+        # query() 入口已有 create_collections() 的断连重连兜底，懒连接安全。
     
     def connect(self):
-        """连接到Milvus"""
+        """连接到 Milvus 或 Zilliz Cloud（云托管）。
+
+        连接优先级（实现"配置页优先 → 失败 fallback 本地"）：
+          1. MILVUS_URI 非空 → 先尝试 Zilliz Cloud（uri + token）
+          2. Zilliz Cloud 失败 → 自动 fallback 到本地 Milvus（host + port）
+          3. 本地也失败 → 返回 False
+
+        运行时配置：set_runtime('MILVUS_URI', ...) 优先于 .env 配置。
+        """
         try:
-            # 先连接到默认数据库，使用IPv4地址
+            uri = get_runtime("MILVUS_URI", settings.MILVUS_URI)
+            token = get_runtime("MILVUS_TOKEN", settings.MILVUS_TOKEN)
+
+            # 首先检查 URL 和 token，两个都配齐才走 Zilliz Cloud
+            # 任一为空 → 直接降级到本地 Milvus（避免无谓的失败尝试）
+            if uri and token:
+                # ============ Zilliz Cloud 模式（优先）============
+                logger.info(f"正在连接 Zilliz Cloud: {uri}")
+                try:
+                    connections.connect(
+                        alias="default",
+                        uri=uri,
+                        token=token,
+                        secure=True,
+                        timeout=30
+                    )
+                    # Zilliz Cloud Free 套餐不支持创建自定义数据库，强制用 default
+                    from pymilvus import db
+                    try:
+                        db.using_database(self.db_name)
+                        logger.info(f"Zilliz Cloud 连接成功，使用数据库: {self.db_name}")
+                    except Exception as db_err:
+                        logger.warning(
+                            f"切换到数据库 {self.db_name} 失败，"
+                            f"fallback 到 default: {db_err}"
+                        )
+                        self.db_name = "default"
+                        db.using_database("default")
+                    return True
+                except Exception as cloud_err:
+                    # Zilliz Cloud 连不上，自动 fallback 到本地 Milvus
+                    logger.warning(
+                        f"Zilliz Cloud 连接失败，尝试 fallback 到本地 Milvus: {cloud_err}"
+                    )
+                    # 继续往下走本地模式
+
+            # ============ 本地 Milvus 模式（fallback）============
+            host = "127.0.0.1" if str(self.host).lower() in ("localhost", "127.0.0.1") else self.host
             connections.connect(
                 alias="default",
-                host="127.0.0.1",  # 使用127.0.0.1而不是localhost，避免IPv6连接问题
+                host=host,
                 port=self.port,
                 timeout=30  # 设置连接超时为30秒
             )
-            
+
             # 检查数据库是否存在
             from pymilvus import db
             databases = db.list_database()
@@ -37,14 +86,23 @@ class MilvusClient:
                 logger.info(f"创建Milvus数据库成功: {self.db_name}")
             else:
                 logger.info(f"Milvus数据库已存在: {self.db_name}")
-            
+
             # 切换到目标数据库
             db.using_database(self.db_name)
-            logger.info(f"Milvus连接成功，使用数据库: {self.db_name}")
+            logger.info(f"本地 Milvus 连接成功（fallback），使用数据库: {self.db_name}")
             return True
         except Exception as e:
-            logger.error(f"Milvus连接失败: {e}")
+            logger.error(f"Milvus连接失败（Zilliz Cloud 和本地都不可用）: {e}")
             return False
+
+    def close(self):
+        """断开 Milvus 连接（运行时重建客户端前调用）。"""
+        try:
+            from pymilvus import connections
+            connections.disconnect("default")
+            logger.info("Milvus 连接已断开")
+        except Exception as e:
+            logger.warning(f"Milvus 断开连接失败: {e}")
     
     def get_collections(self):
         """获取集合列表"""
@@ -72,64 +130,67 @@ class MilvusClient:
             collections = self.get_collections()
             
             # 创建摘要集合
-            if settings.MILVUS_SUMMARIES_COLLECTION not in collections:
+            summaries_collection = get_runtime("MILVUS_SUMMARIES_COLLECTION", settings.MILVUS_SUMMARIES_COLLECTION)
+            if summaries_collection not in collections:
                 summaries_fields = [
                     FieldSchema(name="chunk_id", dtype=DataType.INT64, is_primary=True, auto_id=True),  # 使用Milvus自动ID
                     FieldSchema(name="chunk_text", dtype=DataType.VARCHAR, max_length=65535),
                     FieldSchema(name="summary_text", dtype=DataType.VARCHAR, max_length=2000),
-                    FieldSchema(name="summary_vector", dtype=DataType.FLOAT_VECTOR, dim=1536),
+                    FieldSchema(name="summary_vector", dtype=DataType.FLOAT_VECTOR, dim=get_runtime("EMBEDDING_DIM", settings.EMBEDDING_DIM)),
                     FieldSchema(name="created_at", dtype=DataType.INT64),
                     FieldSchema(name="knowledge_base_id", dtype=DataType.INT64),  # 添加knowledge_base_id字段
                     FieldSchema(name="document_id", dtype=DataType.INT64),  # 添加document_id字段
                     FieldSchema(name="metadata", dtype=DataType.JSON)  # 添加metadata字段
                 ]
                 summaries_schema = CollectionSchema(fields=summaries_fields, description="文档摘要集合")
-                self.summaries_collection = Collection(name=settings.MILVUS_SUMMARIES_COLLECTION, schema=summaries_schema)
+                self.summaries_collection = Collection(name=summaries_collection, schema=summaries_schema)
                 
                 # 创建摘要向量索引
                 summaries_index_params = {
                     "index_type": "AUTOINDEX",
-                    "metric_type": "COSINE"
+                    "metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE)
                 }
                 self.summaries_collection.create_index(field_name="summary_vector", index_params=summaries_index_params)
                 logger.info("摘要集合创建成功")
             else:
                 # 集合已存在，直接获取
-                self.summaries_collection = Collection(name=settings.MILVUS_SUMMARIES_COLLECTION)
+                self.summaries_collection = Collection(name=summaries_collection)
                 logger.info("摘要集合已存在，直接使用")
             
             # 创建子问题集合
-            if settings.MILVUS_SUBQUESTIONS_COLLECTION not in collections:
+            subquestions_collection = get_runtime("MILVUS_SUBQUESTIONS_COLLECTION", settings.MILVUS_SUBQUESTIONS_COLLECTION)
+            if subquestions_collection not in collections:
                 subquestions_fields = [
                     FieldSchema(name="subquestion_id", dtype=DataType.INT64, is_primary=True, auto_id=True),
                     FieldSchema(name="chunk_id", dtype=DataType.INT64),
                     FieldSchema(name="chunk_text", dtype=DataType.VARCHAR, max_length=65535),
                     FieldSchema(name="question_text", dtype=DataType.VARCHAR, max_length=500),
-                    FieldSchema(name="question_vector", dtype=DataType.FLOAT_VECTOR, dim=1536),
+                    FieldSchema(name="question_vector", dtype=DataType.FLOAT_VECTOR, dim=get_runtime("EMBEDDING_DIM", settings.EMBEDDING_DIM)),
                     FieldSchema(name="created_at", dtype=DataType.INT64),
                     FieldSchema(name="knowledge_base_id", dtype=DataType.INT64),  # 添加knowledge_base_id字段
                     FieldSchema(name="document_id", dtype=DataType.INT64),  # 添加document_id字段
                     FieldSchema(name="metadata", dtype=DataType.JSON)  # 添加metadata字段
                 ]
                 subquestions_schema = CollectionSchema(fields=subquestions_fields, description="文档子问题集合")
-                self.subquestions_collection = Collection(name=settings.MILVUS_SUBQUESTIONS_COLLECTION, schema=subquestions_schema)
+                self.subquestions_collection = Collection(name=subquestions_collection, schema=subquestions_schema)
                 
                 # 创建子问题向量索引
                 subquestions_index_params = {
                     "index_type": "AUTOINDEX",
-                    "metric_type": "COSINE"
+                    "metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE)
                 }
                 self.subquestions_collection.create_index(field_name="question_vector",
                                                           index_params=subquestions_index_params)
                 logger.info("子问题集合创建成功")
             else:
                 # 集合已存在，直接获取
-                self.subquestions_collection = Collection(name=settings.MILVUS_SUBQUESTIONS_COLLECTION)
+                self.subquestions_collection = Collection(name=subquestions_collection)
                 logger.info("子问题集合已存在，直接使用")
             
             # ── 新增：chunk原文向量集合（Native检索）──
-            logger.info(f"开始处理chunk原文向量集合: {settings.MILVUS_CHUNKS_COLLECTION}")
-            if settings.MILVUS_CHUNKS_COLLECTION not in collections:
+            chunks_collection = get_runtime("MILVUS_CHUNKS_COLLECTION", settings.MILVUS_CHUNKS_COLLECTION)
+            logger.info(f"开始处理chunk原文向量集合: {chunks_collection}")
+            if chunks_collection not in collections:
                 logger.info("chunk原文向量集合不存在，开始创建...")
                 chunks_fields = [
                     FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
@@ -138,23 +199,23 @@ class MilvusClient:
                     FieldSchema(name="knowledge_base_id", dtype=DataType.INT64),
                     FieldSchema(name="chunk_index", dtype=DataType.INT64),
                     FieldSchema(name="chunk_text", dtype=DataType.VARCHAR, max_length=65535),
-                    FieldSchema(name="chunk_vector", dtype=DataType.FLOAT_VECTOR, dim=1536),
+                    FieldSchema(name="chunk_vector", dtype=DataType.FLOAT_VECTOR, dim=get_runtime("EMBEDDING_DIM", settings.EMBEDDING_DIM)),
                     FieldSchema(name="created_at", dtype=DataType.INT64),
                     FieldSchema(name="metadata", dtype=DataType.JSON),
                 ]
                 chunks_schema = CollectionSchema(fields=chunks_fields, description="chunk原文向量集合，用于Native检索")
                 logger.info("创建chunk原文向量集合对象...")
-                self.chunks_collection = Collection(name=settings.MILVUS_CHUNKS_COLLECTION, schema=chunks_schema)
+                self.chunks_collection = Collection(name=chunks_collection, schema=chunks_schema)
                 logger.info("创建chunk原文向量索引...")
                 # 使用 IVF_FLAT 索引，创建速度更快
                 self.chunks_collection.create_index(
                     field_name="chunk_vector",
-                    index_params={"index_type": "IVF_FLAT", "metric_type": "COSINE", "params": {"nlist": 128}}
+                    index_params={"index_type": "IVF_FLAT", "metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE), "params": {"nlist": get_runtime("MILVUS_NLIST", settings.MILVUS_NLIST)}}
                 )
                 logger.info("chunk原文向量集合创建成功")
             else:
                 logger.info("chunk原文向量集合已存在，直接获取...")
-                self.chunks_collection = Collection(name=settings.MILVUS_CHUNKS_COLLECTION)
+                self.chunks_collection = Collection(name=chunks_collection)
                 logger.info("chunk原文向量集合已存在，直接使用")
             # ────────────────────────────────────────
             
@@ -312,12 +373,10 @@ class MilvusClient:
     
     def query(self, query_text, limit=5, metadata_filter=None, retrieval_mode="advanced"):
         """
-        查询Milvus数据，支持三种检索模式：
+        查询Milvus数据，通过策略模式支持可扩展的检索模式。
 
-        retrieval_mode:
-          "native"   — 仅对 chunk 原文向量进行检索（高保真，直接语义匹配）
-          "advanced" — 仅对 summary + sub_question 向量检索（默认，原有逻辑）
-          "hybrid"   — 三路并行检索，RRF 融合去重后返回（召回最全面）
+        内置模式: native / advanced / hybrid
+        新增模式只需在 retrieval_strategies.py 添加策略类，本方法无需改动。
         """
         if not self.summaries_collection or not self.subquestions_collection:
             if not self.create_collections():
@@ -327,13 +386,13 @@ class MilvusClient:
         # 生成查询嵌入
         from langchain_openai import OpenAIEmbeddings
         embedding_model = OpenAIEmbeddings(
-            model=settings.EMBEDDING_MODEL,
-            api_key=settings.LITELLM_API_KEY,
-            base_url=settings.LITELLM_BASE_URL,
+            model=get_runtime("EMBEDDING_MODEL", settings.EMBEDDING_MODEL),
+            api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
+            base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
         )
         query_embedding = [embedding_model.embed_query(query_text)]
 
-        search_params = {"metric_type": "COSINE", "params": {"nprobe": 10}}
+        search_params = {"metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE), "params": {"nprobe": get_runtime("MILVUS_NPROBE", settings.MILVUS_NPROBE)}}
 
         # 构建过滤表达式
         conditions = []
@@ -343,130 +402,36 @@ class MilvusClient:
             conditions.append(f"knowledge_base_id == {knowledge_base_id}")
         for key, value in filter_copy.items():
             if isinstance(value, str):
-                conditions.append(f"metadata[\'{key}\'] == \'{value}\'")
+                conditions.append(f"metadata['{key}'] == '{value}'")
             else:
-                conditions.append(f"metadata[\'{key}\'] == {value}")
+                conditions.append(f"metadata['{key}'] == {value}")
         expr = " && ".join(conditions) if conditions else None
 
-        # ── 各路检索 ──────────────────────────────────────────────────────
+        # ── 构建上下文 + 策略调度 ───────────────────────────────────────
 
-        def _search_summaries():
-            hits_list = self.summaries_collection.search(
-                data=query_embedding, anns_field="summary_vector",
-                param=search_params, limit=limit, expr=expr,
-                output_fields=["chunk_id", "chunk_text", "summary_text", "created_at", "metadata"]
-            )
-            results = []
-            for hits in hits_list:
-                for hit in hits:
-                    results.append({
-                        "type": "summary",
-                        "chunk_id": hit.entity.get("chunk_id"),
-                        "chunk_text": hit.entity.get("chunk_text"),
-                        "content": hit.entity.get("summary_text"),
-                        "distance": hit.distance,
-                        "created_at": hit.entity.get("created_at"),
-                        "metadata": hit.entity.get("metadata"),
-                    })
-            return results
+        from services.retrieval_strategies import get_strategy, SearchContext
 
-        def _search_subquestions():
-            hits_list = self.subquestions_collection.search(
-                data=query_embedding, anns_field="question_vector",
-                param=search_params, limit=limit, expr=expr,
-                output_fields=["chunk_id", "chunk_text", "question_text", "created_at", "metadata"]
-            )
-            results = []
-            for hits in hits_list:
-                for hit in hits:
-                    results.append({
-                        "type": "subquestion",
-                        "chunk_id": hit.entity.get("chunk_id"),
-                        "chunk_text": hit.entity.get("chunk_text"),
-                        "content": hit.entity.get("question_text"),
-                        "distance": hit.distance,
-                        "created_at": hit.entity.get("created_at"),
-                        "metadata": hit.entity.get("metadata"),
-                    })
-            return results
-
-        def _search_chunks():
-            if not self.chunks_collection:
-                logger.warning("chunk_vectors 集合未初始化，跳过 native 检索")
-                return []
-            hits_list = self.chunks_collection.search(
-                data=query_embedding, anns_field="chunk_vector",
-                param=search_params, limit=limit, expr=expr,
-                output_fields=["pg_chunk_id", "chunk_text", "chunk_index", "created_at", "metadata"]
-            )
-            results = []
-            for hits in hits_list:
-                for hit in hits:
-                    results.append({
-                        "type": "native",
-                        "chunk_id": hit.entity.get("pg_chunk_id"),
-                        "chunk_text": hit.entity.get("chunk_text"),
-                        "content": hit.entity.get("chunk_text"),  # native模式 content 即 chunk_text
-                        "distance": hit.distance,
-                        "created_at": hit.entity.get("created_at"),
-                        "metadata": hit.entity.get("metadata"),
-                    })
-            return results
-
-        # ── 按模式执行检索 ─────────────────────────────────────────────────
+        ctx = SearchContext(
+            query_embedding=query_embedding,
+            search_params=search_params,
+            limit=limit,
+            expr=expr,
+            summaries_collection=self.summaries_collection,
+            subquestions_collection=self.subquestions_collection,
+            chunks_collection=self.chunks_collection,
+        )
 
         logger.info(f"[MilvusClient] 开始检索, retrieval_mode={retrieval_mode}, limit={limit}, query_len={len(query_text)}")
 
-        if retrieval_mode == "native":
-            logger.info(f"[MilvusClient] 使用 native 模式：仅检索 chunk 原文向量")
-            results = _search_chunks()
-            results.sort(key=lambda x: x["distance"], reverse=True)
-            logger.info(f"[MilvusClient] native 模式检索完成，返回 {len(results)} 条结果")
-            return results[:limit]
+        try:
+            strategy = get_strategy(retrieval_mode, ctx)
+        except ValueError:
+            logger.warning(f"[MilvusClient] 未知检索模式 '{retrieval_mode}'，fallback 到 advanced")
+            strategy = get_strategy("advanced", ctx)
 
-        elif retrieval_mode == "advanced":
-            logger.info(f"[MilvusClient] 使用 advanced 模式：检索 summaries + subquestions")
-            results = _search_summaries() + _search_subquestions()
-            results.sort(key=lambda x: x["distance"], reverse=True)
-            logger.info(f"[MilvusClient] advanced 模式检索完成，返回 {len(results)} 条结果")
-            return results[:limit]
-
-        else:  # "hybrid" — RRF 融合三路结果
-            logger.info(f"[MilvusClient] 使用 hybrid 模式：三路并行检索 + RRF 融合")
-            summary_res = _search_summaries()
-            subq_res = _search_subquestions()
-            chunk_res = _search_chunks()
-
-            # RRF (Reciprocal Rank Fusion)  score = Σ 1/(rank + k)
-            K = 60
-            rrf_scores: dict = {}   # key: chunk_text（去重锚点）
-            rrf_items: dict = {}    # key → best hit
-
-            for result_list in [summary_res, subq_res, chunk_res]:
-                for rank, item in enumerate(result_list):
-                    key = item["chunk_text"]
-                    score = 1.0 / (rank + 1 + K)
-                    if key not in rrf_scores:
-                        rrf_scores[key] = 0.0
-                        rrf_items[key] = item
-                    rrf_scores[key] += score
-                    # 保留 distance 最高的那条 hit 作为代表
-                    if item["distance"] > rrf_items[key]["distance"]:
-                        rrf_items[key] = item
-
-            # 按 RRF 分排序
-            sorted_keys = sorted(rrf_scores, key=lambda k: rrf_scores[k], reverse=True)
-            merged = []
-            for k in sorted_keys[:limit]:
-                item = dict(rrf_items[k])
-                item["rrf_score"] = rrf_scores[k]
-                merged.append(item)
-
-            logger.info(
-                f"hybrid 检索完成：summary={len(summary_res)}, subq={len(subq_res)}, "
-                f"native={len(chunk_res)}, merged={len(merged)}"
-            )
-            return merged
+        results = strategy.execute(limit)
+        logger.info(f"[MilvusClient] {retrieval_mode} 模式检索完成，返回 {len(results)} 条结果")
+        return results
     
     def get_collection_info(self):
         """获取集合信息"""
@@ -475,7 +440,11 @@ class MilvusClient:
             info = {}
             
             for collection_name in collections:
-                if collection_name in [settings.MILVUS_SUMMARIES_COLLECTION, settings.MILVUS_SUBQUESTIONS_COLLECTION, settings.MILVUS_CHUNKS_COLLECTION]:
+                if collection_name in [
+                    get_runtime("MILVUS_SUMMARIES_COLLECTION", settings.MILVUS_SUMMARIES_COLLECTION),
+                    get_runtime("MILVUS_SUBQUESTIONS_COLLECTION", settings.MILVUS_SUBQUESTIONS_COLLECTION),
+                    get_runtime("MILVUS_CHUNKS_COLLECTION", settings.MILVUS_CHUNKS_COLLECTION),
+                ]:
                     collection = Collection(collection_name)
                     info[collection_name] = {
                         "num_entities": collection.num_entities

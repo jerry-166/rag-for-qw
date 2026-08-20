@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     MILVUS_HOST: str = os.getenv("MILVUS_HOST", "localhost")
     MILVUS_PORT: str = os.getenv("MILVUS_PORT", "19530")
     MILVUS_DB_NAME: str = os.getenv("MILVUS_DB_NAME", "rag_system")
+    # Zilliz Cloud 配置（云托管 Milvus，留空则用本地 Milvus）
+    # 设置 MILVUS_URI 后，milvus_client.py 自动切换到 Zilliz Cloud 连接模式
+    MILVUS_URI: str = os.getenv("MILVUS_URI", "")
+    MILVUS_TOKEN: str = os.getenv("MILVUS_TOKEN", "")
     MILVUS_SUMMARIES_COLLECTION: str = os.getenv("MILVUS_SUMMARIES_COLLECTION", "chunk_summaries")
     MILVUS_SUBQUESTIONS_COLLECTION: str = os.getenv("MILVUS_SUBQUESTIONS_COLLECTION", "chunk_subquestions")
     MILVUS_CHUNKS_COLLECTION: str = os.getenv("MILVUS_CHUNKS_COLLECTION", "chunk_vectors")  # chunk原文向量集合名
@@ -94,6 +98,36 @@ class Settings(BaseSettings):
 
     # RAG 检索配置
     RETRIEVAL_MIN_SCORE: float = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.3"))  # 检索结果最低相关度阈值（0-1），低于此分数的结果将被丢弃
+    RETRIEVAL_TOP_K: int = int(os.getenv("RETRIEVAL_TOP_K", "5"))  # 检索默认 Top-K 条数
+
+    # 文档切分配置（document_processor.py）
+    CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", "400"))  # 递归切割器目标大小
+    CHUNK_OVERLAP: int = int(os.getenv("CHUNK_OVERLAP", "50"))  # 切割重叠字符数
+    MIN_CHUNK_SIZE: int = int(os.getenv("MIN_CHUNK_SIZE", "100"))  # 短 chunk 合并阈值
+    MAX_CHUNK_SIZE: int = int(os.getenv("MAX_CHUNK_SIZE", "800"))  # 长 chunk 二次切割阈值
+
+    # 向量索引与检索参数（milvus_client.py / rag_tools.py / retrieval_strategies.py）
+    MILVUS_NPROBE: int = int(os.getenv("MILVUS_NPROBE", "10"))  # IVF 搜索探针数
+    MILVUS_NLIST: int = int(os.getenv("MILVUS_NLIST", "128"))  # IVF_FLAT 聚类中心数（仅建索引时生效）
+    MILVUS_METRIC_TYPE: str = os.getenv("MILVUS_METRIC_TYPE", "COSINE")  # 距离度量
+    EMBEDDING_DIM: int = int(os.getenv("EMBEDDING_DIM", "1536"))  # 向量维度（换模型需同步）
+    RRF_K: int = int(os.getenv("RRF_K", "60"))  # 倒数排名融合平滑常数
+    DEFAULT_RETRIEVAL_MODE: str = os.getenv("DEFAULT_RETRIEVAL_MODE", "advanced")  # 默认检索模式: native|advanced|hybrid
+    NUM_SUBQUESTIONS: int = int(os.getenv("NUM_SUBQUESTIONS", "3"))  # 查询扩展子问题数
+
+    # LLM 温度配置（散布在 agent / rag_workflow / reranker）
+    LLM_TEMPERATURE_DEFAULT: float = float(os.getenv("LLM_TEMPERATURE_DEFAULT", "0.7"))  # 默认温度
+    LLM_TEMPERATURE_ANSWER: float = float(os.getenv("LLM_TEMPERATURE_ANSWER", "0.5"))  # 回答生成温度
+    LLM_TEMPERATURE_GREETING: float = float(os.getenv("LLM_TEMPERATURE_GREETING", "0.8"))  # 问候回答温度
+    LLM_RERANKER_MAX_TOKENS: int = int(os.getenv("LLM_RERANKER_MAX_TOKENS", "200"))  # LLM Reranker 最大 token
+
+    # 会话与记忆（conversation_manager.py / rag_workflow.py）
+    SESSION_MAX_HISTORY: int = int(os.getenv("SESSION_MAX_HISTORY", "10"))  # 每会话最大保留轮数
+    SESSION_CONTEXT_WINDOW: int = int(os.getenv("SESSION_CONTEXT_WINDOW", "5"))  # 上下文窗口大小
+
+    # 文档处理（document_processor.py）
+    LLM_MAX_RETRIES: int = int(os.getenv("LLM_MAX_RETRIES", "3"))  # ChatModel 重试次数
+    LLM_TIMEOUT: int = int(os.getenv("LLM_TIMEOUT", "120"))  # ChatModel 超时（秒）
 
     # 认证配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "lrj669761379123")
@@ -107,6 +141,38 @@ class Settings(BaseSettings):
 
 # 创建配置实例
 settings = Settings()
+
+# ── 运行时覆盖层（用于 /api/settings 动态修改，不重启生效）──
+_runtime_overrides: dict = {}
+_env_baseline: dict = {}
+
+def get_runtime(key: str, default=None):
+    """优先返回运行时覆盖值，否则 fallback 到 settings 属性。"""
+    if key in _runtime_overrides:
+        return _runtime_overrides[key]
+    return getattr(settings, key, default)
+
+def set_runtime(key: str, value):
+    """
+    写入运行时覆盖值。
+
+    同时同步到进程环境变量，确保直接使用 os.getenv() 的模块
+    （tracing / elasticsearch 等）也能立即读到新值。
+    """
+    if key not in _runtime_overrides:
+        _env_baseline[key] = os.environ.get(key)
+    _runtime_overrides[key] = value
+    os.environ[key] = str(value)
+
+def clear_runtime(key: str):
+    """清除运行时覆盖，恢复为静态配置值（并还原进程环境变量）。"""
+    if key in _runtime_overrides:
+        baseline = _env_baseline.pop(key, None)
+        _runtime_overrides.pop(key, None)
+        if baseline is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = baseline
 
 
 # 自定义双轮转处理器（继承ConcurrentTimedRotatingFileHandler，扩展大小检查）
@@ -164,7 +230,7 @@ def init_logger(name: str = None) -> logging.Logger:
         datefmt="%Y-%m-%d %H:%M:%S"  # 统一时间格式
     )
     file_handler.setFormatter(file_formatter)
-    file_handler.setLevel(settings.LOG_FILE_LEVEL)
+    file_handler.setLevel(get_runtime('LOG_FILE_LEVEL', settings.LOG_FILE_LEVEL))
     
     # 创建控制台处理器
     console_handler = logging.StreamHandler()
@@ -175,7 +241,7 @@ def init_logger(name: str = None) -> logging.Logger:
         datefmt="%H:%M:%S"
     )
     console_handler.setFormatter(console_formatter)
-    console_handler.setLevel(settings.LOG_CONSOLE_LEVEL)  # 控制台只显示INFO及以上级别
+    console_handler.setLevel(get_runtime('LOG_CONSOLE_LEVEL', settings.LOG_CONSOLE_LEVEL))  # 控制台只显示INFO及以上级别
     
     # 添加处理器到logger
     logger.addHandler(file_handler)

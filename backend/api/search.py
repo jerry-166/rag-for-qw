@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 import asyncio
 
-from config import init_logger, settings
+from config import init_logger, settings, get_runtime
 from services.database import db
 from services.auth import get_current_user
 from services.reranker import get_reranker
@@ -27,7 +27,7 @@ router = APIRouter()
 class QueryRequest(BaseModel):
     """通用查询请求"""
     query: str
-    limit: int = 5
+    limit: int = None  # 不传时使用运行时配置 RETRIEVAL_TOP_K
     metadata_filter: dict = None
     knowledge_base_id: int = None
     use_rerank: bool = True  # 是否启用 rerank 精排
@@ -59,6 +59,13 @@ def rrf_fusion(rankings, k=_RRF_DEFAULT_K):
     return [item[0] for item in sorted_items], dict(sorted_items)
 
 
+def _effective_limit(request: QueryRequest) -> int:
+    """返回请求条数：显式 limit 优先，否则用运行时 RETRIEVAL_TOP_K。"""
+    if request.limit:
+        return int(request.limit)
+    return int(get_runtime("RETRIEVAL_TOP_K", 5))
+
+
 def _build_metadata_filter(request: QueryRequest, current_user: dict) -> dict:
     """构建 Milvus metadata 过滤条件（含权限控制）。"""
     f = request.metadata_filter.copy() if request.metadata_filter else {}
@@ -77,6 +84,16 @@ def _build_es_filters(request: QueryRequest) -> dict:
     return f
 
 
+async def _await_ready(*names):
+    """01-B 就绪门：组件未就绪时带锁等待（不报错），超时/失败返回 503 + 原因。"""
+    from services.startup import readiness
+    try:
+        for name in names:
+            await readiness.wait(name)
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=f"服务初始化中: {e}")
+
+
 async def _es_search(request: QueryRequest, req, current_user: dict) -> list:
     """执行关键词检索（BM25 或 ES，由 SEARCH_BACKEND 配置决定）。"""
     search_client = req.app.state['search_client']
@@ -85,7 +102,7 @@ async def _es_search(request: QueryRequest, req, current_user: dict) -> list:
     return search_client.search(
         query=request.query,
         user_id=current_user["id"],
-        size=request.limit * multiplier,
+        size=_effective_limit(request) * multiplier,
         filters=filters,
     )
 
@@ -97,7 +114,7 @@ async def _milvus_search(request: QueryRequest, req: Request, current_user: dict
     multiplier = 2 if request.use_rerank else 1
     return milvus_client.query(
         query_text=request.query,
-        limit=request.limit * multiplier,
+        limit=_effective_limit(request) * multiplier,
         metadata_filter=metadata_filter,
         retrieval_mode=request.retrieval_mode,
     )
@@ -147,22 +164,24 @@ async def query_milvus(
     """
     logger.info(f"开始 Milvus 向量检索, 查询文本: {request.query}, mode={request.retrieval_mode}")
 
+    await _await_ready('milvus')
     try:
         milvus_client = req.app.state['milvus_client']
         metadata_filter = _build_metadata_filter(request, current_user)
 
         # 召回：use_rerank 时多取几条供精排使用
         multiplier = 3 if request.use_rerank else 1
+        effective_limit = _effective_limit(request)
         raw_results = milvus_client.query(
             query_text=request.query,
-            limit=request.limit * multiplier,
+            limit=effective_limit * multiplier,
             metadata_filter=metadata_filter,
             retrieval_mode=request.retrieval_mode,
         )
 
         # 可选精排
         results = await _optional_rerank(
-            request.query, raw_results, request.limit, request.use_rerank
+            request.query, raw_results, effective_limit, request.use_rerank
         )
 
         logger.debug(f"Milvus 检索完成, 返回 {len(results)} 条结果")
@@ -203,22 +222,24 @@ async def search_elasticsearch(
     """
     logger.info(f"开始关键词检索, 查询文本: {request.query}, 后端={get_backend_type()}")
 
+    await _await_ready('search')
     try:
         filters = _build_es_filters(request)
         search_client = req.app.state['search_client']
 
         # 召回
         multiplier = 3 if request.use_rerank else 1
+        effective_limit = _effective_limit(request)
         raw_results = search_client.search(
             query=request.query,
             user_id=current_user["id"],
-            size=request.limit * multiplier,
+            size=effective_limit * multiplier,
             filters=filters,
         )
 
         # 可选精排
         results = await _optional_rerank(
-            request.query, raw_results, request.limit, request.use_rerank
+            request.query, raw_results, effective_limit, request.use_rerank
         )
 
         logger.debug(f"ES 检索完成, 返回 {len(results)} 条结果")
@@ -251,6 +272,7 @@ async def hybrid_search(
       4. 精排:   可选 Cross-Encoder / LLM 重排序
       5. 返回:   最终 Top-K 结果
     """
+    await _await_ready('milvus', 'search')
     logger.info(f"开始混合检索, 查询文本: {request.query}")
 
     try:
@@ -276,7 +298,8 @@ async def hybrid_search(
 
         final_ids, rrf_scores = rrf_fusion(rankings)
         # 截断到合理数量再查 PG（减少 DB 压力）
-        rerank_pool_size = request.limit * 3 if request.use_rerank else request.limit
+        effective_limit = _effective_limit(request)
+        rerank_pool_size = effective_limit * 3 if request.use_rerank else effective_limit
         final_ids = final_ids[:rerank_pool_size]
 
         # ---- Step 3: PG 补全内容 ----
@@ -284,7 +307,7 @@ async def hybrid_search(
 
         # ---- Step 4: 可选 Rerank 精排 ----
         reranked = await _optional_rerank(
-            request.query, final_results, request.limit, request.use_rerank
+            request.query, final_results, effective_limit, request.use_rerank
         )
 
         logger.debug(f"混合检索完成, 返回 {len(reranked)} 条结果")

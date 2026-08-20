@@ -77,6 +77,15 @@ class AgentInfo(BaseModel):
 # 工具函数
 # ─────────────────────────────────────────────────────────────
 
+async def _await_agents_ready():
+    """01-B 就绪门：Agent 预热未完成时带锁等待，超时/失败返回 503 + 原因。"""
+    from services.startup import readiness
+    try:
+        await readiness.wait('agents')
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=f"Agent 初始化中: {e}")
+
+
 def _ensure_registry_initialized():
     """
     确保 Agent 注册中心已初始化（仅注册工厂，不实例化 Agent）
@@ -242,6 +251,7 @@ async def agent_health(
     返回各 Agent 的初始化状态和响应时间。
     注意：首次调用会触发对应 Agent 的实例化。
     """
+    await _await_agents_ready()
     registry = _ensure_registry_initialized()
     health_status = {
         "registry": "ok",
@@ -291,6 +301,7 @@ async def chat(
     }
     ```
     """
+    await _await_agents_ready()
     registry = _ensure_registry_initialized()
     agent_type_str = _parse_agent_type(request.agent_type)
 
@@ -355,6 +366,7 @@ async def chat_stream(
     }
     ```
     """
+    await _await_agents_ready()
     registry = _ensure_registry_initialized()
     agent_type_str = _parse_agent_type(request.agent_type)
 
@@ -444,6 +456,7 @@ async def compare_agents(
     }
     ```
     """
+    await _await_agents_ready()
     registry = _ensure_registry_initialized()
 
     # 确定要对比的 Agent 类型

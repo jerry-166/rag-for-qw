@@ -1,0 +1,109 @@
+15:18:32 - INFO - 数据库 rag_system 已存在
+15:18:32 - INFO - 成功连接到数据库: rag_system
+INFO:     Started server process [24100]
+INFO:     Waiting for application startup.
+15:18:34 - INFO - 正在初始化应用...
+15:18:34 - INFO - 存储实例初始化完成，存储类型: local
+15:18:35 - INFO - [Tracing] Langfuse 连接验证: 成功
+15:18:35 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+15:18:35 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+15:18:35 - INFO - [预热] 后台并发预热已启动：milvus / search / agents
+15:18:35 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+INFO:     Application startup complete.
+15:18:35 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+15:18:35 - INFO - 搜索引擎: BM25 (纯内存)
+INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
+15:18:35 - INFO - [Agent预热] 开始后台预热所有 Agent...
+15:18:35 - INFO - BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+15:18:35 - INFO - BM25 索引加载完成，共 1418 条 chunk
+15:18:35 - INFO - [Readiness] search 就绪
+15:18:35 - INFO - 访问根路径
+INFO:     127.0.0.1:59461 - "GET / HTTP/1.1" 200 OK
+15:18:35 - INFO - 开始用户登录，用户名: admin
+15:18:36 - INFO - 用户登录成功，用户名: admin
+INFO:     127.0.0.1:59474 - "POST /api/auth/login HTTP/1.1" 200 OK
+15:18:35 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:44: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:54: PyMilvusDeprecationWarning: `db.using_database` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  db.using_database(self.db_name)
+15:18:37 - INFO - Zilliz Cloud 连接成功，使用数据库: rag_system
+15:18:37 - INFO - [Readiness] milvus 就绪
+15:18:48 - INFO - [memory_manager] MemoryManager 初始化，workspace: D:\workspace\rag-for-qw\backend\agent\workspace
+15:18:48 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw\backend\agent\sessions
+15:18:48 - INFO - [AgentRegistry] 初始化完成
+15:18:48 - INFO - [AgentRegistry] 注册 Agent: simple
+15:18:48 - INFO - [AgentRegistry] 注册 Agent: advanced
+15:18:48 - INFO - [AgentRegistry] 注册 Agent: claw
+15:18:48 - INFO - [AgentRegistry] 设置默认 Agent: claw
+15:18:48 - INFO - [AgentRegistry] Agent 注册中心配置完成，默认: claw
+15:18:50 - INFO - [SimpleAgentAdapter] 初始化完成
+15:18:50 - INFO - [AgentRegistry] 获取 Agent 实例: simple
+15:18:50 - INFO - [Agent预热] simple Agent 预热完成 (1.49s)
+15:18:50 - INFO - [AdvancedRAGAgent] 设置工具
+15:18:50 - INFO - [intent_classifier] 意图分类器初始化完成
+15:18:50 - INFO - [EntityExtractor] 实体提取器初始化完成
+15:18:50 - INFO - 任务规划器初始化完成
+15:18:50 - INFO - 工具管理器初始化
+15:18:50 - INFO - [ToolManager] 注册工具 clarify
+15:18:50 - INFO - [ToolManager] 注册工具 generate_answer
+15:18:50 - INFO - [ToolManager] 注册工具 analyze
+15:18:50 - INFO - [ToolManager] 注册工具 summarize
+15:18:50 - INFO - [ToolManager] 注册工具 knowledge_retrieval
+15:18:50 - INFO - [AdvancedRAGAgent] 注册内置工具完成
+15:18:50 - INFO - [ConversationManager] 对话管理器初始化完成
+15:18:50 - INFO - [ResponseGenerator] 初始化完成，LLM: metadata={'lc_versions': {'langchain-core': '1.5.6', 'langchain': '1.3.15', 'langchain-openai': '1.5.1'}} profile={'name': 'GPT-4o', 'release_date': '2024-05-13', 'last_updated': '2024-08-06', 'open_weights': False, 'max_input_tokens': 128000, 'max_output_tokens': 16384, 'text_inputs': True, 'image_inputs': True, 'audio_inputs': False, 'pdf_inputs': True, 'video_inputs': False, 'text_outputs': True, 'image_outputs': False, 'audio_outputs': False, 'video_outputs': False, 'reasoning_output': False, 'tool_calling': True, 'structured_output': True, 'attachment': True, 'temperature': True, 'image_url_inputs': True, 'pdf_tool_message': True, 'image_tool_message': True, 'tool_choice': True, 'tool_call_streaming': True} client=<openai.resources.chat.completions.completions.Completions object at 0x0000023C88A65E50> async_client=<openai.resources.chat.completions.completions.AsyncCompletions object at 0x0000023C88A66210> root_client=<openai.OpenAI object at 0x0000023C88A65BD0> root_async_client=<openai.AsyncOpenAI object at 0x0000023C88A65F90> model_name='gpt-4o' temperature=0.7 model_kwargs={} openai_api_key=SecretStr('**********') openai_api_base='http://localhost:4000' stream_chunk_timeout=120.0
+15:18:50 - INFO - [AdvancedRAGAgent] 构建工作流
+15:18:50 - INFO - [workflow] 工作流编译完成
+15:18:50 - INFO - [AdvancedRAGAgent] 初始化完成
+15:18:50 - INFO - [AdvancedAgentAdapter] 初始化完成
+15:18:50 - INFO - [AgentRegistry] 获取 Agent 实例: advanced
+15:18:50 - INFO - [Agent预热] advanced Agent 预热完成 (0.04s)
+15:18:50 - INFO - [ClawAgentAdapter] 初始化完成
+15:18:50 - INFO - [AgentRegistry] 获取 Agent 实例: claw
+15:18:50 - INFO - [Agent预热] claw Agent 预热完成 (0.01s)
+15:18:59 - INFO - Reranker 初始化完成，类型: CrossEncoderReranker
+15:18:59 - INFO - [CrossEncoderReranker] 开始加载模型: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70...
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 3130.10it/s]
+15:19:04 - INFO - [CrossEncoderReranker] 模型加载完成: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70
+15:19:04 - INFO - [Agent预热] Reranker 模型预热完成 (13.75s)
+15:19:04 - INFO - [Readiness] agents 就绪
+15:19:04 - INFO - [Tracing] Langfuse v3+/v4+ 已加载
+15:19:04 - INFO - [Tracing] Langfuse callback handler 已创建
+15:19:04 - INFO - [SimpleAgentAdapter] 开始处理查询: 你好
+Processing query: 你好
+Chat history: []
+Prompt: System: 你是一个RAG知识库助手。基于以下检索到的信息回答用户问题。
+如果检索结果中没有相关信息，请明确告知用户。
+
+检索信息：
+暂无相关检索信息
+
+请用中文回答，保持简洁准确。
+Human: 你好
+INFO:     127.0.0.1:59475 - "POST /api/agent/chat HTTP/1.1" 200 OK
+15:19:08 - INFO - 开始混合检索, 查询文本: RAG 检索增强生成
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:122: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  list_collections()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:110: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  return list_collections()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:157: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.summaries_collection = Collection(name=summaries_collection)
+15:19:09 - INFO - 摘要集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:187: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.subquestions_collection = Collection(name=subquestions_collection)
+15:19:10 - INFO - 子问题集合已存在，直接使用
+15:19:10 - INFO - 开始处理chunk原文向量集合: chunk_vectors
+15:19:10 - INFO - chunk原文向量集合已存在，直接获取...
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:218: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.chunks_collection = Collection(name=chunks_collection)
+15:19:11 - INFO - chunk原文向量集合已存在，直接使用
+15:19:13 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=10, query_len=10
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:94: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:94: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+15:19:14 - INFO - [MilvusClient] advanced 模式检索完成，返回 10 条结果
+15:19:14 - INFO - 混合检索成功
+INFO:     127.0.0.1:52164 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52179 - "GET /healthz HTTP/1.1" 200 OK

@@ -320,3 +320,149 @@ v5-API: PASS
 KeyError: 0
 chunks=1418 tokenized_stored=1192260B content=730208B ratio=1.633
 table size: 4423680 (baseline 2473984)
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 1319, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              encode_chunked=req.has_header('Transfer-encoding'))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1358, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1404, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1353, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1113, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1057, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1023, in connect
+    self.sock = self._create_connection(
+                ~~~~~~~~~~~~~~~~~~~~~~~^
+        (self.host,self.port), self.timeout, self.source_address)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+ConnectionRefusedError: [WinError 10061] ����Ŀ�����������ܾ����޷����ӡ�
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Local\Temp\boot_test.py", line 36, in <module>
+    r = urllib.request.urlopen(req, timeout=10)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 189, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 489, in open
+    response = self._open(req, data)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 506, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+                              '_open', req)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 466, in _call_chain
+    result = func(*args)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 1348, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 1322, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [WinError 10061] ����Ŀ�����������ܾ����޷����ӡ�>
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 1319, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              encode_chunked=req.has_header('Transfer-encoding'))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1358, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1404, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1353, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1113, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1057, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\http\client.py", line 1023, in connect
+    self.sock = self._create_connection(
+                ~~~~~~~~~~~~~~~~~~~~~~~^
+        (self.host,self.port), self.timeout, self.source_address)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+
+During handling of the above exception, another exception occurred:
+
+  File "C:\Users\ASUS\AppData\Local\Temp\boot_test.py", line 36, in <module>
+    r = urllib.request.urlopen(req, timeout=10)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 189, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 489, in open
+    response = self._open(req, data)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 506, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+                              '_open', req)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 466, in _call_chain
+    result = func(*args)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 1348, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 1322, in do_open
+    raise URLError(err)
+Binary file (standard input) matches
+run1: root=200 @46.61s | healthz=200 @47.19s | login=200
+run2: root=200 @38.56s | healthz=200 @39.14s | login=200
+run3: root=200 @38.04s | healthz=200 @38.63s | login=200
+run1: root200=7.68s healthz503@7.69s healthz200=40.82s login@first-avail=200
+run2: root200=5.96s healthz503@5.96s healthz200=40.53s login@first-avail=200
+run3: root200=8.16s healthz503@8.17s healthz200=44.91s login@first-avail=200
+    result = func(*args)
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\urllib\request.py", line 613, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 404: Not Found
+service up 200 6.72
+ready 22.17
+hybrid status= success results= 0 latency= 7.57 s
+service up 200 6.71
+ready 22.16
+hybrid status= success results= 0 latency= 4.61 s
+
+===== [01-B 圈4] 并发预热 + readiness 门控 (2026-08-20) =====
+1. import app:
+   ./.venv/Scripts/python.exe -c "import app" -> import app OK
+
+2. 启动耗时重测（boot_bench.py，3 次，基线 28.67s 均值：启动到首个 200）：
+   run1: root200=7.33s healthz503@7.34s healthz200=55.68s login@first-avail=200
+   run2: root200=6.62s healthz503@6.63s healthz200=41.30s login=200
+   run3: root200=7.84s healthz503@7.85s healthz200=45.15s login=200
+   => HTTP 可用均值 7.26s（基线 28.67s，-74.7%）；readiness 全绿均值 47.4s（agents 预热为长尾：3 Agent 构建 + reranker 加载 ~17s）
+   （对照：被中断的前次尝试数据 root200≈5.96-8.16s / healthz200≈40.5-44.9s，与本次一致）
+
+3. 就绪门行为（boot_gate*.log）：
+   - 服务可用后立即登录：login 200 @ 7.14s（HTTP 起来即响应）
+   - 预热未完成时打 POST /api/agent/chat：不报错，带锁等待，38.6s 返回 200（simple agent 正常回复）
+   - 未就绪时 /healthz 503（components 显示 pending），就绪后 200
+
+4. 预热完成后混合检索回归（boot_gate3.log，ready@36.6s 后请求）：
+   - hybrid rerank=off: success, 0 results
+   - hybrid rerank=on : success, 0 results
+   - vector only (/api/milvus/query): success, 5 results
+   - keyword only: success, 0 results
+   结论：hybrid 0 结果为【预存在缺陷，非本圈回归】——离线复现（见 circle4-notes）定位：Milvus advanced 模式返回 auto_id（135/179/…），与 PG document_chunk 真实 id（5940+）不一致，RRF 融合后 _enrich_results 按 id 查 PG 全部落空。Stage 0 基线 retrieval_results.json 中 hybrid_endpoint 20/20 全为 0 条，圈 3 verify.log 亦多次 results:[]，证实整改前即如此。API 行为（200 + success + 空数组）与基线一致，无回归。修复（Milvus 写入时回填真实 chunk_id 或融合层 ID 映射）留待后续 Stage。
+
+5. 测试进程已全部终止，端口 8003 释放。
