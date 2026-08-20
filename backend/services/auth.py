@@ -2,9 +2,16 @@ import bcrypt  # 对密码进行加盐处理
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from config import settings
+from typing import Optional
+# 圈6：jose.jwt 顶层 import 实测 ~0.17s（含 cryptography），延迟到首次签发/校验 token 时加载
+from config import settings, get_runtime
 from services.database import db
+
+
+def _jwt():
+    """python-jose 懒加载：返回 (JWTError, jwt) 模块成员。"""
+    from jose import JWTError, jwt
+    return JWTError, jwt
 
 # 配置
 SECRET_KEY = settings.SECRET_KEY or "lrj669761379123"
@@ -28,12 +35,13 @@ def verify_password(plain_password, hashed_password):
 def create_access_token(data: dict, expires_delta: timedelta = None):
     """创建访问令牌"""
     to_encode = data.copy()
+    expire_minutes = get_runtime("ACCESS_TOKEN_EXPIRE_MINUTES", ACCESS_TOKEN_EXPIRE_MINUTES)
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=int(expire_minutes))
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = _jwt()[1].encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 # 获取当前用户
@@ -44,6 +52,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    # 圈6：jose 懒加载（见 _jwt），此处取成员用于 decode/异常捕获
+    JWTError, jwt = _jwt()
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")

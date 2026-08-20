@@ -5,12 +5,18 @@ from config import init_logger, settings, get_runtime
 from services.audit import audit
 from services.database import db
 from services.auth import get_current_user
-from services.document_processor import DocumentProcessor, StoredData
+# 01-B：document_processor 顶层拉起 sentence_transformers（~15s import），改为请求期延迟导入
 from services.milvus_client import MilvusClient
 from services.storage import get_storage
 
 logger = init_logger(__name__)
 router = APIRouter()
+
+
+def _get_processor():
+    """01-B：延迟导入 DocumentProcessor / StoredData（避免顶层拉起 sentence_transformers）。"""
+    from services.document_processor import DocumentProcessor, StoredData
+    return DocumentProcessor, StoredData
 
 
 @router.post("/split/{file_id}")
@@ -58,6 +64,7 @@ async def split_document(file_id: str, req: Request, current_user=Depends(get_cu
             }
 
         # 初始化文档处理器
+        DocumentProcessor, _StoredData = _get_processor()
         processor = DocumentProcessor()
         storage = get_storage()
 
@@ -218,6 +225,7 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
         # ==============================================================
         # 需要增量生成
         # ==============================================================
+        DocumentProcessor, StoredData = _get_processor()
         processor = DocumentProcessor()
 
         # 构建数据对象（带 chunk_id，方便 processor 增量检查和写 DB）
@@ -362,6 +370,7 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
             raise HTTPException(status_code=403, detail="无权限访问该知识库")
 
         # 初始化文档处理器和Milvus客户端
+        DocumentProcessor, StoredData = _get_processor()
         processor = DocumentProcessor()
         # 从请求对象中获取应用实例，再获取app_state
         app_state = request.app.state

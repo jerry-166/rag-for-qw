@@ -35,7 +35,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 from agent.base import Intent, IntentType, SubTask, TaskStatus
 
 logger = init_logger(__name__)
@@ -93,12 +93,13 @@ def create_rag_workflow(memory_manager=None, session_store=None):
     """
 
     # 懒加载 LLM（避免循环导入）
-    def _get_llm(temperature: float = 0.7) -> ChatOpenAI:
+    def _get_llm(temperature: float = None) -> ChatOpenAI:
+        _temp = temperature if temperature is not None else get_runtime("LLM_TEMPERATURE_DEFAULT", settings.LLM_TEMPERATURE_DEFAULT)
         return ChatOpenAI(
-            model=settings.DEFAULT_MODEL,
-            base_url=settings.LITELLM_BASE_URL,
-            api_key=settings.LITELLM_API_KEY,
-            temperature=temperature,
+            model=get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
+            base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+            api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
+            temperature=_temp,
         )
 
     def _emit_event(state: RAGAgentState, event_type: str, content: str, **kwargs) -> None:
@@ -224,7 +225,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
     async def hybrid_retrieval(state: RAGAgentState) -> RAGAgentState:
         """混合检索节点：对每路查询并行执行 Milvus + ES 混合检索"""
         _emit_event(state, "thinking", "正在从知识库检索相关文档...")
-        retrieval_mode = state.get("retrieval_mode", "advanced")
+        retrieval_mode = state.get("retrieval_mode") or get_runtime("DEFAULT_RETRIEVAL_MODE", settings.DEFAULT_RETRIEVAL_MODE)
         queries = state.get("expanded_queries", [state["query"]])
         knowledge_base_id = state.get("knowledge_base_id")
         logger.info(
@@ -251,7 +252,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
                         "use_keyword": True,
                         "use_rerank": True,
                         "rerank_top_k": 5,
-                        "retrieval_mode": state.get("retrieval_mode", "advanced"),
+                        "retrieval_mode": retrieval_mode,
                     }
                 )
                 data = json.loads(result_json)
@@ -369,14 +370,14 @@ def create_rag_workflow(memory_manager=None, session_store=None):
         logger.info(f"[rag_workflow] 开始回答")
         _emit_event(state, "thinking", "正在基于检索结果生成回答...")
 
-        llm = _get_llm(temperature=0.5)
+        llm = _get_llm(temperature=get_runtime("LLM_TEMPERATURE_ANSWER", settings.LLM_TEMPERATURE_ANSWER))
 
         # 构建 System Prompt
         system_prompt = "你是一个专业的 RAG 知识库助手，请基于以下检索到的文档内容回答用户问题。\n\n"
         if memory_manager:
             session_context = ""
             if session_store:
-                session_context = session_store.get_recent_context(state["session_id"], window=3)
+                session_context = session_store.get_recent_context(state["session_id"], window=get_runtime("SESSION_CONTEXT_WINDOW", settings.SESSION_CONTEXT_WINDOW))
             system_prompt = memory_manager.get_system_prompt(extra_context=session_context)
 
         context_text = state.get("context_text", "")
@@ -472,7 +473,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
     async def greeting_response(state: RAGAgentState) -> RAGAgentState:
         """问候意图快速回答，跳过检索流程"""
         logger.info(f"[rag_workflow] 开始问候回答")
-        llm = _get_llm(temperature=0.8)
+        llm = _get_llm(temperature=get_runtime("LLM_TEMPERATURE_GREETING", settings.LLM_TEMPERATURE_GREETING))
 
         system_prompt = "你是一个 RAG 知识库助手，用简洁友好的方式回应用户。"
         if memory_manager:
@@ -616,7 +617,7 @@ def build_initial_state(
         "query": query,
         "session_id": session_id,
         "knowledge_base_id": knowledge_base_id,
-        "retrieval_mode": retrieval_mode or "advanced",
+        "retrieval_mode": retrieval_mode or get_runtime("DEFAULT_RETRIEVAL_MODE", settings.DEFAULT_RETRIEVAL_MODE),
         "intent": None,
         "expanded_queries": [],
         "raw_results": [],

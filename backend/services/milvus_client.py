@@ -1,11 +1,17 @@
 from typing import Optional
-from pymilvus import connections, Collection, FieldSchema, CollectionSchema, DataType, list_collections
 import time
 
 from config import settings, init_logger, get_runtime
 
 # 初始化日志记录器
 logger = init_logger(__name__)
+
+
+def _pymilvus():
+    """圈6：pymilvus（含 grpc/pandas，实测 import ~1.7s）延迟到首次真正使用时加载，不阻塞启动。"""
+    from pymilvus import connections, Collection, FieldSchema, CollectionSchema, DataType, list_collections
+    return connections, Collection, FieldSchema, CollectionSchema, DataType, list_collections
+
 
 class MilvusClient:
     def __init__(self, host=None, port=None, db_name=None):
@@ -31,6 +37,7 @@ class MilvusClient:
 
         运行时配置：set_runtime('MILVUS_URI', ...) 优先于 .env 配置。
         """
+        connections = _pymilvus()[0]
         try:
             uri = get_runtime("MILVUS_URI", settings.MILVUS_URI)
             token = get_runtime("MILVUS_TOKEN", settings.MILVUS_TOKEN)
@@ -107,7 +114,7 @@ class MilvusClient:
     def get_collections(self):
         """获取集合列表"""
         try:
-            return list_collections()
+            return _pymilvus()[5]()
         except Exception as e:
             logger.error(f"获取集合列表失败: {e}")
             return []
@@ -115,6 +122,7 @@ class MilvusClient:
     def create_collections(self):
         """创建集合"""
         try:
+            _, Collection, FieldSchema, CollectionSchema, DataType, _ = _pymilvus()
             # 检查连接是否存在，如果不存在，重新连接
             try:
                 # 尝试获取集合列表，测试连接是否存在
@@ -445,7 +453,7 @@ class MilvusClient:
                     get_runtime("MILVUS_SUBQUESTIONS_COLLECTION", settings.MILVUS_SUBQUESTIONS_COLLECTION),
                     get_runtime("MILVUS_CHUNKS_COLLECTION", settings.MILVUS_CHUNKS_COLLECTION),
                 ]:
-                    collection = Collection(collection_name)
+                    collection = _pymilvus()[1](collection_name)
                     info[collection_name] = {
                         "num_entities": collection.num_entities
                     }
@@ -458,7 +466,7 @@ class MilvusClient:
     def close(self):
         """关闭连接"""
         try:
-            connections.disconnect("default")
+            _pymilvus()[0].disconnect("default")
             logger.info("Milvus连接已关闭")
         except Exception as e:
             logger.error(f"关闭连接失败: {e}")

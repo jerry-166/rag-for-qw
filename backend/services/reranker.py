@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 import asyncio
 from typing import List, Dict, Optional
 
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 
 logger = init_logger(__name__)
 
@@ -55,9 +55,9 @@ class LLMReranker(BaseReranker):
 
     def __init__(self, api_key: str = None, base_url: str = None, model: str = None):
         self._client = None
-        self._api_key = api_key or settings.LITELLM_API_KEY
-        self._base_url = base_url or settings.LITELLM_BASE_URL
-        self._model = model or getattr(settings, 'LLM_MODEL', 'gpt-4o')
+        self._api_key = api_key or get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY)
+        self._base_url = base_url or get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL)
+        self._model = model or get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL)
 
     def _get_client(self):
         """懒加载 OpenAI 客户端（复用连接）。"""
@@ -68,8 +68,8 @@ class LLMReranker(BaseReranker):
                 api_key=self._api_key,
                 base_url=self._base_url,
                 model=self._model,
-                temperature=0.1,
-                max_tokens=200,
+                temperature=0.1,  # 低温度确保排序稳定
+                max_tokens=get_runtime("LLM_RERANKER_MAX_TOKENS", settings.LLM_RERANKER_MAX_TOKENS),
             )
         return self._client
 
@@ -248,10 +248,10 @@ def get_reranker() -> BaseReranker:
     if _reranker_instance is not None:
         return _reranker_instance
 
-    reranker_type = getattr(settings, 'RERANKER_TYPE', 'cross_encoder').lower().strip()
+    reranker_type = get_runtime('RERANKER_TYPE', 'cross_encoder').lower().strip()
 
     if reranker_type in ('cross_encoder', 'cross-encoder'):
-        model_name = getattr(settings, 'RERANKER_MODEL', 'BAAI/bge-reranker-v2-m3')
+        model_name = get_runtime('RERANKER_MODEL', getattr(settings, 'RERANKER_MODEL', 'BAAI/bge-reranker-v2-m3'))
         instance = CrossEncoderReranker(model_name=model_name)
         if not instance.is_available():
             logger.warning(

@@ -30,7 +30,30 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from langfuse import observe, propagate_attributes
+# 圈6：langfuse 顶层 import 实测 ~0.74s（含 httpx/rich/pydantic.v1），且 observe 仅作为
+# 追踪装饰器使用。为不阻塞启动，改用懒加载 shim：首请求时才真正 import 并接管包装。
+import functools
+
+def observe(as_type="span", name=None):
+    """langfuse.observe 的懒加载替代（装饰器语义等价，首调用时接入真实实现）。"""
+    def deco(fn):
+        state = {'real': None}
+        @functools.wraps(fn)
+        async def wrapper(*args, **kwargs):
+            if state['real'] is None:
+                try:
+                    from langfuse import observe as _real_observe
+                    state['real'] = _real_observe(as_type=as_type, name=name)(fn)
+                except Exception:
+                    state['real'] = fn
+            return await state['real'](*args, **kwargs)
+        return wrapper
+    return deco
+
+def propagate_attributes(**attrs):
+    """langfuse.propagate_attributes 的懒加载替代。"""
+    from langfuse import propagate_attributes as _real_pa
+    return _real_pa(**attrs)
 
 from config import init_logger
 from services.auth import get_current_user

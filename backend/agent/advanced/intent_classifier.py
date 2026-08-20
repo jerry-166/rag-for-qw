@@ -19,7 +19,7 @@ import os
 # 获取backend目录的绝对路径
 backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, backend_dir)
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 from agent.base import Intent, IntentType
 
 logger = init_logger(__name__)
@@ -107,9 +107,9 @@ class IntentClassifier:
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.llm = ChatOpenAI(
-            model=self.config.get("model", settings.DEFAULT_MODEL),
-            base_url=settings.LITELLM_BASE_URL,
-            api_key=settings.LITELLM_API_KEY,
+            model=self.config.get("model", get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL)),
+            base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+            api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
             temperature=0.1,  # 低温度确保稳定的分类结果
         )
         self._build_chain()

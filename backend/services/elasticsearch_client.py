@@ -21,9 +21,13 @@ class ElasticsearchClient:
                     settings.ELASTICSEARCH_USER,
                     settings.ELASTICSEARCH_PASSWORD
                 ),
-                verify_certs=False
+                verify_certs=False,
+                request_timeout=5,   # 快速失败，避免运行时热切换卡死服务
+                timeout=5,
+                max_retries=1,
+                retry_on_timeout=False,
             )
-            if self.es.ping():
+            if self.es.ping(request_timeout=3):
                 logger.info("Elasticsearch连接成功")
                 return True
             else:
@@ -232,11 +236,17 @@ class ElasticsearchClient:
 # 避免 BM25 模式下 import 本文件就触发 ES 连接尝试。
 # ──────────────────────────────────────────────────────────────
 def _make_es_client_if_needed():
-    from config import settings
-    backend = getattr(settings, "SEARCH_BACKEND", "bm25").lower().strip()
+    from config import get_runtime
+    backend = get_runtime("SEARCH_BACKEND", "bm25").lower().strip()
     if backend == "elasticsearch":
         return ElasticsearchClient()
     # BM25 模式：返回一个空壳，防止旧代码使用 es_client.xxx 直接 crash
     return None
 
 es_client = _make_es_client_if_needed()
+
+
+def reset_es_client():
+    """重置 Elasticsearch 客户端单例（运行时热切换用）。"""
+    global es_client
+    es_client = _make_es_client_if_needed()

@@ -518,3 +518,29 @@ http://192.168.1.5:8000-> http://192.168.1.5:8003 OK
 bug1 重试按钮 / bug2 历史回放含引号查询 / bug3 检索统计卡显示 / bug4 上传移除 → 待人工浏览器验收
 
 测后已杀进程（8003 uvicorn、8000 http.server 均 taskkill）。
+
+========== [圈6 收尾 / Stage 1 最终] 启动懒加载收尾验证（2026-08-20 晚）==========
+
+## 中断现场处理
+上次圈6 被中断时已留下一批完整可用的代码改动（无半成品需回退）：
+- jose 懒加载（services/auth.py，_jwt()）
+- pymilvus 懒加载（services/milvus_client.py）
+- PDFParser 延迟导入（app.py 顶层移除 + api/files.py 请求内导入）
+- langfuse observe 延迟导入（api/agent.py）
+- Database() 构造延迟到首次使用（services/database.py:1001）
+- tracing 初始化后台化 + 线程池（app.py lifespan，实测同步路径 ~1.8s）
+- c6_run3 曾出现 JWTError NameError，中断前已修复（get_current_user 内 _jwt() 解包），本轮启动验证通过。
+
+## 最终启动数字（backend/.venv python, uvicorn 127.0.0.1:8003, 轮询 GET / 至首个 200）
+run1: 1.27s / run2: 2.68s / run3: 1.66s → 均值 1.87s
+（Stage 1 基线 28.67s → 圈5 7.26s → 圈6 收尾 1.87s，总降幅 -93.5%）
+注：文档 01 的 <2s 目标本轮均值已达成（1.87s），但按用户裁决：不硬凑目标，仅如实记录。
+
+## 完整验证（work/stage-1/c6_final_verify.py 输出）
+1. import app → OK，1.04s
+2. 启动 → 首个 200：1.30s
+3. 登录 POST /api/auth/login (admin/Stage1@Test, form-encoded) → 200，token_len=159
+4. /healthz 就绪门：503（18s，含一次预热期请求 Timeout）→ 200，转换序列 [503, Timeout, 200] 正常
+5. POST /api/hybrid/search {"query":"Claude Code","top_k":3} → 200，status=success，results=0
+   （results=0 与圈6中断前一致：存量 chunk 归属 user_id=0，admin 检索不命中，预存在现象非回归）
+测后已 taskkill 释放 8003。

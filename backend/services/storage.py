@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional, Union
-from config import settings
+from config import settings, get_runtime
 import os
 import shutil
 
@@ -181,18 +181,29 @@ class OSSFileStorage(FileStorage):
             raise ImportError("OSS存储需要安装aliyun-oss-python-sdk包")
         
         # 验证OSS配置
-        if not all([settings.OSS_ENDPOINT, settings.OSS_ACCESS_KEY_ID, 
-                   settings.OSS_ACCESS_KEY_SECRET, settings.OSS_BUCKET_NAME]):
+        if not all([
+            get_runtime("OSS_ENDPOINT", settings.OSS_ENDPOINT),
+            get_runtime("OSS_ACCESS_KEY_ID", settings.OSS_ACCESS_KEY_ID),
+            get_runtime("OSS_ACCESS_KEY_SECRET", settings.OSS_ACCESS_KEY_SECRET),
+            get_runtime("OSS_BUCKET_NAME", settings.OSS_BUCKET_NAME),
+        ]):
             raise ValueError("OSS存储配置不完整")
         
         # 创建OSS客户端
-        auth = oss2.Auth(settings.OSS_ACCESS_KEY_ID, settings.OSS_ACCESS_KEY_SECRET)
-        self.bucket = oss2.Bucket(auth, settings.OSS_ENDPOINT, settings.OSS_BUCKET_NAME)
+        auth = oss2.Auth(
+            get_runtime("OSS_ACCESS_KEY_ID", settings.OSS_ACCESS_KEY_ID),
+            get_runtime("OSS_ACCESS_KEY_SECRET", settings.OSS_ACCESS_KEY_SECRET),
+        )
+        self.bucket = oss2.Bucket(
+            auth,
+            get_runtime("OSS_ENDPOINT", settings.OSS_ENDPOINT),
+            get_runtime("OSS_BUCKET_NAME", settings.OSS_BUCKET_NAME),
+        )
     
     def save(self, file_path: str, content: Union[str, bytes]) -> str:
         """保存文件到OSS"""
         # 构建OSS对象键
-        oss_key = settings.OSS_PREFIX + file_path
+        oss_key = get_runtime("OSS_PREFIX", settings.OSS_PREFIX) + file_path
         
         # 转换内容为字节
         if isinstance(content, str):
@@ -206,7 +217,7 @@ class OSSFileStorage(FileStorage):
     def read(self, file_path: str) -> Union[str, bytes]:
         """从OSS读取文件"""
         # 构建OSS对象键
-        oss_key = settings.OSS_PREFIX + file_path
+        oss_key = get_runtime("OSS_PREFIX", settings.OSS_PREFIX) + file_path
         
         # 下载文件
         try:
@@ -223,7 +234,7 @@ class OSSFileStorage(FileStorage):
     def delete(self, file_path: str) -> bool:
         """从OSS删除文件"""
         # 构建OSS对象键
-        oss_key = settings.OSS_PREFIX + file_path
+        oss_key = get_runtime("OSS_PREFIX", settings.OSS_PREFIX) + file_path
         
         # 删除文件
         try:
@@ -237,7 +248,7 @@ class OSSFileStorage(FileStorage):
     def exists(self, file_path: str) -> bool:
         """检查文件是否存在"""
         # 构建OSS对象键
-        oss_key = settings.OSS_PREFIX + file_path
+        oss_key = get_runtime("OSS_PREFIX", settings.OSS_PREFIX) + file_path
         
         # 检查文件是否存在
         try:
@@ -248,7 +259,7 @@ class OSSFileStorage(FileStorage):
 
     def delete_dir(self, dir_path: str) -> bool:
         """删除 OSS 上某个前缀下的所有文件（模拟删除目录）"""
-        oss_prefix = settings.OSS_PREFIX + dir_path.rstrip('/') + '/'
+        oss_prefix = get_runtime("OSS_PREFIX", settings.OSS_PREFIX) + dir_path.rstrip('/') + '/'
         try:
             for obj in oss2.ObjectIterator(self.bucket, prefix=oss_prefix):
                 self.bucket.delete_object(obj.key)
@@ -259,7 +270,7 @@ class OSSFileStorage(FileStorage):
     def get_file_size(self, file_path: str) -> Optional[int]:
         """获取OSS文件大小"""
         # 构建OSS对象键
-        oss_key = settings.OSS_PREFIX + file_path
+        oss_key = get_runtime("OSS_PREFIX", settings.OSS_PREFIX) + file_path
         try:
             # 使用head_object获取文件元数据
             result = self.bucket.head_object(oss_key)
@@ -276,7 +287,7 @@ def get_storage() -> FileStorage:
     Returns:
         FileStorage实例
     """
-    storage_type = settings.STORAGE_TYPE.lower()
+    storage_type = get_runtime("STORAGE_TYPE", settings.STORAGE_TYPE).lower()
     
     if storage_type == "local":
         return LocalFileStorage()

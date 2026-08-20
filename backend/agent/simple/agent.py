@@ -28,7 +28,7 @@ import os
 # 确保backend目录在sys.path中
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from config import settings
+from config import settings, get_runtime
 # 使用相对导入
 from ..base import BaseAgent, AgentResponse, AgentMessage, StreamChunk
 
@@ -48,10 +48,10 @@ class SimpleRAGAgent(BaseAgent):
         
         # 初始化LLM
         self.llm = ChatOpenAI(
-            model=self.config.get("model", settings.DEFAULT_MODEL),
-            base_url=settings.LITELLM_BASE_URL,
-            api_key=settings.LITELLM_API_KEY,
-            temperature=self.config.get("temperature", 0.7),
+            model=self.config.get("model") or get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
+            base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+            api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
+            temperature=self.config.get("temperature", get_runtime("LLM_TEMPERATURE_DEFAULT", settings.LLM_TEMPERATURE_DEFAULT)),
         )
         
         # 构建基础Chain

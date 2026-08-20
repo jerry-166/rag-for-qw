@@ -10,7 +10,6 @@ from pydantic import BaseModel
 from config import init_logger, settings
 from services.database import db
 from services.auth import get_current_user
-from services.pdf_parser import PDFParser
 from services.storage import get_storage
 from services.milvus_client import MilvusClient
 import shutil
@@ -77,7 +76,8 @@ async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), curr
         storage.save(original_file_path, file_content)
         logger.debug(f"原始文件保存成功")
 
-        # 初始化PDF解析器
+        # 初始化PDF解析器（圈6：requests 链顶层 import ~0.2s，延迟到首次使用）
+        from services.pdf_parser import PDFParser
         parser = PDFParser()
 
         # 解析PDF（使用临时文件）
@@ -144,6 +144,135 @@ async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), curr
             )
         logger.error(f"上传失败: {str(e)}")
         raise HTTPException(status_code=500, detail=f"上传失败: {str(e)}")
+
+
+@router.post("/upload/markdown")
+async def upload_markdown(file: UploadFile = File(...), kb_id: int = Form(None), current_user = Depends(get_current_user)):
+    """上传Markdown文件
+
+    与 PDF 上传不同，Markdown 无需 MinerU 解析：
+    原始内容直接作为增强 Markdown（enhanced.md）保存，跳过 PDFParser，
+    后续 split/generate/import 流水线与 PDF 完全一致。
+    """
+    logger.info(f"开始处理Markdown上传请求，文件名: {file.filename}")
+    start_time = time.time()
+    try:
+        # 校验扩展名
+        filename = file.filename or ""
+        ext = Path(filename).suffix.lower()
+        if ext not in (".md", ".markdown"):
+            raise HTTPException(status_code=400, detail=f"不支持的文件类型: {ext or '未知'}，仅支持 .md / .markdown")
+
+        # 验证知识库权限
+        if kb_id:
+            if not db.check_kb_permission(current_user["id"], kb_id):
+                logger.warning(f"用户无权限访问知识库，用户: {current_user['username']}, 知识库ID: {kb_id}")
+                raise HTTPException(status_code=403, detail="无权限访问该知识库")
+        else:
+            # 如果没有指定知识库，使用默认知识库
+            kbs = db.get_user_knowledge_bases(current_user["id"])
+            if not kbs:
+                # 如果用户没有知识库，创建一个默认知识库
+                kb_id = db.add_knowledge_base(
+                    user_id=current_user["id"],
+                    kb_name="默认知识库",
+                    metadata={}
+                )
+            else:
+                kb_id = kbs[0]["id"]
+
+        # 读取文件内容
+        file_content = await file.read()
+        if not file_content:
+            raise HTTPException(status_code=400, detail="文件内容为空")
+
+        # 解码：优先 UTF-8（含 BOM），失败时尝试 GBK（常见于 Windows 本地导出）
+        try:
+            markdown_content = file_content.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            try:
+                markdown_content = file_content.decode("gbk")
+            except UnicodeDecodeError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="文件编码无法识别，请使用 UTF-8 或 GBK 编码的 Markdown 文件"
+                )
+
+        # 计算文件哈希值，用于判断是否为相同文档
+        file_hash = hashlib.md5(file_content).hexdigest()
+
+        # 检查数据库中是否已存在相同的文档
+        existing_doc = db.get_document_by_hash_and_kb(file_hash, kb_id)
+        if existing_doc:
+            logger.info(f"文档已存在，文件名: {filename}, 已存在的文件ID: {existing_doc['id']}")
+            return {
+                "file_id": existing_doc["id"],
+                "status": "success",
+                "message": "文档已存在，使用现有文件"
+            }
+
+        # 生成唯一文件ID
+        file_id = str(uuid.uuid4())
+
+        # 存储原始文件与增强MD（Markdown 原文即增强MD，无需解析）
+        storage = get_storage()
+        enhanced_md_path = f"{current_user['id']}/{kb_id}/{file_id}/enhanced.md"
+        original_file_path = f"{current_user['id']}/{kb_id}/{file_id}/original.md"
+
+        storage.save(original_file_path, file_content)
+        storage.save(enhanced_md_path, markdown_content)
+        logger.debug("Markdown原始文件与增强MD保存成功")
+
+        # 计算处理时间（毫秒），确保时间不为0，否则存储为NULL
+        processing_time_ms = (time.time() - start_time) * 1000
+        upload_time = processing_time_ms if processing_time_ms > 0.1 else None
+
+        # 存储结果到数据库
+        doc_id = db.add_document(
+            filename=filename,
+            file_path=original_file_path,
+            enhanced_md_path=enhanced_md_path,
+            status="uploaded",
+            user_id=current_user["id"],
+            knowledge_base_id=kb_id,
+            file_hash=file_hash,
+            upload_time=upload_time,
+            metadata={"file_type": "markdown"}
+        )
+        if not doc_id:
+            raise HTTPException(status_code=500, detail="文档入库失败")
+
+        # 记录工作流日志
+        processing_time = time.time() - start_time
+        db.add_workflow_log(
+            document_id=doc_id,
+            operation="upload_markdown",
+            status="completed",
+            message="Markdown上传成功，原文即增强MD",
+            knowledge_base_id=kb_id,
+            processing_time=processing_time
+        )
+
+        logger.info(f"Markdown上传成功，文件ID: {doc_id}")
+        return {
+            "file_id": doc_id,
+            "status": "success",
+            "message": "Markdown上传成功"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        # 记录失败日志
+        if 'doc_id' in locals():
+            db.add_workflow_log(
+                document_id=doc_id,
+                operation="upload_markdown",
+                status="failed",
+                message=str(e),
+                knowledge_base_id=kb_id if 'kb_id' in locals() else None
+            )
+        logger.error(f"Markdown上传失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Markdown上传失败: {str(e)}")
 
 
 @router.get("/markdown/{file_id}")

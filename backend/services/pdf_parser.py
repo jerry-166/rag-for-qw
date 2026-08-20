@@ -6,13 +6,13 @@ import io
 import uuid
 from pathlib import Path
 
-from config import settings
+from config import settings, get_runtime
 
 class PDFParser:
     def __init__(self):
         # 配置MinerU API
-        self.MINERU_BASE_URL = settings.MINERU_BASE_URL
-        self.MINERU_API_KEY = settings.MINERU_API_KEY
+        self.MINERU_BASE_URL = get_runtime("MINERU_BASE_URL", settings.MINERU_BASE_URL)
+        self.MINERU_API_KEY = get_runtime("MINERU_API_KEY", settings.MINERU_API_KEY)
         if not self.MINERU_API_KEY:
             raise ValueError("MINERU_API_KEY 环境变量未设置")
         
@@ -68,8 +68,8 @@ class PDFParser:
         # 3. 轮询检查处理状态
         print("正在轮询检查处理状态...")
         
-        max_wait = settings.MAX_WAIT_TIME  # 最长等待时间（秒）
-        poll_interval = settings.POLL_INTERVAL  # 轮询间隔（秒）
+        max_wait = get_runtime("MAX_WAIT_TIME", settings.MAX_WAIT_TIME)  # 最长等待时间（秒）
+        poll_interval = get_runtime("POLL_INTERVAL", settings.POLL_INTERVAL)  # 轮询间隔（秒）
         elapsed = 0
         full_zip_url = None
         
@@ -105,7 +105,7 @@ class PDFParser:
         # 4. 下载解析结果的zip文件，并解压
         if full_zip_url:
             print("正在下载解析结果的zip文件，并解压...")
-            zip_response = requests.get(full_zip_url)
+            zip_response = self._download_with_retry(full_zip_url)
             
             with zipfile.ZipFile(io.BytesIO(zip_response.content)) as zf:
                 md_files = [f for f in zf.namelist() if f.endswith(".md")]
@@ -154,3 +154,24 @@ class PDFParser:
             "images_dir": str(image_output_dir) if image_output_dir else None,
             "pdf_name": pdf_name
         }
+
+    def _download_with_retry(self, url, max_retries=5, timeout=60):
+        """下载结果 zip，带重试与指数退避。
+
+        MinerU 的 CDN（cdn-mineru.openxlab.org.cn）偶发 SSL EOF / 连接重置，
+        单次请求容易失败，这里加入重试提升健壮性。
+        """
+        last_exc = None
+        for attempt in range(1, max_retries + 1):
+            try:
+                print(f"正在下载结果 zip（第 {attempt}/{max_retries} 次尝试）...")
+                resp = requests.get(url, timeout=timeout)
+                resp.raise_for_status()
+                return resp
+            except (requests.exceptions.RequestException, Exception) as e:
+                last_exc = e
+                if attempt < max_retries:
+                    wait = min(2 ** (attempt - 1), 10)  # 1, 2, 4, 8, 10 秒
+                    print(f"下载失败（{e}），{wait} 秒后重试...")
+                    time.sleep(wait)
+        raise Exception(f"下载解析结果失败（已重试 {max_retries} 次）: {last_exc}")

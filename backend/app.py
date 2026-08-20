@@ -16,7 +16,7 @@ from pydantic import BaseModel
 from config import settings, init_logger, get_runtime
 # 01-B：document_processor 顶层拉起 sentence_transformers（~15s import），且 app.py 未直接使用，延迟导入
 from services.milvus_client import MilvusClient
-from services.pdf_parser import PDFParser
+# 圈6：PDFParser 仅 api/files.py 使用（请求路径懒加载即可），此处顶层 import 徒增 ~0.2s（requests 链）
 from services.database import db
 from services.auth import get_password_hash, verify_password, create_access_token, get_current_user, check_permission
 from services.storage import get_storage
@@ -134,6 +134,7 @@ async def _preheat_agents(app_ref):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
+    import asyncio  # 圈6：lifespan 内多处 create_task 使用；置于函数开头避免 UnboundLocalError
     # 启动时
     logger.info("正在初始化应用...")
 
@@ -158,18 +159,26 @@ async def lifespan(app: FastAPI):
     logger.info(f"存储实例初始化完成，存储类型: {settings.STORAGE_TYPE}")
 
     # ── 初始化追踪后端（Phoenix / Langfuse / None）──
-    try:
-        from evaluation.tracing import setup_tracing, get_tracer_info
-        tracing_result = setup_tracing()
-        app.state['tracer_info'] = get_tracer_info()
-        logger.info(f"[Tracing] 初始化完成: backend={tracing_result['backend']}, status={tracing_result['status']}")
-        if 'url' in tracing_result:
-            logger.info(f"[Tracing] Phoenix UI → {tracing_result['url']}")
-        elif 'host' in tracing_result:
-            logger.info(f"[Tracing] Langfuse Host → {tracing_result['host']}")
-    except Exception as e:
-        logger.warning(f"[Tracing] 初始化失败（不影响主流程）: {e}")
-        app.state['tracer_info'] = {"backend": "none", "initialized": False, "error": str(e)}
+    # 圈6：实测同步初始化 ~1.8s（langfuse import + 客户端构建 + auth_check 网络验证），
+    # 移入后台任务不阻塞 HTTP 启动；get_callbacks() 按调用自建 handler，不依赖此步完成。
+    app.state['tracer_info'] = {"backend": "initializing", "initialized": False}
+
+    async def _setup_tracing_bg():
+        loop = asyncio.get_running_loop()
+        try:
+            from evaluation.tracing import setup_tracing, get_tracer_info
+            # 同步初始化（含 auth_check 网络请求）放线程池，避免阻塞事件循环（否则仍会挡住首个 HTTP 200）
+            tracing_result = await loop.run_in_executor(None, setup_tracing)
+            app.state['tracer_info'] = get_tracer_info()
+            logger.info(f"[Tracing] 初始化完成: backend={tracing_result['backend']}, status={tracing_result['status']}")
+            if 'url' in tracing_result:
+                logger.info(f"[Tracing] Phoenix UI → {tracing_result['url']}")
+            elif 'host' in tracing_result:
+                logger.info(f"[Tracing] Langfuse Host → {tracing_result['host']}")
+        except Exception as e:
+            logger.warning(f"[Tracing] 初始化失败（不影响主流程）: {e}")
+            app.state['tracer_info'] = {"backend": "none", "initialized": False, "error": str(e)}
+    asyncio.create_task(_setup_tracing_bg())
 
     # ── Agent 预热状态 ──
     app.state['agent_preheat'] = {
@@ -180,7 +189,6 @@ async def lifespan(app: FastAPI):
     }
 
     # ── 启动后台并发预热任务（01-B：不阻塞 HTTP 服务启动）──
-    import asyncio
     preheat_enabled = str(get_runtime("STARTUP_PREHEAT", "true")).lower() not in ("0", "false", "no")
     if preheat_enabled:
         async def _preheat_all():

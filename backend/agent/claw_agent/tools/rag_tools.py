@@ -18,7 +18,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 
 logger = init_logger(__name__)
 
@@ -31,12 +31,12 @@ logger = init_logger(__name__)
 def rag_hybrid_search(
     query: str,
     knowledge_base_id: Optional[int] = None,
-    top_k: int = 10,
+    top_k: Optional[int] = None,
     use_vector: bool = True,
     use_keyword: bool = True,
     use_rerank: bool = True,
-    rerank_top_k: int = 5,
-    retrieval_mode: Optional[str] = "advanced",
+    rerank_top_k: Optional[int] = None,
+    retrieval_mode: Optional[str] = None,
 ) -> str:
     """
     混合检索工具：同时执行向量语义检索（Milvus）和关键词检索（Elasticsearch），
@@ -55,6 +55,9 @@ def rag_hybrid_search(
     Returns:
         JSON 字符串，包含 results 列表和 total_count
     """
+    top_k = top_k or int(get_runtime("RETRIEVAL_TOP_K", 10))
+    rerank_top_k = rerank_top_k or int(get_runtime("RETRIEVAL_TOP_K", 5))
+    retrieval_mode = retrieval_mode or get_runtime("DEFAULT_RETRIEVAL_MODE", settings.DEFAULT_RETRIEVAL_MODE)
     results = []
     vector_results = []
     keyword_results = []
@@ -132,7 +135,7 @@ def rag_hybrid_search(
             logger.warning(f"关键词检索失败（跳过）: {e}")
 
     # ── 结果融合（倒数排名融合 RRF）──────────────────────────
-    results = _reciprocal_rank_fusion(vector_results, keyword_results, k=60)
+    results = _reciprocal_rank_fusion(vector_results, keyword_results, k=get_runtime("RRF_K", settings.RRF_K))
 
     # 去重（按 content 前 200 字符去重）
     seen = set()
@@ -144,7 +147,7 @@ def rag_hybrid_search(
             deduped.append(r)
 
     # ── 分数阈值过滤 ──────────────────────────────────────
-    min_score = getattr(settings, 'RETRIEVAL_MIN_SCORE', 0.3)
+    min_score = get_runtime('RETRIEVAL_MIN_SCORE', 0.3)
     # RRF 分数归一化到 0-1 范围（RRF 最大约 2*(1/(60+1)) ≈ 0.065，需要缩放）
     # 实际上 RRF 分数范围是 [0, ~0.066]，用原始 score（distance/BM25）来判断更合理
     # 这里的 score 来自 Milvus distance (越小越相似) 或 BM25 score (越大越好)
@@ -189,7 +192,7 @@ def rag_hybrid_search(
             )
             
             # 精排后再次过滤低分结果
-            min_score = getattr(settings, 'RETRIEVAL_MIN_SCORE', 0.3)
+            min_score = get_runtime('RETRIEVAL_MIN_SCORE', 0.3)
             final_filtered = [r for r in reranked if float(r.get("rerank_score", 0)) >= min_score]
             final = final_filtered if final_filtered else reranked[:3]  # 至少保留前3条
             logger.info(f"精排完成（阈值 {min_score}），保留 {len(final)} 条结果")
@@ -248,7 +251,7 @@ def _reciprocal_rank_fusion(list_a: list, list_b: list, k: int = 60) -> list:
 @tool
 def rag_query_expand(
     query: str,
-    num_subquestions: int = 3,
+    num_subquestions: int = None,
     context_hint: Optional[str] = None,
 ) -> str:
     """
@@ -257,7 +260,7 @@ def rag_query_expand(
 
     Args:
         query: 用户原始查询
-        num_subquestions: 生成子问题数量（1-5）
+        num_subquestions: 生成子问题数量（1-5），不传则用运行时配置
         context_hint: 可选的上下文提示（如知识库名称、领域）
 
     Returns:
@@ -266,12 +269,14 @@ def rag_query_expand(
     from langchain_openai import ChatOpenAI
     from langchain_core.messages import HumanMessage
 
+    num_subquestions = num_subquestions or get_runtime("NUM_SUBQUESTIONS", settings.NUM_SUBQUESTIONS)
+
     try:
         llm = ChatOpenAI(
-            model=settings.DEFAULT_MODEL,
-            base_url=settings.LITELLM_BASE_URL,
-            api_key=settings.LITELLM_API_KEY,
-            temperature=0.3,
+            model=get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
+            base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+            api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
+            temperature=get_runtime("LLM_TEMPERATURE_DEFAULT", settings.LLM_TEMPERATURE_DEFAULT),
         )
 
         context_str = f"\n上下文背景：{context_hint}" if context_hint else ""
@@ -348,10 +353,10 @@ def rag_summarize(
 
     try:
         llm = ChatOpenAI(
-            model=settings.DEFAULT_MODEL,
-            base_url=settings.LITELLM_BASE_URL,
-            api_key=settings.LITELLM_API_KEY,
-            temperature=0.3,
+            model=get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
+            base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+            api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
+            temperature=get_runtime("LLM_TEMPERATURE_DEFAULT", settings.LLM_TEMPERATURE_DEFAULT),
         )
 
         # 截断过长内容

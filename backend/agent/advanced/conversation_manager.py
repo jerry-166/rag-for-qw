@@ -20,7 +20,7 @@ import os
 backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, backend_dir)
 
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 
@@ -69,25 +69,25 @@ class ConversationManager:
         "什么是", "如何", "为什么", "介绍一下",
     ]
     
-    def __init__(self, max_history: int = 10, context_window: int = 5, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, max_history: int = None, context_window: int = None, config: Optional[Dict[str, Any]] = None):
         """
         初始化对话管理器
-        
+
         Args:
-            max_history: 每会话最大保留轮数
-            context_window: 上下文窗口大小
+            max_history: 每会话最大保留轮数（不传则用运行时配置）
+            context_window: 上下文窗口大小（不传则用运行时配置）
             config: 配置参数，包含LLM相关配置
         """
-        self.max_history = max_history
-        self.context_window = context_window
+        self.max_history = max_history or get_runtime("SESSION_MAX_HISTORY", settings.SESSION_MAX_HISTORY)
+        self.context_window = context_window or get_runtime("SESSION_CONTEXT_WINDOW", settings.SESSION_CONTEXT_WINDOW)
         self.sessions: Dict[str, ConversationSession] = {}
         
         # 初始化LLM
         self.config = config or {}
         self.llm = ChatOpenAI(
-            model=self.config.get("model", settings.DEFAULT_MODEL),
-            base_url=settings.LITELLM_BASE_URL,
-            api_key=settings.LITELLM_API_KEY,
+            model=self.config.get("model") or get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
+            base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+            api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
             temperature=0.3,  # 适中温度，生成更自然的摘要
         )
         

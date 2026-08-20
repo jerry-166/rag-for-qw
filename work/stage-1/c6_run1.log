@@ -1,0 +1,28 @@
+INFO:     Started server process [22712]
+INFO:     Waiting for application startup.
+21:28:35 - INFO - 正在初始化应用...
+21:28:35 - INFO - 存储实例初始化完成，存储类型: local
+21:28:35 - INFO - [预热] 后台并发预热已启动：milvus / search / agents
+21:28:35 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+INFO:     Application startup complete.
+21:28:35 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+21:28:35 - INFO - 搜索引擎: BM25 (纯内存)
+INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
+21:28:35 - INFO - [Agent预热] 开始后台预热所有 Agent...
+21:28:35 - INFO - 数据库 rag_system 已存在
+21:28:35 - INFO - 成功连接到数据库: rag_system
+21:28:35 - INFO - BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+21:28:35 - INFO - BM25 索引加载完成，共 1418 条 chunk
+21:28:35 - INFO - BM25 分桶: bucket=0:1, chunks=372
+21:28:35 - INFO - BM25 分桶: bucket=0:2, chunks=1046
+21:28:35 - INFO - [Readiness] search 就绪
+21:28:37 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:51: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(
+21:28:38 - INFO - [Tracing] Langfuse 连接验证: 成功
+21:28:38 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+21:28:38 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:61: PyMilvusDeprecationWarning: `db.using_database` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  db.using_database(self.db_name)
+21:28:39 - INFO - Zilliz Cloud 连接成功，使用数据库: rag_system
+21:28:39 - INFO - [Readiness] milvus 就绪

@@ -998,4 +998,22 @@ class Database:
         return result['count'] if result else 0
 
 # 全局数据库实例
-db = Database()
+# 圈6：Database() 构造含同步 PG 连接 + 建表（实测 ~0.4s），延迟到首次真正使用时初始化，
+# 不阻塞 import/启动。所有调用方均只使用 `db.<method>()` 形式，代理对行为等价。
+class _DbProxy:
+    """Database 的懒加载代理：首次属性访问时才构建真实实例。"""
+    __slots__ = ('_real', '_lock')
+
+    def __init__(self):
+        self._real = None
+
+    def _ensure(self):
+        if self._real is None:
+            self._real = Database()
+        return self._real
+
+    def __getattr__(self, name):
+        return getattr(self._ensure(), name)
+
+
+db = _DbProxy()

@@ -1,0 +1,14 @@
+INFO:     Started server process [9352]
+INFO:     Waiting for application startup.
+21:32:01 - INFO - 正在初始化应用...
+21:32:01 - INFO - 存储实例初始化完成，存储类型: local
+21:32:01 - INFO - [预热] 后台并发预热已启动：milvus / search / agents
+21:32:01 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+INFO:     Application startup complete.
+21:32:01 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+21:32:01 - INFO - 搜索引擎: BM25 (纯内存)
+INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
+21:32:01 - INFO - [Agent预热] 开始后台预热所有 Agent...
+21:32:01 - INFO - 访问根路径
+INFO:     127.0.0.1:53721 - "GET / HTTP/1.1" 200 OK
+21:32:01 - INFO - 数据库 rag_system 已存在
