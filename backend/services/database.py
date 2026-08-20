@@ -201,6 +201,23 @@ class Database:
                 )
             ''')
             
+            # 创建审计日志表（只追加：业务代码路径上只有 INSERT，无 UPDATE/DELETE）
+            self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS audit_log (
+                    id BIGSERIAL PRIMARY KEY,
+                    occurred_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                    user_id INTEGER,
+                    action VARCHAR(64) NOT NULL,
+                    resource_type VARCHAR(32),
+                    resource_id VARCHAR(64),
+                    kb_id INTEGER,
+                    request_id VARCHAR(64),
+                    client_ip VARCHAR(64),
+                    user_agent TEXT,
+                    detail JSONB
+                )
+            ''')
+
             # 创建索引
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_status ON document (status)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_user_id ON document (user_id)')
@@ -216,6 +233,10 @@ class Database:
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_user_kb_permission_kb_id ON user_kb_permission (knowledge_base_id)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_workflow_log_document_id ON workflow_log (document_id)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_workflow_log_knowledge_base_id ON workflow_log (knowledge_base_id)')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_audit_time ON audit_log (occurred_at DESC)')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_log (action, occurred_at DESC)')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log (user_id, occurred_at DESC)')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_audit_request_id ON audit_log (request_id)')
             
             return True
         except Exception as e:
@@ -258,6 +279,80 @@ class Database:
             logger.error(f"查询失败: {e}")
             return None
     
+    # ==================== 审计日志相关方法 ====================
+
+    def insert_audit_batch(self, events):
+        """批量插入审计事件（executemany），返回成功条数"""
+        if not events:
+            return 0
+        query = '''
+            INSERT INTO audit_log
+                (occurred_at, user_id, action, resource_type, resource_id,
+                 kb_id, request_id, client_ip, user_agent, detail)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        '''
+        rows = [
+            (
+                ev.get('occurred_at'), ev.get('user_id'), ev.get('action'),
+                ev.get('resource_type'), ev.get('resource_id'), ev.get('kb_id'),
+                ev.get('request_id'), ev.get('client_ip'), ev.get('user_agent'),
+                json.dumps(ev.get('detail'), ensure_ascii=False) if ev.get('detail') is not None else None,
+            )
+            for ev in events
+        ]
+        try:
+            self.cursor.executemany(query, rows)
+            return len(rows)
+        except Exception as e:
+            logger.error(f"批量插入审计日志失败: {e}")
+            return 0
+
+    def query_audit_logs(self, user_id=None, action=None, resource_type=None,
+                         kb_id=None, request_id=None, start_time=None, end_time=None,
+                         page=1, page_size=50):
+        """分页查询审计日志（带过滤条件）"""
+        conditions = []
+        params = []
+
+        if user_id is not None:
+            conditions.append("user_id = %s")
+            params.append(user_id)
+        if action:
+            conditions.append("action = %s")
+            params.append(action)
+        if resource_type:
+            conditions.append("resource_type = %s")
+            params.append(resource_type)
+        if kb_id is not None:
+            conditions.append("kb_id = %s")
+            params.append(kb_id)
+        if request_id:
+            conditions.append("request_id = %s")
+            params.append(request_id)
+        if start_time:
+            conditions.append("occurred_at >= %s")
+            params.append(start_time)
+        if end_time:
+            conditions.append("occurred_at <= %s")
+            params.append(end_time)
+
+        where = (" WHERE " + " AND ".join(conditions)) if conditions else ""
+
+        # 总数
+        count_row = self.fetchone(f"SELECT COUNT(*) AS cnt FROM audit_log{where}", tuple(params) or None)
+        total = count_row["cnt"] if count_row else 0
+
+        # 分页数据
+        offset = (max(page, 1) - 1) * page_size
+        query = f'''
+            SELECT * FROM audit_log{where}
+            ORDER BY occurred_at DESC, id DESC
+            LIMIT %s OFFSET %s
+        '''
+        rows = self.fetchall(query, tuple(params) + (page_size, offset))
+        # detail JSONB 已由 psycopg2 自动反序列化为 dict
+        return {"total": total, "page": page, "page_size": page_size, "items": rows}
+
     def close(self):
         """关闭数据库连接"""
         if self.conn:

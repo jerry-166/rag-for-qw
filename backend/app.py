@@ -6,7 +6,7 @@ from datetime import timedelta
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, status, Form, Response
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, status, Form, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -143,15 +143,82 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_preheat_agents(app))
     logger.info("[Agent预热] 后台预热异步任务已启动（预热全部 Agent）")
 
+    # ── 审计管道（文档 07）：启动后台批量落库任务 ──
+    from services.audit import audit
+    audit.start()
+
     yield
 
     # 关闭时
     logger.info("正在关闭应用...")
-    # 这里可以添加清理逻辑
+    # 审计管道：优雅停机 flush 队列残留
+    await audit.stop()
     logger.info("应用已关闭")
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+# ── 审计中间件（文档 07）：request_id 生成/透传 + 非 GET 请求兜底粗记录 ──
+@app.middleware("http")
+async def audit_middleware(request: Request, call_next):
+    from services.audit import audit, new_request_id
+
+    # request_id：透传已有 X-Request-ID，否则生成
+    request_id = request.headers.get("X-Request-ID") or new_request_id()
+    request.state.request_id = request_id
+
+    start = time.time()
+    try:
+        response = await call_next(request)
+    except Exception as e:
+        # 异常兜底：即时粗记录（不走队列，直接落库），保证异常请求无漏记
+        try:
+            from services.database import db
+            from datetime import datetime, timezone as _tz
+            db.insert_audit_batch([{
+                'occurred_at': datetime.now(_tz.utc),
+                'user_id': None,
+                'action': 'request.error',
+                'resource_type': 'request',
+                'resource_id': request.url.path,
+                'kb_id': None,
+                'request_id': request_id,
+                'client_ip': request.client.host if request.client else None,
+                'user_agent': request.headers.get("user-agent"),
+                'detail': {'method': request.method, 'path': request.url.path,
+                           'error': str(e)},
+            }])
+        except Exception as audit_err:
+            logger.error(f"[Audit] 异常兜底记录失败: {audit_err}")
+        raise
+
+    response.headers["X-Request-ID"] = request_id
+
+    # 兜底粗记录：非 GET 的 /api 请求记录 method/path/status/耗时（与显式事件通过 request_id 关联）
+    if request.method != "GET" and request.url.path.startswith("/api"):
+        try:
+            user_id = getattr(request.state, "audit_user_id", None)
+            audit.log(
+                'request.write',
+                user_id=user_id,
+                resource_type='request',
+                resource_id=request.url.path,
+                request_id=request_id,
+                client_ip=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent"),
+                detail={
+                    'method': request.method,
+                    'path': request.url.path,
+                    'status_code': response.status_code,
+                    'duration_ms': round((time.time() - start) * 1000, 2),
+                },
+            )
+        except Exception as e:
+            logger.error(f"[Audit] 兜底记录入队失败: {e}")
+
+    return response
+
 
 # 配置CORS
 app.add_middleware(

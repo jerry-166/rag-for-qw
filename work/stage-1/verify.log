@@ -1,0 +1,48 @@
+# Stage 1 Circle 1 — 文档 07 审计中心基础设施 验证日志
+
+日期：2026-08-20 分支：feature/stage-1-perf-startup
+
+## 1. import 验证
+- 命令：`backend/.venv/Scripts/python.exe -c "import app"`（cwd=backend）
+- 结果：IMPORT_OK（exit 0）
+
+## 2. audit_log 表结构
+- Database 启动建表后检查 information_schema：
+  - columns: id, occurred_at, user_id, action, resource_type, resource_id, kb_id, request_id, client_ip, user_agent, detail（11 列，符合文档 3.1）
+  - 索引：idx_audit_time / idx_audit_action / idx_audit_user / idx_audit_request_id
+- 建表前 count=0（新表）
+
+## 3. 请求级记录（uvicorn 后台启动，127.0.0.1:8003）
+- POST /api/auth/login（带 X-Request-ID: test-req-id-stage1-001）→ 401
+  - audit_log 落库 1 条 request.write 事件：
+    - request_id = "test-req-id-stage1-001"（透传验证 OK）
+    - detail = {path, method: POST, status_code: 401, duration_ms: 373.17}
+- POST /api/auth/register（X-Request-ID: reg-audit-test）→ 200，落库 1 条
+- GET 请求不记录（兜底仅非 GET）
+- 管理员视角 GET /api/audit 返回 total=12（含多次 login/register 兜底事件 + 脱敏测试事件 mask-test-002）
+- request_id 过滤：GET /api/audit?request_id=reg-audit-test → total=1，命中 register 事件
+
+## 4. 脱敏验证
+- 单元级：mask_sensitive({"password": "super-secret-pass-123", "api_key": "sk-1a...", "name": "..."})
+  → {'password': 'supe***-123', 'api_key': 'sk-1***8h9i', 'name': 保留原文}
+- 端到端（事件走完整队列管道 → 批量 INSERT 落库）：
+  - 输入 detail 含明文 password / api_key（before+after 嵌套 dict）
+  - 库中 detail：{'before': {'api_key': 'sk-a***5678', 'password': 'supe***-123'}, ...}
+  - 全库 grep：`detail::text LIKE '%super-secret-pass-123%' OR '%sk-abcdefgh12345678%'` 计数 = 0（无明文）
+
+## 5. 鉴权验证
+- 无 token GET /api/audit → 401（Could not validate credentials）
+- 普通用户（role=user）带 token → 200，但强制 user_id=自己，total=0（兜底事件 user_id 为空，不可见——预期行为）
+- 管理员（role=admin）带 token → 200，全量 total=12
+  - （注：现有 users 表无 is_admin 字段，本版用现有 role 字段判定，与 auth.py check_permission 的 role=='admin' 一致；is_admin 迁移推迟到后续需要时）
+
+## 6. 优雅停机
+- audit.stop() 在 lifespan shutdown flush 队列残留（端到端脱敏测试中通过 stop() flush 成功落库验证了该路径）
+
+## 7. 资源清理
+- 测试用户 audit_tester 已删除；admin role 已还原为 user
+- uvicorn 进程（PID 15108）已 kill，8003 端口释放（netstat 确认无 LISTENING）
+
+## 结论
+- 通过项：import / 建表+索引 / request_id 透传+兜底记录 / 异常兜底路径（代码就绪）/ 脱敏（单元+端到端+库内无明文）/ 401 鉴权 / 普通用户权限过滤 / 管理员全量+request_id 过滤 / shutdown flush
+- 全部通过，本圈收敛。

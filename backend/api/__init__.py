@@ -11,6 +11,8 @@ from .search import router as search_router
 from .stats import router as stats_router
 from .agent import router as agent_router
 from .evaluation import router as evaluation_router
+from .settings import router as settings_router
+from .audit import router as audit_router
 
 api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 api_router.include_router(knowledge_bases_router, prefix="/knowledge-bases", tags=["knowledge-bases"])
@@ -21,3 +23,5 @@ api_router.include_router(search_router, tags=["search"])
 api_router.include_router(stats_router, prefix="/stats", tags=["stats"])
 api_router.include_router(agent_router, tags=["agent"])
 api_router.include_router(evaluation_router, tags=["evaluation"])
+api_router.include_router(settings_router, prefix="/settings", tags=["settings"])
+api_router.include_router(audit_router, prefix="/audit", tags=["audit"])
