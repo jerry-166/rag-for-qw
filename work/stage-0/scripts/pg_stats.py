@@ -1,0 +1,17 @@
+import os, psycopg2, json
+from dotenv import load_dotenv
+load_dotenv('backend/.env')
+conn = psycopg2.connect(host=os.getenv('POSTGRES_HOST'), port=os.getenv('POSTGRES_PORT'), user=os.getenv('POSTGRES_USER'), password=os.getenv('POSTGRES_PASSWORD'), dbname=os.getenv('POSTGRES_DB'))
+cur = conn.cursor()
+cur.execute("select relname, pg_total_relation_size(oid) from pg_class where relkind='r' and relnamespace='public'::regnamespace order by 2 desc")
+for r in cur.fetchall(): print(r[0], r[1])
+print('---documents---')
+cur.execute("select id, title, status, char_length(content), created_at from document order by created_at desc limit 20")
+for r in cur.fetchall(): print(r)
+print('---chunk counts per document---')
+cur.execute("select document_id, count(*) from document_chunk group by 1 order by 2 desc")
+for r in cur.fetchall(): print(r)
+print('---workflow_log recent---')
+cur.execute("select * from workflow_log order by 1 desc limit 5")
+cols=[d[0] for d in cur.description]; print(cols)
+for r in cur.fetchall(): print(r)

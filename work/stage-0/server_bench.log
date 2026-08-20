@@ -1,0 +1,554 @@
+12:51:26 - INFO - 数据库 rag_system 已存在
+12:51:26 - INFO - 成功连接到数据库: rag_system
+INFO:     Started server process [25976]
+INFO:     Waiting for application startup.
+12:51:27 - INFO - 正在初始化应用...
+12:51:27 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:43: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:53: PyMilvusDeprecationWarning: `db.using_database` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  db.using_database(self.db_name)
+12:51:28 - INFO - Zilliz Cloud 连接成功，使用数据库: rag_system
+12:51:28 - INFO - Milvus客户端初始化完成
+12:51:28 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+12:51:28 - INFO - 搜索引擎: BM25 (纯内存)
+12:51:28 - INFO - BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+12:51:28 - INFO - BM25 索引加载完成，共 1418 条 chunk
+12:51:28 - INFO - 存储实例初始化完成，存储类型: local
+12:51:30 - INFO - [Tracing] Langfuse 连接验证: 成功
+12:51:30 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+12:51:30 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+12:51:30 - INFO - [Agent预热] 后台预热异步任务已启动（预热全部 Agent）
+12:51:30 - INFO - [Agent预热] 开始后台预热所有 Agent...
+12:51:30 - INFO - [memory_manager] MemoryManager 初始化，workspace: D:\workspace\rag-for-qw\backend\agent\workspace
+12:51:30 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw\backend\agent\sessions
+12:51:30 - INFO - [AgentRegistry] 初始化完成
+12:51:30 - INFO - [AgentRegistry] 注册 Agent: simple
+12:51:30 - INFO - [AgentRegistry] 注册 Agent: advanced
+12:51:30 - INFO - [AgentRegistry] 注册 Agent: claw
+12:51:30 - INFO - [AgentRegistry] 设置默认 Agent: claw
+12:51:30 - INFO - [AgentRegistry] Agent 注册中心配置完成，默认: claw
+12:51:31 - INFO - [SimpleAgentAdapter] 初始化完成
+12:51:31 - INFO - [AgentRegistry] 获取 Agent 实例: simple
+12:51:31 - INFO - [Agent预热] simple Agent 预热完成 (1.11s)
+12:51:31 - INFO - [AdvancedRAGAgent] 设置工具
+12:51:31 - INFO - [intent_classifier] 意图分类器初始化完成
+12:51:31 - INFO - [EntityExtractor] 实体提取器初始化完成
+12:51:31 - INFO - 任务规划器初始化完成
+12:51:31 - INFO - 工具管理器初始化
+12:51:31 - INFO - [ToolManager] 注册工具 clarify
+12:51:31 - INFO - [ToolManager] 注册工具 generate_answer
+12:51:31 - INFO - [ToolManager] 注册工具 analyze
+12:51:31 - INFO - [ToolManager] 注册工具 summarize
+12:51:31 - INFO - [ToolManager] 注册工具 knowledge_retrieval
+12:51:31 - INFO - [AdvancedRAGAgent] 注册内置工具完成
+12:51:31 - INFO - [ConversationManager] 对话管理器初始化完成
+12:51:31 - INFO - [ResponseGenerator] 初始化完成，LLM: metadata={'lc_versions': {'langchain-core': '1.5.6', 'langchain': '1.3.15', 'langchain-openai': '1.5.1'}} profile={'name': 'GPT-4o', 'release_date': '2024-05-13', 'last_updated': '2024-08-06', 'open_weights': False, 'max_input_tokens': 128000, 'max_output_tokens': 16384, 'text_inputs': True, 'image_inputs': True, 'audio_inputs': False, 'pdf_inputs': True, 'video_inputs': False, 'text_outputs': True, 'image_outputs': False, 'audio_outputs': False, 'video_outputs': False, 'reasoning_output': False, 'tool_calling': True, 'structured_output': True, 'attachment': True, 'temperature': True, 'image_url_inputs': True, 'pdf_tool_message': True, 'image_tool_message': True, 'tool_choice': True, 'tool_call_streaming': True} client=<openai.resources.chat.completions.completions.Completions object at 0x000001E0C7810F50> async_client=<openai.resources.chat.completions.completions.AsyncCompletions object at 0x000001E0C7811310> root_client=<openai.OpenAI object at 0x000001E0C7810CD0> root_async_client=<openai.AsyncOpenAI object at 0x000001E0C7811090> model_name='gpt-4o' temperature=0.7 model_kwargs={} openai_api_key=SecretStr('**********') openai_api_base='http://localhost:4000' stream_chunk_timeout=120.0
+12:51:31 - INFO - [AdvancedRAGAgent] 构建工作流
+12:51:31 - INFO - [workflow] 工作流编译完成
+12:51:31 - INFO - [AdvancedRAGAgent] 初始化完成
+12:51:31 - INFO - [AdvancedAgentAdapter] 初始化完成
+12:51:31 - INFO - [AgentRegistry] 获取 Agent 实例: advanced
+12:51:31 - INFO - [Agent预热] advanced Agent 预热完成 (0.05s)
+12:51:31 - INFO - [ClawAgentAdapter] 初始化完成
+12:51:31 - INFO - [AgentRegistry] 获取 Agent 实例: claw
+12:51:31 - INFO - [Agent预热] claw Agent 预热完成 (0.01s)
+12:51:31 - INFO - Reranker 初始化完成，类型: CrossEncoderReranker
+12:51:31 - INFO - [CrossEncoderReranker] 开始加载模型: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70...
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 2016.26it/s]
+12:51:35 - INFO - [CrossEncoderReranker] 模型加载完成: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70
+12:51:35 - INFO - [Agent预热] Reranker 模型预热完成 (3.7s)
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8003 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51352 - "GET /docs HTTP/1.1" 200 OK
+12:52:20 - INFO - 开始用户登录，用户名: admin
+12:52:20 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60477 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:52:20 - INFO - 开始用户登录，用户名: admin
+12:52:21 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60478 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:52:21 - INFO - 开始用户登录，用户名: admin
+12:52:21 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60487 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:52:21 - INFO - 开始用户登录，用户名: admin
+12:52:21 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60488 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:53:13 - INFO - 开始用户登录，用户名: admin
+12:53:14 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60721 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:53:14 - INFO - 开始用户登录，用户名: admin
+12:53:14 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60723 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:53:15 - INFO - 开始用户登录，用户名: admin
+12:53:15 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60725 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:53:15 - INFO - 开始用户登录，用户名: admin
+12:53:16 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:60729 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:53:16 - INFO - 开始用户登录，用户名: admin
+12:53:17 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:61722 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:53:17 - INFO - 开始用户登录，用户名: admin
+12:53:17 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:61724 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:53:18 - INFO - 开始用户登录，用户名: admin
+12:53:18 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:61726 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:53:18 - INFO - 开始用户登录，用户名: admin
+12:53:19 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:61740 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49678 - "POST /api/search/milvus/query HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63625 - "POST /api/search/milvus/query HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58645 - "POST /api/search/hybrid/search HTTP/1.1" 404 Not Found
+12:56:15 - INFO - 开始混合检索, 查询文本: test
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:121: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  list_collections()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:109: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  return list_collections()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:156: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.summaries_collection = Collection(name=summaries_collection)
+12:56:17 - INFO - 摘要集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:186: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.subquestions_collection = Collection(name=subquestions_collection)
+12:56:18 - INFO - 子问题集合已存在，直接使用
+12:56:18 - INFO - 开始处理chunk原文向量集合: chunk_vectors
+12:56:18 - INFO - chunk原文向量集合已存在，直接获取...
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:217: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.chunks_collection = Collection(name=chunks_collection)
+12:56:18 - INFO - chunk原文向量集合已存在，直接使用
+12:56:23 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=10, query_len=4
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:94: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:94: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+12:56:25 - INFO - [MilvusClient] advanced 模式检索完成，返回 10 条结果
+12:56:25 - INFO - 混合检索成功
+INFO:     127.0.0.1:58647 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54722 - "POST /api/search HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:65363 - "GET /openapi.json HTTP/1.1" 200 OK
+12:56:37 - INFO - 开始用户登录，用户名: admin
+12:56:37 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:62570 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:56:37 - INFO - 开始用户登录，用户名: admin
+12:56:37 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:62571 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:56:37 - INFO - 开始用户登录，用户名: admin
+12:56:38 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:62572 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:56:38 - INFO - 开始用户登录，用户名: admin
+12:56:38 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:62574 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:57:01 - INFO - 开始用户登录，用户名: admin
+12:57:01 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:63054 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:57:01 - INFO - 开始用户登录，用户名: admin
+12:57:01 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:63055 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:57:01 - INFO - 开始用户登录，用户名: admin
+12:57:02 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:63056 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:57:02 - INFO - 开始用户登录，用户名: admin
+12:57:02 - WARNING - 密码错误，用户名: admin
+INFO:     127.0.0.1:63057 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+12:58:01 - INFO - 开始 Milvus 向量检索, 查询文本: Claude Code 是什么, mode=native
+12:58:02 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=15
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:94: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+12:58:03 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+12:58:19 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:50872 - "POST /api/milvus/query HTTP/1.1" 200 OK
+12:58:19 - INFO - 开始 Milvus 向量检索, 查询文本: 如何安装 Claude Code CLI, mode=native
+12:58:21 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=20
+12:58:21 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+12:58:42 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:61496 - "POST /api/milvus/query HTTP/1.1" 200 OK
+12:58:42 - INFO - 开始 Milvus 向量检索, 查询文本: CLAUDE.md 文件的作用是什么, mode=native
+12:58:43 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=18
+12:58:43 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+12:59:05 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:62112 - "POST /api/milvus/query HTTP/1.1" 200 OK
+12:59:05 - INFO - 开始 Milvus 向量检索, 查询文本: 子 agent 是怎么工作的, mode=native
+12:59:07 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=14
+12:59:07 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+12:59:27 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:61126 - "POST /api/milvus/query HTTP/1.1" 200 OK
+12:59:27 - INFO - 开始 Milvus 向量检索, 查询文本: 工具权限系统如何配置, mode=native
+12:59:28 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=10
+12:59:29 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+12:59:50 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:58859 - "POST /api/milvus/query HTTP/1.1" 200 OK
+12:59:50 - INFO - 开始 Milvus 向量检索, 查询文本: MCP 协议在 Claude Code 中如何使用, mode=native
+12:59:51 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=25
+12:59:51 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:00:13 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:49791 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:00:13 - INFO - 开始 Milvus 向量检索, 查询文本: 上下文窗口管理机制, mode=native
+13:00:15 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=9
+13:00:15 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:00:38 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:49845 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:00:38 - INFO - 开始 Milvus 向量检索, 查询文本: 如何查看对话的历史记录, mode=native
+13:01:12 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=11
+13:01:12 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:01:27 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:52851 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:01:27 - INFO - 开始 Milvus 向量检索, 查询文本: /hooks 功能可以做什么, mode=native
+13:01:29 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=14
+13:01:29 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:01:51 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:58785 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:01:51 - INFO - 开始 Milvus 向量检索, 查询文本: 斜杠命令有哪些, mode=native
+13:01:53 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=7
+13:01:53 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:02:17 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:54807 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:02:17 - INFO - 开始 Milvus 向量检索, 查询文本: 如何用 Claude Code 进行代码重构, mode=native
+13:02:18 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=22
+13:02:18 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:02:38 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:57518 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:02:38 - INFO - 开始 Milvus 向量检索, 查询文本: API 费用如何计算, mode=native
+13:02:40 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=10
+13:02:40 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:03:03 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:57022 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:03:03 - INFO - 开始 Milvus 向量检索, 查询文本: 模型上下文协议服务器配置, mode=native
+13:03:05 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=12
+13:03:05 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:03:27 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:60346 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:03:27 - INFO - 开始 Milvus 向量检索, 查询文本: 如何调试前端代码, mode=native
+13:03:29 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=8
+13:03:29 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:03:53 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:64179 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:03:53 - INFO - 开始 Milvus 向量检索, 查询文本: git 工作流最佳实践, mode=native
+13:03:54 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=11
+13:03:55 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:04:18 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:60568 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:04:18 - INFO - 开始 Milvus 向量检索, 查询文本: 如何写系统提示词, mode=native
+13:04:19 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=8
+13:04:20 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:04:44 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:64520 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:04:44 - INFO - 开始 Milvus 向量检索, 查询文本: 内存管理和 token 优化, mode=native
+13:04:46 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=14
+13:04:46 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:05:16 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:53837 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:05:16 - INFO - 开始 Milvus 向量检索, 查询文本: 多模态图片输入支持, mode=native
+13:05:17 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=9
+13:05:18 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:05:43 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:53413 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:05:43 - INFO - 开始 Milvus 向量检索, 查询文本: 安全沙箱机制介绍, mode=native
+13:05:44 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=8
+13:05:45 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:06:11 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:64606 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:06:11 - INFO - 开始 Milvus 向量检索, 查询文本: 团队协作中如何共享配置, mode=native
+13:06:13 - INFO - [MilvusClient] 开始检索, retrieval_mode=native, limit=30, query_len=11
+13:06:14 - INFO - [MilvusClient] native 模式检索完成，返回 30 条结果
+13:06:35 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:58041 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:06:35 - INFO - 开始 Milvus 向量检索, 查询文本: Claude Code 是什么, mode=advanced
+13:06:36 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=15
+13:06:37 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:06:42 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:65342 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:06:42 - INFO - 开始 Milvus 向量检索, 查询文本: 如何安装 Claude Code CLI, mode=advanced
+13:06:43 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=20
+13:06:44 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:06:53 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:57517 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:06:54 - INFO - 开始 Milvus 向量检索, 查询文本: CLAUDE.md 文件的作用是什么, mode=advanced
+13:06:55 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=18
+13:06:55 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:07:06 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:54624 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:07:06 - INFO - 开始 Milvus 向量检索, 查询文本: 子 agent 是怎么工作的, mode=advanced
+13:07:07 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=14
+13:07:07 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:07:11 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:50352 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:07:11 - INFO - 开始 Milvus 向量检索, 查询文本: 工具权限系统如何配置, mode=advanced
+13:07:12 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=10
+13:07:12 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:07:21 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:52307 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:07:21 - INFO - 开始 Milvus 向量检索, 查询文本: MCP 协议在 Claude Code 中如何使用, mode=advanced
+13:07:23 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=25
+13:07:23 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:07:29 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:65304 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:07:29 - INFO - 开始 Milvus 向量检索, 查询文本: 上下文窗口管理机制, mode=advanced
+13:07:31 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=9
+13:07:31 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:07:44 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:62184 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:07:44 - INFO - 开始 Milvus 向量检索, 查询文本: 如何查看对话的历史记录, mode=advanced
+13:07:45 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=11
+13:07:46 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:07:55 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:64624 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:07:55 - INFO - 开始 Milvus 向量检索, 查询文本: /hooks 功能可以做什么, mode=advanced
+13:07:57 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=14
+13:07:58 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:08:04 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:60032 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:08:04 - INFO - 开始 Milvus 向量检索, 查询文本: 斜杠命令有哪些, mode=advanced
+13:08:06 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=7
+13:08:06 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:08:14 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:49379 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:08:14 - INFO - 开始 Milvus 向量检索, 查询文本: 如何用 Claude Code 进行代码重构, mode=advanced
+13:08:15 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=22
+13:08:16 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:08:25 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:53618 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:08:25 - INFO - 开始 Milvus 向量检索, 查询文本: API 费用如何计算, mode=advanced
+13:08:27 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=10
+13:08:27 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:08:38 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:56651 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:08:38 - INFO - 开始 Milvus 向量检索, 查询文本: 模型上下文协议服务器配置, mode=advanced
+13:08:39 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=12
+13:08:39 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:08:48 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:62572 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:08:48 - INFO - 开始 Milvus 向量检索, 查询文本: 如何调试前端代码, mode=advanced
+13:08:49 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=8
+13:08:50 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:09:01 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:61498 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:09:01 - INFO - 开始 Milvus 向量检索, 查询文本: git 工作流最佳实践, mode=advanced
+13:09:02 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=11
+13:09:03 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:09:11 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:55330 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:09:11 - INFO - 开始 Milvus 向量检索, 查询文本: 如何写系统提示词, mode=advanced
+13:09:12 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=8
+13:09:13 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:09:20 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:58046 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:09:20 - INFO - 开始 Milvus 向量检索, 查询文本: 内存管理和 token 优化, mode=advanced
+13:09:21 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=14
+13:09:22 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:09:32 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:51205 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:09:32 - INFO - 开始 Milvus 向量检索, 查询文本: 多模态图片输入支持, mode=advanced
+13:09:33 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=9
+13:09:34 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:09:42 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:54137 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:09:42 - INFO - 开始 Milvus 向量检索, 查询文本: 安全沙箱机制介绍, mode=advanced
+13:09:44 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=8
+13:09:44 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:09:50 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:62837 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:09:50 - INFO - 开始 Milvus 向量检索, 查询文本: 团队协作中如何共享配置, mode=advanced
+13:09:51 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=30, query_len=11
+13:09:52 - INFO - [MilvusClient] advanced 模式检索完成，返回 30 条结果
+13:09:59 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:59175 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:09:59 - INFO - 开始 Milvus 向量检索, 查询文本: Claude Code 是什么, mode=hybrid
+13:10:01 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=15
+13:10:02 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:10:18 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:56322 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:10:18 - INFO - 开始 Milvus 向量检索, 查询文本: 如何安装 Claude Code CLI, mode=hybrid
+13:10:20 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=20
+13:10:21 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:10:39 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:51605 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:10:39 - INFO - 开始 Milvus 向量检索, 查询文本: CLAUDE.md 文件的作用是什么, mode=hybrid
+13:10:41 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=18
+13:10:42 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:10:58 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:61543 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:10:58 - INFO - 开始 Milvus 向量检索, 查询文本: 子 agent 是怎么工作的, mode=hybrid
+13:10:59 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=14
+13:11:01 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:11:21 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:56069 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:11:21 - INFO - 开始 Milvus 向量检索, 查询文本: 工具权限系统如何配置, mode=hybrid
+13:11:22 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=10
+13:11:23 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:11:43 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:54633 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:11:43 - INFO - 开始 Milvus 向量检索, 查询文本: MCP 协议在 Claude Code 中如何使用, mode=hybrid
+13:11:45 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=25
+13:11:46 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:12:03 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:52233 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:12:03 - INFO - 开始 Milvus 向量检索, 查询文本: 上下文窗口管理机制, mode=hybrid
+13:12:04 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=9
+13:12:05 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:12:20 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:63367 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:12:20 - INFO - 开始 Milvus 向量检索, 查询文本: 如何查看对话的历史记录, mode=hybrid
+13:12:21 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=11
+13:12:22 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:12:43 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:62495 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:12:43 - INFO - 开始 Milvus 向量检索, 查询文本: /hooks 功能可以做什么, mode=hybrid
+13:12:44 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=14
+13:12:45 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:13:07 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:55502 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:13:07 - INFO - 开始 Milvus 向量检索, 查询文本: 斜杠命令有哪些, mode=hybrid
+13:13:08 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=7
+13:13:09 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:13:34 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:54203 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:13:34 - INFO - 开始 Milvus 向量检索, 查询文本: 如何用 Claude Code 进行代码重构, mode=hybrid
+13:13:35 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=22
+13:13:36 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:13:53 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:49946 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:13:53 - INFO - 开始 Milvus 向量检索, 查询文本: API 费用如何计算, mode=hybrid
+13:13:54 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=10
+13:13:55 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:14:17 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:58873 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:14:17 - INFO - 开始 Milvus 向量检索, 查询文本: 模型上下文协议服务器配置, mode=hybrid
+13:14:18 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=12
+13:14:19 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:14:42 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:65066 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:14:42 - INFO - 开始 Milvus 向量检索, 查询文本: 如何调试前端代码, mode=hybrid
+13:14:44 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=8
+13:14:45 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:15:11 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:55524 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:15:11 - INFO - 开始 Milvus 向量检索, 查询文本: git 工作流最佳实践, mode=hybrid
+13:15:12 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=11
+13:15:13 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:15:33 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:60988 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:15:33 - INFO - 开始 Milvus 向量检索, 查询文本: 如何写系统提示词, mode=hybrid
+13:15:34 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=8
+13:15:35 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:15:58 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:64287 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:15:58 - INFO - 开始 Milvus 向量检索, 查询文本: 内存管理和 token 优化, mode=hybrid
+13:15:59 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=14
+13:16:00 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:16:19 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:54769 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:16:19 - INFO - 开始 Milvus 向量检索, 查询文本: 多模态图片输入支持, mode=hybrid
+13:16:20 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=9
+13:16:21 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:16:42 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:60642 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:16:43 - INFO - 开始 Milvus 向量检索, 查询文本: 安全沙箱机制介绍, mode=hybrid
+13:16:44 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=8
+13:16:45 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:17:07 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:59537 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:17:07 - INFO - 开始 Milvus 向量检索, 查询文本: 团队协作中如何共享配置, mode=hybrid
+13:17:08 - INFO - [MilvusClient] 开始检索, retrieval_mode=hybrid, limit=30, query_len=11
+13:17:10 - INFO - [MilvusClient] hybrid 模式检索完成，返回 30 条结果
+13:17:28 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:52951 - "POST /api/milvus/query HTTP/1.1" 200 OK
+13:17:28 - INFO - 开始混合检索, 查询文本: Claude Code 是什么
+13:17:29 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=15
+13:17:30 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:30 - INFO - 混合检索成功
+INFO:     127.0.0.1:49808 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:30 - INFO - 开始混合检索, 查询文本: 如何安装 Claude Code CLI
+13:17:31 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=20
+13:17:32 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:32 - INFO - 混合检索成功
+INFO:     127.0.0.1:55565 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:32 - INFO - 开始混合检索, 查询文本: CLAUDE.md 文件的作用是什么
+13:17:33 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=18
+13:17:33 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:33 - INFO - 混合检索成功
+INFO:     127.0.0.1:56482 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:34 - INFO - 开始混合检索, 查询文本: 子 agent 是怎么工作的
+13:17:34 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=14
+13:17:35 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:35 - INFO - 混合检索成功
+INFO:     127.0.0.1:56485 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:35 - INFO - 开始混合检索, 查询文本: 工具权限系统如何配置
+13:17:36 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=10
+13:17:36 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:36 - INFO - 混合检索成功
+INFO:     127.0.0.1:56490 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:36 - INFO - 开始混合检索, 查询文本: MCP 协议在 Claude Code 中如何使用
+13:17:37 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=25
+13:17:38 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:38 - INFO - 混合检索成功
+INFO:     127.0.0.1:56493 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:38 - INFO - 开始混合检索, 查询文本: 上下文窗口管理机制
+13:17:39 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=9
+13:17:40 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:40 - INFO - 混合检索成功
+INFO:     127.0.0.1:51278 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:40 - INFO - 开始混合检索, 查询文本: 如何查看对话的历史记录
+13:17:41 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=11
+13:17:41 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:41 - INFO - 混合检索成功
+INFO:     127.0.0.1:51283 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:41 - INFO - 开始混合检索, 查询文本: /hooks 功能可以做什么
+13:17:42 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=14
+13:17:43 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:43 - INFO - 混合检索成功
+INFO:     127.0.0.1:51351 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:43 - INFO - 开始混合检索, 查询文本: 斜杠命令有哪些
+13:17:44 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=7
+13:17:44 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:44 - INFO - 混合检索成功
+INFO:     127.0.0.1:65121 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:44 - INFO - 开始混合检索, 查询文本: 如何用 Claude Code 进行代码重构
+13:17:45 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=22
+13:17:46 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:46 - INFO - 混合检索成功
+INFO:     127.0.0.1:65127 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:46 - INFO - 开始混合检索, 查询文本: API 费用如何计算
+13:17:47 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=10
+13:17:47 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:47 - INFO - 混合检索成功
+INFO:     127.0.0.1:65160 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:47 - INFO - 开始混合检索, 查询文本: 模型上下文协议服务器配置
+13:17:49 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=12
+13:17:49 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:49 - INFO - 混合检索成功
+INFO:     127.0.0.1:65163 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:49 - INFO - 开始混合检索, 查询文本: 如何调试前端代码
+13:17:50 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=8
+13:17:51 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:51 - INFO - 混合检索成功
+INFO:     127.0.0.1:65166 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:51 - INFO - 开始混合检索, 查询文本: git 工作流最佳实践
+13:17:52 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=11
+13:17:52 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:52 - INFO - 混合检索成功
+INFO:     127.0.0.1:49671 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:52 - INFO - 开始混合检索, 查询文本: 如何写系统提示词
+13:17:53 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=8
+13:17:54 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:54 - INFO - 混合检索成功
+INFO:     127.0.0.1:49674 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:54 - INFO - 开始混合检索, 查询文本: 内存管理和 token 优化
+13:17:55 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=14
+13:17:55 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:55 - INFO - 混合检索成功
+INFO:     127.0.0.1:49677 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:55 - INFO - 开始混合检索, 查询文本: 多模态图片输入支持
+13:17:56 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=9
+13:17:57 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:57 - INFO - 混合检索成功
+INFO:     127.0.0.1:62819 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:57 - INFO - 开始混合检索, 查询文本: 安全沙箱机制介绍
+13:17:58 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=8
+13:17:58 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:17:58 - INFO - 混合检索成功
+INFO:     127.0.0.1:62822 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+13:17:58 - INFO - 开始混合检索, 查询文本: 团队协作中如何共享配置
+13:17:59 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=20, query_len=11
+13:18:00 - INFO - [MilvusClient] advanced 模式检索完成，返回 20 条结果
+13:18:00 - INFO - 混合检索成功
+INFO:     127.0.0.1:62825 - "POST /api/hybrid/search HTTP/1.1" 200 OK
