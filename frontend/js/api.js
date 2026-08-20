@@ -1,7 +1,11 @@
 /**
  * API 服务层 - 封装所有后端接口调用
  */
-const API_BASE = 'http://localhost:8003';
+// API 基地址：支持 window.API_BASE 覆盖；否则默认同主机的 8003 端口
+// （前端静态服务通常在 8000，后端固定 8003；非 localhost 部署时同样推导到同主机 8003）
+const API_BASE = (typeof window !== 'undefined' && window.API_BASE)
+  ? window.API_BASE
+  : window.location.origin.replace(/:\d+$/, ':8003');
 
 // Token 管理
 const TokenManager = {
@@ -126,7 +130,10 @@ const DocumentAPI = {
     const form = new FormData();
     form.append('file', file);
     if (kb_id) form.append('kb_id', kb_id);
-    return request('/api/upload/pdf', { method: 'POST', body: form });
+    // 按扩展名路由：Markdown 直传（跳过 MinerU 解析），其余走 PDF 解析链路
+    const isMarkdown = /\.(md|markdown)$/i.test(file.name || '');
+    const endpoint = isMarkdown ? '/api/upload/markdown' : '/api/upload/pdf';
+    return request(endpoint, { method: 'POST', body: form });
   },
 
   async getMarkdown(file_id) {
@@ -346,7 +353,8 @@ const SearchAPI = {
    */
   _buildBody(opts) {
     const { query, limit = 5, knowledge_base_id = null, use_rerank = true, metadata_filter = null, retrieval_mode = null } = opts;
-    const body = { query, limit };
+    const body = { query };
+    if (limit) body.limit = limit;  // 不传则后端使用运行时配置 RETRIEVAL_TOP_K
     if (knowledge_base_id) body.knowledge_base_id = knowledge_base_id;
     if (use_rerank !== undefined) body.use_rerank = use_rerank;
     if (metadata_filter) body.metadata_filter = metadata_filter;
@@ -375,6 +383,20 @@ const SearchAPI = {
     return request('/api/hybrid/search', {
       method: 'POST',
       body: this._buildBody(opts),
+    });
+  },
+};
+
+// ===== 设置 API =====
+const SettingsAPI = {
+  async get() {
+    return request('/api/settings');
+  },
+
+  async update(configs) {
+    return request('/api/settings', {
+      method: 'PUT',
+      body: JSON.stringify({ configs }),
     });
   },
 };

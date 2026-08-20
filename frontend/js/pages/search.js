@@ -94,6 +94,7 @@ const SearchPage = {
                   <span>Rerank 精排</span>
                 </label>
                 <select id="search-limit" style="width:auto; min-width:60px;">
+                  <option value="0" selected>默认 Top-K</option>
                   <option value="5">Top 5</option>
                   <option value="10">Top 10</option>
                   <option value="20">Top 20</option>
@@ -143,7 +144,7 @@ const SearchPage = {
           </div>
 
           <!-- 搜索统计 -->
-          <div class="card" style="margin-top:16px;" id="search-stats-card" style="display:none;">
+          <div class="card" id="search-stats-card" style="margin-top:16px; display:none;">
             <div class="card-header"><div class="card-title">📊 本次检索</div></div>
             <div class="card-body" id="search-stats-body"></div>
           </div>
@@ -280,7 +281,7 @@ const SearchPage = {
       kbSelector.innerHTML = `
         <div style="padding:16px; text-align:center; color:var(--red);">
           加载失败: ${this._escapeHtml(error.message)}
-          <br><button class="btn btn-sm btn-secondary" style="margin-top:8px;" onclick="SearchPage.loadKnowledgeBables()">重试</button>
+          <br><button class="btn btn-sm btn-secondary" style="margin-top:8px;" onclick="SearchPage.loadKnowledgeBases()">重试</button>
         </div>`;
     }
   },
@@ -314,7 +315,7 @@ const SearchPage = {
     }
 
     const mode = document.querySelector('.mode-btn.active')?.dataset.mode || 'hybrid';
-    const limit = parseInt(document.getElementById('search-limit').value) || 5;
+    const limit = parseInt(document.getElementById('search-limit').value) || null;
     const useRerank = document.getElementById('toggle-rerank').checked;
     const retrievalMode = document.getElementById('vector-strategy').value;
 
@@ -618,8 +619,8 @@ const SearchPage = {
       return;
     }
 
-    list.innerHTML = this.searchHistory.slice(0, 5).map(item => `
-      <div class="history-item" onclick="SearchPage.replayHistory('${this._escapeHtml(item.query).replace(/'/g, "\'")}', '${item.mode}')">
+    list.innerHTML = this.searchHistory.slice(0, 5).map((item, idx) => `
+      <div class="history-item" data-history-idx="${idx}">
         <span class="history-q">${this._escapeHtml(this._truncate(item.query, 50))}</span>
         <span class="history-meta">
           <span class="badge badge-sm mode-badge-${item.mode}">${this._getModeShort(item.mode)}</span>
@@ -628,6 +629,13 @@ const SearchPage = {
         </span>
       </div>
     `).join('');
+    // 事件绑定替代内联 onclick（修复含引号查询的转义问题）
+    list.querySelectorAll('.history-item[data-history-idx]').forEach(el => {
+      el.addEventListener('click', () => {
+        const item = this.searchHistory[parseInt(el.dataset.historyIdx, 10)];
+        if (item) this.replayHistory(item.query, item.mode);
+      });
+    });
   },
 
   replayHistory(query, mode) {

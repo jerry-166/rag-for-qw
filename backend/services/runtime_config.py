@@ -209,6 +209,18 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
         "label": "就绪等待超时（秒）",
         "description": "请求路径等待未就绪组件的最长秒数，超时返回 503",
     },
+    "BM25_CACHE_BUCKETS": {
+        "group": "system",
+        "type": "int", "min": 1, "max": 10000,
+        "label": "BM25 缓存桶数上限",
+        "description": "内存中 BM25Okapi 模型的 LRU 桶数上限（立即生效）",
+    },
+    "BM25_CACHE_MAX_CHUNKS": {
+        "group": "system",
+        "type": "int", "min": 100, "max": 10000000,
+        "label": "BM25 缓存 chunk 总量上限",
+        "description": "所有桶缓存的 chunk 总量上限，超限 LRU 逐出（立即生效）",
+    },
     "SEARCH_BACKEND": {
         "group": "system",
         "type": "enum", "enum": ["bm25", "elasticsearch"],

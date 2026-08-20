@@ -16,7 +16,7 @@ import math
 import re
 import logging
 from typing import List, Dict, Optional, Any
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from config import settings, init_logger, get_runtime
 
@@ -108,7 +108,12 @@ class BM25Client:
 
         # 缓存的 BM25 模型：bucket_key -> (tokenized_corpus, bm25_model, doc_id_list)
         # doc_id_list 保证返回顺序与 corpus 对应
-        self._models: Dict[str, tuple] = {}
+        # 01 §7.1：LRU 化（双上限：桶数 / 总 chunk 数）
+        self._models: "OrderedDict[str, tuple]" = OrderedDict()
+        # 各桶缓存的 chunk 数（用于总 chunk 上限统计）
+        self._model_sizes: Dict[str, int] = {}
+        # 超过单桶上限的桶不缓存（每次现算），记 warn
+        self._oversized: set = set()
 
         # 是否已初始化（标记是否从 PG 加载过数据）
         self._initialized = False
@@ -356,6 +361,8 @@ class BM25Client:
             self._initialized = True
             # 清空所有模型缓存（下次搜索时按需构建）
             self._models.clear()
+            self._model_sizes.clear()
+            self._oversized.clear()
 
             logger.info(f"BM25 索引从 PG 加载完成，共 {count} 条 chunk，{len(self._corpus)} 个分桶")
             return count
@@ -376,6 +383,60 @@ class BM25Client:
     def _invalidate_model(self, bucket_key: str):
         """使某个桶的 BM25 模型缓存失效"""
         self._models.pop(bucket_key, None)
+        self._model_sizes.pop(bucket_key, None)
+        self._oversized.discard(bucket_key)
+
+    # ------------------------------------------------------------------
+    # 01 §7.1：LRU 容量管理
+    # ------------------------------------------------------------------
+    def _evict_to_limits(self, incoming_key: str, incoming_size: int):
+        """插入新桶后执行 LRU 逐出，直到满足双上限。
+
+        - 桶数上限：BM25_CACHE_BUCKETS
+        - 总 chunk 上限：BM25_CACHE_MAX_CHUNKS
+        逐出顺序 = 最久未使用（OrderedDict 头部）；incoming 桶不参与本次逐出。
+        """
+        from services.audit import audit
+
+        max_buckets = int(get_runtime("BM25_CACHE_BUCKETS", 16))
+        max_chunks = int(get_runtime("BM25_CACHE_MAX_CHUNKS", 100000))
+
+        total_chunks = incoming_size + sum(
+            s for k, s in self._model_sizes.items() if k != incoming_key
+        )
+
+        evicted = []
+        while len(self._models) > max_buckets or (
+            max_chunks > 0 and total_chunks > max_chunks and len(self._models) > 1
+        ):
+            victim = next(iter(self._models))
+            if victim == incoming_key:  # 只剩新桶，不再逐出
+                break
+            v_size = self._model_sizes.pop(victim, 0)
+            self._models.pop(victim, None)
+            total_chunks -= v_size
+            evicted.append((victim, v_size))
+
+        if evicted:
+            for victim, v_size in evicted:
+                logger.info(
+                    f"BM25 LRU 逐出: bucket={victim}, chunks={v_size}"
+                )
+            audit.log(
+                "bm25.cache.lru_evict",
+                resource_type="bm25_bucket",
+                detail={
+                    "evicted": [{"bucket": k, "chunks": s} for k, s in evicted],
+                    "remaining_buckets": len(self._models),
+                    "total_cached_chunks": total_chunks,
+                    "max_buckets": max_buckets,
+                    "max_chunks": max_chunks,
+                },
+            )
+
+    def _model_memory_hint(self, bucket_key: str, tokenized_docs) -> int:
+        """粗略估算单桶 token 总数（内存观测用，常数开销不精确估算）。"""
+        return sum(len(tokens) for tokens in tokenized_docs)
 
     def _get_tokenized_batch(self, corpus: Dict[int, dict]) -> Dict[int, list]:
         """01-C：批量获取分词结果（优先 PG 缓存，未命中的批量 jieba 按需分词并回写）。
@@ -430,15 +491,50 @@ class BM25Client:
         Returns:
             (bm25_instance, doc_id_list) 或 (None, []) 当无数据时
         """
-        # 检查缓存是否有效
+        # 检查缓存是否有效（LRU 命中刷新位置）
         cached = self._models.get(bucket_key)
         if cached is not None:
+            self._models.move_to_end(bucket_key)
             return cached
 
         if not corpus:
             self._models[bucket_key] = (None, [])
+            self._model_sizes[bucket_key] = 0
             return None, []
 
+        max_buckets = int(get_runtime("BM25_CACHE_BUCKETS", 16))
+        max_chunks = int(get_runtime("BM25_CACHE_MAX_CHUNKS", 100000))
+
+        # 兜底：单桶本身超总上限 → 不缓存，每次现算
+        if bucket_key in self._oversized or (
+            max_chunks > 0 and len(corpus) > max_chunks
+        ):
+            if bucket_key not in self._oversized:
+                self._oversized.add(bucket_key)
+                logger.warning(
+                    f"BM25 桶 {bucket_key} chunk 数 {len(corpus)} 超过单桶缓存上限 "
+                    f"{max_chunks}，不缓存模型（每次现算；建议拆分知识库）"
+                )
+                from services.audit import audit
+                audit.log(
+                    "bm25.cache.oversized_bucket",
+                    resource_type="bm25_bucket",
+                    detail={"bucket": bucket_key, "chunks": len(corpus),
+                            "max_chunks": max_chunks},
+                )
+            return self._build_model(bucket_key, corpus)
+
+        if max_buckets <= 0:  # 上限为 0 → 禁用缓存
+            return self._build_model(bucket_key, corpus)
+
+        result = self._build_model(bucket_key, corpus)
+        self._models[bucket_key] = result
+        self._model_sizes[bucket_key] = len(corpus)
+        self._evict_to_limits(bucket_key, len(corpus))
+        return result
+
+    def _build_model(self, bucket_key: str, corpus: Dict[int, dict]):
+        """构建（不缓存）指定桶的 BM25 模型。"""
         BM25Okapi = _get_bm25()
 
         # 按 id 排序保证稳定顺序（虽然 BM25 本身对顺序不敏感，
@@ -450,9 +546,12 @@ class BM25Client:
 
         bm25 = BM25Okapi(tokenized_docs)
         result = (bm25, sorted_ids)
-        self._models[bucket_key] = result
 
-        logger.debug(f"BM25 模型构建完成: bucket={bucket_key}, 文档数={len(sorted_ids)}")
+        token_total = self._model_memory_hint(bucket_key, tokenized_docs)
+        logger.info(
+            f"BM25 模型构建完成: bucket={bucket_key}, 文档数={len(sorted_ids)}, "
+            f"token总数={token_total}"
+        )
         return result
 
 

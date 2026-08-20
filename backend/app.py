@@ -50,6 +50,14 @@ async def _preheat_search(app_ref):
         if backend_type == 'bm25':
             count = await loop.run_in_executor(None, client.load_from_database)
             logger.info(f"BM25 索引加载完成，共 {count} 条 chunk")
+            # 01 §7.1：内存观测汇总（分桶 chunk 分布）
+            try:
+                for key, docs in client._corpus.items():
+                    logger.info(
+                        f"BM25 分桶: bucket={key}, chunks={len(docs)}"
+                    )
+            except Exception:
+                pass
         else:
             logger.info(f"搜索引擎已就绪: {backend_type}")
         app_ref.state['search_client'] = client

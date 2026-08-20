@@ -23,10 +23,10 @@ const DocumentsPage = {
       
       <!-- 上传区域 -->
       <div class="upload-zone" id="upload-zone">
-        <input type="file" id="file-input" accept=".pdf" multiple style="display: none;" />
+        <input type="file" id="file-input" accept=".pdf,.md,.markdown" multiple style="display: none;" />
         <div class="upload-icon">📁</div>
         <div class="upload-title">点击或拖拽文件到此处上传</div>
-        <div class="upload-sub">支持 PDF 格式文件</div>
+        <div class="upload-sub">支持 PDF / Markdown 格式文件</div>
         <div class="upload-limit">单个文件不超过 50MB</div>
         <div class="upload-file-list" id="file-list">
           <!-- 上传文件列表 -->
@@ -128,16 +128,24 @@ const DocumentsPage = {
     
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (file.type === 'application/pdf') {
+      const isPdf = file.type === 'application/pdf';
+      const isMarkdown = /\.(md|markdown)$/i.test(file.name || '');
+      if (isPdf || isMarkdown) {
         this.selectedFiles.push(file);
         const fileItem = document.createElement('div');
         fileItem.className = 'upload-file-item';
         fileItem.innerHTML = `
           <span class="upload-file-icon">📄</span>
-          <span class="upload-file-name">${file.name}</span>
+          <span class="upload-file-name">${this._escapeHtml(file.name)}</span>
           <span class="upload-file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-          <button class="upload-file-remove" onclick="this.closest('.upload-file-item').remove(); DocumentsPage.selectedFiles = DocumentsPage.selectedFiles.filter(f => f.name !== '${file.name}');">×</button>
+          <button class="upload-file-remove" type="button">×</button>
         `;
+        // 按对象引用移除（修复同名文件误删 + 文件名注入内联 onclick 的隐患）
+        const removeBtn = fileItem.querySelector('.upload-file-remove');
+        removeBtn.addEventListener('click', () => {
+          this.selectedFiles = this.selectedFiles.filter(f => f !== file);
+          fileItem.remove();
+        });
         fileList.appendChild(fileItem);
       }
     }
@@ -173,15 +181,7 @@ const DocumentsPage = {
     try {
       const response = await window.DocumentAPI.list(this.currentKbId);
       const documents = response.documents || [];
-      
-      // 调试信息：查看返回的文档列表
-      console.log('文档列表响应:', response);
-      console.log('文档列表:', documents);
-      documents.forEach((doc, index) => {
-        console.log(`文档${index}:`, doc);
-        console.log(`文档${index}的file_id:`, doc.file_id);
-      });
-      
+
       if (documents.length === 0) {
         tableBody.innerHTML = `
           <tr>
@@ -229,6 +229,16 @@ const DocumentsPage = {
         </tr>
       `;
     }
+  },
+
+  _escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   },
 
   getStatusText(status) {

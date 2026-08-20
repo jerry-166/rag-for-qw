@@ -10,7 +10,6 @@
  * - 多 Agent 对比模式（平行卡片）
  */
 
-console.log('[AgentPage] agent.js 开始加载');
 window.AgentPage = window.AgentPage || {
 
   // ── 状态 ────────────────────────────────────────────────────
@@ -61,7 +60,6 @@ window.AgentPage = window.AgentPage || {
         this._loadHistorySessions(),
       ]);
 
-      console.log('[AgentPage] 开始渲染布局');
       this._renderLayout();
       this._bindEvents();
       this._renderMessages();
@@ -146,7 +144,6 @@ window.AgentPage = window.AgentPage || {
       // 按更新时间排序（最新的在前）
       this.sessions.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
 
-      console.log(`[AgentPage] 加载了 ${historySessions.length} 个历史会话，总计 ${this.sessions.length} 个`);
     } catch (e) {
       // 静默失败，不影响核心功能
       console.warn('[AgentPage] 加载历史会话失败:', e);
@@ -647,7 +644,6 @@ window.AgentPage = window.AgentPage || {
           };
         });
       }
-      console.log(`[AgentPage] 来源面板已渲染: 精排${sources.length}条`);
     }
 
     this._scrollToBottom();
@@ -1048,7 +1044,6 @@ window.AgentPage = window.AgentPage || {
               if (data.trace_id) {
                 session.messages[msgIdx].trace_id = data.trace_id;
               }
-              console.log('[Agent SSE] 已连接:', data);
               break;
 
             case 'chunk':
@@ -1078,7 +1073,6 @@ window.AgentPage = window.AgentPage || {
               // 防止 retrieved/reranked 事件丢失或时序问题时用户看不到来源
               const srcCount = (session.messages[msgIdx].sources?.length || 0)
                             + (session.messages[msgIdx].rawSources?.length || 0);
-              console.log(`[Agent SSE] done事件, sources=${session.messages[msgIdx].sources?.length||0}, rawSources=${session.messages[msgIdx].rawSources?.length||0}`);
               if (srcCount > 0) {
                 this._renderSourcePanelOnly(msgIdx);
               }
@@ -1105,7 +1099,6 @@ window.AgentPage = window.AgentPage || {
                   type: r.type || '',
                   metadata: r.metadata || {},
                 }));
-                console.log('[Agent SSE] 收到 retrieved 事件:', session.messages[msgIdx].rawSources.length, '条候选');
                 // 立即更新来源面板（不等流结束）
                 this._renderSourcePanelOnly(msgIdx);
               }
@@ -1124,7 +1117,6 @@ window.AgentPage = window.AgentPage || {
                   type: r.type || '',
                   metadata: r.metadata || {},
                 }));
-                console.log('[Agent SSE] 收到 reranked 事件:', session.messages[msgIdx].sources.length, '条精排结果');
                 // 立即更新来源面板
                 this._renderSourcePanelOnly(msgIdx);
               }
@@ -1148,7 +1140,6 @@ window.AgentPage = window.AgentPage || {
                 if (srcCount !== undefined) {
                   session.messages[msgIdx].sources_count = srcCount;
                 }
-                console.log('[Agent SSE] 收到 sources_final 事件（兜底）:', session.messages[msgIdx].sources.length, '条来源');
                 this._renderSourcePanelOnly(msgIdx);
               }
               break;
@@ -1286,7 +1277,6 @@ window.AgentPage = window.AgentPage || {
         messageIndex: msgIdx,
         sessionId: this.activeSessionId,  // fallback
       });
-      console.log(`[AgentPage] 反馈已提交: traceId=${traceId} sessionId=${this.activeSessionId} value=${value} comment=${comment} idx=${msgIdx}`);
     } catch (err) {
       console.warn('[AgentPage] 反馈提交失败（不影响使用）:', err.message);
     }

@@ -845,7 +845,6 @@ const PipelinePage = {
       return; // 已有数据，无需重复加载
     }
     try {
-      console.log('检测到chunks为空，静默加载切割数据...');
       const response = await window.DocumentAPI.split(this.currentDocId);
       if (response.chunks && Array.isArray(response.chunks)) {
         this.chunks = response.chunks.map(chunk => {
@@ -857,7 +856,6 @@ const PipelinePage = {
         if (response.chunks_count) {
           this.stats.chunksCount = response.chunks_count;
         }
-        console.log(`静默加载完成，共 ${this.chunks.length} 个Chunk`);
         // 更新UI中的chunk计数显示
         const countBadge = document.querySelector('.chunk-count-badge');
         if (countBadge) countBadge.textContent = this.chunks.length;
@@ -1075,7 +1073,6 @@ const PipelinePage = {
       
       // 幂等优化：如果文档已完成，直接用已有数据展示，不重复调用 import 接口
       if (this.documentData?.status === 'completed') {
-        console.log('文档已入库完成，跳过重复导入请求');
         this.importResults = {
           chunk_count: this.chunks.length || 0,
           vector_count: this.stats.vectorCount || this.chunks.length || 0,

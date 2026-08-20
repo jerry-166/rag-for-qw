@@ -466,3 +466,55 @@ hybrid status= success results= 0 latency= 4.61 s
    结论：hybrid 0 结果为【预存在缺陷，非本圈回归】——离线复现（见 circle4-notes）定位：Milvus advanced 模式返回 auto_id（135/179/…），与 PG document_chunk 真实 id（5940+）不一致，RRF 融合后 _enrich_results 按 id 查 PG 全部落空。Stage 0 基线 retrieval_results.json 中 hybrid_endpoint 20/20 全为 0 条，圈 3 verify.log 亦多次 results:[]，证实整改前即如此。API 行为（200 + success + 空数组）与基线一致，无回归。修复（Milvus 写入时回填真实 chunk_id 或融合层 ID 映射）留待后续 Stage。
 
 5. 测试进程已全部终止，端口 8003 释放。
+
+================================================================
+圈5 验证（2026-08-20）：01 §7.1 BM25 LRU + 05a 批次1
+================================================================
+
+[A-1] 单元级 LRU 验证
+命令: backend/.venv/Scripts/python.exe work/stage-1/bm25_lru_test.py
+输出:
+[PASS] 用例1 桶数上限 + LRU 顺序 + 命中刷新（终态 keys=['u1:3','u1:1','u1:4']，u1:2 被逐出）
+[PASS] 用例2 逐出审计事件: 1 次, detail={'evicted': [{'bucket': 'u1:2', 'chunks': 10}], 'remaining_buckets': 3, 'total_cached_chunks': 30, 'max_buckets': 3, 'max_chunks': 100000}
+[PASS] 用例3 总 chunk 上限: 当前缓存 {'a:2': 10, 'a:3': 10}（a:1 被逐出，总量 20 ≤ 25）
+[PASS] 用例4 单桶超限不缓存 + 现算可用 + warn/审计（big:1 50 chunks > 上限 5）
+[PASS] 用例5 桶上限=0 禁用缓存
+ALL PASS
+
+[A-2] 真实 PG 级验证
+命令: backend/.venv/Scripts/python.exe -X utf8 work/stage-1/bm25_lru_live.py  （BM25_CACHE_BUCKETS=2）
+输出:
+loaded 1418 chunks, buckets: [('0:1', 372), ('0:2', 1046)]
+build 0:1: 372 docs, 0.356s（含首次分词回写）
+build 9:1（第3桶）→ 日志: BM25 LRU 逐出: bucket=0:1, chunks=372
+PASS: 桶数上限逐出，剩余桶: ['0:2', '9:1']
+rebuild-after-evict 8:1 (372 chunks): 0.039s（分词缓存全命中 372/372, 12.4ms）
+audit_fallback.log 出现 bm25.cache.lru_evict 事件 2 条（audit 服务未启动降级写本地文件，符合 audit.py 设计）
+LIVE PASS
+
+[A-3] 服务级验证
+启动: BM25_CACHE_BUCKETS=2 uvicorn 127.0.0.1:8003 → GET /docs 200
+预热日志（boot_circle5.log）:
+  BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+  BM25 分桶: bucket=0:1, chunks=372
+  BM25 分桶: bucket=0:2, chunks=1046
+3 用户（lu1/lu2/lu3，含 kb 权限授予）连续 POST /api/elasticsearch/search → 全部 200
+（注：存量 chunk 归属 user_id=0，登录用户桶为空，HTTP 层未触发逐出；逐出行为由 A-2 真实数据进程内验证覆盖。此为预存在的数据归属现象，非本圈回归。）
+
+[B-1] 前端静态资源验证（python -m http.server 8000, frontend/）
+index.html -> 200; js/api.js -> 200; js/pages/search.js -> 200; js/pages/documents.js -> 200;
+js/app.js -> 200; js/pages/agent.js -> 200; js/pages/pipeline.js -> 200; js/auth.js -> 404（已删除）
+grep -r console.log frontend/js → 0 处
+node --check 6 个改动 JS → 全 OK
+
+[B-2] API_BASE 推导验证（node 断言）
+http://localhost:8000 -> http://localhost:8003 OK
+http://127.0.0.1:8000  -> http://127.0.0.1:8003 OK
+http://192.168.1.5:8000-> http://192.168.1.5:8003 OK
+无端口 origin（如 http://rag.example.com）→ 保持同源（replace 不命中，反代部署场景合理）
+默认仍指向 8003 ✔
+
+[B-3] 浏览器人工验收项（无法无头实测，如实标注）
+bug1 重试按钮 / bug2 历史回放含引号查询 / bug3 检索统计卡显示 / bug4 上传移除 → 待人工浏览器验收
+
+测后已杀进程（8003 uvicorn、8000 http.server 均 taskkill）。

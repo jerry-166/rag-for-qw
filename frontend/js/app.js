@@ -127,11 +127,21 @@ class App {
         }
         break;
       case 'agent':
-        console.log('[App] navigate(agent) 被调用, isAuthenticated:', this.isAuthenticated);
         if (this.isAuthenticated) {
           await this.renderAppLayout('AI Agent', async () => {
             if (window.AgentPage) {
               await window.AgentPage.render();
+            }
+          });
+        } else {
+          this.navigate('auth');
+        }
+        break;
+      case 'settings':
+        if (this.isAuthenticated) {
+          await this.renderAppLayout('系统设置', async () => {
+            if (window.SettingsPage) {
+              await window.SettingsPage.render();
             }
           });
         } else {
@@ -219,7 +229,6 @@ class App {
         return;
       }
       const response = await window.DocumentAPI.getStatsOverview();
-      console.log('统计数据响应:', response);
       
       // 确保 response 存在
       if (!response) {
@@ -515,6 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.DocumentAPI = DocumentAPI;
   window.SearchAPI = SearchAPI;
   window.AgentAPI = AgentAPI;
+  window.SettingsAPI = SettingsAPI;
 
   // 初始化应用
   window.App = new App();

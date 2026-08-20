@@ -129,6 +129,10 @@ class Settings(BaseSettings):
     LLM_MAX_RETRIES: int = int(os.getenv("LLM_MAX_RETRIES", "3"))  # ChatModel 重试次数
     LLM_TIMEOUT: int = int(os.getenv("LLM_TIMEOUT", "120"))  # ChatModel 超时（秒）
 
+    # BM25 内存缓存 LRU 双上限（01 §7.1）
+    BM25_CACHE_BUCKETS: int = int(os.getenv("BM25_CACHE_BUCKETS", "16"))  # BM25Okapi 模型桶数上限
+    BM25_CACHE_MAX_CHUNKS: int = int(os.getenv("BM25_CACHE_MAX_CHUNKS", "100000"))  # 所有桶缓存 chunk 总量上限
+
     # 认证配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "lrj669761379123")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
