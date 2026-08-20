@@ -3,9 +3,7 @@ import asyncio
 import re
 import json
 import time
-import uuid
 import logging
-from pathlib import Path
 from pydantic import BaseModel
 from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -13,7 +11,8 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_classic.output_parsers import OutputFixingParser
 
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
+from services.audit import audit
 
 # 初始化日志记录器
 logger = init_logger(__name__)
@@ -51,21 +50,21 @@ class SubqAndSummary(BaseModel):
 class DocumentProcessor:
     def __init__(self):
         # 配置模型
-        self.LITELLM_BASE_URL = settings.LITELLM_BASE_URL
-        self.LITELLM_API_KEY = settings.LITELLM_API_KEY
+        self.LITELLM_BASE_URL = get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL)
+        self.LITELLM_API_KEY = get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY)
         if not self.LITELLM_API_KEY:
             raise ValueError("LITELLM_API_KEY 环境变量未设置")
         
-        self.EMBEDDING_MODEL = settings.EMBEDDING_MODEL
-        self.DEFAULT_MODEL = settings.DEFAULT_MODEL
+        self.EMBEDDING_MODEL = get_runtime("EMBEDDING_MODEL", settings.EMBEDDING_MODEL)
+        self.DEFAULT_MODEL = get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL)
         
         # 初始化模型
         self.ChatModel = ChatOpenAI(
             model_name=self.DEFAULT_MODEL,
             api_key=self.LITELLM_API_KEY,
             base_url=self.LITELLM_BASE_URL,
-            max_retries=3,
-            timeout=120,
+            max_retries=get_runtime("LLM_MAX_RETRIES", settings.LLM_MAX_RETRIES),
+            timeout=get_runtime("LLM_TIMEOUT", settings.LLM_TIMEOUT),
         )
         
         self.EmbeddingModel = OpenAIEmbeddings(
@@ -107,14 +106,14 @@ class DocumentProcessor:
             current_chunk = ""
             
             # 定义阈值
-            MIN_CHUNK_SIZE = 100  # 最小chunk大小，低于此值的会被合并
-            MAX_CHUNK_SIZE = 800  # 最大chunk大小，超过此值的会被进一步切割
-            
+            MIN_CHUNK_SIZE = get_runtime("MIN_CHUNK_SIZE", settings.MIN_CHUNK_SIZE)
+            MAX_CHUNK_SIZE = get_runtime("MAX_CHUNK_SIZE", settings.MAX_CHUNK_SIZE)
+
             # 初始化递归切割器
             recursive_splitter = RecursiveCharacterTextSplitter(
                 separators=["\n\n", "\n"],
-                chunk_size=400,
-                chunk_overlap=50
+                chunk_size=get_runtime("CHUNK_SIZE", settings.CHUNK_SIZE),
+                chunk_overlap=get_runtime("CHUNK_OVERLAP", settings.CHUNK_OVERLAP)
             )
             
             for doc in split_documents:
@@ -152,8 +151,8 @@ class DocumentProcessor:
         else:
             recursive_splitter = RecursiveCharacterTextSplitter(
                 separators=["\n\n", "\n"],
-                chunk_size=400,
-                chunk_overlap=50
+                chunk_size=get_runtime("CHUNK_SIZE", settings.CHUNK_SIZE),
+                chunk_overlap=get_runtime("CHUNK_OVERLAP", settings.CHUNK_OVERLAP)
             )
             split_documents = recursive_splitter.split_text(markdown_content)
             logger.info(f"使用递归字符切分，段落数: {len(split_documents)}")
@@ -226,8 +225,8 @@ class DocumentProcessor:
     async def generate_batches_async_concurrent(
         self,
         datas,
-        batch_size=settings.BATCH_SIZE,
-        max_concurrency=settings.MAX_CONCURRENCY,
+        batch_size=None,
+        max_concurrency=None,
         document_id=None,
         knowledge_base_id=None,
     ):
@@ -242,6 +241,8 @@ class DocumentProcessor:
         全量模式（document_id 为 None）：
         - 直接对所有 datas 调用 LLM，行为同原版
         """
+        batch_size = batch_size or get_runtime("BATCH_SIZE", settings.BATCH_SIZE)
+        max_concurrency = max_concurrency or get_runtime("MAX_CONCURRENCY", settings.MAX_CONCURRENCY)
         start_time = time.time()
         docs = [d.chunk for d in datas]
         total = len(docs)
@@ -286,6 +287,12 @@ class DocumentProcessor:
             tasks = [sem_task(cb, mb, idx) for idx, (cb, mb) in enumerate(zip(miss_batches, miss_data_batches))]
             await asyncio.gather(*tasks)
             end_time = time.time()
+        audit.log("process.generate.done", resource_type="document", resource_id=document_id,
+                  kb_id=knowledge_base_id,
+                  detail={"total_chunks": total, "batch_size": batch_size,
+                          "max_concurrency": max_concurrency, "duration_ms": round((time.time() - start_time) * 1000, 1),
+                          "mode": "incremental" if document_id is not None else "full"})
+        if document_id is not None:
             logger.info(f"增量批次处理完成，总耗时: {end_time - start_time:.2f}秒")
             return
 
@@ -302,6 +309,10 @@ class DocumentProcessor:
         results_list = await asyncio.gather(*tasks)
         end_time = time.time()
         logger.info(f"全部批次处理完成，总耗时: {end_time - start_time:.2f}秒")
+        audit.log("process.generate.done", resource_type="datas", resource_id=None,
+                  detail={"total_chunks": total, "batch_size": batch_size,
+                          "max_concurrency": max_concurrency, "duration_ms": round((end_time - start_time) * 1000, 1),
+                          "mode": "full"})
 
         # 统计
         total_sub_questions = 0
@@ -391,13 +402,15 @@ class DocumentProcessor:
         end_time = time.time()
         logger.info(f"增量批次 {batch_idx} 完成并已持久化，耗时: {end_time - start_time:.2f}秒")
     
-    async def batch_embed_texts(self, texts, batch_size=settings.EMBEDDING_BATCH_SIZE, max_concurrency=settings.MAX_CONCURRENCY):
+    async def batch_embed_texts(self, texts, batch_size=None, max_concurrency=None):
         """批量生成嵌入（并行处理）"""
         if not texts:
             return []
         
+        batch_size = batch_size or get_runtime("EMBEDDING_BATCH_SIZE", settings.EMBEDDING_BATCH_SIZE)
+        max_concurrency = max_concurrency or get_runtime("MAX_CONCURRENCY", settings.MAX_CONCURRENCY)
         start_time = time.time()
-        outer_batch_size = batch_size * settings.EMBEDDING_BATCH_FACTOR
+        outer_batch_size = batch_size * get_runtime("EMBEDDING_BATCH_FACTOR", settings.EMBEDDING_BATCH_FACTOR)
         # 将文本分成批次
         batches = [texts[i:i+outer_batch_size] for i in range(0, len(texts), outer_batch_size)]
         sem = asyncio.Semaphore(max_concurrency)  # 控制并发数量
@@ -419,6 +432,10 @@ class DocumentProcessor:
         results = await asyncio.gather(*tasks)
         end_time = time.time()
         logger.info(f"嵌入生成完成，总耗时: {end_time - start_time:.2f}秒，平均每条文本耗时: {(end_time - start_time)/len(texts):.4f}秒")
+        audit.log("process.embed.done", resource_type="texts",
+                  detail={"text_count": len(texts), "batch_count": len(batches),
+                          "batch_size": batch_size, "max_concurrency": max_concurrency,
+                          "duration_ms": round((end_time - start_time) * 1000, 1)})
         
         # 合并结果
         embeddings = []
@@ -440,29 +457,49 @@ class DocumentProcessor:
         
         logger.info(f"需要生成 {len(summary_texts)} 个摘要嵌入和 {len(subq_texts)} 个子问题嵌入")
         
-        # 并行生成 embedding
-        summary_start = time.time()
-        summary_embeddings = await self.batch_embed_texts(summary_texts, batch_size=32, max_concurrency=settings.MAX_CONCURRENCY)
-        summary_end = time.time()
-        logger.info(f"摘要嵌入生成完成，耗时: {summary_end - summary_start:.2f}秒")
-        
-        subq_start = time.time()
-        subq_embeddings = await self.batch_embed_texts(subq_texts, batch_size=64, max_concurrency=settings.MAX_CONCURRENCY)
-        subq_end = time.time()
-        logger.info(f"子问题嵌入生成完成，耗时: {subq_end - subq_start:.2f}秒")
-        
-        # 填充嵌入
+        # 并行生成 embedding（摘要与子问题无依赖，gather 交错并行；共享同一 Semaphore 限流）
+        fill_start_time = time.time()
+        sem = asyncio.Semaphore(get_runtime("MAX_CONCURRENCY", settings.MAX_CONCURRENCY))
+
+        async def _embed_with_shared_sem(texts_, inner_batch_size):
+            """共享信号量版的批量嵌入：限流语义与 batch_embed_texts 一致，仅坑位可交错占用"""
+            if not texts_:
+                return []
+            outer_batch_size = inner_batch_size * get_runtime("EMBEDDING_BATCH_FACTOR", settings.EMBEDDING_BATCH_FACTOR)
+            batches_ = [texts_[i:i + outer_batch_size] for i in range(0, len(texts_), outer_batch_size)]
+
+            async def _run(batch):
+                async with sem:
+                    return await self.EmbeddingModel.aembed_documents(batch, chunk_size=inner_batch_size)
+
+            results_ = await asyncio.gather(*[_run(b) for b in batches_])
+            merged = []
+            for r in results_:
+                merged.extend(r)
+            return merged
+
+        summary_embeddings, subq_embeddings = await asyncio.gather(
+            _embed_with_shared_sem(summary_texts, 32),
+            _embed_with_shared_sem(subq_texts, 64),
+        )
+        logger.info(f"摘要/子问题嵌入并行完成，摘要: {len(summary_texts)} 条，子问题: {len(subq_texts)} 条，耗时: {time.time() - fill_start_time:.2f}秒")
+
+        # 填充嵌入（O(n)：valid_datas 与 valid_indices 按位置一一对应，直接枚举落位）
         fill_start = time.time()
         subq_offset = 0
-        for idx, d in zip(valid_indices, valid_datas):
-            datas[idx].summary_embedding = summary_embeddings[valid_datas.index(d)]
+        for pos, (idx, d) in enumerate(zip(valid_indices, valid_datas)):
+            datas[idx].summary_embedding = summary_embeddings[pos]
             datas[idx].subq_embeddings = subq_embeddings[subq_offset:subq_offset + len(d.sub_questions)]
             subq_offset += len(d.sub_questions)
         fill_end = time.time()
         logger.info(f"嵌入填充完成，耗时: {fill_end - fill_start:.2f}秒")
-        
+
         total_end = time.time()
         logger.info(f"嵌入生成和填充总耗时: {total_end - start_time:.2f}秒")
+        audit.log("process.embed.fill_done", resource_type="datas",
+                  detail={"valid_chunks": len(valid_datas), "summary_embeddings": len(summary_texts),
+                          "subq_embeddings": len(subq_texts),
+                          "duration_ms": round((total_end - start_time) * 1000, 1)})
     
     async def generate_chunk_embeddings(self, datas):
         """
@@ -476,71 +513,13 @@ class DocumentProcessor:
         chunk_texts = [d.chunk for d in datas]
         chunk_embeddings = await self.batch_embed_texts(
             chunk_texts,
-            batch_size=settings.EMBEDDING_BATCH_SIZE,
-            max_concurrency=settings.MAX_CONCURRENCY,
+            batch_size=get_runtime("EMBEDDING_BATCH_SIZE", settings.EMBEDDING_BATCH_SIZE),
+            max_concurrency=get_runtime("MAX_CONCURRENCY", settings.MAX_CONCURRENCY),
         )
         for i, d in enumerate(datas):
             d.chunk_embedding = chunk_embeddings[i]
         end_time = time.time()
         logger.info(f"chunk 原文向量生成完成，耗时: {end_time - start_time:.2f}秒")
-    
-    async def process_document_async(self, markdown_path):
-        """异步处理文档"""
-        total_start_time = time.time()
-        logger.info(f"开始处理文档: {Path(markdown_path).name}")
-        
-        # 切分文档
-        split_start = time.time()
-        split_documents = self.split_document(markdown_path)
-        split_end = time.time()
-        logger.info(f"文档切分耗时: {split_end - split_start:.2f}秒")
-        
-        # 构建数据对象
-        build_start = time.time()
-        datas = [StoredData(
-            id=f"doc_{uuid.uuid4()}",
-            chunk=chunk,
-            sub_questions=[],
-            subq_embeddings=[],
-            summary="",
-            summary_embedding=[],
-            metadata={"source": Path(markdown_path).name}
-        ) for i, chunk in enumerate(split_documents)]
-        build_end = time.time()
-        logger.info(f"构建数据对象完成，数据数量: {len(datas)}，耗时: {build_end - build_start:.2f}秒")
-        
-        # 生成子问题和摘要
-        subq_summary_start = time.time()
-        await self.generate_batches_async_concurrent(datas, batch_size=16, max_concurrency=8)
-        subq_summary_end = time.time()
-        logger.info(f"生成子问题和摘要耗时: {subq_summary_end - subq_summary_start:.2f}秒")
-        
-        # 生成嵌入
-        embed_start = time.time()
-        await self.generate_and_fill_embeddings(datas)
-        embed_end = time.time()
-        logger.info(f"生成嵌入耗时: {embed_end - embed_start:.2f}秒")
-        
-        # 提取结果
-        extract_start = time.time()
-        chunks = [d.chunk for d in datas]
-        sub_questions = [d.sub_questions for d in datas]
-        summaries = [d.summary for d in datas]
-        extract_end = time.time()
-        logger.info(f"提取结果耗时: {extract_end - extract_start:.2f}秒")
-        
-        total_end_time = time.time()
-        total_duration = total_end_time - total_start_time
-        logger.info(f"文档处理完成，总耗时: {total_duration:.2f}秒")
-        logger.info(f"平均每个文档段落处理耗时: {total_duration/len(datas):.4f}秒")
-        
-        return {
-            "chunks": chunks,
-            "sub_questions": sub_questions,
-            "summaries": summaries,
-            "datas": datas
-        }
-    
-    async def process_document(self, markdown_path):
-        """处理文档（异步方法）"""
-        return await self.process_document_async(markdown_path)
+
+    # 说明：旧的 process_document_async / process_document 串行流程已删除（文档 04 §3.5 死代码）。
+    # 现行流程为 api/processing.py 的四阶段流水线（split / generate / import / full）。

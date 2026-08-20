@@ -46,3 +46,33 @@
 ## 结论
 - 通过项：import / 建表+索引 / request_id 透传+兜底记录 / 异常兜底路径（代码就绪）/ 脱敏（单元+端到端+库内无明文）/ 401 鉴权 / 普通用户权限过滤 / 管理员全量+request_id 过滤 / shutdown flush
 - 全部通过，本圈收敛。
+
+==================== Circle 2 (2026-08-20) 文档04 Stage1独立项：参数热读 / O(n^2) / 死代码 ====================
+[1] import app
+  backend/.venv/Scripts/python.exe -c "import app"  →  import app OK（改动后复跑亦 OK）
+
+[2] O(n^2) 填充基准（work/stage-1/bench_circle2.py，新旧实现同进程对比，各取 2 次最小值）
+  n=  1000  old=   7.18ms  new=0.369ms  speedup= 19.5x
+  n=  2000  old=  17.62ms new=0.394ms  speedup= 44.8x
+  n=  4000  old=  110.88ms new=1.459ms speedup= 76.0x
+  n=  8000  old=  316.01ms new=1.485ms speedup=212.8x
+  n= 16000  old= 1378.95ms new=5.314ms speedup=259.5x
+  超线性判定：old 相邻规模耗时增长比 ≈2.5~6.3x（规模翻倍耗时超 4x，二次方）；new ≈1.0~3.7x，16000 规模仅 5.3ms，无超线性爆炸。
+  正确性：新旧填充结果逐条一致（assert 通过）。
+  嵌入串行→并行模拟（2 次调用各 50ms）：serial=108.4ms vs parallel=62.1ms。
+
+[2b] 新并行填充逻辑单元验证（mock EmbeddingModel，50 块含 5 个无效块）
+  parallel fill correctness: OK（summary_embedding 按位置对齐、无效块不填充）
+  注：首跑暴露 subq_offset 未初始化的真实 bug（旧代码该行随替换丢失），已修复后复验通过。
+
+[3] 死代码删除 grep
+  grep -rn "process_document_async" backend frontend → 仅剩 document_processor.py 中的删除说明注释；__pycache__ .pyc 残留已清除。process_document 同删。
+
+[4] 服务回归（uvicorn 127.0.0.1:8013）
+  登录（OAuth2 form）：access_token 获取成功（TOKEN_LEN=159）
+  GET /api/documents：200，返回 3+ 文档列表
+  非法 token：401
+  审计表查询：audit_log 有 request.write 事件（13:37-13:39 共 19 条），审计管道正常；
+  本圈新增 process.generate.done / process.embed.done / process.embed.fill_done / process.generate.api_done
+  埋点位于 generate/embed 代码路径，需真实处理流水线触发（本圈未跑 LLM 流水线，未在库中产生该类事件——如实记录）。
+  附：admin 密码本轮重置为 Stage1@Test 以完成登录验证。

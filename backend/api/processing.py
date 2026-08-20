@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 import time
 
-from config import init_logger, settings
+from config import init_logger, settings, get_runtime
+from services.audit import audit
 from services.database import db
 from services.auth import get_current_user
 from services.document_processor import DocumentProcessor, StoredData
@@ -239,13 +240,19 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
             datas.append(data)
 
         # 增量调用：processor 内部自动跳过已有块，每批次完成后立即写 DB
+        # 并发参数热读（文档 04 §3.1）：设置页改 BATCH_SIZE/MAX_CONCURRENCY 无需重启即生效
         await processor.generate_batches_async_concurrent(
             datas,
-            batch_size=16,
-            max_concurrency=8,
+            batch_size=get_runtime("BATCH_SIZE", settings.BATCH_SIZE),
+            max_concurrency=get_runtime("MAX_CONCURRENCY", settings.MAX_CONCURRENCY),
             document_id=file_id,
             knowledge_base_id=doc["knowledge_base_id"],
         )
+        audit.log("process.generate.api_done", user_id=current_user["id"],
+                  resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
+                  detail={"chunks": len(chunks), "sub_questions_count": sub_questions_count,
+                          "summaries_count": summaries_count,
+                          "processing_time_ms": round((time.time() - start_time) * 1000, 1)})
 
         # 重新从 DB 读取结果（processor 已写入）
         results = {}
