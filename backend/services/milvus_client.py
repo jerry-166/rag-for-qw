@@ -24,6 +24,8 @@ class MilvusClient:
         self.summaries_collection = None
         self.subquestions_collection = None
         self.chunks_collection = None  # [新增] chunk原文向量集合（Native检索）
+        self.faq_collection = None     # 06：L3 FAQ 记忆召回集合
+        self.entities_collection = None  # 06 Phase 2：L2 实体向量集合（图谱锚点匹配）
         # 01-B：连接从构造剥离，移入 app 启动后台预热（不阻塞 HTTP 服务）。
         # query() 入口已有 create_collections() 的断连重连兜底，懒连接安全。
     
@@ -226,7 +228,61 @@ class MilvusClient:
                 self.chunks_collection = Collection(name=chunks_collection)
                 logger.info("chunk原文向量集合已存在，直接使用")
             # ────────────────────────────────────────
-            
+
+            # ── 06：FAQ 记忆召回集合（L3 结论层）──
+            faq_collection = get_runtime("MILVUS_FAQ_COLLECTION", settings.MILVUS_FAQ_COLLECTION)
+            if faq_collection not in collections:
+                faq_fields = [
+                    FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
+                    FieldSchema(name="pg_faq_id", dtype=DataType.INT64),
+                    FieldSchema(name="kb_id", dtype=DataType.INT64),
+                    FieldSchema(name="question", dtype=DataType.VARCHAR, max_length=2000),
+                    FieldSchema(name="question_vector", dtype=DataType.FLOAT_VECTOR,
+                                dim=get_runtime("EMBEDDING_DIM", settings.EMBEDDING_DIM)),
+                    FieldSchema(name="created_at", dtype=DataType.INT64),
+                ]
+                faq_schema = CollectionSchema(fields=faq_fields, description="FAQ 记忆召回集合（L3 结论层）")
+                self.faq_collection = Collection(name=faq_collection, schema=faq_schema)
+                self.faq_collection.create_index(
+                    field_name="question_vector",
+                    index_params={"index_type": "IVF_FLAT",
+                                  "metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE),
+                                  "params": {"nlist": get_runtime("MILVUS_NLIST", settings.MILVUS_NLIST)}}
+                )
+                logger.info("FAQ 记忆集合创建成功")
+            else:
+                self.faq_collection = Collection(name=faq_collection)
+                logger.info("FAQ 记忆集合已存在，直接使用")
+            # ────────────────────────────────────────
+
+            # ── 06 Phase 2：实体向量集合（L2 图谱层锚点匹配）──
+            entities_collection = get_runtime("MILVUS_ENTITIES_COLLECTION", settings.MILVUS_ENTITIES_COLLECTION)
+            if entities_collection not in collections:
+                entities_fields = [
+                    FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
+                    FieldSchema(name="pg_entity_id", dtype=DataType.INT64),
+                    FieldSchema(name="kb_id", dtype=DataType.INT64),
+                    FieldSchema(name="name", dtype=DataType.VARCHAR, max_length=500),
+                    FieldSchema(name="description", dtype=DataType.VARCHAR, max_length=2000),
+                    FieldSchema(name="description_vector", dtype=DataType.FLOAT_VECTOR,
+                                dim=get_runtime("EMBEDDING_DIM", settings.EMBEDDING_DIM)),
+                    FieldSchema(name="created_at", dtype=DataType.INT64),
+                ]
+                entities_schema = CollectionSchema(fields=entities_fields,
+                                                   description="实体向量集合（GraphRAG-lite 锚点匹配）")
+                self.entities_collection = Collection(name=entities_collection, schema=entities_schema)
+                self.entities_collection.create_index(
+                    field_name="description_vector",
+                    index_params={"index_type": "IVF_FLAT",
+                                  "metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE),
+                                  "params": {"nlist": get_runtime("MILVUS_NLIST", settings.MILVUS_NLIST)}}
+                )
+                logger.info("实体向量集合创建成功")
+            else:
+                self.entities_collection = Collection(name=entities_collection)
+                logger.info("实体向量集合已存在，直接使用")
+            # ────────────────────────────────────────
+
             return True
         except Exception as e:
             logger.error(f"创建集合失败: {e}")
@@ -378,6 +434,246 @@ class MilvusClient:
             self.chunks_collection.flush()
         logger.info("数据导入完成")
         return import_result
+
+    # ==================== 06 自进化 RAG：FAQ 向量操作 ====================
+
+    def insert_faq_vector(self, pg_faq_id, kb_id, question, embedding):
+        """插入/更新 FAQ 问题向量（更新先删后插）"""
+        try:
+            if not self.faq_collection:
+                if not self.create_collections():
+                    return False
+            self.delete_faq_vector(pg_faq_id)
+            self.faq_collection.insert([
+                [int(pg_faq_id)], [int(kb_id)], [question[:2000]],
+                [embedding], [int(time.time() * 1000)],
+            ])
+            self.faq_collection.flush()
+            return True
+        except Exception as e:
+            logger.error(f"插入 FAQ 向量失败: {e}")
+            return False
+
+    def delete_faq_vector(self, pg_faq_id):
+        try:
+            if self.faq_collection:
+                self.faq_collection.delete(f"pg_faq_id == {int(pg_faq_id)}")
+            return True
+        except Exception as e:
+            logger.error(f"删除 FAQ 向量失败: {e}")
+            return False
+
+    def search_faq(self, query_embedding, kb_ids, limit=3):
+        """FAQ 召回：在指定 KB 范围内做问题向量检索。
+
+        返回 [{"pg_faq_id", "question", "score"}]，score 按 metric 语义
+        （COSINE 越大越相似）。kb_ids 为空列表时返回空（无可见范围不检索）。
+        """
+        if not kb_ids:
+            return []
+        try:
+            if not self.faq_collection:
+                if not self.create_collections():
+                    return []
+            self.faq_collection.load()
+            expr = f"kb_id in [{','.join(str(int(k)) for k in kb_ids)}]"
+            results = self.faq_collection.search(
+                data=[query_embedding],
+                anns_field="question_vector",
+                param={"metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE),
+                       "params": {"nprobe": 10}},
+                limit=limit,
+                expr=expr,
+                output_fields=["pg_faq_id", "question"],
+            )
+            hits = []
+            for hit in results[0]:
+                hits.append({
+                    "pg_faq_id": hit.entity.get("pg_faq_id"),
+                    "question": hit.entity.get("question"),
+                    "score": hit.score,
+                })
+            return hits
+        except Exception as e:
+            logger.error(f"FAQ 召回失败: {e}")
+            return []
+
+    # ==================== KB 克隆：向量搬运（fork 的 Milvus 侧） ====================
+
+    def clone_kb_vectors(self, old_kb_id, new_kb_id, doc_map, chunk_map, faq_map,
+                         batch_size=500):
+        """把源 KB 的向量数据搬运到新 KB（按映射转换 id）。
+
+        覆盖 chunks / summaries / subquestions / faq 四个集合；
+        summaries/subquestions 的 PG chunk 关联在 metadata 中，一并更新。
+        失败不致命（记录日志），PG 数据已是权威源，可重建。
+        """
+        report = {"chunks": 0, "summaries": 0, "subquestions": 0, "faq": 0}
+        try:
+            if not self.chunks_collection:
+                if not self.create_collections():
+                    return report
+
+            def _remap_meta(meta):
+                m = dict(meta or {})
+                if m.get("chunk_id") in chunk_map:
+                    m["chunk_id"] = chunk_map[m["chunk_id"]]
+                if m.get("document_id") in doc_map:
+                    m["document_id"] = doc_map[m["document_id"]]
+                m["knowledge_base_id"] = new_kb_id
+                return m
+
+            # --- chunks 集合（规整字段） ---
+            expr = f"knowledge_base_id == {int(old_kb_id)}"
+            offset = 0
+            while True:
+                rows = self.chunks_collection.query(
+                    expr=expr,
+                    output_fields=["pg_chunk_id", "document_id", "knowledge_base_id",
+                                   "chunk_index", "chunk_text", "chunk_vector", "metadata"],
+                    limit=batch_size, offset=offset)
+                if not rows:
+                    break
+                self.chunks_collection.insert([
+                    [chunk_map.get(r["pg_chunk_id"], 0) for r in rows],
+                    [doc_map.get(r["document_id"], 0) for r in rows],
+                    [int(new_kb_id)] * len(rows),
+                    [r["chunk_index"] for r in rows],
+                    [r["chunk_text"] for r in rows],
+                    [r["chunk_vector"] for r in rows],
+                    [int(time.time() * 1000)] * len(rows),
+                    [_remap_meta(r.get("metadata")) for r in rows],
+                ])
+                report["chunks"] += len(rows)
+                offset += len(rows)
+            self.chunks_collection.flush()
+
+            # --- summaries / subquestions（document_id + metadata 关联） ---
+            for coll, vec_field, report_key in (
+                (self.summaries_collection, "summary_vector", "summaries"),
+                (self.subquestions_collection, "question_vector", "subquestions"),
+            ):
+                if not coll:
+                    continue
+                output = ["document_id", "knowledge_base_id", "metadata", vec_field]
+                text_field = "summary_text" if report_key == "summaries" else "question_text"
+                output.append(text_field)
+                # P1-1：subquestions 的 chunk_id 是普通字段（PK 为 auto_id 的 subquestion_id），
+                # 必须显式查询并按 chunk_map 重映射，否则搬运后关联丢失（原实现恒写 0）
+                if report_key == "subquestions":
+                    output.append("chunk_id")
+                output.append("chunk_text")
+                offset = 0
+                while True:
+                    rows = coll.query(expr=expr, output_fields=output,
+                                      limit=batch_size, offset=offset)
+                    if not rows:
+                        break
+                    if report_key == "summaries":
+                        entities = [
+                            [r["chunk_text"] for r in rows],
+                            [r[text_field] for r in rows],
+                            [r[vec_field] for r in rows],
+                            [int(time.time() * 1000)] * len(rows),
+                            [int(new_kb_id)] * len(rows),
+                            [doc_map.get(r["document_id"], 0) for r in rows],
+                            [_remap_meta(r.get("metadata")) for r in rows],
+                        ]
+                    else:
+                        entities = [
+                            [chunk_map.get(r.get("chunk_id"), r.get("chunk_id", 0)) for r in rows],
+                            [r["chunk_text"] for r in rows],
+                            [r[text_field] for r in rows],
+                            [r[vec_field] for r in rows],
+                            [int(time.time() * 1000)] * len(rows),
+                            [int(new_kb_id)] * len(rows),
+                            [doc_map.get(r["document_id"], 0) for r in rows],
+                            [_remap_meta(r.get("metadata")) for r in rows],
+                        ]
+                    coll.insert(entities)
+                    report[report_key] += len(rows)
+                    offset += len(rows)
+                coll.flush()
+
+            # --- faq 集合 ---
+            if self.faq_collection and faq_map:
+                offset = 0
+                while True:
+                    rows = self.faq_collection.query(
+                        expr=f"kb_id == {int(old_kb_id)}",
+                        output_fields=["pg_faq_id", "question", "question_vector"],
+                        limit=batch_size, offset=offset)
+                    if not rows:
+                        break
+                    kept = [r for r in rows if r["pg_faq_id"] in faq_map]
+                    if kept:
+                        self.faq_collection.insert([
+                            [faq_map[r["pg_faq_id"]] for r in kept],
+                            [int(new_kb_id)] * len(kept),
+                            [r["question"] for r in kept],
+                            [r["question_vector"] for r in kept],
+                            [int(time.time() * 1000)] * len(kept),
+                        ])
+                    report["faq"] += len(kept)
+                    offset += len(rows)
+                self.faq_collection.flush()
+
+            logger.info(f"KB 向量搬运完成: {old_kb_id} → {new_kb_id}，{report}")
+            return report
+        except Exception as e:
+            logger.error(f"KB 向量搬运失败（PG 数据完整，可重建）: {e}")
+            return report
+
+    # ==================== 06 Phase 2：实体向量操作 ====================
+
+    def upsert_entity_vector(self, pg_entity_id, kb_id, name, description, embedding):
+        """实体向量写入（更新先删后插）"""
+        try:
+            if not self.entities_collection:
+                if not self.create_collections():
+                    return False
+            self.entities_collection.delete(f"pg_entity_id == {int(pg_entity_id)}")
+            self.entities_collection.insert([
+                [int(pg_entity_id)], [int(kb_id)], [name[:500]],
+                [(description or "")[:2000]], [embedding], [int(time.time() * 1000)],
+            ])
+            self.entities_collection.flush()
+            return True
+        except Exception as e:
+            logger.error(f"实体向量写入失败: {e}")
+            return False
+
+    def search_entities(self, query_embedding, kb_id, limit=5):
+        """实体锚点匹配：在指定 KB 内检索最相关的实体。
+
+        返回 [{"pg_entity_id", "name", "description", "score"}]。
+        """
+        try:
+            if not self.entities_collection:
+                if not self.create_collections():
+                    return []
+            self.entities_collection.load()
+            results = self.entities_collection.search(
+                data=[query_embedding],
+                anns_field="description_vector",
+                param={"metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE),
+                       "params": {"nprobe": 10}},
+                limit=limit,
+                expr=f"kb_id == {int(kb_id)}",
+                output_fields=["pg_entity_id", "name", "description"],
+            )
+            return [
+                {
+                    "pg_entity_id": hit.entity.get("pg_entity_id"),
+                    "name": hit.entity.get("name"),
+                    "description": hit.entity.get("description"),
+                    "score": hit.score,
+                }
+                for hit in results[0]
+            ]
+        except Exception as e:
+            logger.error(f"实体检索失败: {e}")
+            return []
     
     def query(self, query_text, limit=5, metadata_filter=None, retrieval_mode="advanced"):
         """
@@ -405,6 +701,7 @@ class MilvusClient:
         # 构建过滤表达式
         conditions = []
         filter_copy = dict(metadata_filter) if metadata_filter else {}
+        knowledge_base_id = None
         if "knowledge_base_id" in filter_copy:
             knowledge_base_id = filter_copy.pop("knowledge_base_id")
             conditions.append(f"knowledge_base_id == {knowledge_base_id}")
@@ -419,14 +716,39 @@ class MilvusClient:
 
         from services.retrieval_strategies import get_strategy, SearchContext
 
+        # 文档 03：按 KB 启用增强集短路——未启用的增强不查对应集合
+        # （避免空集合无效检索；未指定 KB 时保持双开默认行为）
+        summaries_collection = self.summaries_collection
+        subquestions_collection = self.subquestions_collection
+        entities_collection = self.entities_collection
+        if knowledge_base_id is not None:
+            try:
+                from services.enhancers import resolve_enabled_enhancers
+                enabled = resolve_enabled_enhancers(knowledge_base_id)
+                if "summary" not in enabled:
+                    summaries_collection = None
+                if "sub_question" not in enabled:
+                    subquestions_collection = None
+                if "entity" not in enabled:
+                    entities_collection = None
+                if summaries_collection is None or subquestions_collection is None:
+                    logger.info(f"[MilvusClient] KB {knowledge_base_id} 启用集 {sorted(enabled)}，"
+                                f"未启用的增强集合已短路")
+            except Exception as e:
+                logger.warning(f"[MilvusClient] 解析 KB {knowledge_base_id} 增强启用集失败，"
+                               f"保持默认双集合检索: {e}")
+
         ctx = SearchContext(
             query_embedding=query_embedding,
             search_params=search_params,
             limit=limit,
             expr=expr,
-            summaries_collection=self.summaries_collection,
-            subquestions_collection=self.subquestions_collection,
+            summaries_collection=summaries_collection,
+            subquestions_collection=subquestions_collection,
             chunks_collection=self.chunks_collection,
+            query=query_text,
+            kb_id=knowledge_base_id,
+            entities_collection=entities_collection,
         )
 
         logger.info(f"[MilvusClient] 开始检索, retrieval_mode={retrieval_mode}, limit={limit}, query_len={len(query_text)}")

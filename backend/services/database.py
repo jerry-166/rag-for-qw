@@ -226,6 +226,97 @@ class Database:
             except Exception as e:
                 # PG < 14 不支持 SET COMPRESSION lz4 → 退化为默认 pglz 压缩（设计 §3.2）
                 logger.warning(f"tokenized 列 LZ4 压缩设置失败（PG<14 退化为默认压缩）: {e}")
+            # 02/03：知识库级策略配置（chunk_strategy 切割策略 / enhancers 启用增强器集合，NULL = 跟随全局）
+            try:
+                self.cursor.execute('ALTER TABLE knowledge_base ADD COLUMN IF NOT EXISTS chunk_strategy VARCHAR(32)')
+                self.cursor.execute('ALTER TABLE knowledge_base ADD COLUMN IF NOT EXISTS enhancers JSONB')
+            except Exception as e:
+                logger.warning(f"knowledge_base 策略列迁移失败: {e}")
+
+            # ==================== 06 自进化 RAG（Stage 3） ====================
+            # L3 FAQ 记忆表：候选/正式双态 + 热度 + 按 KB 归属快照的蒸馏阈值
+            self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS faq (
+                    id SERIAL PRIMARY KEY,
+                    kb_id INTEGER NOT NULL REFERENCES knowledge_base(id),
+                    owner_id INTEGER NOT NULL REFERENCES users(id),
+                    submitter_id INTEGER NOT NULL REFERENCES users(id),
+                    question TEXT NOT NULL,
+                    answer TEXT NOT NULL,
+                    hit_count INTEGER DEFAULT 1,
+                    last_hit_time TIMESTAMP,
+                    heat_score REAL DEFAULT 0,
+                    source TEXT,
+                    status VARCHAR(16) DEFAULT 'candidate',
+                    distill_threshold INTEGER DEFAULT 2,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_faq_kb ON faq (kb_id, status)')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_faq_owner ON faq (owner_id, status)')
+
+            # KB 分享关系（GitHub 式协作的可见性基础）
+            self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS kb_share (
+                    id SERIAL PRIMARY KEY,
+                    kb_id INTEGER NOT NULL REFERENCES knowledge_base(id),
+                    shared_to_user_id INTEGER NOT NULL REFERENCES users(id),
+                    shared_by_user_id INTEGER NOT NULL REFERENCES users(id),
+                    can_write_directly BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE (kb_id, shared_to_user_id)
+                )
+            ''')
+
+            # FAQ PR 队列（他人共享 KB 的人工审核闸门）
+            self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS faq_pr (
+                    id SERIAL PRIMARY KEY,
+                    source_faq_id INTEGER REFERENCES faq(id),
+                    source_kb_id INTEGER,
+                    target_kb_id INTEGER NOT NULL REFERENCES knowledge_base(id),
+                    submitted_by INTEGER NOT NULL REFERENCES users(id),
+                    status VARCHAR(16) DEFAULT 'open',
+                    reviewed_by INTEGER REFERENCES users(id),
+                    reviewed_at TIMESTAMP,
+                    review_note TEXT,
+                    question TEXT NOT NULL,
+                    answer TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_faq_pr_target ON faq_pr (target_kb_id, status)')
+
+            # L2 图谱层：实体与关系（文档 06 Phase 2）
+            self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS entity (
+                    id SERIAL PRIMARY KEY,
+                    kb_id INTEGER NOT NULL REFERENCES knowledge_base(id),
+                    name TEXT NOT NULL,
+                    type TEXT,
+                    description TEXT,
+                    source_chunk_ids JSONB DEFAULT '[]',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE (kb_id, name)
+                )
+            ''')
+            self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS entity_relation (
+                    id SERIAL PRIMARY KEY,
+                    kb_id INTEGER NOT NULL REFERENCES knowledge_base(id),
+                    head_entity_id INTEGER NOT NULL REFERENCES entity(id),
+                    relation_type TEXT NOT NULL,
+                    tail_entity_id INTEGER NOT NULL REFERENCES entity(id),
+                    evidence TEXT,
+                    source_chunk_id INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_entity_kb ON entity (kb_id)')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_relation_head ON entity_relation (head_entity_id)')
+            self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_relation_tail ON entity_relation (tail_entity_id)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_status ON document (status)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_user_id ON document (user_id)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_knowledge_base_id ON document (knowledge_base_id)')
@@ -360,6 +451,434 @@ class Database:
         # detail JSONB 已由 psycopg2 自动反序列化为 dict
         return {"total": total, "page": page, "page_size": page_size, "items": rows}
 
+    # ==================== 06 自进化 RAG：FAQ 记忆（Stage 3 Phase 1） ====================
+
+    def add_faq(self, kb_id, owner_id, submitter_id, question, answer,
+                source="supplement", status="candidate", distill_threshold=2):
+        """新增 FAQ 记忆条目（默认 candidate，热度达标或审核后才升格 active）"""
+        try:
+            self.cursor.execute('''
+                INSERT INTO faq (kb_id, owner_id, submitter_id, question, answer,
+                                 source, status, distill_threshold, last_hit_time)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                RETURNING id
+            ''', (kb_id, owner_id, submitter_id, question, answer, source, status, distill_threshold))
+            return self.cursor.fetchone()["id"]
+        except Exception as e:
+            logger.error(f"新增 FAQ 失败: {e}")
+            return None
+
+    def get_faq(self, faq_id):
+        return self.fetchone("SELECT * FROM faq WHERE id = %s", (faq_id,))
+
+    def find_faq_by_question(self, kb_id, question):
+        """同一 KB 内按问题文本精确查重（向量相似判重在 milvus 层做）"""
+        return self.fetchone(
+            "SELECT * FROM faq WHERE kb_id = %s AND question = %s LIMIT 1",
+            (kb_id, question))
+
+    def increment_faq_hit(self, faq_id, half_life_days=7.0):
+        """命中更新：hit_count+1、last_hit_time=now，并按半衰期重算 heat_score。
+
+        heat = hit_count × 0.5^(距上次命中天数 / 半衰期)
+        """
+        try:
+            self.cursor.execute('''
+                UPDATE faq
+                SET hit_count = hit_count + 1,
+                    heat_score = (hit_count + 1) * POWER(0.5,
+                        EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - COALESCE(last_hit_time, CURRENT_TIMESTAMP)))
+                        / 86400.0 / %s),
+                    last_hit_time = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+                RETURNING hit_count, heat_score, status, distill_threshold
+            ''', (half_life_days, faq_id))
+            return self.cursor.fetchone()
+        except Exception as e:
+            logger.error(f"FAQ 命中更新失败: {e}")
+            return None
+
+    def promote_faq(self, faq_id, answer=None):
+        """升格 candidate → active（可携带蒸馏后的新答案）"""
+        try:
+            if answer is not None:
+                self.cursor.execute('''
+                    UPDATE faq SET status = 'active', answer = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                ''', (answer, faq_id))
+            else:
+                self.cursor.execute('''
+                    UPDATE faq SET status = 'active', updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                ''', (faq_id,))
+            return True
+        except Exception as e:
+            logger.error(f"FAQ 升格失败: {e}")
+            return False
+
+    def demote_faq(self, faq_id):
+        return self.execute(
+            "UPDATE faq SET status = 'candidate', updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+            (faq_id,))
+
+    def delete_faq(self, faq_id):
+        return self.execute("DELETE FROM faq WHERE id = %s", (faq_id,))
+
+    def list_faqs(self, kb_id=None, owner_id=None, submitter_id=None,
+                  status=None, page=1, page_size=20):
+        """FAQ 列表（管理页用），支持 kb/归属/提交者/状态过滤"""
+        conditions, params = [], []
+        if kb_id is not None:
+            conditions.append("kb_id = %s")
+            params.append(kb_id)
+        if owner_id is not None:
+            conditions.append("owner_id = %s")
+            params.append(owner_id)
+        if submitter_id is not None:
+            conditions.append("submitter_id = %s")
+            params.append(submitter_id)
+        if status:
+            conditions.append("status = %s")
+            params.append(status)
+        where = (" WHERE " + " AND ".join(conditions)) if conditions else ""
+
+        total = (self.fetchone(f"SELECT COUNT(*) AS cnt FROM faq{where}", tuple(params) or None) or {}).get("cnt", 0)
+        offset = (max(page, 1) - 1) * page_size
+        rows = self.fetchall(f'''
+            SELECT * FROM faq{where}
+            ORDER BY updated_at DESC, id DESC
+            LIMIT %s OFFSET %s
+        ''', tuple(params) + (page_size, offset))
+        return {"total": total, "page": page, "page_size": page_size, "items": rows}
+
+    # ==================== KB 分享（可见性基础） ====================
+
+    def share_kb(self, kb_id, shared_to_user_id, shared_by_user_id, can_write_directly=False):
+        """分享 KB 给用户；同步写 user_kb_permission 保持现有检索权限体系兼容"""
+        try:
+            self.cursor.execute('''
+                INSERT INTO kb_share (kb_id, shared_to_user_id, shared_by_user_id, can_write_directly)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (kb_id, shared_to_user_id)
+                DO UPDATE SET can_write_directly = EXCLUDED.can_write_directly
+            ''', (kb_id, shared_to_user_id, shared_by_user_id, can_write_directly))
+            # 权限表同步：can_write_directly → write，否则 read
+            self.add_user_kb_permission(
+                shared_to_user_id, kb_id, 'write' if can_write_directly else 'read')
+            return True
+        except Exception as e:
+            logger.error(f"分享知识库失败: {e}")
+            return False
+
+    def unshare_kb(self, kb_id, shared_to_user_id):
+        try:
+            self.cursor.execute(
+                "DELETE FROM kb_share WHERE kb_id = %s AND shared_to_user_id = %s",
+                (kb_id, shared_to_user_id))
+            self.cursor.execute(
+                "DELETE FROM user_kb_permission WHERE knowledge_base_id = %s AND user_id = %s",
+                (kb_id, shared_to_user_id))
+            return True
+        except Exception as e:
+            logger.error(f"取消分享失败: {e}")
+            return False
+
+    def get_kb_shares(self, kb_id):
+        """KB 分享列表（JOIN users 取用户名，前端展示与 unshare 需要）"""
+        return self.fetchall('''
+            SELECT s.*, u.username AS shared_to_username
+            FROM kb_share s
+            LEFT JOIN users u ON u.id = s.shared_to_user_id
+            WHERE s.kb_id = %s
+            ORDER BY s.created_at DESC
+        ''', (kb_id,))
+
+    def can_write_directly(self, user_id, kb_id):
+        """用户对他人共享 KB 是否有直写权（有 → 补全走阈值路径；无 → 走 PR 审核）"""
+        row = self.fetchone('''
+            SELECT can_write_directly FROM kb_share
+            WHERE kb_id = %s AND shared_to_user_id = %s
+        ''', (kb_id, user_id))
+        return bool(row and row["can_write_directly"])
+
+    # ==================== FAQ PR 队列 ====================
+
+    def create_faq_pr(self, source_faq_id, source_kb_id, target_kb_id,
+                      submitted_by, question, answer):
+        try:
+            self.cursor.execute('''
+                INSERT INTO faq_pr (source_faq_id, source_kb_id, target_kb_id,
+                                    submitted_by, question, answer)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (source_faq_id, source_kb_id, target_kb_id, submitted_by, question, answer))
+            return self.cursor.fetchone()["id"]
+        except Exception as e:
+            logger.error(f"创建 FAQ PR 失败: {e}")
+            return None
+
+    def get_faq_pr(self, pr_id):
+        return self.fetchone("SELECT * FROM faq_pr WHERE id = %s", (pr_id,))
+
+    def list_faq_prs(self, target_kb_id=None, submitted_by=None, status=None,
+                     page=1, page_size=20, target_kb_ids=None):
+        conditions, params = [], []
+        if target_kb_id is not None:
+            conditions.append("target_kb_id = %s")
+            params.append(target_kb_id)
+        elif target_kb_ids is not None:
+            # P1-7：批量 KB 过滤（ANY 数组），避免逐 KB N+1 查询
+            conditions.append("pr.target_kb_id = ANY(%s)")
+            params.append(list(target_kb_ids))
+        if submitted_by is not None:
+            conditions.append("submitted_by = %s")
+            params.append(submitted_by)
+        if status:
+            conditions.append("status = %s")
+            params.append(status)
+        where = (" WHERE " + " AND ".join(conditions)) if conditions else ""
+        total = (self.fetchone(f"SELECT COUNT(*) AS cnt FROM faq_pr pr{where}", tuple(params) or None) or {}).get("cnt", 0)
+        offset = (max(page, 1) - 1) * page_size
+        rows = self.fetchall(f'''
+            SELECT pr.*, u.username AS submitter_name, kb.kb_name AS target_kb_name
+            FROM faq_pr pr
+            LEFT JOIN users u ON u.id = pr.submitted_by
+            LEFT JOIN knowledge_base kb ON kb.id = pr.target_kb_id
+            {where}
+            ORDER BY pr.created_at DESC, pr.id DESC
+            LIMIT %s OFFSET %s
+        ''', tuple(params) + (page_size, offset))
+        return {"total": total, "page": page, "page_size": page_size, "items": rows}
+
+    def resolve_faq_pr(self, pr_id, status, reviewed_by, review_note=None):
+        """库主审核：status = merged / rejected"""
+        try:
+            self.cursor.execute('''
+                UPDATE faq_pr
+                SET status = %s, reviewed_by = %s, reviewed_at = CURRENT_TIMESTAMP,
+                    review_note = %s
+                WHERE id = %s AND status = 'open'
+            ''', (status, reviewed_by, review_note, pr_id))
+            return self.cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"FAQ PR 审核失败: {e}")
+            return False
+
+    # ==================== KB 克隆（fork：PG 侧快照复制） ====================
+
+    def clone_knowledge_base(self, source_kb_id, new_owner_id, new_name=None):
+        """快照克隆 KB（PG 侧）：复制 KB 元数据 + 文档/chunk/增强 + FAQ。
+
+        不追上游（后续上游变更不同步）。
+        返回 {"kb_id", "doc_map", "chunk_map", "faq_map"}（old_id → new_id 映射，
+        供 milvus_client.clone_kb_vectors 搬运向量时做 id 转换）；失败返回 None。
+        """
+        src = self.get_knowledge_base(source_kb_id)
+        if not src:
+            logger.error(f"克隆失败：源知识库 {source_kb_id} 不存在")
+            return None
+        try:
+            new_kb_id = self.add_knowledge_base(
+                user_id=new_owner_id,
+                kb_name=new_name or f"{src['kb_name']}（克隆）",
+                description=src.get("description"),
+                metadata=src.get("metadata"),
+                chunk_strategy=src.get("chunk_strategy"),
+                enhancers=src.get("enhancers"),
+            )
+            if not new_kb_id:
+                return None
+
+            doc_map, chunk_map, faq_map = {}, {}, {}
+
+            # 文档 + chunk + 增强（逐文档复制，记录 id 映射）
+            docs = self.get_kb_documents(source_kb_id)
+            for doc in docs:
+                new_doc_id = self.add_document(
+                    filename=doc["filename"], file_path=doc.get("file_path"),
+                    enhanced_md_path=doc.get("enhanced_md_path"),
+                    status=doc.get("status", "completed"),
+                    metadata=doc.get("metadata"),
+                    file_hash=doc.get("file_hash"),
+                    user_id=new_owner_id, knowledge_base_id=new_kb_id)
+                if not new_doc_id:
+                    continue
+                doc_map[doc["id"]] = new_doc_id
+                chunks = self.get_document_chunks(doc["id"])
+                for ch in chunks:
+                    new_chunk_id = self.add_document_chunk(
+                        document_id=new_doc_id, chunk_index=ch["chunk_index"],
+                        content=ch["content"], metadata=ch.get("metadata"),
+                        knowledge_base_id=new_kb_id)
+                    if not new_chunk_id:
+                        continue
+                    chunk_map[ch["id"]] = new_chunk_id
+                    # tokenized 缓存一并复制（01-C 红利：克隆版无需重分词）
+                    if ch.get("tokenized") is not None:
+                        self.cursor.execute(
+                            "UPDATE document_chunk SET tokenized = %s WHERE id = %s",
+                            (ch["tokenized"], new_chunk_id))
+                    # 子问题 / 摘要
+                    for sq in self.get_sub_questions_by_chunk(ch["id"]):
+                        self.cursor.execute('''
+                            INSERT INTO sub_question (document_id, knowledge_base_id, chunk_id, content, metadata)
+                            VALUES (%s, %s, %s, %s, %s)
+                        ''', (new_doc_id, new_kb_id, new_chunk_id, sq["content"],
+                              json.dumps(sq.get("metadata")) if sq.get("metadata") else None))
+                    sm = self.get_chunk_summary(ch["id"])
+                    if sm:
+                        self.cursor.execute('''
+                            INSERT INTO chunk_summary (document_id, knowledge_base_id, chunk_id, content, metadata)
+                            VALUES (%s, %s, %s, %s, %s)
+                        ''', (new_doc_id, new_kb_id, new_chunk_id, sm["content"],
+                              json.dumps(sm.get("metadata")) if sm.get("metadata") else None))
+
+            # FAQ 记忆快照（active 保持 active，热度数据保留快照值）
+            faqs = self.fetchall("SELECT * FROM faq WHERE kb_id = %s", (source_kb_id,))
+            for f in faqs:
+                self.cursor.execute('''
+                    INSERT INTO faq (kb_id, owner_id, submitter_id, question, answer,
+                                     hit_count, last_hit_time, heat_score, source,
+                                     status, distill_threshold)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id
+                ''', (new_kb_id, new_owner_id, new_owner_id, f["question"], f["answer"],
+                      f["hit_count"], f["last_hit_time"], f["heat_score"],
+                      f.get("source") or "clone", f["status"], f["distill_threshold"]))
+                row = self.cursor.fetchone()
+                if row:
+                    faq_map[f["id"]] = row["id"]
+
+            logger.info(f"KB 克隆完成: {source_kb_id} → {new_kb_id}"
+                        f"（{len(docs)} 文档，{len(chunk_map)} chunk，{len(faqs)} FAQ）")
+            return {"kb_id": new_kb_id, "doc_map": doc_map,
+                    "chunk_map": chunk_map, "faq_map": faq_map}
+        except Exception as e:
+            # P1-5：尽力而为清理——中途失败时回滚未提交写入并删除已建的残留 KB
+            logger.error(f"克隆知识库失败: {e}")
+            try:
+                self.conn.rollback()
+            except Exception:
+                pass
+            if new_kb_id:
+                try:
+                    self.delete_knowledge_base(new_kb_id)
+                    logger.info(f"已清理克隆残留知识库 {new_kb_id}")
+                except Exception as ce:
+                    logger.warning(f"清理克隆残留 KB {new_kb_id} 失败（需手工处理）: {ce}")
+            return None
+
+    # ==================== 06 Phase 2：实体/关系（L2 图谱层） ====================
+
+    def upsert_entity(self, kb_id, name, entity_type=None, description=None, chunk_id=None):
+        """实体合并写入：同名实体合并 source_chunk_ids，description 保留更长的版本。
+
+        返回 entity_id。
+        """
+        name = (name or "").strip()
+        if not name:
+            return None
+        try:
+            existing = self.fetchone(
+                "SELECT * FROM entity WHERE kb_id = %s AND name = %s", (kb_id, name))
+            if existing:
+                chunk_ids = existing.get("source_chunk_ids") or []
+                if isinstance(chunk_ids, str):
+                    chunk_ids = json.loads(chunk_ids)
+                if chunk_id is not None and chunk_id not in chunk_ids:
+                    chunk_ids.append(chunk_id)
+                new_desc = existing.get("description") or ""
+                if description and len(description) > len(new_desc):
+                    new_desc = description
+                new_type = existing.get("type") or entity_type
+                self.cursor.execute('''
+                    UPDATE entity SET source_chunk_ids = %s, description = %s,
+                           type = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                ''', (json.dumps(chunk_ids), new_desc, new_type, existing["id"]))
+                return existing["id"]
+            self.cursor.execute('''
+                INSERT INTO entity (kb_id, name, type, description, source_chunk_ids)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (kb_id, name, entity_type, description or "",
+                  json.dumps([chunk_id] if chunk_id is not None else [])))
+            return self.cursor.fetchone()["id"]
+        except Exception as e:
+            logger.error(f"实体写入失败（{name}）: {e}")
+            return None
+
+    def add_entity_relation(self, kb_id, head_entity_id, relation_type,
+                            tail_entity_id, evidence=None, source_chunk_id=None):
+        """关系写入：同 (head, relation, tail) 去重"""
+        try:
+            dup = self.fetchone('''
+                SELECT id FROM entity_relation
+                WHERE head_entity_id = %s AND relation_type = %s AND tail_entity_id = %s
+            ''', (head_entity_id, relation_type, tail_entity_id))
+            if dup:
+                return dup["id"]
+            self.cursor.execute('''
+                INSERT INTO entity_relation
+                    (kb_id, head_entity_id, relation_type, tail_entity_id, evidence, source_chunk_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (kb_id, head_entity_id, relation_type, tail_entity_id,
+                  evidence, source_chunk_id))
+            return self.cursor.fetchone()["id"]
+        except Exception as e:
+            logger.error(f"关系写入失败: {e}")
+            return None
+
+    def get_entity_neighbors(self, entity_ids, kb_id=None):
+        """一跳邻居扩展：返回这些实体相关的所有关系 + 邻居实体 id 集合"""
+        if not entity_ids:
+            return [], set()
+        id_list = ",".join(str(int(i)) for i in entity_ids)
+        where_kb = f"AND kb_id = {int(kb_id)}" if kb_id is not None else ""
+        relations = self.fetchall(f'''
+            SELECT * FROM entity_relation
+            WHERE (head_entity_id IN ({id_list}) OR tail_entity_id IN ({id_list}))
+            {where_kb}
+        ''')
+        neighbor_ids = set(entity_ids)
+        for r in relations:
+            neighbor_ids.add(r["head_entity_id"])
+            neighbor_ids.add(r["tail_entity_id"])
+        return relations, neighbor_ids
+
+    def get_entities_by_ids(self, entity_ids):
+        if not entity_ids:
+            return []
+        id_list = ",".join(str(int(i)) for i in entity_ids)
+        return self.fetchall(f"SELECT * FROM entity WHERE id IN ({id_list})")
+
+    def find_entities_by_names(self, kb_id, names):
+        """按名称精确匹配实体（实体锚点直查）"""
+        if not names:
+            return []
+        placeholders = ",".join(["%s"] * len(names))
+        return self.fetchall(
+            f"SELECT * FROM entity WHERE kb_id = %s AND name IN ({placeholders})",
+            tuple([kb_id] + list(names)))
+
+    def get_chunks_by_ids(self, chunk_ids):
+        if not chunk_ids:
+            return []
+        id_list = ",".join(str(int(i)) for i in chunk_ids)
+        return self.fetchall(f"SELECT * FROM document_chunk WHERE id IN ({id_list})")
+
+    def get_kb_entities(self, kb_id, limit=500):
+        return self.fetchall(
+            "SELECT * FROM entity WHERE kb_id = %s ORDER BY updated_at DESC LIMIT %s",
+            (kb_id, limit))
+
+    def get_kb_relations(self, kb_id, limit=1000):
+        return self.fetchall(
+            "SELECT * FROM entity_relation WHERE kb_id = %s ORDER BY id DESC LIMIT %s",
+            (kb_id, limit))
+
     def close(self):
         """关闭数据库连接"""
         if self.conn:
@@ -381,17 +900,20 @@ class Database:
             return None
     
     # 知识库相关方法
-    def add_knowledge_base(self, user_id, kb_name, description=None, metadata=None):
-        """添加知识库"""
+    def add_knowledge_base(self, user_id, kb_name, description=None, metadata=None,
+                           chunk_strategy=None, enhancers=None):
+        """添加知识库（文档 02/03：支持 KB 级切割策略与增强器配置，NULL = 跟随全局）"""
         query = '''
-            INSERT INTO knowledge_base (user_id, kb_name, description, metadata)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO knowledge_base (user_id, kb_name, description, metadata, chunk_strategy, enhancers)
+            VALUES (%s, %s, %s, %s, %s, %s)
             RETURNING id
         '''
         try:
-            # 将metadata转换为JSON字符串
+            # 将metadata/enhancers转换为JSON字符串
             metadata_json = json.dumps(metadata) if metadata else None
-            self.cursor.execute(query, (user_id, kb_name, description, metadata_json))
+            enhancers_json = json.dumps(list(enhancers)) if enhancers is not None else None
+            self.cursor.execute(query, (user_id, kb_name, description, metadata_json,
+                                         chunk_strategy, enhancers_json))
             kb_id = self.cursor.fetchone()['id']
             # 为创建者添加完全权限
             self.add_user_kb_permission(user_id, kb_id, 'write')
@@ -855,6 +1377,8 @@ class Database:
             - metadata: dict
             - subqs: List[str] 子问题列表
             - summary: str 摘要内容
+            - skip_subqs: bool 未启用子问题时为 True——不删除已有子问题、不写入（文档 03）
+            - skip_summary: bool 未启用摘要时为 True——不删除已有摘要、不写入（文档 03）
 
         事务保护：如果任何一步失败，整个批次回滚。
         """
@@ -872,24 +1396,30 @@ class Database:
                     metadata = item["metadata"]
                     subqs = item.get("subqs", [])
                     summary = item.get("summary", "")
+                    skip_subqs = item.get("skip_subqs", False)
+                    skip_summary = item.get("skip_summary", False)
 
-                    # 幂等：先清理旧数据
-                    cur.execute("DELETE FROM sub_question WHERE chunk_id = %s", (chunk_db_id,))
-                    cur.execute("DELETE FROM chunk_summary WHERE chunk_id = %s", (chunk_db_id,))
+                    # 幂等：先清理旧数据（仅清理本次会写入的字段，
+                    # 未启用的字段跳过删除以保护已有增强内容）
+                    if not skip_subqs:
+                        cur.execute("DELETE FROM sub_question WHERE chunk_id = %s", (chunk_db_id,))
+                    if not skip_summary:
+                        cur.execute("DELETE FROM chunk_summary WHERE chunk_id = %s", (chunk_db_id,))
 
                     # 写入子问题
                     metadata_json = json.dumps(metadata) if metadata else None
-                    for sq in subqs:
-                        cur.execute(
-                            """
-                            INSERT INTO sub_question (document_id, knowledge_base_id, chunk_id, content, metadata)
-                            VALUES (%s, %s, %s, %s, %s)
-                            """,
-                            (document_id, knowledge_base_id, chunk_db_id, sq, metadata_json)
-                        )
+                    if not skip_subqs:
+                        for sq in subqs:
+                            cur.execute(
+                                """
+                                INSERT INTO sub_question (document_id, knowledge_base_id, chunk_id, content, metadata)
+                                VALUES (%s, %s, %s, %s, %s)
+                                """,
+                                (document_id, knowledge_base_id, chunk_db_id, sq, metadata_json)
+                            )
 
                     # 写入摘要
-                    if summary:
+                    if not skip_summary and summary:
                         cur.execute(
                             """
                             INSERT INTO chunk_summary (document_id, knowledge_base_id, chunk_id, content, metadata)

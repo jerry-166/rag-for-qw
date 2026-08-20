@@ -58,3 +58,11 @@ build/
 *.sqlite3
 
 frontend_design/
+# 运行/调试产物（P1-6）
+.playwright-cli/
+playwright-cli.json
+home.yaml
+faq-page.png
+backend/boot.log
+backend/boot.err
+backend/_diag_faq.py
