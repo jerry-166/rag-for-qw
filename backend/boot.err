@@ -1,0 +1,32 @@
+19:48:38 - INFO - 数据库 rag_system 已存在
+19:48:38 - INFO - 成功连接到数据库: rag_system
+INFO:     Started server process [41072]
+INFO:     Waiting for application startup.
+19:49:01 - INFO - 正在初始化应用...
+19:49:01 - INFO - 存储实例初始化完成，存储类型: local
+19:49:02 - INFO - [Tracing] Langfuse 连接验证: 成功
+19:49:02 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+19:49:03 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+19:49:03 - INFO - [预热] 后台并发预热已启动：milvus / search / agents
+19:49:03 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+INFO:     Application startup complete.
+19:49:03 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+19:49:03 - INFO - 搜索引擎: BM25 (纯内存)
+INFO:     Uvicorn running on http://0.0.0.0:8003 (Press CTRL+C to quit)
+19:49:03 - INFO - [Agent预热] 开始后台预热所有 Agent...
+19:49:03 - INFO - BM25 索引从 PG 加载完成，共 1418 条 chunk，2 个分桶
+19:49:03 - INFO - BM25 索引加载完成，共 1418 条 chunk
+19:49:03 - INFO - BM25 分桶: bucket=0:1, chunks=372
+19:49:03 - INFO - BM25 分桶: bucket=0:2, chunks=1046
+19:49:03 - INFO - [Readiness] search 就绪
+19:49:03 - INFO - [memory_manager] MemoryManager 初始化，workspace: D:\workspace\rag-for-qw-s23\backend\agent\workspace
+19:49:03 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw-s23\backend\agent\sessions
+19:49:03 - INFO - [AgentRegistry] 初始化完成
+19:49:03 - INFO - [AgentRegistry] 注册 Agent: simple
+19:49:03 - INFO - [AgentRegistry] 注册 Agent: advanced
+19:49:03 - INFO - [AgentRegistry] 注册 Agent: claw
+19:49:03 - INFO - [AgentRegistry] 设置默认 Agent: claw
+19:49:03 - INFO - [AgentRegistry] Agent 注册中心配置完成，默认: claw
+19:49:03 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw-s23\backend\services\milvus_client.py:46: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(

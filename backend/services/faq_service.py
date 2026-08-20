@@ -48,7 +48,7 @@ class FAQService:
     def chat(self) -> ChatOpenAI:
         if self._chat is None:
             self._chat = ChatOpenAI(
-                model=get_runtime("CHAT_MODEL", settings.CHAT_MODEL),
+                model=get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
                 api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
                 base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
                 temperature=0,

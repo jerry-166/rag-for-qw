@@ -1,0 +1,10 @@
+[   48189ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8001/:0
+[   48191ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8001/:0
+[   48208ms] TypeError: Cannot read properties of null (reading 'classList')
+    at App.init (http://localhost:8001/js/app.js?v=20260806:33:48)
+    at HTMLDocument.<anonymous> (http://localhost:8001/js/app.js?v=20260806:543:14)
+[   48213ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8001/favicon.ico:0
+[  116407ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8003/api/auth/register:0
+[  438929ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8001/:0
+[  438930ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8001/:0
+[  763386ms] [ERROR] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) @ http://localhost:8003/api/knowledge-bases:0

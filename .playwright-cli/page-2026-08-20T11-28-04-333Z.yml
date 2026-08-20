@@ -1,0 +1,16 @@
+- generic [ref=f2e4]:
+  - heading "RAGFlow" [level=1] [ref=f2e10]
+  - paragraph [ref=f2e11]: 智能文档知识库系统
+  - generic [ref=f2e12]:
+    - button "登录" [ref=f2e13] [cursor=pointer]
+    - button "注册" [ref=f2e14] [cursor=pointer]
+  - generic [ref=f2e15]:
+    - generic [ref=f2e16]:
+      - generic [ref=f2e17]: 用户名
+      - textbox "输入用户名" [ref=f2e18]
+    - generic [ref=f2e19]:
+      - generic [ref=f2e20]: 密码
+      - generic [ref=f2e21]:
+        - textbox "输入密码" [ref=f2e22]
+        - button "👁" [ref=f2e23] [cursor=pointer]
+    - button "登 录" [ref=f2e24] [cursor=pointer]

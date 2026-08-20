@@ -1,0 +1,20 @@
+- generic [ref=f1e4]:
+  - heading "RAGFlow" [level=1] [ref=f1e10]
+  - paragraph [ref=f1e11]: 智能文档知识库系统
+  - generic [ref=f1e12]:
+    - button "登录" [ref=f1e13] [cursor=pointer]
+    - button "注册" [ref=f1e14] [cursor=pointer]
+  - generic [ref=f1e26]:
+    - generic [ref=f1e27]:
+      - generic [ref=f1e28]: 用户名
+      - textbox "输入用户名（3-20字符）" [ref=f1e29]: tester
+    - generic [ref=f1e30]:
+      - generic [ref=f1e31]: 邮箱
+      - textbox "输入邮箱地址" [ref=f1e32]: tester@test.com
+    - generic [ref=f1e33]:
+      - generic [ref=f1e34]: 密码
+      - generic [ref=f1e35]:
+        - textbox "输入密码（6位以上）" [ref=f1e36]: test123456
+        - button "👁" [ref=f1e37] [cursor=pointer]
+    - generic [ref=f1e40]: 无法连接到服务器，请检查后端是否已启动
+    - button "注 册" [active] [ref=f1e38] [cursor=pointer]

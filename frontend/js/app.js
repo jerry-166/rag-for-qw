@@ -29,8 +29,9 @@ class App {
       console.error('初始化失败:', error);
       this.navigate('auth');
     } finally {
-      // 隐藏加载屏
-      document.getElementById('loading-screen').classList.add('hidden');
+      // 隐藏加载屏（auth 页可能无此元素，null 检查避免阻断初始化）
+      const ls = document.getElementById('loading-screen');
+      if (ls) ls.classList.add('hidden');
     }
   }
 

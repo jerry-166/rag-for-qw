@@ -290,7 +290,7 @@ class GraphStrategy(RetrievalStrategy):
             from langchain_openai import ChatOpenAI
             from config import settings, get_runtime
             llm = ChatOpenAI(
-                model=get_runtime("CHAT_MODEL", settings.CHAT_MODEL),
+                model=get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
                 api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
                 base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
                 temperature=0, max_tokens=200,

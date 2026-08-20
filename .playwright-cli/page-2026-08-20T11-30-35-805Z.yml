@@ -1,0 +1,90 @@
+- generic [ref=f2e116]:
+  - complementary [ref=f2e117]:
+    - generic [ref=f2e118]:
+      - generic [ref=f2e119]: RAGFlow
+      - button "‹" [ref=f2e125] [cursor=pointer]
+    - navigation [ref=f2e126]:
+      - link "🗂️ 知识库" [ref=f2e127] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f2e128]: 🗂️
+        - generic [ref=f2e129]: 知识库
+      - link "📄 文档管理" [ref=f2e130] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f2e131]: 📄
+        - generic [ref=f2e132]: 文档管理
+      - link "🔍 知识检索" [ref=f2e133] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f2e134]: 🔍
+        - generic [ref=f2e135]: 知识检索
+      - link "🤖 AI Agent" [ref=f2e136] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f2e137]: 🤖
+        - generic [ref=f2e138]: AI Agent
+      - link "🧠 知识记忆" [ref=f2e139] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f2e140]: 🧠
+        - generic [ref=f2e141]: 知识记忆
+      - link "⚙️ 设置" [ref=f2e142] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f2e143]: ⚙️
+        - generic [ref=f2e144]: 设置
+    - generic [ref=f2e145]:
+      - generic [ref=f2e146] [cursor=pointer]:
+        - generic [ref=f2e147]: 📊
+        - generic [ref=f2e148]: 统计概览
+        - button "▼" [ref=f2e149]
+      - generic [ref=f2e150]:
+        - generic [ref=f2e151]:
+          - generic [ref=f2e152]: 总文档数
+          - generic [ref=f2e153]: "0"
+        - generic [ref=f2e154]:
+          - generic [ref=f2e155]: 总 Chunk 数
+          - generic [ref=f2e156]: "0"
+        - generic [ref=f2e157]:
+          - generic [ref=f2e158]: 总子问题数
+          - generic [ref=f2e159]: "0"
+        - generic [ref=f2e160]:
+          - generic [ref=f2e161]: 总摘要数
+          - generic [ref=f2e162]: "0"
+    - generic [ref=f2e163]:
+      - generic [ref=f2e164]:
+        - generic [ref=f2e165]: T
+        - generic [ref=f2e166]:
+          - generic [ref=f2e167]: tester
+          - text: user
+      - button "⎋" [ref=f2e168] [cursor=pointer]
+  - main [ref=f2e169]:
+    - generic [ref=f2e170]:
+      - generic [ref=f2e171]: 知识记忆
+      - button "☀️" [ref=f2e172] [cursor=pointer]
+      - generic [ref=f2e173]:
+        - generic [ref=f2e174]: T
+        - generic [ref=f2e175]: tester
+    - generic [ref=f2e176]:
+      - generic [ref=f2e177]:
+        - generic [ref=f2e178]:
+          - heading "知识记忆" [level=1] [ref=f2e179]
+          - paragraph [ref=f2e180]: 自进化知识闭环：候选记忆随命中自动成长为正式知识，协作知识经审核后生效
+        - button "🔄 刷新" [ref=f2e181] [cursor=pointer]
+      - generic [ref=f2e183]:
+        - generic [ref=f2e184]:
+          - button "正式知识" [ref=f2e185] [cursor=pointer]
+          - button "候选记忆" [ref=f2e186] [cursor=pointer]
+          - button "PR 审核" [ref=f2e187] [cursor=pointer]
+        - combobox [ref=f2e188]:
+          - option "全部知识库" [selected]
+      - table [ref=f2e190]:
+        - rowgroup [ref=f2e191]:
+          - row [ref=f2e192]:
+            - columnheader "问题" [ref=f2e193]
+            - columnheader "答案" [ref=f2e194]
+            - columnheader "知识库" [ref=f2e195]
+            - columnheader "命中/热度" [ref=f2e196]
+            - columnheader "来源" [ref=f2e197]
+            - columnheader "操作" [ref=f2e198]
+        - rowgroup [ref=f2e199]:
+          - row [ref=f2e200]:
+            - cell "🧠 暂无正式知识" [ref=f2e201]:
+              - generic [ref=f2e202]:
+                - generic [ref=f2e203]: 🧠
+                - paragraph [ref=f2e204]: 暂无正式知识
