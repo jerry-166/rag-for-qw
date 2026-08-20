@@ -132,6 +132,20 @@ const SettingsPage = {
         `<option value="${v}" ${String(v) === String(current) ? 'selected' : ''}>${v}</option>`
       ).join('');
       inputHtml = `<select class="settings-input" id="${fieldId}" data-key="${key}">${options}</select>`;
+    } else if (meta.type === 'csv') {
+      // 文档 03：逗号分隔多值（checkbox 组）；全部未选 = 空串 = 全关
+      const selectedSet = new Set(String(current || '').split(',').map(s => s.trim()).filter(Boolean));
+      const boxes = (meta.enum || []).map(v => `
+        <label class="settings-csv-item">
+          <input type="checkbox" class="settings-csv-box" data-key="${key}" value="${v}"
+            ${selectedSet.has(String(v)) ? 'checked' : ''}> ${v}
+        </label>
+      `).join('');
+      // 隐藏 input 承载聚合值（走统一收集逻辑），checkbox 组仅做 UI
+      inputHtml = `
+        <div class="settings-csv-group" id="${fieldId}-group">${boxes}</div>
+        <input type="hidden" class="settings-input" id="${fieldId}" data-key="${key}" value="${this._escape(String(current || ''))}">
+      `;
     } else if (meta.type === 'float') {
       inputHtml = `
         <div class="settings-range-group">
@@ -187,6 +201,17 @@ const SettingsPage = {
       num.addEventListener('change', () => {
         const linked = document.getElementById(num.dataset.linked);
         if (linked) linked.value = num.value;
+      });
+    });
+
+    // csv 多选组（文档 03）：勾选变化 → 聚合同步到承载 hidden input（去重保序）
+    document.querySelectorAll('.settings-csv-box').forEach(box => {
+      box.addEventListener('change', () => {
+        const key = box.dataset.key;
+        const checked = [...document.querySelectorAll(`.settings-csv-box[data-key="${key}"]:checked`)]
+          .map(b => b.value);
+        const carrier = document.getElementById(`setting-${key}`);
+        if (carrier) carrier.value = checked.join(',');
       });
     });
 

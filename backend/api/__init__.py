@@ -13,6 +13,7 @@ from .agent import router as agent_router
 from .evaluation import router as evaluation_router
 from .settings import router as settings_router
 from .audit import router as audit_router
+from .faq import router as faq_router
 
 api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 api_router.include_router(knowledge_bases_router, prefix="/knowledge-bases", tags=["knowledge-bases"])
@@ -25,3 +26,4 @@ api_router.include_router(agent_router, tags=["agent"])
 api_router.include_router(evaluation_router, tags=["evaluation"])
 api_router.include_router(settings_router, prefix="/settings", tags=["settings"])
 api_router.include_router(audit_router, prefix="/audit", tags=["audit"])
+api_router.include_router(faq_router, prefix="", tags=["faq"])

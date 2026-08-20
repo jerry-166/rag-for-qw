@@ -59,6 +59,7 @@ class RAGAgentState(TypedDict):
     session_id: str                     # 会话 ID
     knowledge_base_id: Optional[int]    # 目标知识库 ID（可选）
     retrieval_mode: Optional[str]       # 检索模式: native | advanced | hybrid
+    user_id: Optional[int]              # 当前用户 ID（FAQ 记忆召回的可见范围依据）
 
     # ── 中间状态 ──────────────────────────────────────────────
     intent: Optional[Intent]            # 意图识别结果
@@ -69,6 +70,7 @@ class RAGAgentState(TypedDict):
 
     # ── 输出 ──────────────────────────────────────────────────
     final_answer: str                   # 最终回答
+    faq_answer: Optional[Dict[str, Any]]  # 06：FAQ 直返命中（非 None 时跳过低层检索直接回答）
     
     # ── SSE 事件流 ────────────────────────────────────────────
     events: List[Dict[str, Any]]        # 累积的 SSE 事件列表
@@ -225,6 +227,28 @@ def create_rag_workflow(memory_manager=None, session_store=None):
     async def hybrid_retrieval(state: RAGAgentState) -> RAGAgentState:
         """混合检索节点：对每路查询并行执行 Milvus + ES 混合检索"""
         _emit_event(state, "thinking", "正在从知识库检索相关文档...")
+        # ── 06：FAQ 记忆前置召回（检索漏斗第一层）────────────
+        # 命中 active 记忆 → 直返，跳过低层检索；candidate 命中只累计热度
+        user_id = state.get("user_id")
+        if user_id:
+            try:
+                from services.faq_service import faq_service
+                faq_hit = await faq_service.try_faq_hit(
+                    state["query"], user_id,
+                    kb_id=state.get("knowledge_base_id"))
+                if faq_hit:
+                    state["faq_answer"] = faq_hit
+                    state["raw_results"] = []
+                    state["metadata"]["retrieved_count"] = 0
+                    _emit_event(state, "retrieved",
+                                f"命中已有知识记忆（相似度 {faq_hit['score']:.2f}），直接回答",
+                                count=0, results=[], faq_hit=True)
+                    logger.info(f"[rag_workflow] FAQ 直返命中，faq_id={faq_hit['faq_id']}")
+                    return state
+            except Exception as e:
+                logger.warning(f"[rag_workflow] FAQ 前置召回失败（继续正常检索）: {e}")
+        # ────────────────────────────────────────────────────
+
         retrieval_mode = state.get("retrieval_mode") or get_runtime("DEFAULT_RETRIEVAL_MODE", settings.DEFAULT_RETRIEVAL_MODE)
         queries = state.get("expanded_queries", [state["query"]])
         knowledge_base_id = state.get("knowledge_base_id")
@@ -368,6 +392,21 @@ def create_rag_workflow(memory_manager=None, session_store=None):
     async def generate_response(state: RAGAgentState) -> RAGAgentState:
         """生成回答节点：基于检索上下文用 LLM 生成最终答案，并写入记忆"""
         logger.info(f"[rag_workflow] 开始回答")
+
+        # ── 06：FAQ 直返短路（命中已有知识记忆，不调 LLM）──────
+        faq_hit = state.get("faq_answer")
+        if faq_hit:
+            answer = (f"{faq_hit['answer']}\n\n"
+                      f"---\n*以上回答来自知识记忆（命中问题：{faq_hit['question']}，"
+                      f"相似度 {faq_hit['score']:.2f}）*")
+            state["final_answer"] = answer
+            state["metadata"]["faq_hit"] = True
+            _emit_event(state, "response_generated", answer,
+                        sources_count=0, faq_hit=True)
+            logger.info(f"[rag_workflow] FAQ 直返输出，faq_id={faq_hit['faq_id']}")
+            return state
+        # ────────────────────────────────────────────────────
+
         _emit_event(state, "thinking", "正在基于检索结果生成回答...")
 
         llm = _get_llm(temperature=get_runtime("LLM_TEMPERATURE_ANSWER", settings.LLM_TEMPERATURE_ANSWER))
@@ -394,9 +433,14 @@ def create_rag_workflow(memory_manager=None, session_store=None):
 
 请直接回答用户问题，引用来源，如果文档中没有相关信息请明确说明。"""
         else:
+            # 06 提示词状态机·检索失败分支：明确"我不会"，引导用户补全（可成长）
+            state["metadata"]["suggest_supplement"] = True
             user_message = f"""用户问题：{query}
 
-注意：知识库中未检索到相关文档，请基于通用知识回答，并提示用户知识库中可能没有相关内容。"""
+知识库中没有检索到与这个问题相关的内容。请严格按以下方式回答：
+1. 明确告知用户"当前知识库中没有这个问题的答案"，不要编造或凭通用知识强行回答专业问题；
+2. 告知用户可以补充该问题的答案，系统会记住它，下次再问时就能直接回答（知识会成长）；
+3. 回答保持简短友好。"""
 
         try:
             messages = [
@@ -412,6 +456,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
                 "response_generated",
                 answer,
                 sources_count=state["metadata"].get("sources_count", 0),
+                suggest_supplement=state["metadata"].get("suggest_supplement", False),
             )
 
             # ── 写入会话存储 ──────────────────────────────────
@@ -611,6 +656,7 @@ def build_initial_state(
     session_id: str,
     knowledge_base_id: Optional[int] = None,
     retrieval_mode: Optional[str] = None,
+    user_id: Optional[int] = None,
 ) -> RAGAgentState:
     """构建工作流初始状态"""
     return {
@@ -618,12 +664,14 @@ def build_initial_state(
         "session_id": session_id,
         "knowledge_base_id": knowledge_base_id,
         "retrieval_mode": retrieval_mode or get_runtime("DEFAULT_RETRIEVAL_MODE", settings.DEFAULT_RETRIEVAL_MODE),
+        "user_id": user_id,
         "intent": None,
         "expanded_queries": [],
         "raw_results": [],
         "reranked_results": [],
         "context_text": "",
         "final_answer": "",
+        "faq_answer": None,
         "events": [],
         "error": None,
         "metadata": {

@@ -16,10 +16,16 @@ class KnowledgeBaseCreate(BaseModel):
     kb_name: str
     description: str = None
     metadata: dict = None
+    # 文档 02/03：KB 级策略配置（不传 = NULL = 跟随全局配置）
+    chunk_strategy: str = None   # auto / markdown / recursive
+    enhancers: list = None       # None=跟随全局 / []=全关 / ["sub_question","summary"]=显式
 
 class KnowledgeBaseUpdate(BaseModel):
     kb_name: str = None
     description: str = None
+    # 文档 02/03：KB 级策略配置更新（不传 = 保持原值）
+    chunk_strategy: str = None   # auto / markdown / recursive
+    enhancers: list = None       # None=不变 / []=全关 / ["sub_question","summary"]=显式
 
 class KnowledgeBaseResponse(BaseModel):
     id: int
@@ -34,12 +40,27 @@ async def create_knowledge_base(kb: KnowledgeBaseCreate, current_user=Depends(ge
     """创建知识库"""
     logger.info(f"开始创建知识库，名称: {kb.kb_name}")
     try:
+        # 文档 02/03：校验 KB 级策略配置
+        if kb.chunk_strategy is not None:
+            from services.chunking import list_strategies
+            valid_names = [s["name"] for s in list_strategies()]
+            if kb.chunk_strategy not in valid_names:
+                raise HTTPException(status_code=400, detail=f"非法切割策略: {kb.chunk_strategy}（可选: {valid_names}）")
+        enhancers = kb.enhancers
+        if enhancers is not None:
+            from services.enhancers import VALID_ENHANCERS
+            if not isinstance(enhancers, list) or any(e not in VALID_ENHANCERS for e in enhancers):
+                raise HTTPException(status_code=400, detail=f"非法增强器配置（可选: {sorted(VALID_ENHANCERS)}，空数组=全关）")
+            enhancers = sorted(set(enhancers))
+
         # 创建知识库
         kb_id = db.add_knowledge_base(
             user_id=current_user["id"],
             kb_name=kb.kb_name,
             description=kb.description,
-            metadata=kb.metadata or {}
+            metadata=kb.metadata or {},
+            chunk_strategy=kb.chunk_strategy,
+            enhancers=enhancers
         )
 
         logger.info(f"知识库创建成功，ID: {kb_id}")
@@ -181,6 +202,18 @@ async def update_knowledge_base(kb_id: int, kb_update: KnowledgeBaseUpdate, curr
             update_data["kb_name"] = kb_update.kb_name
         if kb_update.description is not None:
             update_data["description"] = kb_update.description
+        # 文档 02/03：KB 级策略配置更新（不传 = 保持原值；enhancers 需 JSON 序列化）
+        if kb_update.chunk_strategy is not None:
+            from services.chunking import list_strategies
+            valid_names = [s["name"] for s in list_strategies()]
+            if kb_update.chunk_strategy not in valid_names:
+                raise HTTPException(status_code=400, detail=f"非法切割策略: {kb_update.chunk_strategy}（可选: {valid_names}）")
+            update_data["chunk_strategy"] = kb_update.chunk_strategy
+        if kb_update.enhancers is not None:
+            from services.enhancers import VALID_ENHANCERS
+            if not isinstance(kb_update.enhancers, list) or any(e not in VALID_ENHANCERS for e in kb_update.enhancers):
+                raise HTTPException(status_code=400, detail=f"非法增强器配置（可选: {sorted(VALID_ENHANCERS)}，空数组=全关）")
+            update_data["enhancers"] = json.dumps(sorted(set(kb_update.enhancers)))
 
         if update_data:
             result = db.update_knowledge_base(kb_id, update_data)

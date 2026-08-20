@@ -758,6 +758,9 @@ const PipelinePage = {
           </span>
         </div>
 
+        <!-- 缺口检测提示条（文档 03 §3.5）：检测到存量缺口时显示，显性补生成 -->
+        <div id="missing-banner" class="missing-banner" style="display:none;"></div>
+
         <div class="gen-layout">
           <!-- 左：Chunk 选择器 -->
           <div class="gen-chunk-selector">
@@ -899,11 +902,55 @@ const PipelinePage = {
       if (Object.keys(this.generationResults).length > 0) {
         this.selectGenChunk(0);
       }
+
+      // 文档 03 §3.5：Step 3 完成后做缺口检测（轻量查询，零 LLM 调用）
+      this._checkMissingEnhancements();
     } catch (error) {
       this.hideLoading();
       const el = document.getElementById('gen-chunk-list');
       if (el) el.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
     }
+  },
+
+  /** 缺口检测：启用集 > 已生成集时显示黄色提示条 + 显性补生成按钮（文档 03） */
+  async _checkMissingEnhancements() {
+    const banner = document.getElementById('missing-banner');
+    if (!banner) return;
+    try {
+      const r = await window.DocumentAPI.missingEnhancements(this.currentDocId);
+      if (!r.need_backfill) {
+        banner.style.display = 'none';
+        return;
+      }
+      const parts = [];
+      if (r.missing.sub_question > 0) parts.push(`子问题 ×${r.missing.sub_question}`);
+      if (r.missing.summary > 0) parts.push(`摘要 ×${r.missing.summary}`);
+      banner.innerHTML = `
+        <div class="missing-banner-inner">
+          <span class="missing-icon">⚠️</span>
+          <span class="missing-text">
+            检测到 <strong>${r.missing_chunks}</strong> 个 Chunk 缺失当前启用的增强内容（${parts.join('、')}）。
+            可能是增强配置曾变更导致。补生成不会影响已有增强内容，仅补缺失部分。
+          </span>
+          <button class="btn btn-warning btn-sm" onclick="PipelinePage.backfillEnhancements()">
+            补生成缺失增强
+          </button>
+          <button class="btn-link" onclick="document.getElementById('missing-banner').style.display='none'">忽略</button>
+        </div>
+      `;
+      banner.style.display = 'block';
+    } catch (e) {
+      // 检测失败静默降级，不阻断正常流程
+      banner.style.display = 'none';
+    }
+  },
+
+  /** 显性补生成：用户点击后重新走 generate（后端增量模式，只补缺失字段） */
+  async backfillEnhancements() {
+    const banner = document.getElementById('missing-banner');
+    if (banner) banner.style.display = 'none';
+    window.App.showToast('开始补生成缺失增强...', 'info');
+    await this.loadGenerationResults();
   },
 
   updateGenChunkList() {

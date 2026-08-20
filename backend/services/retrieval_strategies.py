@@ -44,6 +44,9 @@ class SearchContext:
         summaries_collection=None,
         subquestions_collection=None,
         chunks_collection=None,
+        query: str = "",
+        kb_id: Optional[int] = None,
+        entities_collection=None,
     ):
         self.query_embedding = query_embedding
         self.search_params = search_params
@@ -52,6 +55,10 @@ class SearchContext:
         self.summaries_collection = summaries_collection
         self.subquestions_collection = subquestions_collection
         self.chunks_collection = chunks_collection
+        # 06 Phase 2：graph 策略依赖（原始查询文本 / KB 范围 / 实体集合）
+        self.query = query
+        self.kb_id = kb_id
+        self.entities_collection = entities_collection
 
 
 # ═══════════════════════════════════════════════════════════
@@ -236,6 +243,12 @@ class AdvancedStrategy(RetrievalStrategy):
     description = "检索摘要向量和子问题向量，适合概念性查询"
 
     def execute(self, limit: int) -> List[Dict[str, Any]]:
+        # 文档 03 降级：启用集全关时（KB 纯原文 RAG），两路增强集合均被短路置 None
+        # → 直接回落 native，避免空结果（milvus_search 对 None 集合返回 []）
+        if self.ctx.summaries_collection is None and self.ctx.subquestions_collection is None:
+            from config import init_logger
+            init_logger(__name__).info("[AdvancedStrategy] 增强集合全短路，降级 native 原文检索")
+            return _REGISTRY["native"](self.ctx).execute(limit)
         summaries = milvus_search(
             self.ctx.summaries_collection,
             self.ctx.query_embedding, "summary_vector",
@@ -254,6 +267,134 @@ class AdvancedStrategy(RetrievalStrategy):
         )
         results = summaries + subquestions
         results.sort(key=lambda x: x["distance"], reverse=True)
+        return results[:limit]
+
+
+@register_strategy
+class GraphStrategy(RetrievalStrategy):
+    """图谱检索（文档 06 Phase 2：GraphRAG-lite on Milvus）。
+
+    路由逻辑：
+      1. LLM 从问题提取实体锚点 + 实体向量语义匹配（双路锚点发现）
+      2. PG 关系表一跳扩展邻居实体
+      3. 收集全部相关实体的 source_chunk_ids → PG 取 chunk 原文返回
+      4. 无锚点 / 查不到实体 / KB 未启用 entity 增强 → 降级 native 原文检索
+    """
+    name = "graph"
+    label = "实体图谱"
+    description = "实体锚点匹配→关系扩展→关联 chunk 召回，适合多跳关联查询；KB 需启用 entity 增强"
+
+    def _extract_anchor_names(self) -> List[str]:
+        """LLM 从问题中提取实体锚点名（失败/无实体返回空列表）"""
+        try:
+            from langchain_openai import ChatOpenAI
+            from config import settings, get_runtime
+            llm = ChatOpenAI(
+                model=get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
+                api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
+                base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+                temperature=0, max_tokens=200,
+            )
+            prompt = (
+                "从下面问题中提取出作为检索锚点的实体名称（人物/组织/概念/技术/产品等）。\n"
+                "只输出实体名，每行一个，最多 5 个；若没有明确实体，输出空。\n"
+                f"问题：{self.ctx.query}"
+            )
+            resp = llm.invoke(prompt)
+            text = resp.content if hasattr(resp, "content") else str(resp)
+            names = [n.strip().strip("。；;,") for n in text.strip().splitlines()]
+            return [n for n in names if n and len(n) <= 50][:5]
+        except Exception as e:
+            logger.warning(f"[GraphStrategy] 实体锚点提取失败: {e}")
+            return []
+
+    def execute(self, limit: int) -> List[Dict[str, Any]]:
+        # 前置不满足 → 降级 native
+        if self.ctx.entities_collection is None or not self.ctx.kb_id:
+            logger.info("[GraphStrategy] 实体集合未启用或未指定 KB，降级 native")
+            return _REGISTRY["native"](self.ctx).execute(limit)
+
+        from services.database import db
+
+        # 1. 双路锚点发现：按名直查 + 向量语义匹配
+        anchor_ids: List[int] = []
+        names = self._extract_anchor_names()
+        if names:
+            for row in db.find_entities_by_names(self.ctx.kb_id, names):
+                anchor_ids.append(row["id"])
+
+        try:
+            self.ctx.entities_collection.load()
+            vec_hits = self.ctx.entities_collection.search(
+                data=[self.ctx.query_embedding],
+                anns_field="description_vector",
+                param=self.ctx.search_params,
+                limit=5,
+                expr=f"kb_id == {int(self.ctx.kb_id)}",
+                output_fields=["pg_entity_id"],
+            )
+            for hit in vec_hits[0]:
+                eid = hit.entity.get("pg_entity_id")
+                if eid is not None:
+                    anchor_ids.append(eid)
+        except Exception as e:
+            logger.warning(f"[GraphStrategy] 实体向量匹配失败: {e}")
+
+        anchor_ids = list(dict.fromkeys(anchor_ids))  # 去重保序
+        if not anchor_ids:
+            logger.info("[GraphStrategy] 未找到实体锚点，降级 native")
+            return _REGISTRY["native"](self.ctx).execute(limit)
+
+        # 2. 关系一跳扩展
+        relations, neighbor_ids = db.get_entity_neighbors(anchor_ids, kb_id=self.ctx.kb_id)
+        logger.info(f"[GraphStrategy] 锚点 {len(anchor_ids)} 个，扩展后实体 {len(neighbor_ids)} 个，"
+                    f"关系 {len(relations)} 条")
+
+        # 3. 收集关联 chunk
+        entities = db.get_entities_by_ids(list(neighbor_ids))
+
+        def _src_ids(entity):
+            src = entity.get("source_chunk_ids") or []
+            if isinstance(src, str):
+                import json as _json
+                try:
+                    src = _json.loads(src)
+                except Exception:
+                    src = []
+            return src
+
+        chunk_ids: List[int] = []
+        for e in entities:
+            chunk_ids.extend(_src_ids(e))
+        chunk_ids = list(dict.fromkeys(chunk_ids))[: limit * 2]
+
+        if not chunk_ids:
+            logger.info("[GraphStrategy] 实体无关联 chunk，降级 native")
+            return _REGISTRY["native"](self.ctx).execute(limit)
+
+        # 4. 取 chunk 原文，锚点实体关联的 chunk 给更高分
+        anchor_chunk_ids: List[int] = []
+        for e in entities:
+            if e["id"] in anchor_ids:
+                anchor_chunk_ids.extend(_src_ids(e))
+        anchor_set = set(anchor_chunk_ids)
+
+        chunks = db.get_chunks_by_ids(chunk_ids)
+        results = []
+        for ch in chunks:
+            base = 0.9 if ch["id"] in anchor_set else 0.75
+            results.append({
+                "chunk_text": ch["content"],
+                "score": base,
+                "metadata": {
+                    "chunk_id": ch["id"],
+                    "document_id": ch.get("document_id"),
+                    "knowledge_base_id": ch.get("knowledge_base_id"),
+                    "chunk_index": ch.get("chunk_index"),
+                },
+                "type": "graph",
+            })
+        results.sort(key=lambda x: x["score"], reverse=True)
         return results[:limit]
 
 

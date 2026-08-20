@@ -27,6 +27,7 @@ GROUPS: Dict[str, str] = {
     "processing": "文档处理",
     "model": "模型与 LLM",
     "system": "系统配置",
+    "evolving": "自进化记忆",
     "api_keys": "API Keys",
 }
 
@@ -61,9 +62,9 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
     },
     "DEFAULT_RETRIEVAL_MODE": {
         "group": "retrieval",
-        "type": "enum", "enum": ["native", "advanced", "hybrid"],
+        "type": "enum", "enum": ["native", "advanced", "hybrid", "graph"],
         "label": "默认检索模式",
-        "description": "native=仅原文向量 / advanced=摘要+子问题 / hybrid=三路并行+RRF融合",
+        "description": "native=仅原文向量 / advanced=摘要+子问题 / hybrid=三路并行+RRF融合 / graph=实体图谱（需KB启用entity增强）",
     },
     "NUM_SUBQUESTIONS": {
         "group": "retrieval",
@@ -120,6 +121,18 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
         "type": "int", "min": 1, "max": 65536,
         "label": "IVF 聚类中心数",
         "description": "IVF_FLAT 索引的 nlist 参数。仅建索引时生效，已有索引需重建",
+    },
+    "CHUNK_STRATEGY": {
+        "group": "chunking",
+        "type": "enum", "enum": ["auto", "markdown", "recursive"],
+        "label": "切割策略",
+        "description": "全局默认切割策略（auto=按内容自动探测）。知识库可单独覆盖；下次切割文档时生效",
+    },
+    "ENABLED_ENHANCERS": {
+        "group": "chunking",
+        "type": "csv", "enum": ["sub_question", "summary"],
+        "label": "启用的增强器",
+        "description": "逗号分隔：sub_question,summary。留空 = 全关（纯原文 RAG）。知识库可单独覆盖",
     },
 
     # ── LLM 参数（消费方每次请求读取，热生效）──
@@ -298,6 +311,38 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
         "type": "int", "min": 1, "max": 10080,
         "label": "登录 Token 有效期",
         "description": "单位：分钟，对后续登录生效",
+    },
+
+    # ── 自进化记忆（文档 06，立即生效） ──
+    "FAQ_HIT_THRESHOLD": {
+        "group": "evolving",
+        "type": "float", "min": 0.5, "max": 1.0,
+        "label": "FAQ 直返阈值",
+        "description": "FAQ 召回直返的相似度阈值（宁漏勿错，默认 0.9，另有 LLM 二次确认）",
+    },
+    "FAQ_DEDUP_SIMILARITY": {
+        "group": "evolving",
+        "type": "float", "min": 0.5, "max": 1.0,
+        "label": "FAQ 判重阈值",
+        "description": "同一 KB 内补全问题相似度 ≥ 此值时聚合到已有记忆（hit_count 累加），默认 0.95",
+    },
+    "FAQ_HEAT_HALF_LIFE_DAYS": {
+        "group": "evolving",
+        "type": "float", "min": 0.5, "max": 90,
+        "label": "热度半衰期（天）",
+        "description": "FAQ 热度时间衰减半衰期，heat = hit_count × 0.5^(天数/半衰期)",
+    },
+    "FAQ_DISTILL_THRESHOLD_PRIVATE": {
+        "group": "evolving",
+        "type": "int", "min": 1, "max": 100,
+        "label": "私有库蒸馏阈值",
+        "description": "私有 KB（含克隆版）中 candidate 命中次数达到此值自动升格 active",
+    },
+    "FAQ_DISTILL_THRESHOLD_SHARED": {
+        "group": "evolving",
+        "type": "int", "min": 1, "max": 100,
+        "label": "共享库蒸馏阈值",
+        "description": "自己分享出去的共享 KB 中 candidate 升格阈值（污染面更大，默认 3）",
     },
 
     # ── API Keys / 密钥 ──
@@ -636,12 +681,19 @@ def validate_value(key: str, value: Any) -> Optional[str]:
         # enum 值可能是 int（日志级别），统一字符串比较
         if str(value) not in [str(v) for v in meta["enum"]]:
             return f"{key} 可选值: {', '.join(str(v) for v in meta['enum'])}"
+    elif meta["type"] == "csv":
+        # 逗号分隔多值（文档 03）：逐项校验合法性，空串 = 全关（合法）
+        parts = [p.strip() for p in str(value).split(",") if p.strip()]
+        allowed = [str(v) for v in meta.get("enum", [])]
+        bad = [p for p in parts if p not in allowed]
+        if bad:
+            return f"{key} 含非法值: {', '.join(bad)}（可选: {', '.join(allowed)}，留空=全关）"
 
     return None
 
 
 def normalize_value(key: str, value: Any) -> Any:
-    """把输入值转为目标类型（int/float/str）。"""
+    """把输入值转为目标类型（int/float/str/csv 规范化）。"""
     meta = WRITABLE_CONFIGS.get(key, {})
     if meta.get("type") == "int":
         return int(value)
@@ -653,4 +705,12 @@ def normalize_value(key: str, value: Any) -> Any:
         if enum_values and all(isinstance(v, int) for v in enum_values):
             return int(value)
         return str(value)
+    if meta.get("type") == "csv":
+        # 规范化：去空格、去重保序；空输入 → 空串（全关语义）
+        parts = [p.strip() for p in str(value).split(",") if p.strip()]
+        seen = []
+        for p in parts:
+            if p not in seen:
+                seen.append(p)
+        return ",".join(seen)
     return str(value)

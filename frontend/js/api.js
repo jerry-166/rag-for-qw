@@ -100,17 +100,20 @@ const KnowledgeBaseAPI = {
     return request('/api/knowledge-bases');
   },
 
-  async create(kb_name, description = '') {
+  async create(kb_name, description = '', chunk_strategy = null, enhancers = null) {
     return request('/api/knowledge-bases', {
       method: 'POST',
-      body: JSON.stringify({ kb_name, description }),
+      body: JSON.stringify({ kb_name, description, chunk_strategy, enhancers }),
     });
   },
 
-  async update(kb_id, kb_name, description = '') {
+  async update(kb_id, kb_name, description = '', chunk_strategy = null, enhancers = null) {
+    const body = { kb_name, description };
+    if (chunk_strategy !== null) body.chunk_strategy = chunk_strategy;
+    if (enhancers !== null) body.enhancers = enhancers;
     return request(`/api/knowledge-bases/${kb_id}`, {
       method: 'PUT',
-      body: JSON.stringify({ kb_name, description }),
+      body: JSON.stringify(body),
     });
   },
 
@@ -146,6 +149,11 @@ const DocumentAPI = {
 
   async generate(file_id) {
     return request(`/api/process/generate/${file_id}`, { method: 'POST' });
+  },
+
+  // 文档 03：缺口检测（轻量纯查询，不触发 LLM）
+  async missingEnhancements(file_id) {
+    return request(`/api/process/generate/${file_id}/missing`);
   },
 
   async importToMilvus(file_id) {

@@ -3192,6 +3192,7 @@ td {
   .agent-kb-bar { padding: 6px 12px 4px; }
 }
 
+
 /* ===== 设置页面 ===== */
 .settings-layout {
   max-width: 720px;
@@ -3357,3 +3358,23 @@ td {
   justify-content: flex-end;
   padding-top: 8px;
 }
+
+/* ===== 鏂囨。 03锛氬寮虹敓鎴愮己鍙ｆ彁绀烘潯 ===== */
+.missing-banner { margin-bottom: 12px; }
+.missing-banner-inner {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 14px;
+  background: var(--yellow-bg, rgba(234, 179, 8, .12));
+  border: 1px solid rgba(234, 179, 8, .35);
+  border-radius: 8px;
+  font-size: .82rem; color: var(--text2);
+}
+.missing-banner-inner .missing-text { flex: 1; min-width: 200px; }
+.missing-banner-inner strong { color: var(--text); }
+
+/* ===== 鏂囨。 03锛欿B 澧炲己鍣ㄥ閫?/ 璁剧疆椤?csv 缁?===== */
+.kb-enhancer-item { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--text2); margin: 4px 0; cursor: pointer; }
+.form-hint { font-size: .72rem; color: var(--text3); margin-top: 6px; }
+.settings-csv-group { display: flex; gap: 14px; flex-wrap: wrap; padding: 4px 0; }
+.settings-csv-item { display: flex; align-items: center; gap: 6px; font-size: .85rem; color: var(--text2); cursor: pointer; }
+

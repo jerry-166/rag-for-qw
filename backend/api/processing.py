@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
+from typing import Optional
 import time
 
 from config import init_logger, settings, get_runtime
@@ -8,6 +9,8 @@ from services.auth import get_current_user
 # 01-B：document_processor 顶层拉起 sentence_transformers（~15s import），改为请求期延迟导入
 from services.milvus_client import MilvusClient
 from services.storage import get_storage
+from services.chunking import resolve_strategy_name
+from services.enhancers import resolve_enabled_enhancers, VALID_ENHANCERS
 
 logger = init_logger(__name__)
 router = APIRouter()
@@ -20,8 +23,9 @@ def _get_processor():
 
 
 @router.post("/split/{file_id}")
-async def split_document(file_id: str, req: Request, current_user=Depends(get_current_user)):
-    """MD切割接口"""
+async def split_document(file_id: str, req: Request, current_user=Depends(get_current_user),
+                         strategy: Optional[str] = None):
+    """MD切割接口（文档 02：策略三级解析 请求参数 > 知识库配置 > 全局配置）"""
     logger.info(f"开始切割文档，文件ID: {file_id}")
     start_time = time.time()
     try:
@@ -73,9 +77,17 @@ async def split_document(file_id: str, req: Request, current_user=Depends(get_cu
         if not markdown_content:
             raise HTTPException(status_code=404, detail="Markdown文件未找到")
 
-        # 切割文档
-        process_result = processor.split_document(markdown_content)
-        logger.debug(f"文档切割完成，生成 {len(process_result['chunks'])} 个段落")
+        # 切割文档（文档 02：三级解析——请求参数 > KB 配置 > 全局配置，默认 auto=历史行为）
+        kb = db.get_knowledge_base(doc["knowledge_base_id"]) if doc["knowledge_base_id"] else None
+        strategy_name = resolve_strategy_name(
+            request_strategy=strategy,
+            kb_strategy=kb.get("chunk_strategy") if kb else None,
+        )
+        process_result = processor.split_document(markdown_content, strategy=strategy_name)
+        logger.debug(f"文档切割完成（策略 {process_result.get('strategy')}），生成 {len(process_result['chunks'])} 个段落")
+        audit.log("process.split.done", user_id=current_user["id"],
+                  resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
+                  detail={"strategy": process_result.get("strategy"), "chunks": len(process_result["chunks"])})
 
         # 存储文档块到PostgreSQL并索引到Elasticsearch
         chunks = process_result['chunks']
@@ -187,20 +199,44 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
         chunks = db.get_document_chunks(file_id)
 
         # ==============================================================
-        # 增量缓存检查：只有 ALL chunks 都有 sub_questions + summary
-        # 才算缓存命中，避免部分生成时返回不完整数据
+        # 增量缓存检查（文档 03：按启用集判断）——只有 ALL chunks
+        # 都已生成「启用集中」的字段才算缓存命中
         # ==============================================================
+        enabled = resolve_enabled_enhancers(doc["knowledge_base_id"])
+        need_subq = "sub_question" in enabled
+        need_summary = "summary" in enabled
+
+        # 全关：跳过 LLM 生成，直接推进状态（纯原文 RAG，import 阶段只处理 chunk 向量）
+        if not (need_subq or need_summary):
+            if doc["status"] not in ["generated", "completed"]:
+                db.update_document(file_id, status="generated")
+            logger.info(f"增强器已全部关闭，跳过生成并推进状态，文件ID: {file_id}")
+            audit.log("process.generate.api_done", user_id=current_user["id"],
+                      resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
+                      detail={"chunks": len(chunks), "enabled_enhancers": [], "mode": "noop",
+                              "processing_time_ms": round((time.time() - start_time) * 1000, 1)})
+            return {
+                "file_id": file_id,
+                "status": "success",
+                "results": {},
+                "sub_questions_count": 0,
+                "summaries_count": 0,
+                "processing_time_ms": (time.time() - start_time) * 1000,
+                "enabled_enhancers": [],
+                "message": "增强器已全部关闭（纯原文 RAG），跳过生成",
+            }
+
         all_complete = True
         results = {}
         for chunk in chunks:
-            sub_questions = db.get_sub_questions_by_chunk(chunk["id"])
-            summary = db.get_chunk_summary(chunk["id"])
+            sub_questions = db.get_sub_questions_by_chunk(chunk["id"]) if need_subq else [1]
+            summary = db.get_chunk_summary(chunk["id"]) if need_summary else "1"
             chunk_index = chunk["chunk_index"]
             results[chunk_index] = {
-                "sub_questions": [sq["content"] for sq in sub_questions],
-                "summary": summary["content"] if summary else "",
+                "sub_questions": [sq["content"] for sq in sub_questions] if need_subq else [],
+                "summary": summary["content"] if (need_summary and summary) else "",
             }
-            if not sub_questions or not summary:
+            if (need_subq and not sub_questions) or (need_summary and not summary):
                 all_complete = False
 
         if all_complete and chunks:
@@ -219,6 +255,7 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 "sub_questions_count": sub_questions_count,
                 "summaries_count": summaries_count,
                 "processing_time_ms": processing_time_ms,
+                "enabled_enhancers": sorted(enabled),
                 "message": "文档已生成增强内容（全部完成），直接返回数据库中的结果",
             }
 
@@ -255,11 +292,12 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
             max_concurrency=get_runtime("MAX_CONCURRENCY", settings.MAX_CONCURRENCY),
             document_id=file_id,
             knowledge_base_id=doc["knowledge_base_id"],
+            enabled=enabled,
         )
         audit.log("process.generate.api_done", user_id=current_user["id"],
                   resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
                   detail={"chunks": len(chunks), "sub_questions_count": sub_questions_count,
-                          "summaries_count": summaries_count,
+                          "summaries_count": summaries_count, "enabled_enhancers": sorted(enabled),
                           "processing_time_ms": round((time.time() - start_time) * 1000, 1)})
 
         # 重新从 DB 读取结果（processor 已写入）
@@ -317,6 +355,96 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
             )
         logger.error(f"生成子问题和摘要失败: {str(e)}")
         raise HTTPException(status_code=500, detail=f"生成子问题和摘要失败: {str(e)}")
+
+
+@router.get("/generate/{file_id}/missing")
+async def get_missing_enhancements(file_id: str, current_user=Depends(get_current_user)):
+    """缺口检测接口（文档 03 §3.4 补生成显性化）。
+
+    轻量纯 PG 查询，零 LLM/embedding 调用：
+    统计该文档在「当前启用集」下缺失增强内容的 chunk 数量，
+    供前端显示黄色提示条 + 显性「补生成」按钮；正常流程不做隐性回补。
+    """
+    try:
+        doc = db.get_document(file_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="文件未找到")
+        if not db.check_kb_permission(current_user["id"], doc["knowledge_base_id"]):
+            raise HTTPException(status_code=403, detail="无权限访问该知识库")
+
+        chunks = db.get_document_chunks(file_id)
+        enabled = resolve_enabled_enhancers(doc["knowledge_base_id"])
+        need_subq = "sub_question" in enabled
+        need_summary = "summary" in enabled
+
+        missing_subq = 0
+        missing_summary = 0
+        missing_both = 0
+        for chunk in chunks:
+            miss_sq = need_subq and not db.get_sub_questions_by_chunk(chunk["id"])
+            miss_sm = need_summary and not db.get_chunk_summary(chunk["id"])
+            if miss_sq:
+                missing_subq += 1
+            if miss_sm:
+                missing_summary += 1
+            if miss_sq or miss_sm:
+                missing_both += 1
+
+        response = {
+            "file_id": file_id,
+            "enabled_enhancers": sorted(enabled),
+            "total_chunks": len(chunks),
+            "missing_chunks": missing_both,
+            "missing": {"sub_question": missing_subq, "summary": missing_summary},
+            "need_backfill": missing_both > 0,
+        }
+        audit.log("process.generate.missing_check", user_id=current_user["id"],
+                  resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
+                  detail={"enabled_enhancers": sorted(enabled), "total_chunks": len(chunks),
+                          "missing_chunks": missing_both})
+        return response
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"缺口检测失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"缺口检测失败: {str(e)}")
+
+
+async def _sync_entity_vectors(processor, milvus_client, chunks, knowledge_base_id):
+    """实体向量同步（文档 06 Phase 2）：
+
+    找出本文档 chunk 关联的实体（PG entity.source_chunk_ids 与本文档 chunk_ids 求交），
+    为其 description 生成嵌入并 upsert 到 Milvus entities 集合。
+    实体是 KB 级合并的，只处理与本文档相关的，避免全量重算。
+    """
+    chunk_ids = {c["id"] for c in chunks}
+    kb_entities = db.get_kb_entities(knowledge_base_id, limit=2000)
+    related = []
+    for e in kb_entities:
+        src_ids = e.get("source_chunk_ids") or []
+        if isinstance(src_ids, str):
+            import json as _json
+            try:
+                src_ids = _json.loads(src_ids)
+            except Exception:
+                src_ids = []
+        if chunk_ids & set(src_ids):
+            related.append(e)
+    if not related:
+        logger.info("本文档无关联实体，跳过实体向量同步")
+        return
+
+    texts = [f"{e['name']}：{e.get('description') or ''}" for e in related]
+    vectors = await processor.batch_embed_texts(texts)
+    synced = 0
+    for e, vec in zip(related, vectors):
+        if milvus_client.upsert_entity_vector(e["id"], knowledge_base_id,
+                                              e["name"], e.get("description"), vec):
+            synced += 1
+    logger.info(f"实体向量同步完成：{synced}/{len(related)} 个实体")
+    audit.log("process.entity_sync", resource_type="knowledge_base",
+              resource_id=knowledge_base_id, kb_id=knowledge_base_id,
+              detail={"related_entities": len(related), "synced": synced})
 
 
 @router.post("/import/{file_id}")
@@ -409,11 +537,20 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
                 db.update_document(file_id, status="importing")
                 logger.info(f"文档状态已设为 importing（防并发），文件ID: {file_id}")
                 
-                # 生成嵌入向量（摘要 + 子问题）
-                await processor.generate_and_fill_embeddings(datas)
-                
+                # 生成嵌入向量（文档 03：按 KB 启用集只嵌入启用的增强内容）
+                enabled = resolve_enabled_enhancers(doc["knowledge_base_id"])
+                await processor.generate_and_fill_embeddings(datas, enabled=enabled)
+
                 # 生成 chunk 原文向量（Native检索）
                 await processor.generate_chunk_embeddings(datas)
+
+                # 06 Phase 2：实体向量同步到 Milvus（该文档 chunk 关联的实体）
+                if "entity" in enabled:
+                    try:
+                        await _sync_entity_vectors(
+                            processor, milvus_client, chunks, doc["knowledge_base_id"])
+                    except Exception as ee:
+                        logger.warning(f"实体向量同步失败（不阻断导入）: {ee}")
                 
                 # 批量导入到Milvus（同步方法，用 executor 避免阻塞 asyncio 事件循环）
                 import asyncio

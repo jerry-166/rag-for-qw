@@ -54,6 +54,15 @@ class Settings(BaseSettings):
     MILVUS_SUMMARIES_COLLECTION: str = os.getenv("MILVUS_SUMMARIES_COLLECTION", "chunk_summaries")
     MILVUS_SUBQUESTIONS_COLLECTION: str = os.getenv("MILVUS_SUBQUESTIONS_COLLECTION", "chunk_subquestions")
     MILVUS_CHUNKS_COLLECTION: str = os.getenv("MILVUS_CHUNKS_COLLECTION", "chunk_vectors")  # chunk原文向量集合名
+    MILVUS_FAQ_COLLECTION: str = os.getenv("MILVUS_FAQ_COLLECTION", "faq_vectors")  # 06：FAQ 记忆召回集合名
+    MILVUS_ENTITIES_COLLECTION: str = os.getenv("MILVUS_ENTITIES_COLLECTION", "entity_vectors")  # 06 Phase 2：实体向量集合名
+
+    # 自进化 RAG（文档 06，Stage 3）
+    FAQ_HIT_THRESHOLD: float = float(os.getenv("FAQ_HIT_THRESHOLD", "0.9"))  # FAQ 直返相似度阈值（宁漏勿错）
+    FAQ_DEDUP_SIMILARITY: float = float(os.getenv("FAQ_DEDUP_SIMILARITY", "0.95"))  # 同 KB 判重阈值（≥则聚合 hit_count）
+    FAQ_HEAT_HALF_LIFE_DAYS: float = float(os.getenv("FAQ_HEAT_HALF_LIFE_DAYS", "7"))  # 热度半衰期（天）
+    FAQ_DISTILL_THRESHOLD_PRIVATE: int = int(os.getenv("FAQ_DISTILL_THRESHOLD_PRIVATE", "2"))  # 私有 KB 蒸馏阈值
+    FAQ_DISTILL_THRESHOLD_SHARED: int = int(os.getenv("FAQ_DISTILL_THRESHOLD_SHARED", "3"))  # 自有共享 KB 蒸馏阈值
 
     # PostgreSQL配置
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
@@ -100,11 +109,15 @@ class Settings(BaseSettings):
     RETRIEVAL_MIN_SCORE: float = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.3"))  # 检索结果最低相关度阈值（0-1），低于此分数的结果将被丢弃
     RETRIEVAL_TOP_K: int = int(os.getenv("RETRIEVAL_TOP_K", "5"))  # 检索默认 Top-K 条数
 
-    # 文档切分配置（document_processor.py）
+    # 文档切分配置（document_processor.py / services/chunking/）
     CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", "400"))  # 递归切割器目标大小
     CHUNK_OVERLAP: int = int(os.getenv("CHUNK_OVERLAP", "50"))  # 切割重叠字符数
     MIN_CHUNK_SIZE: int = int(os.getenv("MIN_CHUNK_SIZE", "100"))  # 短 chunk 合并阈值
     MAX_CHUNK_SIZE: int = int(os.getenv("MAX_CHUNK_SIZE", "800"))  # 长 chunk 二次切割阈值
+    # 切割策略（文档 02）：auto=内容探测（默认，=历史行为）/ markdown / recursive
+    CHUNK_STRATEGY: str = os.getenv("CHUNK_STRATEGY", "auto")
+    # 启用的增强器（文档 03）：逗号分隔，可选 sub_question / summary；空 = 全关（纯原文 RAG）
+    ENABLED_ENHANCERS: str = os.getenv("ENABLED_ENHANCERS", "sub_question,summary")
 
     # 向量索引与检索参数（milvus_client.py / rag_tools.py / retrieval_strategies.py）
     MILVUS_NPROBE: int = int(os.getenv("MILVUS_NPROBE", "10"))  # IVF 搜索探针数
