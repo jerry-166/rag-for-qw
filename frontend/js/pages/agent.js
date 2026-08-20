@@ -1011,6 +1011,57 @@ window.AgentPage = window.AgentPage || {
     }
   },
 
+  /** Stage 3：渲染"帮助成长"补全卡片（检索失败引导，文档 06） */
+  _renderSupplementCard(msgIdx) {
+    const msgContentEl = document.getElementById(`msg-content-${msgIdx}`);
+    if (!msgContentEl) return;
+    const host = msgContentEl.parentElement;
+    if (!host || host.querySelector('.supplement-card')) return; // 防重复
+
+    const session = this.activeSession;
+    const userQuery = (session?.messages?.[msgIdx - 1]?.role === 'user')
+      ? session.messages[msgIdx - 1].content : '';
+
+    const card = document.createElement('div');
+    card.className = 'supplement-card missing-banner-inner';
+    card.style.marginTop = '10px';
+    card.innerHTML = `
+      <span class="missing-icon">🌱</span>
+      <div style="flex: 1; min-width: 220px;">
+        <div style="margin-bottom: 6px;">教教我——你的补充会被记住，下次就能直接回答：</div>
+        <input type="text" id="supp-q-${msgIdx}" class="settings-input" style="width: 100%; margin-bottom: 6px;"
+          value="${this._escapeHTML(userQuery)}" placeholder="问题" />
+        <textarea id="supp-a-${msgIdx}" class="settings-input" style="width: 100%;" rows="3"
+          placeholder="正确答案（会被记入知识记忆）"></textarea>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="AgentPage.submitSupplement(${msgIdx})">提交</button>
+      <button class="btn-link" onclick="this.closest('.supplement-card').remove()">忽略</button>
+    `;
+    host.appendChild(card);
+  },
+
+  /** Stage 3：提交补全（写入路径由后端 fork/PR 规则判定） */
+  async submitSupplement(msgIdx) {
+    const qEl = document.getElementById(`supp-q-${msgIdx}`);
+    const aEl = document.getElementById(`supp-a-${msgIdx}`);
+    const question = (qEl?.value || '').trim();
+    const answer = (aEl?.value || '').trim();
+    if (!question || !answer) {
+      window.App.showToast('问题和答案都需要填写', 'error');
+      return;
+    }
+    try {
+      const result = await window.FaqAPI.supplement({
+        question, answer, kb_id: this.selectedKbId,
+      });
+      window.App.showToast(result.message || '已记录', 'success');
+      const card = qEl.closest('.supplement-card');
+      if (card) card.remove();
+    } catch (e) {
+      window.App.showToast('提交失败: ' + e.message, 'error');
+    }
+  },
+
   async _processStream(stream, msgIdx) {
     const session = this.activeSession;
     if (!session) return;
@@ -1055,6 +1106,13 @@ window.AgentPage = window.AgentPage || {
                   this._scrollToBottom();
                 }
               }
+              // Stage 3：捕获 FAQ 命中 / 补全引导标记（StreamChunk.to_sse 把 metadata 展开到顶层）
+              if (data.suggest_supplement) {
+                session.messages[msgIdx]._suggestSupplement = true;
+              }
+              if (data.faq_hit) {
+                session.messages[msgIdx]._faqHit = true;
+              }
               break;
 
             case 'done':
@@ -1075,6 +1133,12 @@ window.AgentPage = window.AgentPage || {
                             + (session.messages[msgIdx].rawSources?.length || 0);
               if (srcCount > 0) {
                 this._renderSourcePanelOnly(msgIdx);
+              }
+              // Stage 3：检索失败引导补全（后端标记为主，关键词为兜底——
+              // 防止 suggest_supplement 标记在链路中丢失时入口完全消失）
+              const msg = session.messages[msgIdx];
+              if (msg._suggestSupplement || /知识库中(没有|未检索到)|没有检索到相关/.test(fullContent || '')) {
+                this._renderSupplementCard(msgIdx);
               }
               break;
 

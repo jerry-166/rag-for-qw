@@ -27,6 +27,7 @@ GROUPS: Dict[str, str] = {
     "processing": "文档处理",
     "model": "模型与 LLM",
     "system": "系统配置",
+    "evolving": "自进化记忆",
     "api_keys": "API Keys",
 }
 
@@ -61,9 +62,9 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
     },
     "DEFAULT_RETRIEVAL_MODE": {
         "group": "retrieval",
-        "type": "enum", "enum": ["native", "advanced", "hybrid"],
+        "type": "enum", "enum": ["native", "advanced", "hybrid", "graph"],
         "label": "默认检索模式",
-        "description": "native=仅原文向量 / advanced=摘要+子问题 / hybrid=三路并行+RRF融合",
+        "description": "native=仅原文向量 / advanced=摘要+子问题 / hybrid=三路并行+RRF融合 / graph=实体图谱（需KB启用entity增强）",
     },
     "NUM_SUBQUESTIONS": {
         "group": "retrieval",
@@ -310,6 +311,38 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
         "type": "int", "min": 1, "max": 10080,
         "label": "登录 Token 有效期",
         "description": "单位：分钟，对后续登录生效",
+    },
+
+    # ── 自进化记忆（文档 06，立即生效） ──
+    "FAQ_HIT_THRESHOLD": {
+        "group": "evolving",
+        "type": "float", "min": 0.5, "max": 1.0,
+        "label": "FAQ 直返阈值",
+        "description": "FAQ 召回直返的相似度阈值（宁漏勿错，默认 0.9，另有 LLM 二次确认）",
+    },
+    "FAQ_DEDUP_SIMILARITY": {
+        "group": "evolving",
+        "type": "float", "min": 0.5, "max": 1.0,
+        "label": "FAQ 判重阈值",
+        "description": "同一 KB 内补全问题相似度 ≥ 此值时聚合到已有记忆（hit_count 累加），默认 0.95",
+    },
+    "FAQ_HEAT_HALF_LIFE_DAYS": {
+        "group": "evolving",
+        "type": "float", "min": 0.5, "max": 90,
+        "label": "热度半衰期（天）",
+        "description": "FAQ 热度时间衰减半衰期，heat = hit_count × 0.5^(天数/半衰期)",
+    },
+    "FAQ_DISTILL_THRESHOLD_PRIVATE": {
+        "group": "evolving",
+        "type": "int", "min": 1, "max": 100,
+        "label": "私有库蒸馏阈值",
+        "description": "私有 KB（含克隆版）中 candidate 命中次数达到此值自动升格 active",
+    },
+    "FAQ_DISTILL_THRESHOLD_SHARED": {
+        "group": "evolving",
+        "type": "int", "min": 1, "max": 100,
+        "label": "共享库蒸馏阈值",
+        "description": "自己分享出去的共享 KB 中 candidate 升格阈值（污染面更大，默认 3）",
     },
 
     # ── API Keys / 密钥 ──

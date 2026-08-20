@@ -137,6 +137,17 @@ class App {
           this.navigate('auth');
         }
         break;
+      case 'faq':
+        if (this.isAuthenticated) {
+          await this.renderAppLayout('知识记忆', async () => {
+            if (window.FAQPage) {
+              await window.FAQPage.render();
+            }
+          });
+        } else {
+          this.navigate('auth');
+        }
+        break;
       case 'settings':
         if (this.isAuthenticated) {
           await this.renderAppLayout('系统设置', async () => {

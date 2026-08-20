@@ -436,6 +436,7 @@ class ClawAgentAdapter:
                 session_id=session_id,
                 knowledge_base_id=knowledge_base_id,
                 retrieval_mode=kwargs.get("retrieval_mode"),
+                user_id=kwargs.get("user_id"),
             )
 
             # 构建 LangGraph config，合并追踪 callbacks
@@ -533,6 +534,7 @@ class ClawAgentAdapter:
                 session_id=session_id,
                 knowledge_base_id=knowledge_base_id,
                 retrieval_mode=kwargs.get("retrieval_mode"),
+                user_id=kwargs.get("user_id"),
             )
 
             answer_sent = False  # 防止多个 on_chain_end 重复输出答案
@@ -664,6 +666,9 @@ class ClawAgentAdapter:
                                 metadata={
                                     "agent_type": self.agent_type.value,
                                     "sources_count": final_state.get("metadata", {}).get("sources_count", 0),
+                                    # 06：透传 FAQ 命中与补全引导标记（前端补全卡片依据）
+                                    "suggest_supplement": final_state.get("metadata", {}).get("suggest_supplement", False),
+                                    "faq_hit": final_state.get("metadata", {}).get("faq_hit", False),
                                 }
                             )
                             if not done:

@@ -22,6 +22,8 @@ class StoredData(BaseModel):
     summary: str
     summary_embedding: list[float]
     chunk_embedding: list[float] = []  # [新增] chunk原文向量，用于Native检索
+    entities: list[dict] = []    # 06 Phase 2：实体抽取结果（name/type/description）
+    relations: list[dict] = []   # 06 Phase 2：关系抽取结果（head/relation/tail/evidence）
     metadata: dict
 
 class DocumentProcessor:
@@ -231,6 +233,8 @@ class DocumentProcessor:
                 doc_result = results["results"][i]
                 datas[idx].sub_questions = [q for q in doc_result["subqs"] if q]
                 datas[idx].summary = doc_result["summary"]
+                datas[idx].entities = doc_result.get("entities", []) or []
+                datas[idx].relations = doc_result.get("relations", []) or []
                 total_sub_questions += len(datas[idx].sub_questions)
                 if datas[idx].summary:
                     total_summaries += 1
@@ -279,8 +283,57 @@ class DocumentProcessor:
         if not success:
             logger.error(f"增量批次 {batch_idx} 批量保存失败")
 
+        # 06 Phase 2：实体/关系落 PG（KB 级合并，同名实体聚合 source_chunk_ids）
+        if "entity" in pipeline.enabled:
+            for i, data in enumerate(batch_data):
+                chunk_db_id = data.metadata.get("chunk_id")
+                parsed = results[i]
+                self._persist_entities(parsed.get("entities", []),
+                                       parsed.get("relations", []),
+                                       knowledge_base_id, chunk_db_id)
+
         end_time = time.time()
         logger.info(f"增量批次 {batch_idx} 完成并已持久化，耗时: {end_time - start_time:.2f}秒")
+
+    def _persist_entities(self, entities, relations, knowledge_base_id, chunk_db_id):
+        """实体/关系落 PG（文档 06 Phase 2）：同名实体 KB 级合并，关系按 (head,rel,tail) 去重。
+
+        失败不致命——图谱是增强层，不影响主流程。
+        """
+        from services.database import db
+        try:
+            name_to_id = {}
+            for e in entities or []:
+                eid = db.upsert_entity(
+                    kb_id=knowledge_base_id,
+                    name=e.get("name"),
+                    entity_type=e.get("type"),
+                    description=e.get("description"),
+                    chunk_id=chunk_db_id,
+                )
+                if eid:
+                    name_to_id[e["name"].strip()] = eid
+            for r in relations or []:
+                head_id = name_to_id.get((r.get("head") or "").strip())
+                tail_id = name_to_id.get((r.get("tail") or "").strip())
+                # 关系两端实体未在本次抽取中（可能引用既有实体）→ 按名查库
+                if not head_id and r.get("head"):
+                    rows = db.find_entities_by_names(knowledge_base_id, [r["head"].strip()])
+                    head_id = rows[0]["id"] if rows else None
+                if not tail_id and r.get("tail"):
+                    rows = db.find_entities_by_names(knowledge_base_id, [r["tail"].strip()])
+                    tail_id = rows[0]["id"] if rows else None
+                if head_id and tail_id and r.get("relation"):
+                    db.add_entity_relation(
+                        kb_id=knowledge_base_id,
+                        head_entity_id=head_id,
+                        relation_type=r["relation"].strip(),
+                        tail_entity_id=tail_id,
+                        evidence=r.get("evidence"),
+                        source_chunk_id=chunk_db_id,
+                    )
+        except Exception as e:
+            logger.warning(f"实体/关系落 PG 失败（不致命）: {e}")
     
     async def batch_embed_texts(self, texts, batch_size=None, max_concurrency=None):
         """批量生成嵌入（并行处理）"""

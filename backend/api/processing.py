@@ -402,6 +402,43 @@ async def get_missing_enhancements(file_id: str, current_user=Depends(get_curren
         raise HTTPException(status_code=500, detail=f"缺口检测失败: {str(e)}")
 
 
+async def _sync_entity_vectors(processor, milvus_client, chunks, knowledge_base_id):
+    """实体向量同步（文档 06 Phase 2）：
+
+    找出本文档 chunk 关联的实体（PG entity.source_chunk_ids 与本文档 chunk_ids 求交），
+    为其 description 生成嵌入并 upsert 到 Milvus entities 集合。
+    实体是 KB 级合并的，只处理与本文档相关的，避免全量重算。
+    """
+    chunk_ids = {c["id"] for c in chunks}
+    kb_entities = db.get_kb_entities(knowledge_base_id, limit=2000)
+    related = []
+    for e in kb_entities:
+        src_ids = e.get("source_chunk_ids") or []
+        if isinstance(src_ids, str):
+            import json as _json
+            try:
+                src_ids = _json.loads(src_ids)
+            except Exception:
+                src_ids = []
+        if chunk_ids & set(src_ids):
+            related.append(e)
+    if not related:
+        logger.info("本文档无关联实体，跳过实体向量同步")
+        return
+
+    texts = [f"{e['name']}：{e.get('description') or ''}" for e in related]
+    vectors = await processor.batch_embed_texts(texts)
+    synced = 0
+    for e, vec in zip(related, vectors):
+        if milvus_client.upsert_entity_vector(e["id"], knowledge_base_id,
+                                              e["name"], e.get("description"), vec):
+            synced += 1
+    logger.info(f"实体向量同步完成：{synced}/{len(related)} 个实体")
+    audit.log("process.entity_sync", resource_type="knowledge_base",
+              resource_id=knowledge_base_id, kb_id=knowledge_base_id,
+              detail={"related_entities": len(related), "synced": synced})
+
+
 @router.post("/import/{file_id}")
 async def import_to_milvus(file_id: str, request: Request, current_user=Depends(get_current_user)):
     """导入到Milvus"""
@@ -494,9 +531,17 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
                 # 生成嵌入向量（文档 03：按 KB 启用集只嵌入启用的增强内容）
                 enabled = resolve_enabled_enhancers(doc["knowledge_base_id"])
                 await processor.generate_and_fill_embeddings(datas, enabled=enabled)
-                
+
                 # 生成 chunk 原文向量（Native检索）
                 await processor.generate_chunk_embeddings(datas)
+
+                # 06 Phase 2：实体向量同步到 Milvus（该文档 chunk 关联的实体）
+                if "entity" in enabled:
+                    try:
+                        await _sync_entity_vectors(
+                            processor, milvus_client, chunks, doc["knowledge_base_id"])
+                    except Exception as ee:
+                        logger.warning(f"实体向量同步失败（不阻断导入）: {ee}")
                 
                 # 批量导入到Milvus（同步方法，用 executor 避免阻塞 asyncio 事件循环）
                 import asyncio

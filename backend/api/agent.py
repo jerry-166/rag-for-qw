@@ -326,6 +326,7 @@ async def chat(
                 knowledge_base_id=request.knowledge_base_id,
                 retrieval_mode=request.retrieval_mode,
                 callbacks=callbacks,
+                user_id=current_user["id"],
             )
 
             return {
@@ -401,6 +402,7 @@ async def chat_stream(
                         knowledge_base_id=request.knowledge_base_id,
                         retrieval_mode=request.retrieval_mode,
                         callbacks=callbacks,
+                        user_id=current_user["id"],
                     ):
                         yield chunk.to_sse().encode("utf-8")
                 else:
