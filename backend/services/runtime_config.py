@@ -121,6 +121,18 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
         "label": "IVF 聚类中心数",
         "description": "IVF_FLAT 索引的 nlist 参数。仅建索引时生效，已有索引需重建",
     },
+    "CHUNK_STRATEGY": {
+        "group": "chunking",
+        "type": "enum", "enum": ["auto", "markdown", "recursive"],
+        "label": "切割策略",
+        "description": "全局默认切割策略（auto=按内容自动探测）。知识库可单独覆盖；下次切割文档时生效",
+    },
+    "ENABLED_ENHANCERS": {
+        "group": "chunking",
+        "type": "csv", "enum": ["sub_question", "summary"],
+        "label": "启用的增强器",
+        "description": "逗号分隔：sub_question,summary。留空 = 全关（纯原文 RAG）。知识库可单独覆盖",
+    },
 
     # ── LLM 参数（消费方每次请求读取，热生效）──
     "LLM_TEMPERATURE_DEFAULT": {
@@ -636,12 +648,19 @@ def validate_value(key: str, value: Any) -> Optional[str]:
         # enum 值可能是 int（日志级别），统一字符串比较
         if str(value) not in [str(v) for v in meta["enum"]]:
             return f"{key} 可选值: {', '.join(str(v) for v in meta['enum'])}"
+    elif meta["type"] == "csv":
+        # 逗号分隔多值（文档 03）：逐项校验合法性，空串 = 全关（合法）
+        parts = [p.strip() for p in str(value).split(",") if p.strip()]
+        allowed = [str(v) for v in meta.get("enum", [])]
+        bad = [p for p in parts if p not in allowed]
+        if bad:
+            return f"{key} 含非法值: {', '.join(bad)}（可选: {', '.join(allowed)}，留空=全关）"
 
     return None
 
 
 def normalize_value(key: str, value: Any) -> Any:
-    """把输入值转为目标类型（int/float/str）。"""
+    """把输入值转为目标类型（int/float/str/csv 规范化）。"""
     meta = WRITABLE_CONFIGS.get(key, {})
     if meta.get("type") == "int":
         return int(value)
@@ -653,4 +672,12 @@ def normalize_value(key: str, value: Any) -> Any:
         if enum_values and all(isinstance(v, int) for v in enum_values):
             return int(value)
         return str(value)
+    if meta.get("type") == "csv":
+        # 规范化：去空格、去重保序；空输入 → 空串（全关语义）
+        parts = [p.strip() for p in str(value).split(",") if p.strip()]
+        seen = []
+        for p in parts:
+            if p not in seen:
+                seen.append(p)
+        return ",".join(seen)
     return str(value)

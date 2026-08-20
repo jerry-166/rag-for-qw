@@ -226,6 +226,12 @@ class Database:
             except Exception as e:
                 # PG < 14 不支持 SET COMPRESSION lz4 → 退化为默认 pglz 压缩（设计 §3.2）
                 logger.warning(f"tokenized 列 LZ4 压缩设置失败（PG<14 退化为默认压缩）: {e}")
+            # 02/03：知识库级策略配置（chunk_strategy 切割策略 / enhancers 启用增强器集合，NULL = 跟随全局）
+            try:
+                self.cursor.execute('ALTER TABLE knowledge_base ADD COLUMN IF NOT EXISTS chunk_strategy VARCHAR(32)')
+                self.cursor.execute('ALTER TABLE knowledge_base ADD COLUMN IF NOT EXISTS enhancers JSONB')
+            except Exception as e:
+                logger.warning(f"knowledge_base 策略列迁移失败: {e}")
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_status ON document (status)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_user_id ON document (user_id)')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_document_knowledge_base_id ON document (knowledge_base_id)')
@@ -381,17 +387,20 @@ class Database:
             return None
     
     # 知识库相关方法
-    def add_knowledge_base(self, user_id, kb_name, description=None, metadata=None):
-        """添加知识库"""
+    def add_knowledge_base(self, user_id, kb_name, description=None, metadata=None,
+                           chunk_strategy=None, enhancers=None):
+        """添加知识库（文档 02/03：支持 KB 级切割策略与增强器配置，NULL = 跟随全局）"""
         query = '''
-            INSERT INTO knowledge_base (user_id, kb_name, description, metadata)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO knowledge_base (user_id, kb_name, description, metadata, chunk_strategy, enhancers)
+            VALUES (%s, %s, %s, %s, %s, %s)
             RETURNING id
         '''
         try:
-            # 将metadata转换为JSON字符串
+            # 将metadata/enhancers转换为JSON字符串
             metadata_json = json.dumps(metadata) if metadata else None
-            self.cursor.execute(query, (user_id, kb_name, description, metadata_json))
+            enhancers_json = json.dumps(list(enhancers)) if enhancers is not None else None
+            self.cursor.execute(query, (user_id, kb_name, description, metadata_json,
+                                         chunk_strategy, enhancers_json))
             kb_id = self.cursor.fetchone()['id']
             # 为创建者添加完全权限
             self.add_user_kb_permission(user_id, kb_id, 'write')
@@ -855,6 +864,8 @@ class Database:
             - metadata: dict
             - subqs: List[str] 子问题列表
             - summary: str 摘要内容
+            - skip_subqs: bool 未启用子问题时为 True——不删除已有子问题、不写入（文档 03）
+            - skip_summary: bool 未启用摘要时为 True——不删除已有摘要、不写入（文档 03）
 
         事务保护：如果任何一步失败，整个批次回滚。
         """
@@ -872,24 +883,30 @@ class Database:
                     metadata = item["metadata"]
                     subqs = item.get("subqs", [])
                     summary = item.get("summary", "")
+                    skip_subqs = item.get("skip_subqs", False)
+                    skip_summary = item.get("skip_summary", False)
 
-                    # 幂等：先清理旧数据
-                    cur.execute("DELETE FROM sub_question WHERE chunk_id = %s", (chunk_db_id,))
-                    cur.execute("DELETE FROM chunk_summary WHERE chunk_id = %s", (chunk_db_id,))
+                    # 幂等：先清理旧数据（仅清理本次会写入的字段，
+                    # 未启用的字段跳过删除以保护已有增强内容）
+                    if not skip_subqs:
+                        cur.execute("DELETE FROM sub_question WHERE chunk_id = %s", (chunk_db_id,))
+                    if not skip_summary:
+                        cur.execute("DELETE FROM chunk_summary WHERE chunk_id = %s", (chunk_db_id,))
 
                     # 写入子问题
                     metadata_json = json.dumps(metadata) if metadata else None
-                    for sq in subqs:
-                        cur.execute(
-                            """
-                            INSERT INTO sub_question (document_id, knowledge_base_id, chunk_id, content, metadata)
-                            VALUES (%s, %s, %s, %s, %s)
-                            """,
-                            (document_id, knowledge_base_id, chunk_db_id, sq, metadata_json)
-                        )
+                    if not skip_subqs:
+                        for sq in subqs:
+                            cur.execute(
+                                """
+                                INSERT INTO sub_question (document_id, knowledge_base_id, chunk_id, content, metadata)
+                                VALUES (%s, %s, %s, %s, %s)
+                                """,
+                                (document_id, knowledge_base_id, chunk_db_id, sq, metadata_json)
+                            )
 
                     # 写入摘要
-                    if summary:
+                    if not skip_summary and summary:
                         cur.execute(
                             """
                             INSERT INTO chunk_summary (document_id, knowledge_base_id, chunk_id, content, metadata)

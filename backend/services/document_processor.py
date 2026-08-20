@@ -1,15 +1,9 @@
 import os
 import asyncio
-import re
-import json
 import time
 import logging
 from pydantic import BaseModel
-from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import PydanticOutputParser
-from langchain_classic.output_parsers import OutputFixingParser
 
 from config import settings, init_logger, get_runtime
 from services.audit import audit
@@ -17,21 +11,8 @@ from services.audit import audit
 # 初始化日志记录器
 logger = init_logger(__name__)
 
-
-def _strip_markdown_json(text: str) -> str:
-    """
-    清理 LLM 输出中的 markdown 代码块包裹。
-    
-    LLM 经常返回 ```json\n{...}\n``` 格式，PydanticOutputParser 无法直接解析。
-    此函数在解析前清理掉代码块标记。
-    """
-    text = text.strip()
-    # 匹配 ```json ... ``` 或 ``` ... ```
-    pattern = r'^```(?:json)?\s*\n?(.*?)\n?\s*```$'
-    match = re.search(pattern, text, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-    return text
+# 兼容导入（已迁移至 services/enhancers/，文档 03）
+from services.enhancers.base import SubqAndSummary, strip_markdown_json as _strip_markdown_json  # noqa: F401
 
 class StoredData(BaseModel):
     id: str
@@ -42,10 +23,6 @@ class StoredData(BaseModel):
     summary_embedding: list[float]
     chunk_embedding: list[float] = []  # [新增] chunk原文向量，用于Native检索
     metadata: dict
-
-class SubqAndSummary(BaseModel):
-    subqs: list[str]
-    summary: str
 
 class DocumentProcessor:
     def __init__(self):
@@ -72,149 +49,53 @@ class DocumentProcessor:
             api_key=self.LITELLM_API_KEY,
             base_url=self.LITELLM_BASE_URL,
         )
-        
-        # 初始化解析器
-        self.parser = PydanticOutputParser(pydantic_object=SubqAndSummary)
-        self.fixing_parser = OutputFixingParser.from_llm(parser=self.parser, llm=self.ChatModel)
-        
-        # 创建PromptTemplate
-        self.prompt_template = PromptTemplate.from_template(
-            "你是一个专业的文档解析助手，负责为给定的文档段落生成子问题和摘要。\n"
-            "请根据以下文档段落，生成3~5个相关的子问题和摘要。\n"
-            "文档段落：{document_text}\n"
-            "请严格按照以下JSON格式返回结果：{{'subqs':['subq1', 'subq2', ...], 'summary':'摘要内容'}}，请至少生成1条子问题"
-        )
-        
-        # 创建处理链
-        self.gen_chain = self.prompt_template | self.ChatModel | self.fixing_parser
+
+        # 增强器流水线缓存（文档 03）：{frozenset(enabled): EnhancerPipeline}
+        # LLM 增强生成（prompt/解析/降级）已委托 services/enhancers/
+        self._pipelines = {}
+
+    def _get_pipeline(self, enabled):
+        """按启用集获取（或构建）增强器流水线。"""
+        from services.enhancers import EnhancerPipeline
+        key = frozenset(enabled)
+        if key not in self._pipelines:
+            self._pipelines[key] = EnhancerPipeline(enabled, self.ChatModel)
+        return self._pipelines[key]
     
-    def split_document(self, markdown_content):
-        """切分文档"""
+    def split_document(self, markdown_content, strategy=None):
+        """切分文档（文档 02：委托给可插拔切割策略，默认 auto = 原内容探测行为）。"""
         start_time = time.time()
         logger.debug(f"Markdown内容预览：{markdown_content[:100]}...")
-        
-        # 使用MULTILINE使^匹配每一行的开头
-        has1 = bool(re.match(r"^#\s+", markdown_content, re.MULTILINE))
-        has2 = bool(re.match(r"^##\s+", markdown_content, re.MULTILINE))
-        
-        if has1 and has2:
-            md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=[("#", "header1"), ("##", "header2")])
-            split_documents = md_splitter.split_text(markdown_content)
-            
-            # 处理切分结果
-            processed_documents = []
-            current_chunk = ""
-            
-            # 定义阈值
-            MIN_CHUNK_SIZE = get_runtime("MIN_CHUNK_SIZE", settings.MIN_CHUNK_SIZE)
-            MAX_CHUNK_SIZE = get_runtime("MAX_CHUNK_SIZE", settings.MAX_CHUNK_SIZE)
 
-            # 初始化递归切割器
-            recursive_splitter = RecursiveCharacterTextSplitter(
-                separators=["\n\n", "\n"],
-                chunk_size=get_runtime("CHUNK_SIZE", settings.CHUNK_SIZE),
-                chunk_overlap=get_runtime("CHUNK_OVERLAP", settings.CHUNK_OVERLAP)
-            )
-            
-            for doc in split_documents:
-                doc_text = doc.page_content
-                
-                # 处理长文档：如果chunk太长，进行递归切割
-                if len(doc_text) > MAX_CHUNK_SIZE:
-                    logger.debug(f"检测到长文档，长度: {len(doc_text)}，进行递归切割")
-                    # 先处理当前积累的内容
-                    if current_chunk:
-                        processed_documents.append(current_chunk)
-                        current_chunk = ""
-                    # 对长文档进行递归切割
-                    recursive_chunks = recursive_splitter.split_text(doc_text)
-                    processed_documents.extend(recursive_chunks)
-                else:
-                    # 处理短文档：如果chunk太短，与相邻chunk合并
-                    if len(doc_text) < MIN_CHUNK_SIZE:
-                        logger.debug(f"检测到短文档，长度: {len(doc_text)}，进行合并")
-                        current_chunk += doc_text + "\n\n"
-                    else:
-                        # 先处理当前积累的内容
-                        if current_chunk:
-                            processed_documents.append(current_chunk.strip())
-                            current_chunk = ""
-                        # 添加正常大小的chunk
-                        processed_documents.append(doc_text)
-            
-            # 处理最后积累的内容
-            if current_chunk:
-                processed_documents.append(current_chunk.strip())
-            
-            split_documents = processed_documents
-            logger.info(f"使用Markdown标题切分并处理，段落数: {len(split_documents)}")
-        else:
-            recursive_splitter = RecursiveCharacterTextSplitter(
-                separators=["\n\n", "\n"],
-                chunk_size=get_runtime("CHUNK_SIZE", settings.CHUNK_SIZE),
-                chunk_overlap=get_runtime("CHUNK_OVERLAP", settings.CHUNK_OVERLAP)
-            )
-            split_documents = recursive_splitter.split_text(markdown_content)
-            logger.info(f"使用递归字符切分，段落数: {len(split_documents)}")
-        
+        from services.chunking import get_strategy, ChunkParams
+
+        params = ChunkParams(
+            chunk_size=get_runtime("CHUNK_SIZE", settings.CHUNK_SIZE),
+            chunk_overlap=get_runtime("CHUNK_OVERLAP", settings.CHUNK_OVERLAP),
+            min_chunk_size=get_runtime("MIN_CHUNK_SIZE", settings.MIN_CHUNK_SIZE),
+            max_chunk_size=get_runtime("MAX_CHUNK_SIZE", settings.MAX_CHUNK_SIZE),
+        )
+        s = get_strategy(strategy)
+        split_documents = s.split(markdown_content, params)
+
         end_time = time.time()
-        logger.info(f"文档切分完成，耗时: {end_time - start_time:.2f}秒")
+        logger.info(f"文档切分完成（策略={s.name}），段落数: {len(split_documents)}，耗时: {end_time - start_time:.2f}秒")
         return {
-            "chunks": split_documents
+            "chunks": split_documents,
+            "strategy": s.name,
         }
     
-    async def process_batch(self, chunk, batch_idx):
+    async def process_batch(self, chunk, batch_idx, pipeline):
         """
-        处理批次：使用 abatch 并发调用 LLM 生成子问题和摘要。
-        
-        防御策略：
-        1. LLM 输出 markdown 代码块包裹 → _strip_markdown_json 清理
-        2. 单条解析失败 → OutputFixingParser 修复，最终降级返回空
+        处理批次（文档 03）：LLM 调用与解析已委托 EnhancerPipeline。
+
+        防御策略（pipeline 内部）：markdown 代码块清理 + OutputFixingParser 修复 + 降级返回空。
         """
         logger.info(f"开始处理批次 {batch_idx}，包含 {len(chunk)} 个文档")
         start_time = time.time()
-        
-        # 构建 chain 输入列表（PromptTemplate 需要 document_text 参数）
-        inputs = [{"document_text": doc[:3000]} for doc in chunk]
-        
-        # 使用 abatch 并发调用
-        try:
-            raw_results = await self.gen_chain.abatch(inputs)
-        except Exception as e:
-            logger.error(f"批次 {batch_idx} abatch 调用失败: {e}")
-            # abatch 整体失败时，降级为逐条调用
-            raw_results = []
-            for inp in inputs:
-                try:
-                    result = await self.gen_chain.ainvoke(inp)
-                    raw_results.append(result)
-                except Exception as inner_e:
-                    logger.warning(f"批次 {batch_idx} 单条调用失败: {inner_e}")
-                    raw_results.append(None)
-        
-        # 解析结果
-        results = []
-        for i, raw in enumerate(raw_results):
-            if raw is None:
-                results.append({"subqs": [], "summary": ""})
-                continue
-            try:
-                # fixing_parser 成功时直接返回 SubqAndSummary 对象
-                if isinstance(raw, SubqAndSummary):
-                    results.append({"subqs": raw.subqs, "summary": raw.summary})
-                    continue
-                # 字符串情况：先清理 markdown 代码块再 JSON 解析
-                if isinstance(raw, str):
-                    cleaned = _strip_markdown_json(raw)
-                    parsed = json.loads(cleaned)
-                    results.append({"subqs": parsed.get("subqs", []), "summary": parsed.get("summary", "")})
-                    continue
-                # 其他情况尝试直接取属性
-                results.append({"subqs": getattr(raw, 'subqs', []), "summary": getattr(raw, 'summary', '')})
-            except (json.JSONDecodeError, AttributeError, TypeError) as e:
-                logger.warning(f"批次 {batch_idx} 第 {i} 条解析失败: {e}")
-                results.append({"subqs": [], "summary": ""})
-        
+
+        results = await pipeline.run_batch(chunk)
+
         end_time = time.time()
         logger.info(f"批次 {batch_idx} 处理完成，耗时: {end_time - start_time:.2f}秒")
         return {
@@ -229,29 +110,54 @@ class DocumentProcessor:
         max_concurrency=None,
         document_id=None,
         knowledge_base_id=None,
+        enabled=None,
     ):
         """
-        并发生成批次（支持增量模式）。
+        并发生成批次（支持增量模式，文档 03：按启用集装配增强器）。
+
+        enabled（启用集）解析：参数显式传入 > KB 配置 > 全局配置（resolve_enabled_enhancers）。
+        - {sub_question, summary} 双开 → 合并 prompt（= 迁移前默认行为）
+        - 只开其一 → 独立精简 prompt
+        - 全关 → no-op，直接返回（纯原文 RAG）
 
         增量模式（document_id 不为 None）：
-        - 先查 DB，逐块检查是否已有 sub_questions + summary
+        - 先查 DB，按启用集逐块检查缺失字段
         - 只对缺失的块调用 LLM
         - 每个批次完成后立即写 DB（边生成边持久化）
 
         全量模式（document_id 为 None）：
         - 直接对所有 datas 调用 LLM，行为同原版
         """
+        from services.enhancers import resolve_enabled_enhancers
+
+        if enabled is None:
+            enabled = resolve_enabled_enhancers(knowledge_base_id)
+        enabled = set(enabled)
+        pipeline = self._get_pipeline(enabled)
+
         batch_size = batch_size or get_runtime("BATCH_SIZE", settings.BATCH_SIZE)
         max_concurrency = max_concurrency or get_runtime("MAX_CONCURRENCY", settings.MAX_CONCURRENCY)
         start_time = time.time()
         docs = [d.chunk for d in datas]
         total = len(docs)
 
+        need_subq = "sub_question" in enabled
+        need_summary = "summary" in enabled
+
+        # ==================== 全关：秒回（文档 03 §3.4） ====================
+        if not (need_subq or need_summary):
+            logger.info(f"增强器已全部关闭（KB={knowledge_base_id}），跳过 {total} 个块的 LLM 生成")
+            audit.log("process.generate.done", resource_type="document", resource_id=document_id,
+                      kb_id=knowledge_base_id,
+                      detail={"total_chunks": total, "enabled_enhancers": sorted(enabled),
+                              "duration_ms": 0, "mode": "noop"})
+            return
+
         # ==================== 增量模式 ====================
         if document_id is not None:
             from services.database import db
 
-            # 第 1 步：查询 DB，找出每个块是否已有 sub_questions + summary
+            # 第 1 步：查询 DB，按启用集找出缺失字段的块（文档 03 §3.4 增量改造）
             miss_indices = []
             for idx, d in enumerate(datas):
                 chunk_db_id = d.metadata.get("chunk_id")
@@ -259,15 +165,16 @@ class DocumentProcessor:
                     # 找不到 chunk_id，跳过（走全量逻辑）
                     miss_indices.append(idx)
                     continue
-                subqs = db.get_sub_questions_by_chunk(chunk_db_id)
-                summary = db.get_chunk_summary(chunk_db_id)
+                # 只检查启用集中的字段；未启用字段视为已满足（不触发补生成）
+                subqs = db.get_sub_questions_by_chunk(chunk_db_id) if need_subq else [1]
+                summary = db.get_chunk_summary(chunk_db_id) if need_summary else "1"
                 if not subqs or not summary:
                     miss_indices.append(idx)
 
             if not miss_indices:
-                logger.info(f"所有 {total} 个块均已生成，跳过 LLM 调用")
+                logger.info(f"所有 {total} 个块均已生成（启用集: {sorted(enabled)}），跳过 LLM 调用")
                 return
-            logger.info(f"增量模式：{total} 个块中 {len(miss_indices)} 个需要生成")
+            logger.info(f"增量模式：{total} 个块中 {len(miss_indices)} 个需要生成（启用集: {sorted(enabled)}）")
 
             # 第 2 步：构建 miss 批次，按 batch_size 分组
             miss_chunks = [docs[i] for i in miss_indices]
@@ -281,18 +188,17 @@ class DocumentProcessor:
                 async with sem:
                     # 内部处理 + 写 DB
                     await self._process_and_persist_batch(
-                        chunk, batch_data, batch_idx, document_id, knowledge_base_id
+                        chunk, batch_data, batch_idx, document_id, knowledge_base_id, pipeline
                     )
 
             tasks = [sem_task(cb, mb, idx) for idx, (cb, mb) in enumerate(zip(miss_batches, miss_data_batches))]
             await asyncio.gather(*tasks)
             end_time = time.time()
-        audit.log("process.generate.done", resource_type="document", resource_id=document_id,
-                  kb_id=knowledge_base_id,
-                  detail={"total_chunks": total, "batch_size": batch_size,
-                          "max_concurrency": max_concurrency, "duration_ms": round((time.time() - start_time) * 1000, 1),
-                          "mode": "incremental" if document_id is not None else "full"})
-        if document_id is not None:
+            audit.log("process.generate.done", resource_type="document", resource_id=document_id,
+                      kb_id=knowledge_base_id,
+                      detail={"total_chunks": total, "batch_size": batch_size, "enabled_enhancers": sorted(enabled),
+                              "max_concurrency": max_concurrency, "duration_ms": round((time.time() - start_time) * 1000, 1),
+                              "mode": "incremental"})
             logger.info(f"增量批次处理完成，总耗时: {end_time - start_time:.2f}秒")
             return
 
@@ -302,15 +208,15 @@ class DocumentProcessor:
 
         async def sem_task(chunk, batch_idx):
             async with sem:
-                return await self.process_batch(chunk, batch_idx)
+                return await self.process_batch(chunk, batch_idx, pipeline)
 
         tasks = [sem_task(chunk, idx) for idx, chunk in enumerate(batches)]
-        logger.info(f"开始生成子问题和摘要，共 {len(batches)} 个批次，并发数: {max_concurrency}（批次大小: {batch_size}）")
+        logger.info(f"开始生成增强内容（启用集: {sorted(enabled)}），共 {len(batches)} 个批次，并发数: {max_concurrency}（批次大小: {batch_size}）")
         results_list = await asyncio.gather(*tasks)
         end_time = time.time()
         logger.info(f"全部批次处理完成，总耗时: {end_time - start_time:.2f}秒")
         audit.log("process.generate.done", resource_type="datas", resource_id=None,
-                  detail={"total_chunks": total, "batch_size": batch_size,
+                  detail={"total_chunks": total, "batch_size": batch_size, "enabled_enhancers": sorted(enabled),
                           "max_concurrency": max_concurrency, "duration_ms": round((end_time - start_time) * 1000, 1),
                           "mode": "full"})
 
@@ -329,55 +235,27 @@ class DocumentProcessor:
                 if datas[idx].summary:
                     total_summaries += 1
 
-        logger.info(f"子问题和摘要生成完成，共生成 {total_sub_questions} 个子问题，{total_summaries} 个摘要")
+        logger.info(f"增强内容生成完成，共生成 {total_sub_questions} 个子问题，{total_summaries} 个摘要")
 
     async def _process_and_persist_batch(
-        self, chunk, batch_data, batch_idx, document_id, knowledge_base_id
+        self, chunk, batch_data, batch_idx, document_id, knowledge_base_id, pipeline
     ):
         """
-        处理单个批次 + 立即写 DB。
-        用于增量模式，每个批次完成后立即持久化，不用等全部完成。
+        处理单个批次 + 立即写 DB（增量模式）。
+
+        文档 03：LLM 调用委托 pipeline；未启用的增强字段在写库时
+        skip（不删除已有数据、不写入空值），保护此前生成的增强内容。
         """
         logger.info(f"增量批次 {batch_idx} 开始，包含 {len(chunk)} 个块")
         start_time = time.time()
 
-        inputs = [{"document_text": doc[:3000]} for doc in chunk]
-
-        try:
-            raw_results = await self.gen_chain.abatch(inputs)
-        except Exception as e:
-            logger.error(f"增量批次 {batch_idx} abatch 失败: {e}")
-            raw_results = []
-            for inp in inputs:
-                try:
-                    result = await self.gen_chain.ainvoke(inp)
-                    raw_results.append(result)
-                except Exception as inner_e:
-                    logger.warning(f"增量批次 {batch_idx} 单条失败: {inner_e}")
-                    raw_results.append(None)
-
-        # 解析结果
-        results = []
-        for i, raw in enumerate(raw_results):
-            if raw is None:
-                results.append({"subqs": [], "summary": ""})
-                continue
-            try:
-                if isinstance(raw, SubqAndSummary):
-                    results.append({"subqs": raw.subqs, "summary": raw.summary})
-                    continue
-                if isinstance(raw, str):
-                    cleaned = _strip_markdown_json(raw)
-                    parsed = json.loads(cleaned)
-                    results.append({"subqs": parsed.get("subqs", []), "summary": parsed.get("summary", "")})
-                    continue
-                results.append({"subqs": getattr(raw, "subqs", []), "summary": getattr(raw, "summary", "")})
-            except (json.JSONDecodeError, AttributeError, TypeError) as e:
-                logger.warning(f"增量批次 {batch_idx} 第 {i} 条解析失败: {e}")
-                results.append({"subqs": [], "summary": ""})
+        results = await pipeline.run_batch(chunk)
 
         # 构建批量写入数据列表
         from services.database import db
+
+        skip_subqs = "sub_question" not in pipeline.enabled
+        skip_summary = "summary" not in pipeline.enabled
 
         chunk_data_list = []
         for i, data in enumerate(batch_data):
@@ -392,6 +270,8 @@ class DocumentProcessor:
                 "metadata": data.metadata,
                 "subqs": parsed["subqs"],
                 "summary": parsed["summary"],
+                "skip_subqs": skip_subqs,
+                "skip_summary": skip_summary,
             })
 
         # 事务性批量保存（原子性保护）
@@ -444,19 +324,41 @@ class DocumentProcessor:
         
         return embeddings
     
-    async def generate_and_fill_embeddings(self, datas):
-        """生成并填充嵌入"""
+    async def generate_and_fill_embeddings(self, datas, enabled=None):
+        """生成并填充嵌入（文档 03：按启用集只嵌入启用的增强内容）"""
+        from services.enhancers import resolve_enabled_enhancers
+
+        if enabled is None:
+            enabled = resolve_enabled_enhancers(
+                datas[0].metadata.get("knowledge_base_id") if datas else None
+            )
+        enabled = set(enabled)
+        need_summary = "summary" in enabled
+        need_subq = "sub_question" in enabled
+
+        # 全关：无增强内容需要嵌入
+        if not (need_summary or need_subq):
+            logger.info("增强器已全部关闭，跳过增强嵌入生成")
+            return
+
         start_time = time.time()
-        logger.info("开始生成并填充摘要和子问题的嵌入...")
-        valid_indices = [i for i, d in enumerate(datas) if d.summary and d.sub_questions]
+        logger.info(f"开始生成并填充增强内容的嵌入（启用集: {sorted(enabled)}）...")
+
+        # 有效块判定：启用集中的字段非空即可
+        if need_summary and need_subq:
+            valid_indices = [i for i, d in enumerate(datas) if d.summary and d.sub_questions]
+        elif need_summary:
+            valid_indices = [i for i, d in enumerate(datas) if d.summary]
+        else:
+            valid_indices = [i for i, d in enumerate(datas) if d.sub_questions]
         valid_datas = [datas[i] for i in valid_indices]
         logger.info(f"共 {len(valid_datas)} 条数据需要生成嵌入")
-        
-        summary_texts = [d.summary for d in valid_datas]
-        subq_texts = [subq for d in valid_datas for subq in d.sub_questions]
-        
+
+        summary_texts = [d.summary for d in valid_datas] if need_summary else []
+        subq_texts = [subq for d in valid_datas for subq in d.sub_questions] if need_subq else []
+
         logger.info(f"需要生成 {len(summary_texts)} 个摘要嵌入和 {len(subq_texts)} 个子问题嵌入")
-        
+
         # 并行生成 embedding（摘要与子问题无依赖，gather 交错并行；共享同一 Semaphore 限流）
         fill_start_time = time.time()
         sem = asyncio.Semaphore(get_runtime("MAX_CONCURRENCY", settings.MAX_CONCURRENCY))
@@ -488,9 +390,11 @@ class DocumentProcessor:
         fill_start = time.time()
         subq_offset = 0
         for pos, (idx, d) in enumerate(zip(valid_indices, valid_datas)):
-            datas[idx].summary_embedding = summary_embeddings[pos]
-            datas[idx].subq_embeddings = subq_embeddings[subq_offset:subq_offset + len(d.sub_questions)]
-            subq_offset += len(d.sub_questions)
+            if need_summary:
+                datas[idx].summary_embedding = summary_embeddings[pos]
+            if need_subq:
+                datas[idx].subq_embeddings = subq_embeddings[subq_offset:subq_offset + len(d.sub_questions)]
+                subq_offset += len(d.sub_questions)
         fill_end = time.time()
         logger.info(f"嵌入填充完成，耗时: {fill_end - fill_start:.2f}秒")
 
@@ -498,7 +402,7 @@ class DocumentProcessor:
         logger.info(f"嵌入生成和填充总耗时: {total_end - start_time:.2f}秒")
         audit.log("process.embed.fill_done", resource_type="datas",
                   detail={"valid_chunks": len(valid_datas), "summary_embeddings": len(summary_texts),
-                          "subq_embeddings": len(subq_texts),
+                          "subq_embeddings": len(subq_texts), "enabled_enhancers": sorted(enabled),
                           "duration_ms": round((total_end - start_time) * 1000, 1)})
     
     async def generate_chunk_embeddings(self, datas):

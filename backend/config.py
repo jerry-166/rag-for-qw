@@ -100,11 +100,15 @@ class Settings(BaseSettings):
     RETRIEVAL_MIN_SCORE: float = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.3"))  # 检索结果最低相关度阈值（0-1），低于此分数的结果将被丢弃
     RETRIEVAL_TOP_K: int = int(os.getenv("RETRIEVAL_TOP_K", "5"))  # 检索默认 Top-K 条数
 
-    # 文档切分配置（document_processor.py）
+    # 文档切分配置（document_processor.py / services/chunking/）
     CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", "400"))  # 递归切割器目标大小
     CHUNK_OVERLAP: int = int(os.getenv("CHUNK_OVERLAP", "50"))  # 切割重叠字符数
     MIN_CHUNK_SIZE: int = int(os.getenv("MIN_CHUNK_SIZE", "100"))  # 短 chunk 合并阈值
     MAX_CHUNK_SIZE: int = int(os.getenv("MAX_CHUNK_SIZE", "800"))  # 长 chunk 二次切割阈值
+    # 切割策略（文档 02）：auto=内容探测（默认，=历史行为）/ markdown / recursive
+    CHUNK_STRATEGY: str = os.getenv("CHUNK_STRATEGY", "auto")
+    # 启用的增强器（文档 03）：逗号分隔，可选 sub_question / summary；空 = 全关（纯原文 RAG）
+    ENABLED_ENHANCERS: str = os.getenv("ENABLED_ENHANCERS", "sub_question,summary")
 
     # 向量索引与检索参数（milvus_client.py / rag_tools.py / retrieval_strategies.py）
     MILVUS_NPROBE: int = int(os.getenv("MILVUS_NPROBE", "10"))  # IVF 搜索探针数

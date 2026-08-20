@@ -397,6 +397,7 @@ class MilvusClient:
         # 构建过滤表达式
         conditions = []
         filter_copy = dict(metadata_filter) if metadata_filter else {}
+        knowledge_base_id = None
         if "knowledge_base_id" in filter_copy:
             knowledge_base_id = filter_copy.pop("knowledge_base_id")
             conditions.append(f"knowledge_base_id == {knowledge_base_id}")
@@ -411,13 +412,32 @@ class MilvusClient:
 
         from services.retrieval_strategies import get_strategy, SearchContext
 
+        # 文档 03：按 KB 启用增强集短路——未启用的增强不查对应集合
+        # （避免空集合无效检索；未指定 KB 时保持双开默认行为）
+        summaries_collection = self.summaries_collection
+        subquestions_collection = self.subquestions_collection
+        if knowledge_base_id is not None:
+            try:
+                from services.enhancers import resolve_enabled_enhancers
+                enabled = resolve_enabled_enhancers(knowledge_base_id)
+                if "summary" not in enabled:
+                    summaries_collection = None
+                if "sub_question" not in enabled:
+                    subquestions_collection = None
+                if summaries_collection is None or subquestions_collection is None:
+                    logger.info(f"[MilvusClient] KB {knowledge_base_id} 启用集 {sorted(enabled)}，"
+                                f"未启用的增强集合已短路")
+            except Exception as e:
+                logger.warning(f"[MilvusClient] 解析 KB {knowledge_base_id} 增强启用集失败，"
+                               f"保持默认双集合检索: {e}")
+
         ctx = SearchContext(
             query_embedding=query_embedding,
             search_params=search_params,
             limit=limit,
             expr=expr,
-            summaries_collection=self.summaries_collection,
-            subquestions_collection=self.subquestions_collection,
+            summaries_collection=summaries_collection,
+            subquestions_collection=subquestions_collection,
             chunks_collection=self.chunks_collection,
         )
 
