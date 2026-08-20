@@ -1,0 +1,85 @@
+token loaded
+{'query': 'Claude Code 是什么', 'mode': 'native', 'topk': 10, 'ms': 18651.8}
+{'query': '如何安装 Claude Code CLI', 'mode': 'native', 'topk': 10, 'ms': 22462.7}
+{'query': 'CLAUDE.md 文件的作用是什么', 'mode': 'native', 'topk': 10, 'ms': 23712.1}
+{'query': '子 agent 是怎么工作的', 'mode': 'native', 'topk': 10, 'ms': 21194.5}
+{'query': '工具权限系统如何配置', 'mode': 'native', 'topk': 10, 'ms': 23122.8}
+{'query': 'MCP 协议在 Claude Code 中如何使用', 'mode': 'native', 'topk': 10, 'ms': 23538.2}
+{'query': '上下文窗口管理机制', 'mode': 'native', 'topk': 10, 'ms': 25065.4}
+{'query': '如何查看对话的历史记录', 'mode': 'native', 'topk': 10, 'ms': 48565.5}
+{'query': '/hooks 功能可以做什么', 'mode': 'native', 'topk': 10, 'ms': 24108.6}
+{'query': '斜杠命令有哪些', 'mode': 'native', 'topk': 10, 'ms': 25588.4}
+{'query': '如何用 Claude Code 进行代码重构', 'mode': 'native', 'topk': 10, 'ms': 21413.8}
+{'query': 'API 费用如何计算', 'mode': 'native', 'topk': 10, 'ms': 25103.1}
+{'query': '模型上下文协议服务器配置', 'mode': 'native', 'topk': 10, 'ms': 23940.8}
+{'query': '如何调试前端代码', 'mode': 'native', 'topk': 10, 'ms': 25716.7}
+{'query': 'git 工作流最佳实践', 'mode': 'native', 'topk': 10, 'ms': 25176.3}
+{'query': '如何写系统提示词', 'mode': 'native', 'topk': 10, 'ms': 25814.1}
+{'query': '内存管理和 token 优化', 'mode': 'native', 'topk': 10, 'ms': 31727.0}
+{'query': '多模态图片输入支持', 'mode': 'native', 'topk': 10, 'ms': 27450.6}
+{'query': '安全沙箱机制介绍', 'mode': 'native', 'topk': 10, 'ms': 28128.6}
+{'query': '团队协作中如何共享配置', 'mode': 'native', 'topk': 10, 'ms': 24002.1}
+{'query': 'Claude Code 是什么', 'mode': 'advanced', 'topk': 10, 'ms': 7022.6}
+{'query': '如何安装 Claude Code CLI', 'mode': 'advanced', 'topk': 10, 'ms': 11145.9}
+{'query': 'CLAUDE.md 文件的作用是什么', 'mode': 'advanced', 'topk': 10, 'ms': 12063.7}
+{'query': '子 agent 是怎么工作的', 'mode': 'advanced', 'topk': 10, 'ms': 5151.7}
+{'query': '工具权限系统如何配置', 'mode': 'advanced', 'topk': 10, 'ms': 10623.6}
+{'query': 'MCP 协议在 Claude Code 中如何使用', 'mode': 'advanced', 'topk': 10, 'ms': 7827.8}
+{'query': '上下文窗口管理机制', 'mode': 'advanced', 'topk': 10, 'ms': 14535.8}
+{'query': '如何查看对话的历史记录', 'mode': 'advanced', 'topk': 10, 'ms': 11657.4}
+{'query': '/hooks 功能可以做什么', 'mode': 'advanced', 'topk': 10, 'ms': 9090.6}
+{'query': '斜杠命令有哪些', 'mode': 'advanced', 'topk': 10, 'ms': 9081.0}
+{'query': '如何用 Claude Code 进行代码重构', 'mode': 'advanced', 'topk': 10, 'ms': 11627.5}
+{'query': 'API 费用如何计算', 'mode': 'advanced', 'topk': 10, 'ms': 12275.4}
+{'query': '模型上下文协议服务器配置', 'mode': 'advanced', 'topk': 10, 'ms': 10517.6}
+{'query': '如何调试前端代码', 'mode': 'advanced', 'topk': 10, 'ms': 13072.5}
+{'query': 'git 工作流最佳实践', 'mode': 'advanced', 'topk': 10, 'ms': 10271.8}
+{'query': '如何写系统提示词', 'mode': 'advanced', 'topk': 10, 'ms': 8998.0}
+{'query': '内存管理和 token 优化', 'mode': 'advanced', 'topk': 10, 'ms': 11926.6}
+{'query': '多模态图片输入支持', 'mode': 'advanced', 'topk': 10, 'ms': 9357.6}
+{'query': '安全沙箱机制介绍', 'mode': 'advanced', 'topk': 10, 'ms': 8538.0}
+{'query': '团队协作中如何共享配置', 'mode': 'advanced', 'topk': 10, 'ms': 9190.3}
+{'query': 'Claude Code 是什么', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 18831.1}
+{'query': '如何安装 Claude Code CLI', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 20741.3}
+{'query': 'CLAUDE.md 文件的作用是什么', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 19030.2}
+{'query': '子 agent 是怎么工作的', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 22913.3}
+{'query': '工具权限系统如何配置', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 22397.9}
+{'query': 'MCP 协议在 Claude Code 中如何使用', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 19752.8}
+{'query': '上下文窗口管理机制', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 16772.7}
+{'query': '如何查看对话的历史记录', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 22563.6}
+{'query': '/hooks 功能可以做什么', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 24271.3}
+{'query': '斜杠命令有哪些', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 27418.7}
+{'query': '如何用 Claude Code 进行代码重构', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 19002.8}
+{'query': 'API 费用如何计算', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 23810.7}
+{'query': '模型上下文协议服务器配置', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 24788.6}
+{'query': '如何调试前端代码', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 28831.4}
+{'query': 'git 工作流最佳实践', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 22118.1}
+{'query': '如何写系统提示词', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 25043.5}
+{'query': '内存管理和 token 优化', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 20838.4}
+{'query': '多模态图片输入支持', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 23692.7}
+{'query': '安全沙箱机制介绍', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 24654.8}
+{'query': '团队协作中如何共享配置', 'mode': 'hybrid_vec', 'topk': 10, 'ms': 20680.2}
+{'query': 'Claude Code 是什么', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 2147.3}
+{'query': '如何安装 Claude Code CLI', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1681.7}
+{'query': 'CLAUDE.md 文件的作用是什么', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1815.2}
+{'query': '子 agent 是怎么工作的', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1424.0}
+{'query': '工具权限系统如何配置', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1429.9}
+{'query': 'MCP 协议在 Claude Code 中如何使用', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1735.4}
+{'query': '上下文窗口管理机制', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1565.2}
+{'query': '如何查看对话的历史记录', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1632.1}
+{'query': '/hooks 功能可以做什么', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1436.4}
+{'query': '斜杠命令有哪些', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1651.3}
+{'query': '如何用 Claude Code 进行代码重构', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1522.6}
+{'query': 'API 费用如何计算', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1505.6}
+{'query': '模型上下文协议服务器配置', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1846.0}
+{'query': '如何调试前端代码', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1351.4}
+{'query': 'git 工作流最佳实践', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1522.1}
+{'query': '如何写系统提示词', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1532.3}
+{'query': '内存管理和 token 优化', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1633.3}
+{'query': '多模态图片输入支持', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1440.5}
+{'query': '安全沙箱机制介绍', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1527.1}
+{'query': '团队协作中如何共享配置', 'mode': 'hybrid_endpoint', 'topk': 0, 'ms': 1669.3}
+SUMMARY hybrid_endpoint: n=20/20 p50=1565.2ms max=2147.3ms min=1351.4ms avg=1603.4ms
+SUMMARY native: n=20/20 p50=25065.4ms max=48565.5ms min=18651.8ms avg=25724.2ms
+SUMMARY advanced: n=20/20 p50=10517.6ms max=14535.8ms min=5151.7ms avg=10198.8ms
+SUMMARY hybrid_vec: n=20/20 p50=22563.6ms max=28831.4ms min=16772.7ms avg=22407.7ms

@@ -1,0 +1,25 @@
+PID=25976
+
+
+Id    : 25976
+WS_MB : 1646.2
+PM_MB : 3656.8
+
+
+
+=== startup_test2.py output (2026-08-20) ===
+RUN1 startup_seconds=26.93 RSS_MB=4.6 PrivateMB=0.8
+RUN2 startup_seconds=29.55 RSS_MB=4.6 PrivateMB=0.8
+RUN3 startup_seconds=29.53 RSS_MB=4.6 PrivateMB=0.8
+MEAN=28.67 individual=['26.93', '29.55', '29.53']
+=== retrieval SUMMARY lines ===
+SUMMARY hybrid_endpoint: n=20/20 p50=1565.2ms max=2147.3ms min=1351.4ms avg=1603.4ms
+SUMMARY native: n=20/20 p50=25065.4ms max=48565.5ms min=18651.8ms avg=25724.2ms
+SUMMARY advanced: n=20/20 p50=10517.6ms max=14535.8ms min=5151.7ms avg=10198.8ms
+SUMMARY hybrid_vec: n=20/20 p50=22563.6ms max=28831.4ms min=16772.7ms avg=22407.7ms
+=== PG stats ===
+(16, 'import_to_milvus', 'completed', 27.00501, datetime.datetime(2026, 8, 18, 15, 52, 45, 35666))
+--- counts ---
+document_chunk 1418
+sub_question 5983
+chunk_summary 1418
