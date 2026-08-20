@@ -622,11 +622,15 @@ class Database:
         return self.fetchone("SELECT * FROM faq_pr WHERE id = %s", (pr_id,))
 
     def list_faq_prs(self, target_kb_id=None, submitted_by=None, status=None,
-                     page=1, page_size=20):
+                     page=1, page_size=20, target_kb_ids=None):
         conditions, params = [], []
         if target_kb_id is not None:
             conditions.append("target_kb_id = %s")
             params.append(target_kb_id)
+        elif target_kb_ids is not None:
+            # P1-7：批量 KB 过滤（ANY 数组），避免逐 KB N+1 查询
+            conditions.append("pr.target_kb_id = ANY(%s)")
+            params.append(list(target_kb_ids))
         if submitted_by is not None:
             conditions.append("submitted_by = %s")
             params.append(submitted_by)
@@ -634,7 +638,7 @@ class Database:
             conditions.append("status = %s")
             params.append(status)
         where = (" WHERE " + " AND ".join(conditions)) if conditions else ""
-        total = (self.fetchone(f"SELECT COUNT(*) AS cnt FROM faq_pr{where}", tuple(params) or None) or {}).get("cnt", 0)
+        total = (self.fetchone(f"SELECT COUNT(*) AS cnt FROM faq_pr pr{where}", tuple(params) or None) or {}).get("cnt", 0)
         offset = (max(page, 1) - 1) * page_size
         rows = self.fetchall(f'''
             SELECT pr.*, u.username AS submitter_name, kb.kb_name AS target_kb_name
@@ -751,7 +755,18 @@ class Database:
             return {"kb_id": new_kb_id, "doc_map": doc_map,
                     "chunk_map": chunk_map, "faq_map": faq_map}
         except Exception as e:
+            # P1-5：尽力而为清理——中途失败时回滚未提交写入并删除已建的残留 KB
             logger.error(f"克隆知识库失败: {e}")
+            try:
+                self.conn.rollback()
+            except Exception:
+                pass
+            if new_kb_id:
+                try:
+                    self.delete_knowledge_base(new_kb_id)
+                    logger.info(f"已清理克隆残留知识库 {new_kb_id}")
+                except Exception as ce:
+                    logger.warning(f"清理克隆残留 KB {new_kb_id} 失败（需手工处理）: {ce}")
             return None
 
     # ==================== 06 Phase 2：实体/关系（L2 图谱层） ====================

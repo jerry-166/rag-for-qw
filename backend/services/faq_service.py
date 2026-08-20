@@ -210,6 +210,10 @@ class FAQService:
             pr_id = db.create_faq_pr(
                 source_faq_id=None, source_kb_id=None, target_kb_id=kb_id,
                 submitted_by=user_id, question=question, answer=answer)
+            # P1-2：PR 创建失败（返回 None）时明确报错，不再伪成功
+            if pr_id is None:
+                logger.error(f"隐式 PR 创建失败: user={user_id}, target_kb={kb_id}")
+                return {"action": "error", "message": "知识条目提交失败（PR 创建失败），请稍后重试"}
             audit.log("faq_pr.submit", user_id=user_id, resource_type="faq_pr",
                       resource_id=pr_id, kb_id=kb_id,
                       detail={"question": question[:200]})

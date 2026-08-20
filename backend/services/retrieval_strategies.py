@@ -16,7 +16,9 @@ from typing import Any, Dict, List, Optional
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from config import settings, get_runtime
+from config import settings, get_runtime, init_logger
+
+logger = init_logger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════
@@ -107,8 +109,7 @@ def milvus_search(
             output_fields=output_fields,
         )
     except Exception as e:
-        from config import init_logger
-        init_logger(__name__).warning(f"Milvus search 失败 (anns_field={anns_field}): {e}")
+        logger.warning(f"Milvus search 失败 (anns_field={anns_field}): {e}")
         return []
 
     results = []
@@ -246,8 +247,7 @@ class AdvancedStrategy(RetrievalStrategy):
         # 文档 03 降级：启用集全关时（KB 纯原文 RAG），两路增强集合均被短路置 None
         # → 直接回落 native，避免空结果（milvus_search 对 None 集合返回 []）
         if self.ctx.summaries_collection is None and self.ctx.subquestions_collection is None:
-            from config import init_logger
-            init_logger(__name__).info("[AdvancedStrategy] 增强集合全短路，降级 native 原文检索")
+            logger.info("[AdvancedStrategy] 增强集合全短路，降级 native 原文检索")
             return _REGISTRY["native"](self.ctx).execute(limit)
         summaries = milvus_search(
             self.ctx.summaries_collection,
@@ -385,6 +385,11 @@ class GraphStrategy(RetrievalStrategy):
             base = 0.9 if ch["id"] in anchor_set else 0.75
             results.append({
                 "chunk_text": ch["content"],
+                # P1-4：下游 rag_tools 统一按 Milvus distance（1-distance=相似度）过滤，
+                # graph 的 score 是相似度语义 → 补充等价 distance，保证过滤链行为一致。
+                # 注意：阈值未实测校准，锚点 0.9/非锚点 0.75 映射 distance 0.1/0.25，
+                # 均可通过 RETRIEVAL_MIN_SCORE=0.3 的默认过滤。
+                "distance": round(1.0 - base, 4),
                 "score": base,
                 "metadata": {
                     "chunk_id": ch["id"],

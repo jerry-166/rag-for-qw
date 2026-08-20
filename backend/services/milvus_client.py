@@ -558,10 +558,11 @@ class MilvusClient:
                 output = ["document_id", "knowledge_base_id", "metadata", vec_field]
                 text_field = "summary_text" if report_key == "summaries" else "question_text"
                 output.append(text_field)
+                # P1-1：subquestions 的 chunk_id 是普通字段（PK 为 auto_id 的 subquestion_id），
+                # 必须显式查询并按 chunk_map 重映射，否则搬运后关联丢失（原实现恒写 0）
                 if report_key == "subquestions":
-                    output.append("chunk_text")
-                else:
-                    output.append("chunk_text")
+                    output.append("chunk_id")
+                output.append("chunk_text")
                 offset = 0
                 while True:
                     rows = coll.query(expr=expr, output_fields=output,
@@ -580,7 +581,7 @@ class MilvusClient:
                         ]
                     else:
                         entities = [
-                            [r.get("chunk_id", 0) for r in rows],
+                            [chunk_map.get(r.get("chunk_id"), r.get("chunk_id", 0)) for r in rows],
                             [r["chunk_text"] for r in rows],
                             [r[text_field] for r in rows],
                             [r[vec_field] for r in rows],

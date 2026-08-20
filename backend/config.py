@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     MILVUS_ENTITIES_COLLECTION: str = os.getenv("MILVUS_ENTITIES_COLLECTION", "entity_vectors")  # 06 Phase 2：实体向量集合名
 
     # 自进化 RAG（文档 06，Stage 3）
-    FAQ_HIT_THRESHOLD: float = float(os.getenv("FAQ_HIT_THRESHOLD", "0.9"))  # FAQ 直返相似度阈值（宁漏勿错）
+    FAQ_HIT_THRESHOLD: float = float(os.getenv("FAQ_HIT_THRESHOLD", "0.9"))  # FAQ 直返相似度阈值（宁漏勿错）；score 语义按 COSINE，MILVUS_METRIC_TYPE 改非 COSINE 会方向反转，FAQ 召回仅支持 COSINE
     FAQ_DEDUP_SIMILARITY: float = float(os.getenv("FAQ_DEDUP_SIMILARITY", "0.95"))  # 同 KB 判重阈值（≥则聚合 hit_count）
     FAQ_HEAT_HALF_LIFE_DAYS: float = float(os.getenv("FAQ_HEAT_HALF_LIFE_DAYS", "7"))  # 热度半衰期（天）
     FAQ_DISTILL_THRESHOLD_PRIVATE: int = int(os.getenv("FAQ_DISTILL_THRESHOLD_PRIVATE", "2"))  # 私有 KB 蒸馏阈值

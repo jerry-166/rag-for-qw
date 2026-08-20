@@ -232,14 +232,11 @@ async def list_prs(target_kb_id: Optional[int] = None, mine: bool = False,
     # 我名下所有 KB 收到的 open PR
     my_kbs = [k["id"] for k in db.get_user_knowledge_bases(current_user["id"])
               if k["user_id"] == current_user["id"]]
-    items, total = [], 0
-    for kid in my_kbs:
-        r = db.list_faq_prs(target_kb_id=kid, status=status or "open",
-                            page=1, page_size=100)
-        items.extend(r["items"])
-        total += r["total"]
-    items.sort(key=lambda x: x["created_at"], reverse=True)
-    return {"total": total, "page": 1, "page_size": len(items), "items": items}
+    if not my_kbs:
+        return {"total": 0, "page": page, "page_size": page_size, "items": []}
+    # P1-7：原实现逐 KB 查询（N+1）且 page_size=100 截断破坏分页，改为单次 ANY 查询
+    return db.list_faq_prs(target_kb_ids=my_kbs, status=status or "open",
+                           page=page, page_size=page_size)
 
 
 @router.post("/faq-pr/{pr_id}/merge")
