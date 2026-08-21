@@ -100,7 +100,10 @@ async def get_knowledge_bases(current_user=Depends(get_current_user)):
                 "id": kb["id"],
                 "kb_name": kb["kb_name"],
                 "description": kb.get("description"),
-                "created_at": kb["created_at"]
+                "created_at": kb["created_at"],
+                # Stage 5 圈 2：KB 卡片策略徽章（跟随全局/自定义语义）所需字段
+                "chunk_strategy": kb.get("chunk_strategy"),
+                "enhancers": kb.get("enhancers"),
             })
 
         logger.info(f"获取知识库列表成功，共 {len(kb_list)} 个知识库")

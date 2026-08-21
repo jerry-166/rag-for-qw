@@ -1,0 +1,92 @@
+{
+  "ts": "2026-08-21T15-10-39",
+  "results": [
+    {
+      "step": "01 登录页渲染",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "step": "02 登录并进入知识库列表",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "step": "03 新建测试 KB",
+      "ok": true,
+      "extra": "name=stage5-baseline-2026-08-21T15-10-39"
+    },
+    {
+      "step": "04 文档页渲染",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "step": "05 上传 markdown",
+      "ok": true,
+      "extra": "http=200 file_id=154"
+    },
+    {
+      "step": "05b 进度接口轮询",
+      "ok": true,
+      "extra": "stage=awaiting_split progress={\"done\":0,\"total\":0}"
+    },
+    {
+      "step": "06.1 pipeline 切割",
+      "ok": true,
+      "extra": "stage=generating clicked=true"
+    },
+    {
+      "step": "06.2 pipeline 生成",
+      "ok": true,
+      "extra": "stage=awaiting_import clicked=true"
+    },
+    {
+      "step": "06.3 pipeline 导入",
+      "ok": true,
+      "extra": "stage=done clicked=true"
+    },
+    {
+      "step": "07 检索-vector",
+      "ok": true,
+      "extra": "结果节点=5"
+    },
+    {
+      "step": "07 检索-keyword",
+      "ok": true,
+      "extra": "结果节点=1"
+    },
+    {
+      "step": "07 检索-hybrid",
+      "ok": true,
+      "extra": "结果节点=2"
+    },
+    {
+      "step": "08 Agent SSE 对话",
+      "ok": true,
+      "extra": "首块 27ms"
+    },
+    {
+      "step": "09 设置页渲染",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "step": "10 审计页渲染",
+      "ok": true,
+      "extra": ""
+    }
+  ],
+  "consoleIssues": [
+    {
+      "page": "main",
+      "type": "error",
+      "text": "PDF.js渲染失败: InvalidPDFException"
+    }
+  ],
+  "badRequests": [],
+  "testResources": {
+    "user": "admin",
+    "kbName": "stage5-baseline-2026-08-21T15-10-39"
+  }
+}

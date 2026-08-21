@@ -1257,11 +1257,15 @@ const PipelinePage = {
       // 检查response是否包含data字段
       const stats = response.data || response;
       
-      // 更新全局统计信息
-      document.getElementById('global-documents').textContent = stats.total_documents || 0;
-      document.getElementById('global-chunks').textContent = stats.total_chunks || 0;
-      document.getElementById('global-sub-questions').textContent = stats.total_sub_questions || 0;
-      document.getElementById('global-summaries').textContent = stats.total_summaries || 0;
+      // 更新全局统计信息（圈 2：壳改为 navigate 时整体重渲染，DOM 可能已切换，逐项判空）
+      const setStat = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = v || 0;
+      };
+      setStat('global-documents', stats.total_documents);
+      setStat('global-chunks', stats.total_chunks);
+      setStat('global-sub-questions', stats.total_sub_questions);
+      setStat('global-summaries', stats.total_summaries);
       
       // 如果是admin用户，添加用户统计
       if (stats.is_admin) {

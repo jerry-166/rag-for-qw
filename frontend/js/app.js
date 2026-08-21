@@ -70,7 +70,7 @@ class App {
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
       const isLightMode = document.body.classList.contains('light-mode');
-      themeToggle.textContent = isLightMode ? '🌙' : '☀️';
+      themeToggle.classList.toggle('is-light', isLightMode);
       themeToggle.title = isLightMode ? '切换到黑夜模式' : '切换到白天模式';
     }
   }
@@ -222,31 +222,110 @@ class App {
   updateUserInfo() {
     if (this.user) {
       const username = this.user.username || '用户';
-      const role = this.user.role || '普通用户';
+      const role = this.user.role === 'admin' ? '管理员' : (this.user.role || '普通用户');
       const avatarText = username.charAt(0).toUpperCase();
-      
+
       // 侧边栏用户信息
       document.getElementById('sidebar-username').textContent = username;
       document.getElementById('sidebar-role').textContent = role;
       document.getElementById('user-avatar').textContent = avatarText;
-      
-      // 顶部栏用户信息
-      document.getElementById('topbar-username').textContent = username;
+
+      // 顶部栏头像
       document.getElementById('topbar-avatar').textContent = avatarText;
     }
   }
 
   initStatsPreview() {
-    // 统计预览展开/收起功能
-    const statsToggle = document.getElementById('stats-toggle');
-    const statsContent = document.getElementById('sidebar-stats-content');
-    
-    if (statsToggle && statsContent) {
-      statsToggle.addEventListener('click', () => {
-        statsContent.classList.toggle('hidden');
-        statsToggle.classList.toggle('collapsed');
+    // 圈 2：统计概览已改为常显 2×2 数字带，无展开/收起交互
+  }
+
+  /* ===== 圈 2：头像弹菜单（线框 01 / sidebar.js 蓝本，含退出登录） ===== */
+  initAvatarMenu() {
+    const trigger = document.getElementById('user-info-sidebar');
+    const triggerTop = document.getElementById('topbar-avatar-btn');
+    if (!trigger || trigger.dataset.menuInit === '1') return;
+    trigger.dataset.menuInit = '1';
+
+    const closeMenu = () => {
+      this._avatarMenu?.remove();
+      this._avatarMenu = null;
+      trigger.setAttribute('aria-expanded', 'false');
+      triggerTop?.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('click', this._avatarMenuDocClick, false);
+      document.removeEventListener('keydown', this._avatarMenuKey, false);
+    };
+    this._avatarMenuDocClick = (e) => {
+      if (this._avatarMenu && !this._avatarMenu.contains(e.target) && !trigger.contains(e.target) && !triggerTop?.contains(e.target)) closeMenu();
+    };
+    this._avatarMenuKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+
+    const openMenu = (anchor) => {
+      if (this._avatarMenu) { closeMenu(); return; }
+      const username = this.user?.username || '用户';
+      const role = this.user?.role === 'admin' ? '管理员' : (this.user?.role || '普通用户');
+
+      const menu = document.createElement('div');
+      menu.className = 'avatar-menu';
+      menu.setAttribute('role', 'menu');
+      menu.innerHTML = `
+        <div class="am-header">
+          <div class="am-avatar">${username.charAt(0).toUpperCase()}</div>
+          <div class="am-user"><b></b><div class="t3"></div></div>
+        </div>
+        <div class="am-divider"></div>
+        <button type="button" class="am-item" role="menuitem" data-act="switch">
+          <span class="am-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7M21 16v5h-5M14 14l7 7M3 8V3h5M10 10 3 3"/></svg></span>切换账户
+        </button>
+        <button type="button" class="am-item danger" role="menuitem" data-act="logout">
+          <span class="am-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg></span>退出登录
+        </button>`;
+      menu.querySelector('.am-user b').textContent = username;
+      menu.querySelector('.am-user .t3').textContent = role;
+      document.body.appendChild(menu);
+
+      // 视口坐标定位：默认贴锚点上方 8px 水平居中，上空间不足改向下，四边 8px 边界保护
+      const r = anchor.getBoundingClientRect();
+      const mw = menu.offsetWidth, mh = menu.offsetHeight;
+      const vw = window.innerWidth, vh = window.innerHeight, gap = 8;
+      let left = r.left + r.width / 2 - mw / 2;
+      left = Math.max(gap, Math.min(left, vw - mw - gap));
+      let top = r.top - mh - gap;
+      if (top < gap) top = r.bottom + gap;
+      if (top + mh > vh - gap) top = Math.max(gap, vh - mh - gap);
+      menu.style.left = left + 'px';
+      menu.style.top = top + 'px';
+
+      trigger.setAttribute('aria-expanded', 'true');
+      triggerTop?.setAttribute('aria-expanded', 'true');
+      this._avatarMenu = menu;
+
+      menu.querySelector('[data-act="logout"]').addEventListener('click', () => {
+        closeMenu();
+        this.logout();
       });
-    }
+      menu.querySelector('[data-act="switch"]').addEventListener('click', () => {
+        closeMenu();
+        this.logout();
+      });
+      setTimeout(() => {
+        document.addEventListener('click', this._avatarMenuDocClick, false);
+        document.addEventListener('keydown', this._avatarMenuKey, false);
+      }, 0);
+    };
+
+    trigger.addEventListener('click', (e) => { e.stopPropagation(); openMenu(trigger); });
+    trigger.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openMenu(trigger); }
+    });
+    triggerTop?.addEventListener('click', (e) => { e.stopPropagation(); openMenu(triggerTop); });
+  }
+
+  logout() {
+    localStorage.removeItem('rag_token');
+    localStorage.removeItem('rag_user');
+    this.isAuthenticated = false;
+    this.user = null;
+    this.navigate('auth');
   }
 
   async loadStatsData() {
@@ -293,10 +372,10 @@ class App {
           // 检查是否已存在用户统计项
           if (!document.getElementById('stats-users')) {
             const userStatsItem = document.createElement('div');
-            userStatsItem.className = 'stats-item';
+            userStatsItem.className = 'stats-cell';
             userStatsItem.innerHTML = `
-              <span class="stats-item-label">总用户数</span>
               <span class="stats-item-value" id="stats-users">${stats.total_users ?? 0}</span>
+              <span class="stats-item-label">用户</span>
             `;
             statsContent.appendChild(userStatsItem);
           } else if (document.getElementById('stats-users')) {
@@ -327,12 +406,28 @@ class App {
       localStorage.setItem('rag_sidebar_collapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
       syncToggleTitle();
     });
-    
-    // 移动端菜单
-    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+
+    // 头像弹菜单（含退出登录，线框 01 sidebar.js 蓝本）
+    this.initAvatarMenu();
+
+    // 圈 2：768-1023 折叠为 68px 图标轨（沿用已有折叠态）；>=1024 恢复用户偏好
+    const mqMid = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
+    const syncResponsive = () => {
       const sidebar = document.getElementById('sidebar');
+      if (!sidebar) return;
+      if (mqMid.matches) {
+        sidebar.classList.add('collapsed');
+      } else if (window.innerWidth >= 1024) {
+        sidebar.classList.toggle('collapsed', localStorage.getItem('rag_sidebar_collapsed') === '1');
+      }
+    };
+    mqMid.addEventListener('change', syncResponsive);
+    syncResponsive();
+
+    // 移动端菜单（<768 overlay 抽屉）
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
       sidebar.classList.toggle('mobile-open');
-      
+
       // 添加遮罩
       if (sidebar.classList.contains('mobile-open')) {
         const overlay = document.createElement('div');
@@ -347,18 +442,18 @@ class App {
         if (overlay) overlay.remove();
       }
     });
-    
+
     // 导航项点击
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
         const page = item.dataset.page;
         this.navigate(page);
-        
+
         // 更新激活状态
         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
         item.classList.add('active');
-        
+
         // 关闭移动端侧边栏
         const sidebar = document.getElementById('sidebar');
         if (sidebar.classList.contains('mobile-open')) {
@@ -367,15 +462,6 @@ class App {
           if (overlay) overlay.remove();
         }
       });
-    });
-    
-    // 退出登录
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      localStorage.removeItem('rag_token');
-      localStorage.removeItem('rag_user');
-      this.isAuthenticated = false;
-      this.user = null;
-      this.navigate('auth');
     });
   }
 

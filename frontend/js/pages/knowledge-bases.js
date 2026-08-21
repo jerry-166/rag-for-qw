@@ -55,23 +55,36 @@ const KnowledgeBasesPage = {
       container.innerHTML = this.knowledgeBases.map(kb => `
         <div class="kb-card" data-kb-id="${kb.id}">
           <div class="kb-card-header">
-            <div class="kb-icon">📚</div>
+            <div class="kb-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c0-1.66 3.58-3 8-3s8 1.34 8 3-3.58 3-8 3-8-1.34-8-3z"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+            </div>
             <div class="kb-actions">
-              <button class="btn-icon" title="分享（协作）" onclick="KnowledgeBasesPage.showShareModal(${kb.id})">🤝</button>
-              <button class="btn-icon" title="克隆为我的副本" onclick="KnowledgeBasesPage.cloneKnowledgeBase(${kb.id})">📑</button>
-              <button class="btn-icon" title="编辑" onclick="KnowledgeBasesPage.editKnowledgeBase(${kb.id})">✏️</button>
-              <button class="btn-icon" title="删除" onclick="KnowledgeBasesPage.deleteKnowledgeBase(${kb.id})">🗑️</button>
+              <button class="icon-btn" title="分享（协作）" aria-label="分享" onclick="KnowledgeBasesPage.showShareModal(${kb.id})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+              </button>
+              <button class="icon-btn" title="克隆为我的副本" aria-label="克隆" onclick="KnowledgeBasesPage.cloneKnowledgeBase(${kb.id})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+              <button class="icon-btn" title="编辑" aria-label="编辑" onclick="KnowledgeBasesPage.editKnowledgeBase(${kb.id})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+              </button>
+              <button class="icon-btn" title="删除" aria-label="删除" onclick="KnowledgeBasesPage.deleteKnowledgeBase(${kb.id})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
+              </button>
             </div>
           </div>
-          <div class="kb-name">${kb.kb_name}</div>
-          <div class="kb-desc">${kb.description || '无描述'}</div>
+          <div class="kb-name">${this._esc(kb.kb_name)}</div>
+          <div class="kb-desc">${this._esc(kb.description) || '无描述'}</div>
+          <div class="kb-badges">${this._kbBadges(kb)}</div>
           <div class="kb-meta">
-            <span>创建于 ${new Date(kb.created_at).toLocaleDateString()}</span>
+            <span>更新于 ${new Date(kb.created_at).toLocaleDateString()}</span>
           </div>
         </div>
       `).join('') + `
-        <div class="kb-card kb-card-add" onclick="KnowledgeBasesPage.showCreateModal()">
-          <div class="add-icon">+</div>
+        <div class="kb-card kb-card-add" onclick="KnowledgeBasesPage.showCreateModal()" title="创建知识库">
+          <div class="add-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
           <div class="add-label">创建知识库</div>
         </div>
       `;
@@ -255,10 +268,11 @@ const KnowledgeBasesPage = {
             <input type="text" id="share-username" placeholder="输入用户名" />
           </div>
           <div class="form-field">
-            <label class="kb-enhancer-item">
-              <input type="checkbox" id="share-can-write" /> 允许直接写入
+            <label class="kb-share-toggle" for="share-can-write">
+              <span class="switch" aria-hidden="true"></span>
+              <input type="checkbox" id="share-can-write" checked />
+              允许直接写入（关闭则对方仅能提交 PR，由我审核）
             </label>
-            <div class="form-hint">不勾选：对方只能提交 PR，由你审核后生效（推荐）</div>
           </div>
           <div class="form-field">
             <label>已分享列表</label>
@@ -286,14 +300,14 @@ const KnowledgeBasesPage = {
         return;
       }
       el.innerHTML = items.map(s => `
-        <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
-          <span style="flex: 1;">${this._esc(s.shared_to_username || `用户#${s.shared_to_user_id}`)}
-            <span style="color: var(--text3); font-size: .75rem;">
-              ${s.can_write_directly ? '可直接写入' : '仅可提交 PR'}</span>
-          </span>
+        <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;" class="kb-share-row">
+          <span style="flex: 1;">${this._esc(s.shared_to_username || `用户#${s.shared_to_user_id}`)}</span>
+          ${s.can_write_directly
+            ? '<span class="badge badge-green">可写入</span>'
+            : '<span class="badge badge-gray">仅 PR</span>'}
           ${s.shared_to_username
-            ? `<button class="btn btn-sm btn-danger"
-                 onclick="KnowledgeBasesPage.unshare(${kbId}, '${this._esc(s.shared_to_username)}')">取消</button>`
+            ? `<button class="btn btn-sm btn-ghost"
+                 onclick="KnowledgeBasesPage.unshare(${kbId}, '${this._esc(s.shared_to_username)}')">取消分享</button>`
             : ''}
         </div>`).join('');
     } catch (e) {
@@ -344,6 +358,26 @@ const KnowledgeBasesPage = {
   _esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  },
+
+  /* 圈 2：KB 卡片策略徽章（线框 01：策略语义上卡片级） */
+  _kbBadges(kb) {
+    const badges = [];
+    // 切割策略：未配置 = 跟随全局；配置了 auto = "auto 切割"
+    const strategy = kb.chunk_strategy;
+    badges.push(strategy
+      ? `<span class="badge badge-info">${strategy === 'auto' ? 'auto 切割' : this._esc(strategy)}</span>`
+      : `<span class="badge badge-gray">跟随全局</span>`);
+    // 增强器：sub_question + summary → "子问题+摘要"；部分 → 单项；无 → "纯原文"
+    const enh = kb.enhancers == null ? null : kb.enhancers;
+    if (enh && enh.includes('sub_question') && enh.includes('summary')) {
+      badges.push('<span class="badge badge-accent">子问题+摘要</span>');
+    } else if (enh && enh.length) {
+      badges.push(`<span class="badge badge-accent">${enh.includes('sub_question') ? '子问题' : '摘要'}</span>`);
+    } else if (enh && enh.length === 0) {
+      badges.push('<span class="badge badge-gray">纯原文</span>');
+    }
+    return badges.join('');
   }
 };
 
