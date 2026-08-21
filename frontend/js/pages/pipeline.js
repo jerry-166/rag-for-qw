@@ -66,15 +66,27 @@ const PipelinePage = {
     }
     
     container.innerHTML = `
-      <div class="pipeline-steps" id="pipeline-steps">
-        ${this.steps.map((step, index) => `
-          <div class="step-item ${step.status === 'done' ? 'done' : step.status === 'active' ? 'active' : ''}" onclick="PipelinePage.goToStep(${index})"><div class="step-badge">${step.status === 'done' ? '✓' : step.id + 1}</div>
-            <div class="step-label">${step.title}</div>
-          </div>
-          ${index < this.steps.length - 1 ? `<div class="step-connector ${step.status === 'done' ? 'done' : ''}"></div>` : ''}
-        `).join('')}
+      <div class="pipe-topinfo">
+        <button class="btn btn-sm btn-ghost" id="pipe-back-btn">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
+          返回文档管理</button>
+        <span class="badge" id="pipe-file-badge">${this.documentData ? '' : '加载中…'}</span>
+        <span class="mono-note" id="pipe-meta-note" style="margin-left:auto;"></span>
       </div>
-      
+      <div class="stepper-card glass-card" id="stepper-card">
+        <div class="stepper" id="pipeline-steps">
+          ${this.steps.map((step, index) => `
+            <div class="step ${step.status === 'done' ? 'done' : step.status === 'active' ? 'running' : ''}" data-step="${index}">
+              <span class="orb">${step.status === 'done' ? '✓' : index + 1}</span>
+              <div><div class="s-name">${step.title}</div><div class="s-sub num" data-sub="${index}">${step.status === 'done' ? '完成' : '等待'}</div></div>
+            </div>
+            ${index < this.steps.length - 1 ? `<div class="step-link" data-link="${index}"><i style="transform:scaleX(0)"></i></div>` : ''}
+          `).join('')}
+        </div>
+        <div class="stepper-detail num" id="stepper-detail"></div>
+        <div class="progress-bar mt6" id="stepper-progress"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+
       <div id="step-content">
         <!-- 步骤内容将在这里渲染 -->
         <div class="loading-state">
@@ -83,9 +95,21 @@ const PipelinePage = {
         </div>
       </div>
     `;
+
+    const backBtn = document.getElementById('pipe-back-btn');
+    if (backBtn) backBtn.addEventListener('click', () => window.App.navigate('documents'));
+    // 步骤切换点击
+    document.querySelectorAll('#pipeline-steps .step').forEach(el => {
+      el.addEventListener('click', () => this.goToStep(parseInt(el.dataset.step)));
+    });
     
     try {
       await this.loadDocumentInfo();
+      await this.refreshProgress();
+      const badge = document.getElementById('pipe-file-badge');
+      if (badge) badge.textContent = this.documentData?.filename || this.currentDocId;
+      const note = document.getElementById('pipe-meta-note');
+      if (note) note.textContent = `file_id ${this.currentDocId} · stage: ${this._lastProgress?.stage || '—'}`;
       await this.renderStepContent();
     } catch (error) {
       console.error('渲染流水线页面失败:', error);
@@ -200,18 +224,139 @@ const PipelinePage = {
 
   updateStepsUI() {
     const stepsContainer = document.getElementById('pipeline-steps');
-    if (!stepsContainer) {
-      console.error('stepsContainer not found');
+    if (!stepsContainer) return;
+
+    // 由 progress 数据推导 stepper 状态（优先），否则回退到 steps 数组
+    const p = this._lastProgress;
+    let fill = [0, 1, 1, 1]; // 每条连线填充比例（进入下一步的程度）
+    let stageIdx = this.currentStep; // 当前进行中的步骤下标（0-3）
+    if (p) {
+      const stage = p.stage;
+      const sp = p.stage_progress || {};
+      let ratio = 0;
+      if (sp.total > 0) ratio = Math.min(sp.done / sp.total, 1);
+      if (stage === 'awaiting_split') { stageIdx = 1; fill = [1, 0, 0, 0]; }
+      else if (stage === 'generating') { stageIdx = 2; fill = [1, ratio, 0, 0]; }
+      else if (stage === 'awaiting_import') { stageIdx = 3; fill = [1, 1, 0, 0]; }
+      else if (stage === 'importing') { stageIdx = 3; fill = [1, 1, 1, 0.5]; }
+      else if (stage === 'done') { stageIdx = 4; fill = [1, 1, 1, 1]; }
+      else if (stage === 'failed') { stageIdx = this.currentStep; }
+      this._stageRatio = ratio;
+    } else {
+      // 无 progress 数据时按 steps 数组推导
+      let done = -1;
+      for (let i = 0; i < 4; i++) if (this.steps[i].status === 'done' || this.steps[i].status === 'active') done = i;
+      fill = fill.map((_, i) => (i < done ? 1 : 0));
+      this._stageRatio = 0;
+    }
+
+    stepsContainer.innerHTML = this.steps.map((step, index) => {
+      const cls = index < stageIdx ? 'done' : (index === stageIdx && stageIdx < 4 ? 'running' : '');
+      const sub = this._stepSubtitle(index, p);
+      return `
+        <div class="step ${cls}" data-step="${index}">
+          <span class="orb">${index < stageIdx || stageIdx >= 4 ? '✓' : index + 1}</span>
+          <div><div class="s-name">${step.title}</div><div class="s-sub num" data-sub="${index}">${sub}</div></div>
+        </div>
+        ${index < this.steps.length - 1 ? `<div class="step-link" data-link="${index}"><i style="transform:scaleX(${fill[index]})"></i></div>` : ''}
+      `;
+    }).join('');
+    stepsContainer.querySelectorAll('.step').forEach(el => {
+      el.addEventListener('click', () => this.goToStep(parseInt(el.dataset.step)));
+    });
+
+    // 吞吐明细行 + 阶段进度条
+    this._renderStepperDetail(p);
+  },
+
+  /** 步骤副标题：真实 timing_ms / stage_progress */
+  _stepSubtitle(index, p) {
+    const t = (p && p.timing_ms) || this.timings || {};
+    const fmt = this._fmtTime;
+    if (index === 0) return this.documentData?.upload_time != null ? fmt(this.documentData.upload_time) : '完成';
+    if (index === 1) {
+      const parts = [];
+      if (t.split_time != null || this.timings.split) parts.push(fmt(t.split_time ?? this.timings.split));
+      if (p?.total_chunks) parts.push(p.total_chunks + ' chunks');
+      if (parts.length) return parts.join(' · ');
+      return this.steps[1].status === 'done' ? '完成' : '等待';
+    }
+    if (index === 2) {
+      const sp = p?.stage_progress;
+      if (sp && sp.total > 0) return `${sp.done}/${sp.total}`;
+      if (t.generate_time != null || this.timings.generate) return fmt(t.generate_time ?? this.timings.generate);
+      return this.steps[2].status === 'done' ? '完成' : '等待';
+    }
+    if (index === 3) {
+      if (t.import_time != null || this.timings.import) return fmt(t.import_time ?? this.timings.import);
+      return this.steps[3].status === 'done' ? '完成' : '等待';
+    }
+    return '';
+  },
+
+  _fmtTime(ms) {
+    if (ms == null || isNaN(ms)) return '—';
+    return ms < 1000 ? Math.round(ms) + 'ms' : (ms / 1000).toFixed(1) + 's';
+  },
+
+  /** 吞吐明细行：本阶段进度 / 已运行 / 预计剩余 + 历史耗时；底部进度条 */
+  _renderStepperDetail(p) {
+    const detail = document.getElementById('stepper-detail');
+    const bar = document.querySelector('#stepper-progress .progress-fill');
+    if (!detail) return;
+    if (!p) {
+      detail.innerHTML = `<span class="t-dim">等待进度数据…</span>`;
       return;
     }
-    
-    stepsContainer.innerHTML = this.steps.map((step, index) => `
-      <div class="step-item ${step.status === 'done' ? 'done' : step.status === 'active' ? 'active' : ''}" onclick="PipelinePage.goToStep(${index})">
-        <div class="step-badge">${step.status === 'done' ? '✓' : step.id + 1}</div>
-        <div class="step-label">${step.title}</div>
-      </div>
-      ${index < this.steps.length - 1 ? `<div class="step-connector ${step.status === 'done' ? 'done' : ''}"></div>` : ''}
-    `).join('');
+    const sp = p.stage_progress || {};
+    const ratio = this._stageRatio || 0;
+    if (bar) bar.style.width = Math.round(ratio * 100) + '%';
+
+    const t = p.timing_ms || {};
+    const hist = ['切割', '生成', '导入']
+      .map(([label, key]) => t[key + '_time'] != null ? `${label} ${this._fmtTime(t[key + '_time'])}` : null)
+      .filter(Boolean);
+    const map = { 切割: 'split', 生成: 'generate', 导入: 'import' };
+    const histStr = ['切割', '生成', '导入']
+      .map(l => t[map[l] + '_time'] != null ? `${l} ${this._fmtTime(t[map[l] + '_time'])}` : null)
+      .filter(Boolean).join(' · ');
+
+    if (p.stage === 'done') {
+      detail.innerHTML = `<span>全部完成 · 共 <b>${p.total_chunks}</b> chunks</span>
+        <span class="t-dim" style="margin-left:auto;">历史耗时：${histStr || '—'}</span>`;
+      if (bar) bar.style.width = '100%';
+      return;
+    }
+    if (p.stage === 'failed') {
+      detail.innerHTML = `<span style="color:var(--red);">处理失败${p.last_error ? ' · ' + this._esc(p.last_error.message || '') : ''}</span>
+        <span class="t-dim" style="margin-left:auto;">历史耗时：${histStr || '—'}</span>`;
+      return;
+    }
+    const stageName = { awaiting_split: '文档切割', generating: '生成增强', awaiting_import: '嵌入入库', importing: '嵌入入库' }[p.stage] || p.stage;
+    detail.innerHTML = `
+      <span>当前阶段 <b>${stageName}</b>${sp.total > 0 ? ` · 进度 <b>${sp.done}/${sp.total}</b>` : ''}</span>
+      <span class="t-dim" style="margin-left:auto;">历史耗时：${histStr || '—'}</span>`;
+  },
+
+  /** 拉取进度接口并刷新 stepper（页面进入 + 各阶段操作后调用） */
+  async refreshProgress() {
+    try {
+      const p = await window.DocumentAPI.getProgress(this.currentDocId);
+      this._lastProgress = p;
+      // timing_ms 回填（真实历史耗时替代 N/A）
+      if (p.timing_ms) {
+        if (p.timing_ms.split_time != null) this.timings.split = p.timing_ms.split_time;
+        if (p.timing_ms.generate_time != null) this.timings.generate = p.timing_ms.generate_time;
+        if (p.timing_ms.import_time != null) this.timings.import = p.timing_ms.import_time;
+      }
+      if (p.total_chunks) this.stats.chunksCount = p.total_chunks;
+      // 步骤 done 标记同步（断点恢复：重进页面时按状态机点亮）
+      const st = p.document_status;
+      if (st === 'completed') this.steps.forEach(s => s.status = 'done');
+      else if (st === 'generated') { this.steps[0].status = this.steps[1].status = this.steps[2].status = 'done'; }
+      else if (st === 'chunk_done') { this.steps[0].status = this.steps[1].status = 'done'; }
+      this.updateStepsUI();
+    } catch { /* 进度接口失败不阻断页面 */ }
   },
 
   goToStep(stepIndex) {
@@ -539,9 +684,7 @@ const PipelinePage = {
           <span style="color: var(--text3);">完整 Markdown：</span>
           <span>${this.documentData?.filename?.replace('.pdf', '.md') || 'unknown.md'}</span>
           <div style="flex: 1;"></div>
-          <div class="progress-bar" style="width: 200px;">
-            <div class="progress-fill" style="width: 100%;"></div>
-          </div>
+          <span class="mono-note" id="md-bar-timing">${this.timings.split ? this._fmtTime(this.timings.split) : ''}</span>
           <span style="color: var(--green); font-size: .75rem; margin-left: 8px;">已切割为 ${this.chunks.length || 0} 个 Chunk</span>
         </div>
 
@@ -622,9 +765,9 @@ const PipelinePage = {
       // 切割完成后标记步骤完成（如果尚未标记）
       if (this.steps[1] && this.steps[1].status !== 'done') {
         this.steps[1].status = 'done';
-        this.updateStepsUI();
       }
-      
+      this.refreshProgress();
+
       this.updateChunkList();
     } catch (error) {
       this.hideLoading();
@@ -894,9 +1037,9 @@ const PipelinePage = {
       // 生成完成后标记步骤完成（如果尚未标记）
       if (this.steps[2] && this.steps[2].status !== 'done') {
         this.steps[2].status = 'done';
-        this.updateStepsUI();
       }
-      
+      this.refreshProgress();
+
       this.updateGenChunkList();
       // 如果有生成结果，自动选择第一个chunk
       if (Object.keys(this.generationResults).length > 0) {
@@ -927,13 +1070,13 @@ const PipelinePage = {
       if (r.missing.summary > 0) parts.push(`摘要 ×${r.missing.summary}`);
       banner.innerHTML = `
         <div class="missing-banner-inner">
-          <span class="missing-icon">⚠️</span>
-          <span class="missing-text">
-            检测到 <strong>${r.missing_chunks}</strong> 个 Chunk 缺失当前启用的增强内容（${parts.join('、')}）。
-            可能是增强配置曾变更导致。补生成不会影响已有增强内容，仅补缺失部分。
+          <span class="missing-icon">⚠</span>
+          <span class="missing-text grow">
+            <strong>检测到增强缺口</strong> · ${r.missing_chunks} 个 Chunk 缺失（${parts.join('、')}）。
+            补生成不会影响已有增强内容，仅补缺失部分。
           </span>
           <button class="btn btn-warning btn-sm" onclick="PipelinePage.backfillEnhancements()">
-            补生成缺失增强
+            一键补生成
           </button>
           <button class="btn-link" onclick="document.getElementById('missing-banner').style.display='none'">忽略</button>
         </div>
@@ -1079,15 +1222,9 @@ const PipelinePage = {
             </div>
             <div class="timeline-item">
               <span class="timeline-icon">⚡</span>
-              <span class="timeline-label">嵌入向量生成</span>
+              <span class="timeline-label">嵌入向量生成 & 写入 Milvus</span>
               <span class="timeline-status">✓ 完成</span>
               <span class="timeline-time" id="tl-embed">-</span>
-            </div>
-            <div class="timeline-item">
-              <span class="timeline-icon">🗄️</span>
-              <span class="timeline-label">写入 Milvus Collection</span>
-              <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time" id="tl-import">-</span>
             </div>
           </div>
         </div>
@@ -1133,8 +1270,8 @@ const PipelinePage = {
         // 标记步骤完成
         if (this.steps[3] && this.steps[3].status !== 'done') {
           this.steps[3].status = 'done';
-          this.updateStepsUI();
         }
+        this.refreshProgress();
         return;
       }
       
@@ -1169,7 +1306,7 @@ const PipelinePage = {
           upload: formatTime(this.timings.upload),
           split: formatTime(this.timings.split),
           generate: formatTime(this.timings.generate),
-          embed: 'N/A',
+          embed: formatTime(this.timings.import),
           import: formatTime(this.timings.import)
         }
       };
@@ -1191,8 +1328,8 @@ const PipelinePage = {
       // import 成功，标记 step4 为 done
       if (this.steps[3] && this.steps[3].status !== 'done') {
         this.steps[3].status = 'done';
-        this.updateStepsUI();
       }
+      this.refreshProgress();
     } catch (error) {
       this.hideLoading();
       window.App.showToast('加载导入结果失败: ' + error.message, 'error');
@@ -1230,7 +1367,7 @@ const PipelinePage = {
     setEl('tl-upload',   tl.upload   || formatTime(this.timings.upload));
     setEl('tl-split',    tl.split    || formatTime(this.timings.split));
     setEl('tl-generate', tl.generate || formatTime(this.timings.generate));
-    setEl('tl-embed',    tl.embed    || 'N/A');
+    setEl('tl-embed',    tl.embed    || formatTime(this.timings.import));
     setEl('tl-import',   tl.import   || formatTime(this.timings.import));
     setEl('tl-chunk-count', this.chunks.length || r.chunk_count || 0);
 

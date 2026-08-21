@@ -1,267 +1,362 @@
 /**
- * 文档管理页面
+ * 文档管理页面 — 圈 3 按线框 02 重构
+ * 上传统一拖拽 dropzone + 处理中队列卡（轮询 /api/process/{id}/progress）+ 列表 icon-btn
  */
 const DocumentsPage = {
   currentKbId: null,
   selectedFiles: [],
-  
+  documents: [],
+  kbs: [],
+  // 处理中文件：{ file_id, filename } → 轮询进度渲染队列卡
+  progressFiles: [],
+  _progressTimer: null,
+  _progressStart: {}, // file_id -> 首次进入队列的时间戳（兜底耗时）
+
   async render(params = {}) {
     this.currentKbId = params.kb_id || null;
     this.selectedFiles = [];
-    
+    this.documents = [];
+    this.progressFiles = [];
+
     const container = document.getElementById('page-container');
     container.innerHTML = `
       <div class="page-header">
         <div>
           <h1 class="page-title">文档管理</h1>
-          <p class="page-desc">上传和管理您的文档</p>
+          <p class="page-desc">上传和管理您的文档 · 上传后自动进入处理流水线</p>
         </div>
-        <button class="btn btn-primary" id="refresh-docs-btn">
-          <span>🔄 刷新</span>
-        </button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="doc-kb-filter" class="input" style="width:200px; height:36px;">
+            <option value="">全部知识库</option>
+          </select>
+          <button class="btn btn-secondary icon-btn-wrap" id="refresh-docs-btn" title="刷新">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
+          </button>
+        </div>
       </div>
-      
-      <!-- 上传区域 -->
-      <div class="upload-zone" id="upload-zone">
+
+      <!-- 上传区：拖放 + 点击（线框 02 dropzone） -->
+      <div class="upload-zone dropzone-glass" id="upload-zone">
         <input type="file" id="file-input" accept=".pdf,.md,.markdown" multiple style="display: none;" />
-        <div class="upload-icon">📁</div>
-        <div class="upload-title">点击或拖拽文件到此处上传</div>
-        <div class="upload-sub">支持 PDF / Markdown 格式文件</div>
-        <div class="upload-limit">单个文件不超过 50MB</div>
-        <div class="upload-file-list" id="file-list">
-          <!-- 上传文件列表 -->
+        <div class="dropzone-glyph">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
         </div>
+        <p class="dz-title">拖放文件到此处，或点击选择</p>
+        <p class="dz-sub">支持 PDF / Markdown · 单个文件不超过 50MB</p>
       </div>
-      
-      <!-- 文档列表 -->
-      <div class="doc-toolbar" style="margin-top: 20px;">
-        <div class="search-input-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="search" placeholder="搜索文档..." id="doc-search" />
+
+      <!-- 处理中队列卡（真实进度，3s 轮询 GET /api/process/{id}/progress） -->
+      <div class="processing-card" id="processing-card" style="display:none;">
+        <div class="processing-head">
+          <span class="h-sec">处理中（<span id="processing-count">0</span>）</span>
+          <span class="processing-api mono-note">progress API · 3s 轮询</span>
         </div>
-        <select id="doc-filter">
-          <option value="all">全部状态</option>
-          <option value="uploaded">已上传</option>
-          <option value="processing">处理中</option>
-          <option value="completed">已完成</option>
-          <option value="failed">失败</option>
-        </select>
+        <div id="processing-list"></div>
       </div>
-      
-      <div class="doc-table-wrap">
-        <table id="doc-table">
-          <thead>
-            <tr>
-              <th>文件名</th>
-              <th>大小</th>
-              <th>状态</th>
-              <th>创建时间</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="doc-table-body">
-            <!-- 文档列表将在这里渲染 -->
-            <tr>
-              <td colspan="5" style="text-align: center; padding: 40px;">
-                <div class="loading-spinner"></div>
-                <p style="margin-top: 12px; color: var(--text3);">加载中...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+      <!-- 文档列表（线框 02 表格结构） -->
+      <div class="doc-card glass-card">
+        <div class="doc-card-head">
+          <h2 class="h-sec">全部文档</h2>
+          <input type="search" class="input" id="doc-search" style="width:220px; height:32px;" placeholder="搜索文件名…" />
+        </div>
+        <div class="doc-table-wrap">
+          <table id="doc-table">
+            <thead>
+              <tr><th>文件</th><th>知识库</th><th>状态</th><th>上传时间</th><th style="text-align:right;">操作</th></tr>
+            </thead>
+            <tbody id="doc-table-body">
+              <tr><td colspan="5" class="td-state"><div class="loading-spinner"></div><p>加载中...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     `;
-    
+
     this.initEvents();
-    await this.loadDocuments();
+    await Promise.all([this.loadKbOptions(), this.loadDocuments()]);
+    this._startProgressPolling();
   },
 
   initEvents() {
-    // 上传区域事件
     const uploadZone = document.getElementById('upload-zone');
     const fileInput = document.getElementById('file-input');
-    
-    uploadZone.addEventListener('click', () => {
-      fileInput.click();
-    });
-    
-    uploadZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadZone.classList.add('drag-over');
-    });
-    
-    uploadZone.addEventListener('dragleave', () => {
-      uploadZone.classList.remove('drag-over');
-    });
-    
+
+    uploadZone.addEventListener('click', () => fileInput.click());
+    uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
     uploadZone.addEventListener('drop', (e) => {
       e.preventDefault();
       uploadZone.classList.remove('drag-over');
-      if (e.dataTransfer.files.length) {
-        this.handleFiles(e.dataTransfer.files);
-      }
+      if (e.dataTransfer.files.length) this.handleFiles(e.dataTransfer.files);
     });
-    
     fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length) {
-        this.handleFiles(e.target.files);
-      }
+      if (e.target.files.length) this.handleFiles(e.target.files);
+      fileInput.value = '';
     });
-    
-    // 刷新按钮
-    document.getElementById('refresh-docs-btn').addEventListener('click', () => {
+
+    document.getElementById('refresh-docs-btn').addEventListener('click', () => this.loadDocuments());
+    document.getElementById('doc-search').addEventListener('input', () => this.filterDocuments());
+    document.getElementById('doc-kb-filter').addEventListener('change', (e) => {
+      this.currentKbId = e.target.value || null;
       this.loadDocuments();
     });
-    
-    // 搜索和过滤
-    document.getElementById('doc-search').addEventListener('input', () => {
-      this.filterDocuments();
-    });
-    
-    document.getElementById('doc-filter').addEventListener('change', () => {
-      this.filterDocuments();
-    });
+  },
+
+  /** 页面卸载钩子（app.js navigate 时调用，若存在） */
+  destroy() {
+    this._stopProgressPolling();
   },
 
   handleFiles(files) {
-    const fileList = document.getElementById('file-list');
-    
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const isPdf = file.type === 'application/pdf';
-      const isMarkdown = /\.(md|markdown)$/i.test(file.name || '');
-      if (isPdf || isMarkdown) {
-        this.selectedFiles.push(file);
-        const fileItem = document.createElement('div');
-        fileItem.className = 'upload-file-item';
-        fileItem.innerHTML = `
-          <span class="upload-file-icon">📄</span>
-          <span class="upload-file-name">${this._escapeHtml(file.name)}</span>
-          <span class="upload-file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-          <button class="upload-file-remove" type="button">×</button>
-        `;
-        // 按对象引用移除（修复同名文件误删 + 文件名注入内联 onclick 的隐患）
-        const removeBtn = fileItem.querySelector('.upload-file-remove');
-        removeBtn.addEventListener('click', () => {
-          this.selectedFiles = this.selectedFiles.filter(f => f !== file);
-          fileItem.remove();
-        });
-        fileList.appendChild(fileItem);
-      }
+    const valid = Array.from(files).filter(f =>
+      f.type === 'application/pdf' || /\.(md|markdown)$/i.test(f.name || ''));
+    if (!valid.length) {
+      window.App.showToast('仅支持 PDF / Markdown 文件', 'warning');
+      return;
     }
-    
-    if (this.selectedFiles.length > 0) {
-      // 自动上传
-      this.uploadFiles();
-    }
+    this.uploadFiles(valid);
   },
 
-  async uploadFiles() {
-    if (this.selectedFiles.length === 0) return;
-    
-    try {
-      for (const file of this.selectedFiles) {
-        await window.DocumentAPI.upload(file, this.currentKbId);
+  async uploadFiles(files) {
+    // KB 目标：页面上有 KB 下拉时以选中值为准（无下拉或未选→默认 KB，与旧行为一致）
+    const kbSel = document.getElementById('doc-kb-filter');
+    if (kbSel && kbSel.value) this.currentKbId = kbSel.value;
+    for (const file of files) {
+      try {
+        const resp = await window.DocumentAPI.upload(file, this.currentKbId);
         window.App.showToast(`文件 ${file.name} 上传成功`, 'success');
+        const fid = resp.file_id || resp.fileId;
+        if (fid) {
+          this.progressFiles.push({ file_id: String(fid), filename: file.name });
+          this._progressStart[String(fid)] = Date.now();
+        }
+      } catch (error) {
+        window.App.showToast(`上传失败 (${file.name}): ` + error.message, 'error');
       }
-      
-      // 清空文件列表
-      document.getElementById('file-list').innerHTML = '';
-      this.selectedFiles = [];
-      
-      // 重新加载文档列表
-      await this.loadDocuments();
-    } catch (error) {
-      window.App.showToast('上传失败: ' + error.message, 'error');
     }
+    this._renderProcessingList();
+    this._startProgressPolling();
+    await this.loadDocuments();
+  },
+
+  // ============ 处理中队列卡（真实进度轮询） ============
+
+  _startProgressPolling() {
+    this._stopProgressPolling();
+    if (!this.progressFiles.length) return;
+    this._progressTimer = setInterval(() => this._pollProgress(), 3000);
+    this._pollProgress();
+  },
+
+  _stopProgressPolling() {
+    if (this._progressTimer) { clearInterval(this._progressTimer); this._progressTimer = null; }
+  },
+
+  async _pollProgress() {
+    const card = document.getElementById('processing-card');
+    if (!card) { this._stopProgressPolling(); return; }
+
+    const finished = [];
+    for (const pf of this.progressFiles) {
+      try {
+        const p = await window.DocumentAPI.getProgress(pf.file_id);
+        pf.progress = p;
+        if (p.stage === 'done') finished.push(pf);
+      } catch { /* 单文件失败静默，下轮再试 */ }
+    }
+    if (finished.length) {
+      this.progressFiles = this.progressFiles.filter(pf => !finished.includes(pf));
+      window.App.showToast(`${finished.map(f => f.filename).join('、')} 处理完成`, 'success');
+      await this.loadDocuments();
+    }
+    this._renderProcessingList();
+    if (!this.progressFiles.length) this._stopProgressPolling();
+  },
+
+  _fmtMs(ms) {
+    if (ms == null) return '';
+    return ms < 1000 ? Math.round(ms) + 'ms' : (ms / 1000).toFixed(1) + 's';
+  },
+
+  /** 预计剩余：timing_ms 历史耗时 × 未完成比例外推；无历史则按已运行速度估计 */
+  _etaText(p) {
+    const sp = p.stage_progress || {};
+    if (!sp.total || sp.total <= 0) return '';
+    const ratio = Math.min(sp.done / sp.total, 1);
+    const hist = p.timing_ms || {};
+    if (p.stage === 'generating' && hist.generate_time && ratio > 0.05) {
+      const rem = hist.generate_time * (1 - ratio) / ratio / 1000;
+      return `预计剩余 ~${Math.max(rem, 1).toFixed(0)}s`;
+    }
+    if (p.stage === 'importing' && hist.import_time) {
+      return `预计剩余 ~${(hist.import_time / 1000).toFixed(0)}s`;
+    }
+    const start = this._progressStart[p.file_id];
+    if (start && ratio > 0.1) {
+      const elapsed = (Date.now() - start) / 1000;
+      return `预计剩余 ~${Math.max(elapsed * (1 - ratio) / ratio, 1).toFixed(0)}s`;
+    }
+    return '';
+  },
+
+  _renderProcessingList() {
+    const card = document.getElementById('processing-card');
+    const list = document.getElementById('processing-list');
+    const count = document.getElementById('processing-count');
+    if (!card || !list) return;
+    card.style.display = this.progressFiles.length ? '' : 'none';
+    if (count) count.textContent = this.progressFiles.length;
+
+    list.innerHTML = this.progressFiles.map(pf => {
+      const p = pf.progress;
+      if (!p) {
+        return `<div class="proc-item"><span class="proc-glyph">▮</span>
+          <div class="grow"><div class="row-between"><b>${this._esc(pf.filename)}</b><span class="mono-note">等待进度…</span></div>
+          <div class="progress-bar mt6"><div class="progress-fill" style="width:0%"></div></div></div></div>`;
+      }
+      const sp = p.stage_progress || { done: 0, total: 0 };
+      const pct = sp.total ? Math.round(sp.done / sp.total * 100) : (p.stage === 'done' ? 100 : 0);
+      const stageLabel = {
+        awaiting_split: '待切割', generating: '生成增强', awaiting_import: '待入库',
+        importing: '嵌入入库', done: '完成', failed: '失败',
+      }[p.stage] || p.stage;
+      const eta = this._etaText(p);
+      const timing = p.timing_ms || {};
+      const badges = [];
+      if (timing.split_time != null) badges.push(`<span class="badge badge-green">切割 ✓ ${this._fmtMs(timing.split_time)}</span>`);
+      if (p.stage === 'generating') badges.push(`<span class="badge badge-yellow">● 生成中</span>`);
+      else if (timing.generate_time != null) badges.push(`<span class="badge badge-green">生成 ✓ ${this._fmtMs(timing.generate_time)}</span>`);
+      if (p.stage === 'importing') badges.push(`<span class="badge badge-yellow">● 导入中</span>`);
+      else if (p.stage === 'done') badges.push(`<span class="badge badge-green">导入 ✓ ${this._fmtMs(timing.import_time)}</span>`);
+      if (p.stage === 'awaiting_import') badges.push(`<span class="badge badge-gray">导入 · 待执行</span>`);
+      if (p.stage === 'awaiting_split') badges.push(`<span class="badge badge-gray">切割 · 待执行</span>`);
+
+      return `<div class="proc-item">
+        <span class="proc-glyph">▮</span>
+        <div class="grow">
+          <div class="row-between"><b>${this._esc(pf.filename)}</b>
+            <span class="mono-note">${stageLabel} ${sp.done}/${sp.total}${eta ? ' · ' + eta : ''}</span></div>
+          <div class="progress-bar mt6"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="proc-badges">${badges.join('')}</div>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  // ============ 文档列表 ============
+
+  async loadKbOptions() {
+    try {
+      const resp = await window.KnowledgeBaseAPI.list();
+      this.kbs = resp.knowledge_bases || [];
+      const sel = document.getElementById('doc-kb-filter');
+      if (sel) {
+        this.kbs.forEach(kb => {
+          const opt = document.createElement('option');
+          opt.value = kb.id; opt.textContent = kb.kb_name;
+          sel.appendChild(opt);
+        });
+        if (this.currentKbId) sel.value = String(this.currentKbId);
+      }
+    } catch { /* KB 下拉失败不阻断文档列表 */ }
   },
 
   async loadDocuments() {
     const tableBody = document.getElementById('doc-table-body');
+    if (!tableBody) return;
     try {
       const response = await window.DocumentAPI.list(this.currentKbId);
-      const documents = response.documents || [];
+      this.documents = response.documents || [];
 
-      if (documents.length === 0) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="5" style="text-align: center; padding: 40px;">
-              <div class="empty-state">
-                <div class="empty-icon">📄</div>
-                <div class="empty-title">暂无文档</div>
-                <div class="empty-desc">点击上方上传区域添加文档</div>
-              </div>
-            </td>
-          </tr>
-        `;
+      if (this.documents.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" class="td-state">
+          <div class="empty-state"><div class="empty-icon">📄</div>
+          <div class="empty-title">暂无文档</div>
+          <div class="empty-desc">拖放文件到上方上传区添加文档</div></div></td></tr>`;
         return;
       }
-      
-      tableBody.innerHTML = documents.map(doc => `
-        <tr>
-          <td class="td-name">${doc.filename}</td>
-          <td>${doc.file_size ? (doc.file_size / 1024 / 1024).toFixed(2) + ' MB' : '未知'}</td>
-          <td><span class="status-chip status-${doc.status}">${this.getStatusText(doc.status)}</span></td>
-          <td>${new Date(doc.created_at).toLocaleString()}</td>
-          <td class="td-actions">
-            <button class="btn btn-sm btn-secondary" onclick="DocumentsPage.processDocument('${doc.file_id}')">
-              处理
-            </button>
-            <button class="btn btn-sm btn-danger" onclick="DocumentsPage.deleteDocument('${doc.file_id}')">
-              删除
-            </button>
-          </td>
-        </tr>
-      `).join('');
+
+      tableBody.innerHTML = this.documents.map(doc => this._renderRow(doc)).join('');
+      this._bindRowEvents();
+
+      // 重进页面时，把仍在处理中的文档重新纳入进度队列（断点可见性）
+      const known = new Set(this.progressFiles.map(pf => String(pf.file_id)));
+      this.documents.forEach(doc => {
+        const fid = String(doc.file_id);
+        if (!known.has(fid) && (doc.status === 'chunk_done' || doc.status === 'importing' || doc.status === 'processing')) {
+          this.progressFiles.push({ file_id: fid, filename: doc.filename });
+          this._progressStart[fid] = Date.now();
+        }
+      });
+      if (this.progressFiles.length) { this._renderProcessingList(); this._startProgressPolling(); }
     } catch (error) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="5" style="text-align: center; padding: 40px;">
-            <div class="empty-state">
-              <div class="empty-icon">❌</div>
-              <div class="empty-title">加载失败</div>
-              <div class="empty-desc">${error.message || '无法加载文档列表'}</div>
-              <button class="btn btn-secondary" onclick="DocumentsPage.loadDocuments()">
-                重新加载
-              </button>
-            </div>
-          </td>
-        </tr>
-      `;
+      tableBody.innerHTML = `<tr><td colspan="5" class="td-state">
+        <div class="empty-state"><div class="empty-icon">✕</div>
+        <div class="empty-title">加载失败</div>
+        <div class="empty-desc">${this._esc(error.message || '无法加载文档列表')}</div>
+        <button class="btn btn-secondary" id="doc-retry-load" style="margin-top:8px;">重新加载</button></div></td></tr>`;
+      const retry = document.getElementById('doc-retry-load');
+      if (retry) retry.addEventListener('click', () => this.loadDocuments());
     }
   },
 
-  _escapeHtml(str) {
-    if (str == null) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  },
-
-  getStatusText(status) {
-    const statusMap = {
-      'uploaded': '已上传',
-      'processing': '处理中',
-      'completed': '已完成',
-      'failed': '失败',
-      'chunk_done': '已切割',
-      'generated': '已生成'
+  _statusMeta(status) {
+    const map = {
+      uploaded:    { text: '已上传',  cls: 'badge-gray' },
+      chunk_done:  { text: '生成中',  cls: 'badge-yellow' },
+      generated:   { text: '待入库',  cls: 'badge-cyan' },
+      importing:   { text: '入库中',  cls: 'badge-yellow' },
+      completed:   { text: '已完成',  cls: 'badge-green' },
+      failed:      { text: '失败',    cls: 'badge-red' },
+      processing:  { text: '处理中',  cls: 'badge-yellow' },
     };
-    return statusMap[status] || status;
+    return map[status] || { text: status, cls: 'badge-gray' };
   },
 
-  processDocument(docId) {
-    window.App.navigate('pipeline', { doc_id: docId });
+  _renderRow(doc) {
+    const meta = this._statusMeta(doc.status);
+    const kb = this.kbs.find(k => String(k.id) === String(doc.knowledge_base_id || doc.kb_id));
+    const kbName = kb ? kb.kb_name : (doc.kb_name || '—');
+    const size = doc.file_size ? (doc.file_size / 1024 >= 1024
+      ? (doc.file_size / 1024 / 1024).toFixed(1) + ' MB'
+      : Math.round(doc.file_size / 1024) + ' KB') : '—';
+    const isFailed = doc.status === 'failed';
+    const isFresh = doc.status === 'uploaded' || doc.status === 'processing';
+    const actionBtn = isFailed
+      ? `<button class="btn btn-sm btn-primary act-pipeline" data-file-id="${doc.file_id}">重试</button>`
+      : isFresh
+        ? `<button class="btn btn-sm btn-primary act-pipeline" data-file-id="${doc.file_id}">开始处理</button>`
+        : `<button class="btn btn-sm act-pipeline" data-file-id="${doc.file_id}">流水线</button>`;
+
+    return `<tr data-file-id="${doc.file_id}" data-name="${this._esc(doc.filename)}" data-status="${doc.status}">
+      <td class="td-name"><b>${this._esc(doc.filename)}</b></td>
+      <td class="td-kb">${this._esc(kbName)}</td>
+      <td><span class="badge ${meta.cls} doc-status-pill">${meta.text}</span></td>
+      <td class="td-time">${new Date(doc.created_at).toLocaleDateString()}</td>
+      <td class="td-actions" style="text-align:right; white-space:nowrap;">
+        ${actionBtn}
+        <button class="icon-btn act-delete" data-file-id="${doc.file_id}" title="删除" aria-label="删除">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
+        </button>
+      </td>
+    </tr>`;
+  },
+
+  _bindRowEvents() {
+    document.querySelectorAll('#doc-table-body .act-pipeline').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this._stopProgressPolling();
+        window.App.navigate('pipeline', { doc_id: btn.dataset.fileId });
+      });
+    });
+    document.querySelectorAll('#doc-table-body .act-delete').forEach(btn => {
+      btn.addEventListener('click', () => this.deleteDocument(btn.dataset.fileId));
+    });
   },
 
   async deleteDocument(docId) {
-    if (!confirm('确定要删除这个文档吗？')) {
-      return;
-    }
-    
+    if (!confirm('确定要删除这个文档吗？')) return;
     try {
       await window.DocumentAPI.delete(docId);
       window.App.showToast('文档删除成功', 'success');
@@ -272,69 +367,33 @@ const DocumentsPage = {
   },
 
   filterDocuments() {
-    const searchTerm = document.getElementById('doc-search').value.toLowerCase();
-    const filterStatus = document.getElementById('doc-filter').value;
-    const tableBody = document.getElementById('doc-table-body');
-    
-    // 获取所有文档行
-    const rows = tableBody.querySelectorAll('tr');
-    
-    let visibleCount = 0;
-    
-    rows.forEach(row => {
-      // 检查是否是空状态或加载状态的行
-      if (row.querySelector('.empty-state') || row.querySelector('.loading-spinner')) {
-        return;
-      }
-      
-      // 获取行数据
-      const fileName = row.querySelector('.td-name').textContent.toLowerCase();
-      const status = row.querySelector('.status-chip').textContent;
-      
-      // 检查搜索条件
-      const matchesSearch = searchTerm === '' || fileName.includes(searchTerm);
-      
-      // 检查状态过滤
-      const matchesFilter = filterStatus === 'all' || 
-        (filterStatus === 'uploaded' && status === '已上传') ||
-        (filterStatus === 'processing' && status === '处理中') ||
-        (filterStatus === 'completed' && status === '已完成') ||
-        (filterStatus === 'failed' && status === '失败');
-      
-      // 显示或隐藏行
-      if (matchesSearch && matchesFilter) {
-        row.style.display = '';
-        visibleCount++;
-      } else {
-        row.style.display = 'none';
-      }
+    const term = (document.getElementById('doc-search')?.value || '').toLowerCase();
+    let visible = 0;
+    document.querySelectorAll('#doc-table-body tr[data-file-id]').forEach(row => {
+      const match = !term || (row.dataset.name || '').toLowerCase().includes(term);
+      row.style.display = match ? '' : 'none';
+      if (match) visible++;
     });
-    
-    // 检查是否没有匹配的文档
-    if (visibleCount === 0 && rows.length > 0) {
-      // 检查是否所有行都是隐藏的
-      const allHidden = Array.from(rows).every(row => {
-        return row.style.display === 'none' || row.querySelector('.empty-state') || row.querySelector('.loading-spinner');
-      });
-      
-      if (allHidden) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="5" style="text-align: center; padding: 40px;">
-              <div class="empty-state">
-                <div class="empty-icon">🔍</div>
-                <div class="empty-title">没有找到匹配的文档</div>
-                <div class="empty-desc">尝试调整搜索条件或筛选选项</div>
-                <button class="btn btn-secondary" onclick="DocumentsPage.loadDocuments()">
-                  重置筛选
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
+    // 无匹配时补一条提示行（有数据行的场景）
+    const body = document.getElementById('doc-table-body');
+    let noMatch = document.getElementById('doc-no-match');
+    if (visible === 0 && body.querySelector('tr[data-file-id]')) {
+      if (!noMatch) {
+        noMatch = document.createElement('tr');
+        noMatch.id = 'doc-no-match';
+        noMatch.innerHTML = `<td colspan="5" class="td-state"><div class="empty-state">
+          <div class="empty-icon">◎</div><div class="empty-title">没有找到匹配的文档</div>
+          <div class="empty-desc">尝试调整搜索关键词</div></div></td>`;
+        body.appendChild(noMatch);
       }
-    }
-  }
+    } else if (noMatch) noMatch.remove();
+  },
+
+  _esc(str) {
+    if (str == null) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  },
 };
 
 window.DocumentsPage = DocumentsPage;

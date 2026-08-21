@@ -168,6 +168,11 @@ const DocumentAPI = {
     return request(`/api/process/result/${file_id}`);
   },
 
+  // 处理进度轮询（文档 05 问题 5/9，Stage 5 圈 3 前端接入）
+  async getProgress(file_id) {
+    return request(`/api/process/progress/${file_id}`);
+  },
+
   async getPreview(file_id) {
     return request(`/api/documents/${file_id}/preview`);
   },
