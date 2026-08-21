@@ -98,12 +98,17 @@ class LLMReranker(BaseReranker):
                 "请以 JSON 格式返回，例如：{\"order\": [1,3,2,5,4]}"
             )
 
-            # langchain_openai.ChatOpenAI — 使用 invoke()
+            # langchain_openai.ChatOpenAI — invoke() 是同步阻塞网络调用，
+            # 放入线程池避免阻塞事件循环（与 CrossEncoder.predict 同类问题）
             from langchain_core.messages import SystemMessage, HumanMessage
-            lc_response = client.invoke([
+            loop = asyncio.get_running_loop()
+            lc_response = await loop.run_in_executor(
+                None,
+                lambda: client.invoke([
                 SystemMessage(content="你是一个专业的信息检索助手，擅长根据查询语句对搜索结果进行相关性排序。只返回 JSON，不要包含其他文字。"),
                 HumanMessage(content=prompt),
             ])
+            )
             raw_content = lc_response.content.strip()
             
             # 尝试 JSON 解析
@@ -169,7 +174,9 @@ class CrossEncoderReranker(BaseReranker):
 
             from sentence_transformers import CrossEncoder
             logger.info(f"[CrossEncoderReranker] 开始加载模型: {self._model_name}...")
-            self._model = CrossEncoder(self._model_name)
+            # 模型加载是重 CPU/IO 同步操作（数秒），放入线程池避免阻塞事件循环
+            loop = asyncio.get_running_loop()
+            self._model = await loop.run_in_executor(None, CrossEncoder, self._model_name)
             logger.info(f"[CrossEncoderReranker] 模型加载完成: {self._model_name}")
 
     def _get_model(self):
@@ -202,7 +209,12 @@ class CrossEncoderReranker(BaseReranker):
                 for r in results
             ]
 
-            scores = model.predict(pairs)
+            # predict 是同步重计算（秒级），必须放入线程池执行，否则会阻塞
+            # asyncio 事件循环导致所有并发请求排队（Stage 4 压测：native+rerank
+            # p50=35s 的主因）。CrossEncoder.predict 为只读推理，官方实现无共享
+            # 可变状态，多线程并发调用安全；默认线程池可并行多份推理。
+            loop = asyncio.get_running_loop()
+            scores = await loop.run_in_executor(None, model.predict, pairs)
 
             # 按分数降序排列
             scored = list(zip(results, scores))
