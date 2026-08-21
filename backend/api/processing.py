@@ -22,6 +22,92 @@ def _get_processor():
     return DocumentProcessor, StoredData
 
 
+_STAGE_BY_STATUS = {
+    # Stage 5：document.status -> 流水线阶段（与前端 pipeline 四步对齐）
+    "uploaded": "awaiting_split",        # 已上传，待切割
+    "chunk_done": "generating",          # 已切块，generate 可在跑（状态不区分进行中，见 stage_in_progress）
+    "generated": "awaiting_import",      # 增强完成，待导入
+    "importing": "importing",            # 导入进行中
+    "completed": "done",                 # 全部完成
+    "failed": "failed",                  # 失败
+}
+
+
+@router.get("/progress/{file_id}")
+async def get_process_progress(file_id: str, req: Request, current_user=Depends(get_current_user)):
+    """轻量处理进度轮询接口（文档 05 问题 5/9 后端侧，Stage 5）。
+
+    纯 PG 查询（document + 聚合 + 最近 workflow_log），无 LLM/embedding 开销。
+    generate/import 阶段状态机只写终态，进行中的判断依据：
+    - chunk_done 且缺口为 0 → generate 实际已完成（等 import）
+    - importing 阶段无法给 chunk 级进度，is_running 由状态决定
+    """
+    doc = db.get_document(file_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="文件未找到")
+    if not db.check_kb_permission(current_user["id"], doc["knowledge_base_id"]):
+        raise HTTPException(status_code=403, detail="无权限访问该知识库")
+
+    status = doc["status"]
+    stage = _STAGE_BY_STATUS.get(status, status)
+
+    # 阶段内进度：generate 阶段用增强聚合（按启用集口径）；split/import 无中间粒度
+    agg = db.get_document_enhancement_progress(file_id)
+    total = agg["total_chunks"]
+    enabled = resolve_enabled_enhancers(doc["knowledge_base_id"])
+    need_subq = "sub_question" in enabled
+    need_summary = "summary" in enabled
+    if status == "chunk_done":
+        # 需求 chunk 数：启用了对应增强器的 chunk 才计入
+        required = total if (need_subq or need_summary) else 0
+        done = 0
+        if need_subq and need_summary:
+            done = min(agg["chunks_with_subq"], agg["chunks_with_summary"])
+        elif need_subq:
+            done = agg["chunks_with_subq"]
+        elif need_summary:
+            done = agg["chunks_with_summary"]
+        else:
+            required, done = 0, 0
+    else:
+        required = done = total
+    stage_progress = {
+        "done": done,
+        "total": required,
+    }
+
+    # 最近一条 workflow 日志（失败信息来源）
+    logs = db.get_document_workflow_logs(file_id)
+    last_log = logs[0] if logs else None
+    last_error = None
+    if status == "failed" or (last_log and last_log.get("status") == "failed"):
+        for lg in logs:
+            if lg.get("status") == "failed":
+                last_error = {"operation": lg.get("operation"), "message": lg.get("message"),
+                              "at": lg.get("created_at")}
+                break
+
+    audit.log_from_request(req, "process.progress_check", user_id=current_user["id"],
+              resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
+              detail={"status": status, "stage": stage, "done": done, "total": required})
+
+    return {
+        "file_id": file_id,
+        "document_status": status,
+        "stage": stage,
+        "is_running": status in ("chunk_done", "importing"),
+        "stage_progress": stage_progress,
+        "total_chunks": total,
+        "timing_ms": {
+            "split_time": doc.get("split_time"),
+            "generate_time": doc.get("generate_time"),
+            "import_time": doc.get("import_time"),
+        },
+        "updated_at": doc.get("updated_at"),
+        "last_error": last_error,
+    }
+
+
 @router.post("/split/{file_id}")
 async def split_document(file_id: str, req: Request, current_user=Depends(get_current_user),
                          strategy: Optional[str] = None):

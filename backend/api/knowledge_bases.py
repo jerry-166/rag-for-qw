@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
+from typing import Optional
 import json
 
 from config import init_logger, settings
@@ -18,15 +19,16 @@ class KnowledgeBaseCreate(BaseModel):
     description: str = None
     metadata: dict = None
     # 文档 02/03：KB 级策略配置（不传 = NULL = 跟随全局配置）
-    chunk_strategy: str = None   # auto / markdown / recursive
-    enhancers: list = None       # None=跟随全局 / []=全关 / ["sub_question","summary"]=显式
+    # Pydantic v2 下 `str = None` 会拒绝显式 null → 422，改 Optional（前端默认传 null）
+    chunk_strategy: Optional[str] = None   # auto / markdown / recursive
+    enhancers: Optional[list] = None       # None=跟随全局 / []=全关 / ["sub_question","summary"]=显式
 
 class KnowledgeBaseUpdate(BaseModel):
-    kb_name: str = None
-    description: str = None
+    kb_name: Optional[str] = None
+    description: Optional[str] = None
     # 文档 02/03：KB 级策略配置更新（不传 = 保持原值）
-    chunk_strategy: str = None   # auto / markdown / recursive
-    enhancers: list = None       # None=不变 / []=全关 / ["sub_question","summary"]=显式
+    chunk_strategy: Optional[str] = None   # auto / markdown / recursive
+    enhancers: Optional[list] = None       # None=不变 / []=全关 / ["sub_question","summary"]=显式
 
 class KnowledgeBaseResponse(BaseModel):
     id: int

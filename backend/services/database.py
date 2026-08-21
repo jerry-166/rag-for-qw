@@ -1247,6 +1247,31 @@ class Database:
         query = "SELECT * FROM document_chunk WHERE document_id = %s ORDER BY chunk_index"
         return self.fetchall(query, (document_id,))
     
+    def get_document_enhancement_progress(self, document_id):
+        """Stage 5：文档处理进度聚合（纯 PG 单查，进度接口用）。
+
+        返回 {total_chunks, chunks_with_summary, chunks_with_subq}。
+        sub_question 按有记录的 chunk 去重计数。
+        """
+        query = '''
+            SELECT
+                (SELECT COUNT(*) FROM document_chunk WHERE document_id = %s) AS total_chunks,
+                (SELECT COUNT(DISTINCT sq.chunk_id) FROM sub_question sq
+                   JOIN document_chunk dc ON dc.id = sq.chunk_id
+                  WHERE dc.document_id = %s) AS chunks_with_subq,
+                (SELECT COUNT(DISTINCT cs.chunk_id) FROM chunk_summary cs
+                   JOIN document_chunk dc ON dc.id = cs.chunk_id
+                  WHERE dc.document_id = %s) AS chunks_with_summary
+        '''
+        row = self.fetchone(query, (document_id, document_id, document_id))
+        if not row:
+            return {"total_chunks": 0, "chunks_with_subq": 0, "chunks_with_summary": 0}
+        return {
+            "total_chunks": row["total_chunks"] or 0,
+            "chunks_with_subq": row["chunks_with_subq"] or 0,
+            "chunks_with_summary": row["chunks_with_summary"] or 0,
+        }
+
     def get_chunk_by_id(self, chunk_id):
         """根据ID获取文档块"""
         query = "SELECT * FROM document_chunk WHERE id = %s"

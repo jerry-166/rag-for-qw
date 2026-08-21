@@ -1,43 +1,23 @@
-# Stage 5 — reranker 事件循环阻塞修复验证（2026-08-20）
+=== Stage 5 前置验证 log（2026-08-21 14:21:42）===
 
-## 修复内容（backend/services/reranker.py）
-1. CrossEncoderReranker.rerank: model.predict(pairs) -> await loop.run_in_executor(None, model.predict, pairs)
-   （原 L205 附近同步推理阻塞事件循环，Stage 4 定位为 native+rerank p50=35s 主因）
-2. CrossEncoderReranker._ensure_model_loaded: 模型加载（数秒级同步重活）同样移入 run_in_executor
-3. LLMReranker.rerank: client.invoke() 同步网络调用同样移入 run_in_executor（同类问题，顺带修复）
-调用方接口不变（rerank 仍为 async，签名未动）。rag_tools.py 内 asyncio.run 调用路径不受影响
-（线程内 run_in_executor 会新建/使用该线程 loop 的默认 executor，语义正确）。
+--- 任务 A：GET /api/process/progress ---
+[成功路径 doc 14]
+{"file_id":"14","document_status":"completed","stage":"done","is_running":false,"stage_progress":{"done":12,"total":12},"total_chunks":12,"timing_ms":{"split_time":311.01038,"generate_time":12914.186,"import_time":25721.32},"updated_at":"2026-04-28T20:45:26.811904","last_error":null}
+[旅程新文档 doc 149]
+{"file_id":"149","document_status":"completed","stage":"done","is_running":false,"stage_progress":{"done":1,"total":1},"total_chunks":1,"timing_ms":{"split_time":97.57972,"generate_time":6487.454,"import_time":19095.928},"updated_at":"2026-08-21T14:20:09.071961","last_error":null}
+[失败路径 404]
+{"detail":"文件未找到"} -> HTTP 404
+[失败路径 401]
+{"detail":"Not authenticated"} -> HTTP 401
+[审计事件埋点验证：audit log 中 process.progress_check 出现次数]
+50 �� progress_check �¼�, ����: {"id": 2860, "occurred_at": "2026-08-21T14:21:42.994340+08:00", "user_id": 1, "action": "process.progress_check", "resource_type": "document", "resource_id": "149", "kb_id": 22, "request_id": "6734c50
 
-## 验证 1：编译与导入
-- py_compile services/reranker.py 通过
-- python -c "import app" 输出 "import app OK"
+--- 任务 B：旅程（详见 baseline/report.md 与 raw-results.json）---
+通过率 15/15；console error 2（PDF.js InvalidPDFException；pipeline.js:1261 null textContent）；失败网络请求 0
 
-## 验证 2：并发基准（uvicorn 8003，KB17，loadtester，bench_rerank.py，n=16 并发8）
-修复后：
-- native+rerank: ok 16/16, 0 错误, p50=61.98s, p95=74.75s, wall=131.4s
-- native 无 rerank: ok 16/16, p50=9.10s, p95=13.64s
-对照 Stage 4（n=8 并发8）：native+rerank p50=35.2s（仅 5/8 成功，3 个客户端超时）；无 rerank p50=2.97s
-结论：并发成功率 62.5% -> 100%（无超时）。p50 绝对值仍高（62s）是因为本机 CPU 上
-CrossEncoder 对 20 对 (query,doc) 的批推理本身耗时 ~30-60s 且并发排队线程池 —— 这是
-推理容量问题，不是事件循环阻塞问题，与本次修复目标（解除全局阻塞）分开。
+--- KB 创建 422 修复复测 ---
+POST /api/knowledge-bases (chunk_strategy=null) -> HTTP 400
 
-## 验证 3：事件循环解除阻塞（interleave_test.py，核心验证）
-8 个 rerank 请求推理进行中，穿插发 4 个无 rerank 请求：
-- 无 rerank 延迟：15.0s / 2.2s / 3.8s / 3.4s（≈空载水平 9s±）
-  修复前语义：predict 在事件循环内同步执行，期间所有请求（含无 rerank）被完全挂起 ≥35s。
-- rerank 8 个任务全部 200：44-64s
-结论：reranker 推理不再阻塞其他请求 —— 修复目标达成。
-
-## 验证 4：无 rerank 回归
-见验证 2 第二行：16/16 成功，p50=9.1s，正常。
-
-## 验证 5：rerank 结果质量不回归
-方法：服务端只跑修复后。两次连续 rerank 结果逐位完全一致（3 个查询 rerank_stable=true，
-rerank_run1 == rerank_run2），说明 predict 确定性；修复仅改变执行线程，不改输入 pairs、
-模型权重与打分逻辑，输出与修复前在数学上等价（同一模型同一输入确定性打分）。
-rerank 与无 rerank 的 top 排序不同属预期（rerank 生效，把相关 chunk 提前）。
-未跑修复前服务对比（Stage 4 未留存逐条结果），如实记录。
-
-## 遗留（非本次范围）
-- rerank 批推理 CPU 容量：建议后续缩小 pairs 数（当前 2x limit=20 对）、上限 batch、
-  或换 GPU/更小模型；这是 p50=62s 的真正来源。
+[补充] KB 创建复测说明：第一次 400 是 curl 命令行中文 body 编码问题（"error parsing the body"），非后端缺陷。
+ASCII body 重放多次（kb_id 23/24/26/27，含同名重放）均 HTTP 200，chunk_strategy=null「跟随全局」路径修复确认。
+测试资源新增 KB：stage5-verify-422fix / fix2 / fix3 / fix4（可清理）。
