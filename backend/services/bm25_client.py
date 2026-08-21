@@ -339,7 +339,15 @@ class BM25Client:
         """
         try:
             from services.database import db
-            rows = db.fetchall("SELECT * FROM document_chunk")
+            # document_chunk 无 user_id 列：JOIN knowledge_base 取属主，
+            # 保证重启加载后的分桶键与 index_chunk(user_id=KB 属主) 一致
+            rows = db.fetchall(
+                """
+                SELECT dc.*, kb.user_id
+                FROM document_chunk dc
+                LEFT JOIN knowledge_base kb ON dc.knowledge_base_id = kb.id
+                """
+            )
 
             count = 0
             for row in rows:

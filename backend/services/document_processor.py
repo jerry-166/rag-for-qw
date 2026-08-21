@@ -160,6 +160,19 @@ class DocumentProcessor:
             from services.database import db
 
             # 第 1 步：查询 DB，按启用集找出缺失字段的块（文档 03 §3.4 增量改造）
+            need_entity = "entity" in enabled
+            entity_covered = set()
+            if need_entity:
+                import json as _json
+                for e in db.get_kb_entities(knowledge_base_id, limit=5000) if knowledge_base_id else []:
+                    src = e.get("source_chunk_ids") or []
+                    if isinstance(src, str):
+                        try:
+                            src = _json.loads(src)
+                        except Exception:
+                            src = []
+                    entity_covered.update(src)
+
             miss_indices = []
             for idx, d in enumerate(datas):
                 chunk_db_id = d.metadata.get("chunk_id")
@@ -170,7 +183,8 @@ class DocumentProcessor:
                 # 只检查启用集中的字段；未启用字段视为已满足（不触发补生成）
                 subqs = db.get_sub_questions_by_chunk(chunk_db_id) if need_subq else [1]
                 summary = db.get_chunk_summary(chunk_db_id) if need_summary else "1"
-                if not subqs or not summary:
+                miss_entity = need_entity and chunk_db_id not in entity_covered
+                if not subqs or not summary or miss_entity:
                     miss_indices.append(idx)
 
             if not miss_indices:

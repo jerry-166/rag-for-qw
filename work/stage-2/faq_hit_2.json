@@ -1,0 +1,80 @@
+{
+ "status": "success",
+ "response": {
+  "content": "Question: What is RAG system?\n\nAnswer: RAG (Retrieval-Augmented Generation) is a system that combines retrieval with generation. It integrates a retrieval mechanism to fetch relevant information from an external knowledge base and a generation model to produce coherent and contextually appropriate responses based on the retrieved information. This approach enhances the quality and accuracy of generated outputs by grounding them in factual data.\n\n---\n*以上回答来自知识记忆（命中问题：What is RAG system?，相似度 1.00）*",
+  "agent_type": "claw",
+  "session_id": "1bc4b624-92de-4408-865d-5538dd72604f",
+  "intent": "retrieval",
+  "confidence": 0.95,
+  "entities": [],
+  "subtasks": [],
+  "tool_calls": [],
+  "sources_count": 0,
+  "metadata": {
+   "events": [
+    {
+     "type": "thinking",
+     "content": "正在分析您的查询意图...",
+     "timestamp": "2026-08-21T08:36:46.225669"
+    },
+    {
+     "type": "intent_classified",
+     "content": "意图识别：retrieval（置信度 95%）",
+     "timestamp": "2026-08-21T08:36:49.381557",
+     "intent": "retrieval",
+     "confidence": 0.95
+    },
+    {
+     "type": "thinking",
+     "content": "正在扩展查询，生成子问题...",
+     "timestamp": "2026-08-21T08:36:49.387269"
+    },
+    {
+     "type": "query_expanded",
+     "content": "查询扩展完成，共 3 路检索",
+     "timestamp": "2026-08-21T08:36:51.286020",
+     "subquestions": [
+      "What is RAG system?",
+      "What are the main components and working principles of the RAG system?",
+      "What are the key applications and use cases of the RAG system in different domains?"
+     ]
+    },
+    {
+     "type": "thinking",
+     "content": "正在从知识库检索相关文档...",
+     "timestamp": "2026-08-21T08:36:51.292982"
+    },
+    {
+     "type": "retrieved",
+     "content": "命中已有知识记忆（相似度 1.00），直接回答",
+     "timestamp": "2026-08-21T08:36:57.876387",
+     "count": 0,
+     "results": [],
+     "faq_hit": true
+    },
+    {
+     "type": "reranked",
+     "content": "未检索到相关文档",
+     "timestamp": "2026-08-21T08:36:57.884807"
+    },
+    {
+     "type": "response_generated",
+     "content": "Question: What is RAG system?\n\nAnswer: RAG (Retrieval-Augmented Generation) is a system that combines retrieval with generation. It integrates a retrieval mechanism to fetch relevant information from an external knowledge base and a generation model to produce coherent and contextually appropriate responses based on the retrieved information. This approach enhances the quality and accuracy of generated outputs by grounding them in factual data.\n\n---\n*以上回答来自知识记忆（命中问题：What is RAG system?，相似度 1.00）*",
+     "timestamp": "2026-08-21T08:36:57.893666",
+     "sources_count": 0,
+     "faq_hit": true
+    }
+   ],
+   "expanded_queries": [
+    "What is RAG system?",
+    "What are the main components and working principles of the RAG system?",
+    "What are the key applications and use cases of the RAG system in different domains?"
+   ],
+   "retrieved_count": 0,
+   "error_details": null,
+   "sources": []
+  },
+  "processing_time": 11.675872,
+  "error": null
+ }
+}

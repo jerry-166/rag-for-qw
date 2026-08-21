@@ -1,0 +1,80 @@
+{
+ "status": "success",
+ "response": {
+  "content": "实体锚点提取：LLM 从问题中提取实体名，按名直查+向量语义匹配双路发现锚点。\n\n---\n*以上回答来自知识记忆（命中问题：GraphStrategy 检索的第一步是什么？，相似度 1.00）*",
+  "agent_type": "claw",
+  "session_id": "18a1e3e2-9445-4110-8c5d-76e79b08e05e",
+  "intent": "retrieval",
+  "confidence": 0.9,
+  "entities": [],
+  "subtasks": [],
+  "tool_calls": [],
+  "sources_count": 0,
+  "metadata": {
+   "events": [
+    {
+     "type": "thinking",
+     "content": "正在分析您的查询意图...",
+     "timestamp": "2026-08-21T08:41:02.036474"
+    },
+    {
+     "type": "intent_classified",
+     "content": "意图识别：retrieval（置信度 90%）",
+     "timestamp": "2026-08-21T08:41:04.435793",
+     "intent": "retrieval",
+     "confidence": 0.9
+    },
+    {
+     "type": "thinking",
+     "content": "正在扩展查询，生成子问题...",
+     "timestamp": "2026-08-21T08:41:04.451318"
+    },
+    {
+     "type": "query_expanded",
+     "content": "查询扩展完成，共 3 路检索",
+     "timestamp": "2026-08-21T08:41:06.357529",
+     "subquestions": [
+      "GraphStrategy 检索的第一步是什么？",
+      "GraphStrategy 的检索过程在第一步中涉及哪些具体操作？",
+      "在 GraphStrategy 中，第一步的目标和作用是什么？"
+     ]
+    },
+    {
+     "type": "thinking",
+     "content": "正在从知识库检索相关文档...",
+     "timestamp": "2026-08-21T08:41:06.364017"
+    },
+    {
+     "type": "retrieved",
+     "content": "命中已有知识记忆（相似度 1.00），直接回答",
+     "timestamp": "2026-08-21T08:41:13.352775",
+     "count": 0,
+     "results": [],
+     "faq_hit": true
+    },
+    {
+     "type": "reranked",
+     "content": "未检索到相关文档",
+     "timestamp": "2026-08-21T08:41:13.366455"
+    },
+    {
+     "type": "response_generated",
+     "content": "实体锚点提取：LLM 从问题中提取实体名，按名直查+向量语义匹配双路发现锚点。\n\n---\n*以上回答来自知识记忆（命中问题：GraphStrategy 检索的第一步是什么？，相似度 1.00）*",
+     "timestamp": "2026-08-21T08:41:13.374592",
+     "sources_count": 0,
+     "faq_hit": true
+    }
+   ],
+   "expanded_queries": [
+    "GraphStrategy 检索的第一步是什么？",
+    "GraphStrategy 的检索过程在第一步中涉及哪些具体操作？",
+    "在 GraphStrategy 中，第一步的目标和作用是什么？"
+   ],
+   "retrieved_count": 0,
+   "error_details": null,
+   "sources": []
+  },
+  "processing_time": 11.349929,
+  "error": null
+ }
+}

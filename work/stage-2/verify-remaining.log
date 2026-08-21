@@ -1,0 +1,76 @@
+== item1 audit check ==
+{"status": "success", "total": 0, "page": 1, "page_size": 50, "items": []}
+== item1 audit process.import.done ==
+[('process.generate.missing_check', 2), ('settings.update', 1)]
+== item2: graph search on KB6 ==
+graph search 0.0s
+{"_status": 404, "_body": "{\"detail\":\"Not Found\"}"}
+== item1: audit process.import.done ==
+total= 0
+== item4: graph mode search KB6 ==
+{"_status": 404, "_body": "{\"detail\":\"Not Found\"}"}
+== item4: graph retrieval_mode on /api/search/milvus/query, kb6 ==
+0.2s {"_status": 404, "_body": "{\"detail\":\"Not Found\"}"}
+== item4: graph via /api/milvus/query kb6 ==
+13.9s
+{"status": "success", "query": "Milvus 向量数据库 与哪些组件有关联？", "results": [{"type": "native", "chunk_id": 0, "chunk_text": "\n<table><tr><td>策略</td><td>做法</td><td>优点</td><td>缺点</td></tr><tr><td>全量历史塞入</td><td>把所有历史对话放进上下文</td><td>什么都不丢</td><td>三天就爆,注意力严重稀释</td></tr><tr><td>向量数据库 RAG</td><td>历史存向量数据库,语义检索</td><td>理论上无上限</td><td>检索质量不稳定、需要额外基础设施</td></tr><tr><td>单一配置文件</td><td>一个大文件存所有偏好</td><td>简单直接</td><td>无法结构化管理、无法按需加载</td></tr><tr><td>Claude Code 三层记忆</td><td>索引 + 按需 + 归档</td><td>精确控制加载量、语义分类</td><td>依赖 LLM 判断记忆质量</td></tr></table>", "content": "\n<table><tr><td>策略</td><td>做法</td><td>优点</td><td>缺点</td></tr><tr><td>全量历史塞入</td><td>把所有历史对话放进上下文</td><td>什么都不丢</td><td>三天就爆,注意力严重稀释</td></tr><tr><td>向量数据库 RAG</td><td>历史存向量数据库,语义检索</td><td>理论上无上限</td><td>检索质量不稳定、需要额外基础设施</td></tr><tr><td>单一配置文件</td><td>一个大文件存所有偏好</td><td>简单直接</td><td>无法结构化管理、无法按需加载</td></tr><tr><td>Claude Code 三层记忆</td><td>索引 + 按需 + 归档</td><td>精确控制加载量、语义分类</td><td>依赖 LLM 判断记忆质量</td></tr></table>", "distance": 0.3494490683078766, 
+result types: ['native', 'native', 'native', 'native', 'native']
+== item4 retry: knowledge_base_id field ==
+0.1s status= None
+types: []
+== item4 (tester): graph on KB6 ==
+7.1s status= success
+types: ['graph', 'graph', 'graph', 'graph', 'graph']
+0.9 5977 b'Milvus \xe6\x98\xaf\xe5\xbc\x80\xe6\xba\x90\xe5\x90\x91\xe9\x87\x8f\xe6\x95\xb0\xe6\x8d\xae\xe5\xba\x93\xef\xbc\x8c\xe6\x94\xaf\xe6\x8c\x81\xe5\x8d\x81\xe4\xba\xbf\xe7\xba\xa7\xe5\x90\x91\xe9\x87\x8f\xe7\x9a\x84\xe8\xbf\x91\xe4\xbc\xbc\xe6\x9c\x80\xe8\xbf\x91\xe9\x82\xbb\xe6\x90\x9c\xe7\xb4\xa2\xef\xbc\x8c\xe5\xb9\xbf\xe6\xb3\x9b\xe7\x94\xa8\xe4\xba\x8e\xe6\x8e\xa8\xe8\x8d\x90\xe3\x80\x81\xe5\x9b\xbe\xe5\x83\x8f\xe6\xa3\x80\xe7\xb4\xa2\xe4\xb8\x8e RAG\xe3\x80\x82\xe5\xae\x83'
+0.9 6001 b'Milvus \xe6\x98\xaf\xe5\xbc\x80\xe6\xba\x90\xe5\x90\x91\xe9\x87\x8f\xe6\x95\xb0\xe6\x8d\xae\xe5\xba\x93\xef\xbc\x8c\xe6\x94\xaf\xe6\x8c\x81\xe5\x8d\x81\xe4\xba\xbf\xe7\xba\xa7\xe5\x90\x91\xe9\x87\x8f\xe7\x9a\x84\xe8\xbf\x91\xe4\xbc\xbc\xe6\x9c\x80\xe8\xbf\x91\xe9\x82\xbb\xe6\x90\x9c\xe7\xb4\xa2\xef\xbc\x8c\xe5\xb9\xbf\xe6\xb3\x9b\xe7\x94\xa8\xe4\xba\x8e\xe6\x8e\xa8\xe8\x8d\x90\xe3\x80\x81\xe5\x9b\xbe\xe5\x83\x8f\xe6\xa3\x80\xe7\xb4\xa2\xe4\xb8\x8e RAG\xe3\x80\x82\xe5\xae\x83'
+0.9 6013 b'Milvus \xe6\x98\xaf\xe5\xbc\x80\xe6\xba\x90\xe5\x90\x91\xe9\x87\x8f\xe6\x95\xb0\xe6\x8d\xae\xe5\xba\x93\xef\xbc\x8c\xe6\x94\xaf\xe6\x8c\x81\xe5\x8d\x81\xe4\xba\xbf\xe7\xba\xa7\xe5\x90\x91\xe9\x87\x8f\xe7\x9a\x84\xe8\xbf\x91\xe4\xbc\xbc\xe6\x9c\x80\xe8\xbf\x91\xe9\x82\xbb\xe6\x90\x9c\xe7\xb4\xa2\xef\xbc\x8c\xe5\xb9\xbf\xe6\xb3\x9b\xe7\x94\xa8\xe4\xba\x8e\xe6\x8e\xa8\xe8\x8d\x90\xe3\x80\x81\xe5\x9b\xbe\xe5\x83\x8f\xe6\xa3\x80\xe7\xb4\xa2\xe4\xb8\x8e RAG\xe3\x80\x82\xe5\xae\x83'
+== item3: FAQ candidate hit via agent chat (KB6, faq2 hit=1/2) ==
+1 HTTP 422 {"detail":[{"type":"missing","loc":["body","query"],"msg":"Field required","input":{"message":"What is RAG system?","agent_type":"claw","knowledge_base_id":6,"user_id":7}}]}
+2 HTTP 422 {"detail":[{"type":"missing","loc":["body","query"],"msg":"Field required","input":{"message":"What is RAG system?","agent_type":"claw","knowledge_base_id":6,"user_id":7}}]}
+== item3: FAQ candidate hits (tester, KB6) ==
+round1 32.4s top_keys=['status', 'response'] resp_head={'content': '根据检索到的文档内容，没有关于 "RAG system" 的具体定义或描述，因此无法直接回答您
+round2 11.7s top_keys=['status', 'response'] resp_head={'content': 'Question: What is RAG system?\n\nAnswer: RAG (R
+== item1: audit via tester (owner of E2E docs) ==
+total= 3
+2026-08-20T23:58:25.428895+08:00 {"chunks": 49, "vectors": 291, "vector_dim": 1536, "sub_questions": 242, "processing_time_ms": 872360.1}
+2026-08-20T23:20:05.723832+08:00 {"chunks": 49, "vectors": 291, "vector_dim": 1536, "sub_questions": 242, "processing_time_ms": 797630.1}
+2026-08-20T23:03:32.621208+08:00 {"chunks": 49, "vectors": 291, "vector_dim": 1536, "sub_questions": 242, "processing_time_ms": 94200.0}
+
+== item5: KB clone kb6 ==
+pre: {'kb': 5, 'doc': 1, 'chunk': 49, 'subq': 242, 'faq': 5, 'entity': 65, 'rel': 116}
+clone 24.5s {"action": "cloned", "kb_id": 13, "source_kb_id": 6, "vectors": {"chunks": 49, "summaries": 0, "subquestions": 242, "faq": 5}}
+post: {'kb13': [(13, 'TestKB-Clone-Verify', 7, ['entity', 'sub_question'])], 'doc': 1, 'chunk': 49, 'subq': 242, 'faq': 5, 'entity': 0, 'rel': 0}
+
+== item5: clone KB retrieval (hybrid + native + graph on kb13) ==
+native 4.7s n= 5 
+advanced 1.8s n= 5 
+hybrid 2.0s n= 0 
+graph 6.3s n= 5 
+audit kb.clone total= 3
+hybrid kb6 n= 0
+keyword kb13: {"status": "success", "query": "RRF融合排序", "results": [{"id": 6126, "score": 7.716397132958906, "content": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第1部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶
+hybrid kb13 no-rerank n= 3
+hybrid kb13 with-rerank n= 3
+register: ok
+prverify login ok
+share: {"status": "success"}
+supplement: {"action": "pr_submitted", "pr_id": 2, "kb_id": 6, "message": "已提交知识库所有者审核，通过后生效"}
+  File "<stdin>", line 23
+    conn=psycopg2.connect(host='localhost',port=5432',dbname='rag_system',user='postgres',password='1234') if False else psycopg2.connect(host='localhost',port=5432,dbname='rag_system',user='postgres',password='1234')
+                                                                                                                                                                                                                       ^
+SyntaxError: unterminated string literal (detected at line 23)
+PR list (tester): {"total": 2, "page": 1, "page_size": 20, "items": [{"id": 2, "source_faq_id": null, "source_kb_id": null, "target_kb_id": 6, "submitted_by": 9, "status": "open", "reviewed_by": null, "reviewed_at": null, "review_note": null, "question": "GraphStrategy 检索的第一步是什么？", "answer": "实体锚点提取：LLM 从问题中提取实体名，按名直查+向量语义匹配双路发现锚点。", "created_at": "2026-08-21T08:40:20.757365", "submitter_name": "prverify", "target_
+merge: {"action": "merged", "pr_id": 2, "faq_id": 19}
+chat after merge resp head: b'\xe5\xae\x9e\xe4\xbd\x93\xe9\x94\x9a\xe7\x82\xb9\xe6\x8f\x90\xe5\x8f\x96\xef\xbc\x9aLLM \xe4\xbb\x8e\xe9\x97\xae\xe9\xa2\x98\xe4\xb8\xad\xe6\x8f\x90\xe5\x8f\x96\xe5\xae\x9e\xe4\xbd\x93\xe5\x90\x8d\xef\xbc\x8c\xe6\x8c\x89\xe5\x90\x8d\xe7\x9b\xb4\xe6\x9f\xa5+\xe5\x90\x91\xe9\x87\x8f\xe8\xaf\xad\xe4\xb9\x89\xe5\x8c\xb9\xe9\x85\x8d\xe5\x8f\x8c\xe8\xb7\xaf\xe5\x8f\x91\xe7\x8e\xb0\xe9\x94\x9a\xe7\x82\xb9\xe3\x80\x82\n\n---\n*\xe4\xbb\xa5\xe4\xb8\x8a\xe5\x9b\x9e\xe7\xad\x94\xe6\x9d\xa5\xe8\x87\xaa\xe7\x9f\xa5\xe8\xaf\x86\xe8\xae\xb0\xe5\xbf\x86\xef\xbc\x88\xe5\x91\xbd\xe4\xb8\xad\xe9\x97\xae\xe9\xa2\x98\xef\xbc\x9aGraphStrategy \xe6\xa3\x80\xe7\xb4\xa2\xe7\x9a\x84\xe7\xac\xac\xe4\xb8\x80\xe6\xad\xa5\xe6\x98\xaf\xe4\xbb\x80\xe4\xb9\x88\xef\xbc\x9f\xef\xbc\x8c\xe7\x9b\xb8\xe4\xbc\xbc\xe5\xba\xa6 1.00\xef\xbc\x89*'
+faq_pr.merge 442 {'note': 'Stage2 verify merge', 'faq_id': 19, 'submitted_by': 9}
+faq_pr.submit 438 {'question': 'GraphStrategy 检索的第一步是什么？'}
+faq.promote 417 {'via': 'threshold', 'after': 'Question: What is RAG system?\n\nAnswer: RAG (Retrieval-Augmented Generation) is a system that combines retrieval with 
+faq_pr.merge 385 {'note': '内容准确，合并', 'faq_id': 13, 'submitted_by': 8}
+== item7: settings group save / dirty-only / partial_error ==
+int keys sample: ['RETRIEVAL_TOP_K', 'RRF_K', 'NUM_SUBQUESTIONS']
+Traceback (most recent call last):
+  File "<stdin>", line 14, in <module>
+ModuleNotFoundError: No module named 'services'
+single-key PUT (dirty-only semantic): {"status": "ok", "updated": {"RETRIEVAL_TOP_K": 5}, "errors": {}}
+invalid PUT: {"status": "partial_error", "updated": {}, "errors": {"RETRIEVAL_TOP_K": "RETRIEVAL_TOP_K 需要整数"}}
+unknown key PUT: {"status": "partial_error", "updated": {}, "errors": {"NO_SUCH_KEY": "未知配置项: NO_SUCH_KEY"}}

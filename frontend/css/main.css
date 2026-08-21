@@ -3225,6 +3225,16 @@ td {
 .settings-section-header h3 { font-size: 1rem; font-weight: 600; }
 .settings-section-desc { color: var(--text3); font-size: .8rem; margin-bottom: 18px; }
 
+/* 05a 批次 2：分组保存 / dirty 高亮 / 组内错误标红 */
+.settings-group-save { margin-left: auto; }
+.settings-group-save:disabled { opacity: .5; }
+.settings-field.field-dirty .settings-input,
+.settings-field.field-dirty .settings-number {
+  border-color: var(--accent, #4f9cf9);
+}
+.settings-error-inline { font-size: .8rem; margin: 6px 0; }
+.settings-field.field-error .settings-field-name { color: var(--danger, #e5484d); }
+
 .settings-field {
   display: flex;
   align-items: flex-start;

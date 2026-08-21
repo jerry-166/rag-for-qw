@@ -370,12 +370,14 @@ class MilvusClient:
         
         if subquestions_chunk_texts:
             logger.info(f"导入 {len(subquestions_chunk_texts)} 条子问题数据")
-            # 为子问题生成chunk_id（使用文档索引）
+            # 子问题关联的 chunk_id：优先 metadata 中的 PG chunk_id（真实 id），
+            # 缺失时回落文档序号 i+1（兼容旧调用方）
             subquestions_chunk_ids = []
             for i, doc in enumerate(datas):
                 if doc.sub_questions and doc.subq_embeddings:
+                    pg_cid = int((doc.metadata or {}).get("chunk_id", 0)) or (i + 1)
                     for _ in doc.sub_questions:
-                        subquestions_chunk_ids.append(i + 1)
+                        subquestions_chunk_ids.append(pg_cid)
             
             subquestions_entities = [
                 subquestions_chunk_ids,
@@ -632,6 +634,10 @@ class MilvusClient:
             if not self.entities_collection:
                 if not self.create_collections():
                     return False
+            try:
+                self.entities_collection.load()
+            except Exception:
+                pass  # 已 load 时 Milvus 会幂等报错，忽略
             self.entities_collection.delete(f"pg_entity_id == {int(pg_entity_id)}")
             self.entities_collection.insert([
                 [int(pg_entity_id)], [int(kb_id)], [name[:500]],

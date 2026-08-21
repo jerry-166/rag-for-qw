@@ -66,10 +66,22 @@ def _effective_limit(request: QueryRequest) -> int:
     return int(get_runtime("RETRIEVAL_TOP_K", 5))
 
 
+def _check_kb_access(request: QueryRequest, current_user: dict):
+    """显式指定 KB 时校验访问权（属主或被分享），替代旧的 user_id 向量过滤。"""
+    if request.knowledge_base_id and not db.check_kb_permission(
+            current_user["id"], request.knowledge_base_id):
+        raise HTTPException(403, "无权限访问该知识库")
+
+
 def _build_metadata_filter(request: QueryRequest, current_user: dict) -> dict:
-    """构建 Milvus metadata 过滤条件（含权限控制）。"""
+    """构建 Milvus metadata 过滤条件（含权限控制）。
+
+    显式指定 knowledge_base_id 时：权限已由 check_kb_permission 把关
+    （共享 KB 的被分享者可检索），不再叠加 user_id 属主过滤——
+    否则被分享者永远匹配不到库主的向量。
+    """
     f = request.metadata_filter.copy() if request.metadata_filter else {}
-    if current_user["role"] != "admin":
+    if current_user["role"] != "admin" and not request.knowledge_base_id:
         f["user_id"] = current_user["id"]
     if request.knowledge_base_id:
         f["knowledge_base_id"] = request.knowledge_base_id
@@ -166,6 +178,7 @@ async def query_milvus(
 
     await _await_ready('milvus')
     try:
+        _check_kb_access(request, current_user)
         milvus_client = req.app.state['milvus_client']
         metadata_filter = _build_metadata_filter(request, current_user)
 
@@ -193,6 +206,8 @@ async def query_milvus(
             "results": results,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Milvus 检索失败: {e}")
         raise HTTPException(status_code=500, detail=f"检索失败: {e}")
@@ -224,6 +239,7 @@ async def search_elasticsearch(
 
     await _await_ready('search')
     try:
+        _check_kb_access(request, current_user)
         filters = _build_es_filters(request)
         search_client = req.app.state['search_client']
 
@@ -251,6 +267,8 @@ async def search_elasticsearch(
             "results": results,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"ES 检索失败: {e}")
         raise HTTPException(status_code=500, detail=f"检索失败: {e}")
@@ -276,6 +294,7 @@ async def hybrid_search(
     logger.info(f"开始混合检索, 查询文本: {request.query}")
 
     try:
+        _check_kb_access(request, current_user)
         # ---- Step 1: 并行召回 ----
         es_results, milvus_results = await asyncio.gather(
             _es_search(request, req, current_user),
@@ -319,6 +338,8 @@ async def hybrid_search(
             "results": reranked,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"混合检索失败: {e}")
         raise HTTPException(status_code=500, detail=f"混合检索失败: {e}")

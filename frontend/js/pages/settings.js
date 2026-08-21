@@ -3,10 +3,16 @@
  *
  * 可写配置分为八组（检索 / 文档切分 / LLM参数 / 会话与记忆 / 文档处理 / 模型与LLM / 系统 / API Keys），
  * 全部支持运行时热改，无需重启；API Key 用密码框输入，留空表示不修改。
+ *
+ * 05a 批次 2：
+ * - dirty-only 提交：只提交真正修改过的 key（与加载值比对，敏感项留空=不提交）
+ * - 分组保存：每组头部「保存本组」按钮（带 dirty 数徽标），底部保留「全部保存」
+ * - partial_error 按组内联标红
  */
 const SettingsPage = {
-  _configs: null,    // 缓存 GET 返回的完整配置
-  _dirty: false,     // 是否有未保存的修改
+  _configs: null,          // 缓存 GET 返回的完整配置
+  _dirtyKeys: new Set(),   // 有修改的 key 集合
+  _groupKeys: {},          // groupKey -> [configKey]（保存时过滤用）
 
   async render() {
     const container = document.getElementById('page-container');
@@ -30,7 +36,7 @@ const SettingsPage = {
     try {
       const resp = await window.SettingsAPI.get();
       this._configs = resp;
-      this._dirty = false;
+      this._dirtyKeys = new Set();
       this.renderSettings(resp);
     } catch (err) {
       document.getElementById('settings-loading').innerHTML = `
@@ -48,21 +54,25 @@ const SettingsPage = {
     const groups = data.groups || {};
     const groupOrder = ['retrieval', 'chunking', 'llm', 'session', 'processing', 'model', 'system', 'api_keys'];
     const grouped = {};
+    this._groupKeys = {};
     for (const [key, meta] of Object.entries(data.writable || {})) {
       const g = meta.group || 'retrieval';
       (grouped[g] = grouped[g] || []).push([key, meta]);
+      (this._groupKeys[g] = this._groupKeys[g] || []).push(key);
     }
 
     let html = '';
 
-    // ── 可写配置区（按分组渲染） ──────────────────────────
+    // ── 可写配置区（按分组渲染，每组带保存按钮） ───────────
     for (const g of groupOrder) {
       const items = grouped[g];
       if (!items || !items.length) continue;
-      html += `<div class="settings-section"><div class="settings-section-header">`;
+      html += `<div class="settings-section" data-group="${g}"><div class="settings-section-header">`;
       html += `<h3>${groups[g] || g}</h3>`;
+      html += `<button class="btn btn-sm btn-primary settings-group-save" data-group="${g}" disabled>保存本组</button>`;
       html += `<span class="settings-badge badge-writable">运行时生效</span>`;
       html += `</div><div class="settings-section-desc">修改后立即生效，无需重启</div>`;
+      html += `<div class="settings-group-errors" data-group-errors="${g}"></div>`;
       for (const [key, meta] of items) {
         html += this._renderField(key, meta);
       }
@@ -83,7 +93,7 @@ const SettingsPage = {
       html += '</div>';
     }
 
-    // ── 保存按钮 ────────────────────────────────────────────
+    // ── 底部操作 ────────────────────────────────────────────
     html += `
       <div class="settings-actions">
         <button class="btn btn-primary btn-lg" id="btn-save-settings" disabled>
@@ -171,7 +181,7 @@ const SettingsPage = {
     }
 
     return `
-      <div class="settings-field" data-key="${key}">
+      <div class="settings-field" data-key="${key}" data-original="${this._escape(String(current ?? ''))}">
         <div class="settings-field-label">
           <span class="settings-field-name">${label}</span>
           <span class="settings-field-key">${key}</span>
@@ -186,8 +196,8 @@ const SettingsPage = {
 
   initEvents() {
     document.querySelectorAll('.settings-input, .settings-range, .settings-number').forEach(el => {
-      el.addEventListener('input', () => this._markDirty());
-      el.addEventListener('change', () => this._markDirty());
+      el.addEventListener('input', () => this._checkDirty(el));
+      el.addEventListener('change', () => this._checkDirty(el));
     });
 
     // range 和 number 双向同步
@@ -212,6 +222,7 @@ const SettingsPage = {
           .map(b => b.value);
         const carrier = document.getElementById(`setting-${key}`);
         if (carrier) carrier.value = checked.join(',');
+        this._checkDirty(carrier);
       });
     });
 
@@ -220,32 +231,81 @@ const SettingsPage = {
       btn.addEventListener('click', () => {
         btn.dataset.cleared = '1';
         btn.textContent = '待清除';
-        this._markDirty();
+        this._addDirty(btn.dataset.clearKey);
       });
     });
 
+    // 分组保存 + 全部保存 + 重置
+    document.querySelectorAll('.settings-group-save').forEach(btn => {
+      btn.addEventListener('click', () => this.saveSettings(btn.dataset.group));
+    });
     document.getElementById('btn-save-settings').addEventListener('click', () => this.saveSettings());
 
     document.getElementById('btn-reset-settings').addEventListener('click', () => {
       this.renderSettings(this._configs);
-      this._dirty = false;
-      document.getElementById('btn-save-settings').disabled = true;
-      document.getElementById('btn-reset-settings').disabled = true;
     });
   },
 
-  _markDirty() {
-    this._dirty = true;
-    document.getElementById('btn-save-settings').disabled = false;
-    document.getElementById('btn-reset-settings').disabled = false;
+  _fieldGroup(configKey) {
+    for (const [g, keys] of Object.entries(this._groupKeys)) {
+      if (keys.includes(configKey)) return g;
+    }
+    return null;
   },
 
-  async saveSettings() {
-    const btn = document.getElementById('btn-save-settings');
-    btn.disabled = true;
-    btn.textContent = '保存中...';
+  _checkDirty(el) {
+    // 与初始值比对：回到原值时撤销 dirty（避免提交无意义修改）
+    const key = el.dataset.key;
+    if (!key) return;
+    if (el.type === 'password') {
+      if (el.value !== '') this._addDirty(key); else this._removeDirty(key);
+      return;
+    }
+    const field = el.closest('.settings-field');
+    const original = field ? field.dataset.original : undefined;
+    if (String(el.value) === String(original ?? '')) this._removeDirty(key);
+    else this._addDirty(key);
+  },
 
-    // 收集被标记清除的敏感项
+  _addDirty(key) {
+    this._dirtyKeys.add(key);
+    this._refreshDirtyUI();
+  },
+
+  _removeDirty(key) {
+    this._dirtyKeys.delete(key);
+    this._refreshDirtyUI();
+  },
+
+  _groupDirtyCount(groupKey) {
+    const keys = this._groupKeys[groupKey] || [];
+    return keys.filter(k => this._dirtyKeys.has(k)).length;
+  },
+
+  _refreshDirtyUI() {
+    // 各组按钮：显示本组 dirty 数，无改动禁用
+    document.querySelectorAll('.settings-group-save').forEach(btn => {
+      const n = this._groupDirtyCount(btn.dataset.group);
+      btn.textContent = n > 0 ? `保存本组 (${n})` : '保存本组';
+      btn.disabled = n === 0;
+    });
+    // 底部按钮
+    const hasDirty = this._dirtyKeys.size > 0;
+    const saveBtn = document.getElementById('btn-save-settings');
+    const resetBtn = document.getElementById('btn-reset-settings');
+    if (saveBtn) {
+      saveBtn.disabled = !hasDirty;
+      saveBtn.textContent = hasDirty ? `保存设置 (${this._dirtyKeys.size})` : '保存设置';
+    }
+    if (resetBtn) resetBtn.disabled = !hasDirty;
+    // 字段高亮
+    document.querySelectorAll('.settings-field[data-key]').forEach(f => {
+      f.classList.toggle('field-dirty', this._dirtyKeys.has(f.dataset.key));
+    });
+  },
+
+  /** 收集 dirty 项（groupKey 非空时按组过滤）。敏感项规则不变：留空=不提交，标记清除=提交 null。 */
+  collectDirtyConfigs(groupKey = null) {
     const clearKeys = new Set();
     document.querySelectorAll('.settings-secret-clear').forEach(btn => {
       if (btn.dataset.cleared) clearKeys.add(btn.dataset.clearKey);
@@ -254,34 +314,55 @@ const SettingsPage = {
     const configs = [];
     document.querySelectorAll('.settings-input, .settings-number').forEach(el => {
       const key = el.dataset.key;
-      if (!key) return;
+      if (!key || !this._dirtyKeys.has(key)) return;          // dirty-only
+      if (groupKey && this._fieldGroup(key) !== groupKey) return; // 组过滤
       if (el.type === 'password') {
         if (el.value !== '') {
-          // 输入了新值 → 以新值为准，取消清除标记
           clearKeys.delete(key);
           configs.push({ key, value: el.value });
         } else if (clearKeys.has(key)) {
           configs.push({ key, value: null });
         }
-        // 留空且未标记清除 = 不修改
         return;
       }
       configs.push({ key, value: el.value });
     });
-    // range 通过 number 联动已包含，避免重复
+    // range 通过 number 联动已包含，去重
     const seen = new Set();
-    const deduped = configs.filter(c => {
+    return configs.filter(c => {
       if (seen.has(c.key)) return false;
       seen.add(c.key);
       return true;
     });
+  },
+
+  _showGroupErrors(errors) {
+    // partial_error：按 key → 组映射，组内联标红（比 toast 更可定位）
+    document.querySelectorAll('.settings-group-errors').forEach(el => (el.innerHTML = ''));
+    document.querySelectorAll('.settings-field').forEach(f => f.classList.remove('field-error'));
+    for (const [key, msg] of Object.entries(errors || {})) {
+      const field = document.querySelector(`.settings-field[data-key="${key}"]`);
+      if (field) field.classList.add('field-error');
+      const g = this._fieldGroup(key);
+      const box = g && document.querySelector(`[data-group-errors="${g}"]`);
+      if (box) {
+        box.innerHTML += `<div class="settings-error-inline text-red">${key}: ${this._escape(String(msg))}</div>`;
+      }
+    }
+  },
+
+  async saveSettings(groupKey = null) {
+    const btn = groupKey
+      ? document.querySelector(`.settings-group-save[data-group="${groupKey}"]`)
+      : document.getElementById('btn-save-settings');
+    const deduped = this.collectDirtyConfigs(groupKey);
 
     if (!deduped.length) {
       window.App.showToast('没有需要保存的修改', 'info');
-      btn.disabled = false;
-      btn.textContent = '保存设置';
       return;
     }
+
+    if (btn) { btn.disabled = true; btn.textContent = '保存中...'; }
 
     try {
       const resp = await window.SettingsAPI.update(deduped);
@@ -292,12 +373,17 @@ const SettingsPage = {
           ? `已更新 ${okCount} 项，${errCount} 项失败（已回滚）`
           : `已保存 ${okCount} 项设置`;
         window.App.showToast(msg, errCount > 0 ? 'warning' : 'success');
-        await this.loadSettings();
+        if (errCount > 0) {
+          this._showGroupErrors(resp.errors);
+        } else {
+          await this.loadSettings();
+        }
       }
     } catch (err) {
       window.App.showToast(`保存失败: ${err.message}`, 'error');
-      btn.disabled = false;
-      btn.textContent = '保存设置';
+    } finally {
+      if (btn) { btn.disabled = false; }
+      this._refreshDirtyUI();
     }
   },
 

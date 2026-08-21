@@ -1,0 +1,11 @@
+{
+ "action": "cloned",
+ "kb_id": 13,
+ "source_kb_id": 6,
+ "vectors": {
+  "chunks": 49,
+  "summaries": 0,
+  "subquestions": 242,
+  "faq": 5
+ }
+}

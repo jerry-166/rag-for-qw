@@ -228,6 +228,18 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
 
         all_complete = True
         results = {}
+        need_entity = "entity" in enabled
+        entity_covered = set()
+        if need_entity:
+            import json as _json
+            for e in db.get_kb_entities(doc["knowledge_base_id"], limit=5000):
+                src = e.get("source_chunk_ids") or []
+                if isinstance(src, str):
+                    try:
+                        src = _json.loads(src)
+                    except Exception:
+                        src = []
+                entity_covered.update(src)
         for chunk in chunks:
             sub_questions = db.get_sub_questions_by_chunk(chunk["id"]) if need_subq else [1]
             summary = db.get_chunk_summary(chunk["id"]) if need_summary else "1"
@@ -236,7 +248,8 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
                 "sub_questions": [sq["content"] for sq in sub_questions] if need_subq else [],
                 "summary": summary["content"] if (need_summary and summary) else "",
             }
-            if (need_subq and not sub_questions) or (need_summary and not summary):
+            if (need_subq and not sub_questions) or (need_summary and not summary) or (
+                    need_entity and chunk["id"] not in entity_covered):
                 all_complete = False
 
         if all_complete and chunks:
@@ -294,12 +307,6 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
             knowledge_base_id=doc["knowledge_base_id"],
             enabled=enabled,
         )
-        audit.log("process.generate.api_done", user_id=current_user["id"],
-                  resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
-                  detail={"chunks": len(chunks), "sub_questions_count": sub_questions_count,
-                          "summaries_count": summaries_count, "enabled_enhancers": sorted(enabled),
-                          "processing_time_ms": round((time.time() - start_time) * 1000, 1)})
-
         # 重新从 DB 读取结果（processor 已写入）
         results = {}
         for chunk in chunks:
@@ -313,6 +320,12 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
 
         sub_questions_count = sum(len(r["sub_questions"]) for r in results.values())
         summaries_count = sum(1 for r in results.values() if r["summary"])
+
+        audit.log("process.generate.api_done", user_id=current_user["id"],
+                  resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
+                  detail={"chunks": len(chunks), "sub_questions_count": sub_questions_count,
+                          "summaries_count": summaries_count, "enabled_enhancers": sorted(enabled),
+                          "processing_time_ms": round((time.time() - start_time) * 1000, 1)})
 
         # 计算处理时间（毫秒）
         processing_time_ms = (time.time() - start_time) * 1000
@@ -376,9 +389,11 @@ async def get_missing_enhancements(file_id: str, current_user=Depends(get_curren
         enabled = resolve_enabled_enhancers(doc["knowledge_base_id"])
         need_subq = "sub_question" in enabled
         need_summary = "summary" in enabled
+        need_entity = "entity" in enabled
 
         missing_subq = 0
         missing_summary = 0
+        missing_entity = 0
         missing_both = 0
         for chunk in chunks:
             miss_sq = need_subq and not db.get_sub_questions_by_chunk(chunk["id"])
@@ -390,12 +405,30 @@ async def get_missing_enhancements(file_id: str, current_user=Depends(get_curren
             if miss_sq or miss_sm:
                 missing_both += 1
 
+        # 实体缺口：KB 级实体按 source_chunk_ids 求交（纯 PG，零 LLM/embedding）
+        if need_entity:
+            import json as _json
+            chunk_ids = {c["id"] for c in chunks}
+            covered = set()
+            for e in db.get_kb_entities(doc["knowledge_base_id"], limit=5000):
+                src = e.get("source_chunk_ids") or []
+                if isinstance(src, str):
+                    try:
+                        src = _json.loads(src)
+                    except Exception:
+                        src = []
+                covered |= chunk_ids & set(src)
+            missing_entity = len(chunk_ids - covered)
+            if missing_entity > 0:
+                missing_both = max(missing_both, missing_entity)
+
         response = {
             "file_id": file_id,
             "enabled_enhancers": sorted(enabled),
             "total_chunks": len(chunks),
             "missing_chunks": missing_both,
-            "missing": {"sub_question": missing_subq, "summary": missing_summary},
+            "missing": {"sub_question": missing_subq, "summary": missing_summary,
+                        "entity": missing_entity},
             "need_backfill": missing_both > 0,
         }
         audit.log("process.generate.missing_check", user_id=current_user["id"],
@@ -526,7 +559,8 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
                 subq_embeddings=[],
                 summary=summary_text,
                 summary_embedding=[],
-                metadata={"source": doc["filename"], "document_id": file_id}
+                metadata={"source": doc["filename"], "document_id": file_id,
+                          "chunk_id": chunk["id"], "chunk_index": chunk["chunk_index"]}
             )
             datas.append(data)
         
@@ -624,6 +658,11 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
         )
 
         logger.info(f"导入到Milvus成功，文件ID: {file_id}")
+        audit.log("process.import.done", user_id=current_user["id"],
+                  resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
+                  detail={"chunks": chunk_count, "vectors": vector_count,
+                          "sub_questions": sub_question_count, "vector_dim": vector_dim,
+                          "processing_time_ms": round(processing_time_ms, 1) if processing_time_ms else None})
         return {
             "file_id": file_id,
             "status": "success",

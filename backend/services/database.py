@@ -1086,7 +1086,13 @@ class Database:
         """根据状态获取文档"""
         query = "SELECT * FROM document WHERE status = %s"
         return self.fetchall(query, (status,))
-    
+
+    def get_kb_documents(self, knowledge_base_id):
+        """获取知识库下全部文档（KB 克隆用）"""
+        return self.fetchall(
+            "SELECT * FROM document WHERE knowledge_base_id = %s ORDER BY id",
+            (knowledge_base_id,))
+
     def get_all_documents(self):
         """获取所有文档"""
         query = "SELECT * FROM document"
@@ -1184,7 +1190,18 @@ class Database:
             # 删除每个文档及其相关数据
             for doc in documents:
                 self.delete_document(doc['id'], knowledge_base_id=kb_id)
-            
+
+            # Stage 3 表跟随清理（faq/entity 有 KB 外键，不先删会 FK 违约）
+            self.cursor.execute("DELETE FROM kb_share WHERE kb_id = %s", (kb_id,))
+            self.cursor.execute(
+                "DELETE FROM faq_pr WHERE target_kb_id = %s OR source_kb_id = %s",
+                (kb_id, kb_id))
+            self.cursor.execute("DELETE FROM faq WHERE kb_id = %s", (kb_id,))
+            self.cursor.execute(
+                "DELETE FROM entity_relation er USING entity e "
+                "WHERE er.head_entity_id = e.id AND e.kb_id = %s", (kb_id,))
+            self.cursor.execute("DELETE FROM entity WHERE kb_id = %s", (kb_id,))
+
             # 删除知识库
             self.cursor.execute("DELETE FROM knowledge_base WHERE id = %s", (kb_id,))
             

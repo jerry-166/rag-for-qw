@@ -1102,8 +1102,14 @@ window.AgentPage = window.AgentPage || {
                 fullContent += data.chunk;
                 session.messages[msgIdx].content = fullContent;
                 if (msgContentEl) {
-                  msgContentEl.innerHTML = this._renderMarkdown(fullContent);
-                  this._scrollToBottom();
+                  // 05a 批次 2：流式渲染节流 — 每 100ms 最多一次 marked.parse 全量重渲，
+                  // 避免每个 token 都 innerHTML 全量重排（长回答卡顿）；流结束后终渲兜底
+                  const now = performance.now();
+                  if (this._lastRenderTs === undefined || now - this._lastRenderTs >= 100) {
+                    this._lastRenderTs = now;
+                    msgContentEl.innerHTML = this._renderMarkdown(fullContent);
+                    this._scrollToBottom();
+                  }
                 }
               }
               // Stage 3：捕获 FAQ 命中 / 补全引导标记（StreamChunk.to_sse 把 metadata 展开到顶层）
@@ -1119,6 +1125,7 @@ window.AgentPage = window.AgentPage || {
               // 流结束 — 标记状态 + 兜底渲染来源面板
               session.messages[msgIdx]._streaming = false;
               session.messages[msgIdx].content = fullContent || '（无回复内容）';
+              this._lastRenderTs = undefined; // 重置节流计时，下一轮流式重新计
               // done 事件中的 trace_id 比 connected 更可靠（CallbackHandler 执行后 trace 才确定）
               if (data.trace_id) {
                 session.messages[msgIdx].trace_id = data.trace_id;

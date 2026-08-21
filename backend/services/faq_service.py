@@ -380,6 +380,20 @@ class FAQService:
         except Exception as e:
             logger.warning(f"克隆向量搬运失败（PG 数据完整，可重建）: {e}")
 
+        # BM25 关键词索引：克隆的 chunk 需入内存索引（PG 有数据但
+        # load_from_database 只在启动时执行，克隆后关键词检索会空）
+        try:
+            from services.bm25_client import get_search_client
+            chunks = db.get_document_chunks_by_ids(list(result["chunk_map"].values()))
+            owner = db.get_knowledge_base(new_kb_id) or {}
+            for ch in chunks:
+                ch.setdefault("user_id", owner.get("user_id", user_id))
+                ch.setdefault("knowledge_base_id", new_kb_id)
+            get_search_client().bulk_index_chunks(chunks)
+            logger.info(f"克隆 BM25 索引完成: kb={new_kb_id}, {len(chunks)} 条 chunk")
+        except Exception as e:
+            logger.warning(f"克隆 BM25 索引失败（重启后由 PG 加载兜底）: {e}")
+
         audit.log("kb.clone", user_id=user_id, resource_type="knowledge_base",
                   resource_id=new_kb_id, kb_id=new_kb_id,
                   detail={"source_kb_id": source_kb_id, "new_name": new_name,

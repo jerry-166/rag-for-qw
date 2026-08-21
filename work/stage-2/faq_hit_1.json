@@ -1,0 +1,238 @@
+{
+ "status": "success",
+ "response": {
+  "content": "根据检索到的文档内容，没有关于 \"RAG system\" 的具体定义或描述，因此无法直接回答您的问题。\n\n如果您需要了解 RAG 系统的核心组件或相关内容，可以提供更多背景信息或重新描述问题，我将尽力为您提供帮助！",
+  "agent_type": "claw",
+  "session_id": "e2d39d17-fcc5-40af-8916-997c1d473dcf",
+  "intent": "retrieval",
+  "confidence": 0.95,
+  "entities": [],
+  "subtasks": [],
+  "tool_calls": [],
+  "sources_count": 3,
+  "metadata": {
+   "events": [
+    {
+     "type": "thinking",
+     "content": "正在分析您的查询意图...",
+     "timestamp": "2026-08-21T08:36:14.114845"
+    },
+    {
+     "type": "intent_classified",
+     "content": "意图识别：retrieval（置信度 95%）",
+     "timestamp": "2026-08-21T08:36:18.283828",
+     "intent": "retrieval",
+     "confidence": 0.95
+    },
+    {
+     "type": "thinking",
+     "content": "正在扩展查询，生成子问题...",
+     "timestamp": "2026-08-21T08:36:18.298580"
+    },
+    {
+     "type": "query_expanded",
+     "content": "查询扩展完成，共 3 路检索",
+     "timestamp": "2026-08-21T08:36:21.178021",
+     "subquestions": [
+      "What is RAG system?",
+      "What are the components and working principles of a RAG system?",
+      "How is a RAG system applied in real-world scenarios, and what are its advantages?"
+     ]
+    },
+    {
+     "type": "thinking",
+     "content": "正在从知识库检索相关文档...",
+     "timestamp": "2026-08-21T08:36:21.182545"
+    },
+    {
+     "type": "retrieved",
+     "content": "检索完成，共获得 3 个候选文档片段",
+     "timestamp": "2026-08-21T08:36:44.215321",
+     "count": 3,
+     "results": [
+      {
+       "content": "什么是 RAG 核心组件，端到端流水线验证的主要涵盖内容有哪些？",
+       "chunk_text": "覆盖 RAG 核心组件的端到端流水线验证文档，共 48 个知识条目。",
+       "score": 0.4117,
+       "source": "vector",
+       "type": "subquestion",
+       "metadata": {
+        "source": "e2e_doc.md",
+        "document_id": "19",
+        "chunk_id": 5976,
+        "chunk_index": 0,
+        "user_id": 7,
+        "role": "user",
+        "knowledge_base_id": 6
+       }
+      },
+      {
+       "content": "监控RRF融合排序系统时，P95延迟、吞吐量、错误率和质量评分分别如何定义和采集？",
+       "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第1部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+       "score": 0.6132,
+       "source": "vector",
+       "type": "subquestion",
+       "metadata": {
+        "source": "e2e_doc.md",
+        "document_id": "19",
+        "chunk_id": 5979,
+        "chunk_index": 3,
+        "user_id": 7,
+        "role": "user",
+        "knowledge_base_id": 6
+       }
+      },
+      {
+       "content": "在RRF系统的运维中，如何设计灰度开关和回退机制以保障稳定性？",
+       "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第2部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+       "score": 0.6025,
+       "source": "vector",
+       "type": "subquestion",
+       "metadata": {
+        "source": "e2e_doc.md",
+        "document_id": "19",
+        "chunk_id": 5991,
+        "chunk_index": 15,
+        "user_id": 7,
+        "role": "user",
+        "knowledge_base_id": 6
+       }
+      }
+     ]
+    },
+    {
+     "type": "thinking",
+     "content": "正在精排 3 个候选文档...",
+     "timestamp": "2026-08-21T08:36:44.222998"
+    },
+    {
+     "type": "reranked",
+     "content": "精排完成，选取最相关的 3 条文档",
+     "timestamp": "2026-08-21T08:36:44.224504",
+     "count": 3,
+     "results": [
+      {
+       "content": "什么是 RAG 核心组件，端到端流水线验证的主要涵盖内容有哪些？",
+       "chunk_text": "覆盖 RAG 核心组件的端到端流水线验证文档，共 48 个知识条目。",
+       "score": 0.25827139616012573,
+       "source": "vector",
+       "type": "subquestion",
+       "metadata": {
+        "source": "e2e_doc.md",
+        "document_id": "19",
+        "chunk_id": 5976,
+        "chunk_index": 0,
+        "user_id": 7,
+        "role": "user",
+        "knowledge_base_id": 6
+       }
+      },
+      {
+       "content": "监控RRF融合排序系统时，P95延迟、吞吐量、错误率和质量评分分别如何定义和采集？",
+       "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第1部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+       "score": 0.00024378612579312176,
+       "source": "vector",
+       "type": "subquestion",
+       "metadata": {
+        "source": "e2e_doc.md",
+        "document_id": "19",
+        "chunk_id": 5979,
+        "chunk_index": 3,
+        "user_id": 7,
+        "role": "user",
+        "knowledge_base_id": 6
+       }
+      },
+      {
+       "content": "在RRF系统的运维中，如何设计灰度开关和回退机制以保障稳定性？",
+       "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第2部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+       "score": 0.0006439602002501488,
+       "source": "vector",
+       "type": "subquestion",
+       "metadata": {
+        "source": "e2e_doc.md",
+        "document_id": "19",
+        "chunk_id": 5991,
+        "chunk_index": 15,
+        "user_id": 7,
+        "role": "user",
+        "knowledge_base_id": 6
+       }
+      }
+     ]
+    },
+    {
+     "type": "thinking",
+     "content": "正在基于检索结果生成回答...",
+     "timestamp": "2026-08-21T08:36:44.232872"
+    },
+    {
+     "type": "response_generated",
+     "content": "根据检索到的文档内容，没有关于 \"RAG system\" 的具体定义或描述，因此无法直接回答您的问题。\n\n如果您需要了解 RAG 系统的核心组件或相关内容，可以提供更多背景信息或重新描述问题，我将尽力为您提供帮助！",
+     "timestamp": "2026-08-21T08:36:46.177560",
+     "sources_count": 3,
+     "suggest_supplement": false
+    }
+   ],
+   "expanded_queries": [
+    "What is RAG system?",
+    "What are the components and working principles of a RAG system?",
+    "How is a RAG system applied in real-world scenarios, and what are its advantages?"
+   ],
+   "retrieved_count": 3,
+   "error_details": null,
+   "sources": [
+    {
+     "content": "什么是 RAG 核心组件，端到端流水线验证的主要涵盖内容有哪些？",
+     "chunk_text": "覆盖 RAG 核心组件的端到端流水线验证文档，共 48 个知识条目。",
+     "score": 0.25827139616012573,
+     "source": "vector",
+     "type": "subquestion",
+     "metadata": {
+      "source": "e2e_doc.md",
+      "document_id": "19",
+      "chunk_id": 5976,
+      "chunk_index": 0,
+      "user_id": 7,
+      "role": "user",
+      "knowledge_base_id": 6
+     }
+    },
+    {
+     "content": "监控RRF融合排序系统时，P95延迟、吞吐量、错误率和质量评分分别如何定义和采集？",
+     "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第1部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+     "score": 0.00024378612579312176,
+     "source": "vector",
+     "type": "subquestion",
+     "metadata": {
+      "source": "e2e_doc.md",
+      "document_id": "19",
+      "chunk_id": 5979,
+      "chunk_index": 3,
+      "user_id": 7,
+      "role": "user",
+      "knowledge_base_id": 6
+     }
+    },
+    {
+     "content": "在RRF系统的运维中，如何设计灰度开关和回退机制以保障稳定性？",
+     "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第2部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+     "score": 0.0006439602002501488,
+     "source": "vector",
+     "type": "subquestion",
+     "metadata": {
+      "source": "e2e_doc.md",
+      "document_id": "19",
+      "chunk_id": 5991,
+      "chunk_index": 15,
+      "user_id": 7,
+      "role": "user",
+      "knowledge_base_id": 6
+     }
+    }
+   ]
+  },
+  "processing_time": 32.13799,
+  "error": null
+ }
+}
