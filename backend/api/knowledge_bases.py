@@ -37,7 +37,7 @@ class KnowledgeBaseResponse(BaseModel):
 
 
 @router.post("")
-async def create_knowledge_base(kb: KnowledgeBaseCreate, current_user=Depends(get_current_user)):
+async def create_knowledge_base(kb: KnowledgeBaseCreate, req: Request, current_user=Depends(get_current_user)):
     """创建知识库"""
     logger.info(f"开始创建知识库，名称: {kb.kb_name}")
     try:
@@ -65,6 +65,14 @@ async def create_knowledge_base(kb: KnowledgeBaseCreate, current_user=Depends(ge
         )
 
         logger.info(f"知识库创建成功，ID: {kb_id}")
+        try:
+            from services.audit import audit
+            audit.log_from_request(req, "kb.create", user_id=current_user["id"], resource_type="knowledge_base",
+                      resource_id=kb_id, kb_id=kb_id,
+                      detail={"kb_name": kb.kb_name, "chunk_strategy": kb.chunk_strategy,
+                              "enhancers": enhancers, "description": kb.description})
+        except Exception:
+            pass
         return {
             "status": "success",
             "kb_id": kb_id,
@@ -167,6 +175,13 @@ async def delete_knowledge_base(kb_id: int, req: Request, current_user=Depends(g
         result = db.delete_knowledge_base(kb_id)
         if result:
             logger.info(f"知识库删除成功，知识库ID: {kb_id}")
+            try:
+                from services.audit import audit
+                audit.log_from_request(req, "kb.delete", user_id=current_user["id"],
+                                       resource_type="knowledge_base", resource_id=kb_id, kb_id=kb_id,
+                                       detail={"kb_name": kb.get("kb_name"), "documents": len(docs)})
+            except Exception:
+                pass
             return {
                 "status": "success",
                 "message": "知识库删除成功"
@@ -181,7 +196,7 @@ async def delete_knowledge_base(kb_id: int, req: Request, current_user=Depends(g
 
 
 @router.put("/{kb_id}")
-async def update_knowledge_base(kb_id: int, kb_update: KnowledgeBaseUpdate, current_user=Depends(get_current_user)):
+async def update_knowledge_base(kb_id: int, kb_update: KnowledgeBaseUpdate, req: Request, current_user=Depends(get_current_user)):
     """更新知识库（名称和描述）"""
     logger.info(f"开始更新知识库，知识库ID: {kb_id}")
     try:
@@ -220,6 +235,24 @@ async def update_knowledge_base(kb_id: int, kb_update: KnowledgeBaseUpdate, curr
             result = db.update_knowledge_base(kb_id, update_data)
             if result:
                 logger.info(f"知识库更新成功，知识库ID: {kb_id}")
+                try:
+                    from services.audit import audit
+                    before_after = {}
+                    for k, v in update_data.items():
+                        if k == "enhancers":
+                            import json as _json
+                            old_v = kb.get("enhancers")
+                            try:
+                                old_v = _json.loads(old_v) if isinstance(old_v, str) else old_v
+                            except Exception:
+                                pass
+                            before_after[k] = {"before": old_v, "after": _json.loads(v)}
+                        else:
+                            before_after[k] = {"before": kb.get(k), "after": v}
+                    audit.log_from_request(req, "kb.update", user_id=current_user["id"], resource_type="knowledge_base",
+                              resource_id=kb_id, kb_id=kb_id, detail={"changes": before_after})
+                except Exception:
+                    pass
                 return {
                     "status": "success",
                     "message": "知识库更新成功"

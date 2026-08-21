@@ -57,11 +57,12 @@ async def get_settings(_=Depends(get_current_user)):
 async def update_settings(
     body: ConfigUpdateRequest,
     request: Request,
-    _=Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """批量更新运行时配置（失败自动回滚）"""
     resp = ConfigUpdateResponse()
     app_state = request.app.state
+    audit_changes = []  # [{key, before, after}]（文档 07 settings.update 审计）
 
     for item in body.configs:
         key = str(item.key).upper()
@@ -100,6 +101,7 @@ async def update_settings(
                 resp.errors[key] = f"配置清除失败（已回滚）: {e}"
                 continue
             resp.updated[key] = None
+            audit_changes.append({"config": key, "before": _mask_if_sensitive(meta, old_value), "after": None})
             continue
 
         # 校验
@@ -136,8 +138,40 @@ async def update_settings(
             continue
 
         resp.updated[key] = new_value
+        audit_changes.append({
+            "config": key,
+            # 敏感项（API Key 等）在入审计前先掩码，before/after 均不留明文
+            "before": _mask_if_sensitive(meta, old_value),
+            "after": _mask_if_sensitive(meta, new_value),
+        })
 
     if resp.errors:
         resp.status = "partial_error"
 
+    # 审计埋点（文档 07 §2 settings.update）：每个变更 key 的 before→after（敏感值由审计管道自动掩码）
+    if audit_changes:
+        try:
+            from services.audit import audit
+            user = current_user if isinstance(current_user, dict) else None
+            audit.log_from_request(
+                request, "settings.update",
+                user_id=user.get("id") if user else None,
+                resource_type="config",
+                detail={"changes": audit_changes},
+            )
+        except Exception as e:
+            logger.warning(f"[Settings] 审计埋点失败（不影响业务）: {e}")
+
     return resp
+
+
+def _mask_if_sensitive(meta: dict, value):
+    """敏感配置项的值入审计前打掩码（文档 07 §3.4：API Key 永不落明文）"""
+    if value is None:
+        return None
+    s = str(value)
+    if not meta or not meta.get("sensitive"):
+        return s
+    if len(s) <= 8:
+        return "***"
+    return f"{s[:4]}***{s[-4:]}"

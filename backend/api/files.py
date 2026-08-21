@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form, Response
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form, Response, Request
 from typing import Optional
 import uuid
 import time
@@ -23,7 +23,7 @@ class DocumentUpload(BaseModel):
 
 
 @router.post("/upload/pdf")
-async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), current_user = Depends(get_current_user)):
+async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), request: Request = None, current_user = Depends(get_current_user)):
     """上传PDF文件"""
     logger.info(f"开始处理PDF上传请求，文件名: {file.filename}")
     start_time = time.time()
@@ -125,6 +125,14 @@ async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), curr
         )
 
         logger.info(f"PDF上传并解析成功，文件ID: {doc_id}")
+        try:
+            from services.audit import audit
+            audit.log_from_request(request, "doc.upload", user_id=current_user["id"],
+                                   resource_type="document", resource_id=doc_id, kb_id=kb_id,
+                                   detail={"file_name": file.filename, "size_bytes": len(file_content),
+                                           "source": "pdf", "duration_ms": round(processing_time * 1000, 1)})
+        except Exception:
+            pass
         return {
             "file_id": doc_id,
             "status": "success",
@@ -147,7 +155,7 @@ async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), curr
 
 
 @router.post("/upload/markdown")
-async def upload_markdown(file: UploadFile = File(...), kb_id: int = Form(None), current_user = Depends(get_current_user)):
+async def upload_markdown(file: UploadFile = File(...), kb_id: int = Form(None), request: Request = None, current_user = Depends(get_current_user)):
     """上传Markdown文件
 
     与 PDF 上传不同，Markdown 无需 MinerU 解析：
@@ -254,6 +262,14 @@ async def upload_markdown(file: UploadFile = File(...), kb_id: int = Form(None),
         )
 
         logger.info(f"Markdown上传成功，文件ID: {doc_id}")
+        try:
+            from services.audit import audit
+            audit.log_from_request(request, "doc.upload", user_id=current_user["id"],
+                                   resource_type="document", resource_id=doc_id, kb_id=kb_id,
+                                   detail={"file_name": file.filename, "size_bytes": len(file_content),
+                                           "source": "markdown", "duration_ms": round(processing_time * 1000, 1)})
+        except Exception:
+            pass
         return {
             "file_id": doc_id,
             "status": "success",

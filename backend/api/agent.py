@@ -304,6 +304,7 @@ async def agent_health(
 @router.post("/chat")
 async def chat(
     request: ChatRequest,
+    raw_request: Request,
     current_user=Depends(get_current_user),
 ):
     """
@@ -351,6 +352,20 @@ async def chat(
                 callbacks=callbacks,
                 user_id=current_user["id"],
             )
+
+            try:
+                from services.audit import audit
+                raw_request.state.audit_user_id = current_user["id"]
+                audit.log_from_request(raw_request, "agent.chat", user_id=current_user["id"],
+                                       resource_type="agent", resource_id=str(agent_type.value),
+                                       kb_id=request.knowledge_base_id if isinstance(request.knowledge_base_id, int) else None,
+                                       detail={"agent_type": str(agent_type.value),
+                                               "query": request.query,
+                                               "session_id": request.session_id,
+                                               "retrieval_mode": request.retrieval_mode,
+                                               "sources_count": len(response.sources) if getattr(response, "sources", None) else 0})
+            except Exception:
+                pass
 
             return {
                 "status": "success",
@@ -657,6 +672,7 @@ class FeedbackRequest(BaseModel):
 @router.post("/feedback")
 async def submit_feedback(
     request: FeedbackRequest,
+    http_request: Request,
     current_user=Depends(get_current_user),
 ):
     """
@@ -726,6 +742,18 @@ async def submit_feedback(
             f"[Agent Feedback] TRACER_BACKEND={tracer_backend}，跳过 Langfuse 写入 "
             f"(trace_id={request.trace_id}, value={request.value})"
         )
+
+    try:
+        from services.audit import audit
+        audit.log_from_request(http_request, "feedback.like" if request.value == 1 else "feedback.dislike",
+                               user_id=current_user["id"], resource_type="feedback",
+                               resource_id=request.trace_id,
+                               detail={"trace_id": request.trace_id, "value": request.value,
+                                       "comment": request.comment,
+                                       "message_index": request.message_index,
+                                       "session_id": request.session_id})
+    except Exception:
+        pass
 
     return {
         "status": "ok",

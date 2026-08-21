@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from datetime import timedelta
@@ -66,6 +66,12 @@ async def register(user: UserRegister):
         db.add_user(user.username, user.email, password_hash)
 
         logger.info(f"用户注册成功，用户名: {user.username}")
+        try:
+            from services.audit import audit
+            audit.log("auth.register", resource_type="user", resource_id=user.username,
+                      detail={"username": user.username, "email": user.email})
+        except Exception:
+            pass
         return {
             "status": "success",
             "message": "注册成功"
@@ -78,7 +84,7 @@ async def register(user: UserRegister):
 
 
 @router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     """用户登录"""
     logger.info(f"开始用户登录，用户名: {form_data.username}")
     try:
@@ -86,6 +92,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         user = db.get_user_by_username(form_data.username)
         if not user:
             logger.warning(f"用户不存在: {form_data.username}")
+            try:
+                from services.audit import audit
+                audit.log_from_request(request, "auth.login_failed",
+                                       detail={"username": form_data.username, "reason": "user_not_found"})
+            except Exception:
+                pass
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="用户名或密码错误",
@@ -95,6 +107,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         # 验证密码
         if not verify_password(form_data.password, user["password_hash"]):
             logger.warning(f"密码错误，用户名: {form_data.username}")
+            try:
+                from services.audit import audit
+                audit.log_from_request(request, "auth.login_failed", user_id=user["id"],
+                                       resource_type="user", resource_id=user["username"],
+                                       detail={"username": form_data.username, "reason": "wrong_password"})
+            except Exception:
+                pass
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="用户名或密码错误",
@@ -109,6 +128,15 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         )
 
         logger.info(f"用户登录成功，用户名: {form_data.username}")
+        try:
+            from services.audit import audit
+            request.state.audit_user_id = user["id"]
+            audit.log_from_request(request, "auth.login", user_id=user["id"],
+                                   resource_type="user", resource_id=user["username"],
+                                   detail={"username": form_data.username, "success": True,
+                                           "role": user["role"]})
+        except Exception:
+            pass
         return {
             "access_token": access_token,
             "token_type": "bearer",

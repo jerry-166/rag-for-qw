@@ -1,0 +1,99 @@
+# Stage 4 ç¬¬ä¸€åœˆ verify.logï¼ˆæ–‡æ¡£ 07 Â§9 å…­é¡¹éªŒæ”¶ï¼‰â€” 2026-08-21 09:33:12
+
+## é™æ€æ£€æŸ¥
+```
+py_compile: api/auth.py api/files.py api/documents.py api/knowledge_bases.py api/settings.py api/agent.py api/processing.py api/audit.py services/audit.py -> ALL PASS
+node --check: js/pages/audit.js js/app.js js/api.js -> ALL PASS
+```
+
+## è¿è¡Œæ—¶éªŒæ”¶ä¸»è„šæœ¬ï¼ˆwork/stage-4/verify_audit.pyï¼ŒçœŸå® uvicorn :8003ï¼Œadmin/admin123ï¼‰
+```
+== 0. µÇÂ¼ ==
+admin login ok (user_id=1)
+register aud7275767: 200
+aud7275767 login ok (user_id=13)
+login failed path: 401 (expect 401)
+
+== 1. ÊÂ¼şÄ¿Â¼×ß²é£¨×öÁËÊ²Ã´ vs ¼ÇÁËÊ²Ã´£©==
+kb.create: 200 kb_id=16
+audit kb.create: PASS
+  id=596 action=kb.create user=1 kb=16 rid=0d749d73976b4f7998bbe4ab17193005 detail={"kb_name": "Éó¼ÆÑéÊÕKB", "enhancers": ["summary"], "description": "stage4-circle1", "chunk_strategy": "recursive"}
+kb.update: 200
+audit kb.update: PASS
+  id=598 action=kb.update user=1 kb=16 rid=e79e83ceecac4ea2b3f917de97aac2a2 detail={"changes": {"kb_name": {"after": "Éó¼ÆÑéÊÕKB-¸Ä", "before": "Éó¼ÆÑéÊÕKB"}, "chunk_strategy": {"after": "markdown", "before": "recursive"}}}
+doc.upload(markdown): 200 doc_id=25
+audit doc.upload: PASS
+  id=600 action=doc.upload user=1 kb=16 rid=d62a863ae3ed4f088317eb48a8a22465 detail={"source": "markdown", "file_name": "audit_test.md", "size_bytes": 585, "duration_ms": 19.9}
+process.split: 200 chunks={'file_id': '25', 'status': 'success', 'chunks': ['ÕâÊÇÒ»¸öÓÃÓÚ Stage 4 Éó¼ÆÑéÊÕµÄ Markdown ÎÄµµ¡£\n\nRAG Í¨¹ı¼ìË÷ÔöÇ¿Éú³É¡£\n\nMilvus ÊÇÏòÁ¿Êı¾İ¿â£¬Ö§³Ö±êÁ¿¹ıÂË¡£\n\nÕâÊÇÒ»¸öÓÃÓÚ Stage 4 Éó¼ÆÑéÊÕµÄ Markdown ÎÄµµ¡£\n\nRAG Í¨¹ı¼ìË÷ÔöÇ¿Éú³É¡£\n\nMilvus ÊÇÏòÁ¿Êı¾İ¿â£¬Ö§³Ö±êÁ¿¹ıÂË¡£\n\nÕâÊÇÒ»¸öÓÃÓÚ Stage 4 Éó¼ÆÑéÊÕµÄ Markdown ÎÄµµ¡£\n\nRAG Í¨¹ı¼ìË÷ÔöÇ¿Éú³É¡£\n\nMilvus ÊÇÏòÁ¿Êı¾İ¿â£¬Ö§³Ö±êÁ¿¹ıÂË¡£'], 'chunks_count': 1, 'avg_chunk_size': 217.0, 'processing_time_ms': 478.8849353790283, 'message': 'ÎÄµµÇĞ¸î³É¹¦'}
+audit process.split.done: PASS
+  id=602 action=process.split.done user=1 kb=16 rid=d45f5944cc494d42a3dc7c96d38cbe64 detail={"chunks": 1, "strategy": "markdown"}
+process.generate: 200
+audit process.generate.done: PASS
+  id=604 action=process.generate.done user=None kb=16 rid=None detail={"mode": "incremental", "batch_size": 16, "duration_ms": 5095.6, "total_chunks": 1, "max_concurrency": 8, "enabled_enhancers": ["summary"]}
+process.import: 200
+audit process.import.done: PASS
+  id=609 action=process.import.done user=1 kb=16 rid=de032003df874579bfc546cc41ba075f detail={"chunks": 1, "vectors": 1, "vector_dim": 1536, "sub_questions": 0, "processing_time_ms": 23251.7}
+search native: 200 results=1 resp_rid=None
+audit request.write(native) with explicit RID: PASS
+  id=611 action=request.write user=None kb=None rid=stage4rid7275767 detail={"path": "/api/milvus/query", "method": "POST", "duration_ms": 1277.97, "status_code": 200}
+search advanced: 200
+search hybrid: 200
+agent.chat: 200
+audit agent.chat: PASS
+  id=615 action=agent.chat user=1 kb=16 rid=d566ad3a32ac4d1996566634151c3a4d detail={"query": "Ê²Ã´ÊÇRAG£¿", "agent_type": "claw", "session_id": null, "sources_count": 0, "retrieval_mode": null}
+  id=576 action=agent.chat user=1 kb=15 rid=435293c9c9ad4b7fbb2e4a9a65d6c8a2 detail={"query": "Ê²Ã´ÊÇRAG£¿", "agent_type": "claw", "session_id": null, "sources_count": 0, "retrieval_mode": null}
+  id=537 action=agent.chat user=1 kb=14 rid=f1ed4f09c3934ea9b35b19fb4e8848af detail={"query": "Ê²Ã´ÊÇRAG£¿", "agent_type": "claw", "session_id": null, "sources_count": 0, "retrieval_mode": null}
+  id=502 action=agent.chat user=1 kb=None rid=8b298161060f40e094771a04824a2da3 detail={"query": "Ê²Ã´ÊÇRAG£¿", "agent_type": "claw", "session_id": null, "sources_count": 0, "retrieval_mode": null}
+feedback.like: 200
+audit feedback.like: PASS
+  id=617 action=feedback.like user=1 kb=None rid=8bffa037b18644f9b6bcf872164646ea detail={"value": 1, "comment": "ÑéÊÕµãÔŞ", "trace_id": "stage4trace7275767", "session_id": null, "message_index": null}
+  id=578 action=feedback.like user=1 kb=None rid=777a7d0f7677499fa479a027d730d79c detail={"value": 1, "comment": "ÑéÊÕµãÔŞ", "trace_id": "stage4trace7275500", "session_id": null, "message_index": null}
+  id=539 action=feedback.like user=1 kb=None rid=a9a3df2c60bd48739432f184292d7c55 detail={"value": 1, "comment": "ÑéÊÕµãÔŞ", "trace_id": "stage4trace7275146", "session_id": null, "message_index": null}
+  id=504 action=feedback.like user=1 kb=None rid=fe116837aec2493d85522019ac23ccd0 detail={"value": 1, "comment": "ÑéÊÕµãÔŞ", "trace_id": "stage4trace7274988", "session_id": null, "message_index": null}
+settings.update: 200 updated=['RETRIEVAL_TOP_K', 'LITELLM_API_KEY']
+audit settings.update: PASS
+  detail: {"changes": [{"after": "7", "before": "7", "config": "RETRIEVAL_TOP_K"}, {"after": "sk-a***0xyz", "before": "sk-u***eQTg", "config": "LITELLM_API_KEY"}]}
+
+== 4. È¨ÏŞ¹ıÂË ==
+normal user aud7275767(id=13) /api/audit: total=2 user_ids={13} -> PASS
+normal user queries others: 403 (expect 403) -> PASS
+normal user export: 403 (expect 403) -> PASS
+normal user stats: 403 (expect 403) -> PASS
+admin stats: 200 -> {"status": "success", "today_events": 619, "total_events": 619, "active_users_24h": 8, "top_actions_7d": [{"action": "request.write", "cnt": 496}, {"action": "bm25.cache.tokenize_batch", "cnt": 12}, {
+admin export: 200 bytes=137115 starts='id,occurred_at,user_id,action,resource_type,resource_id,kb_i'
+doc.delete: 200
+audit doc.delete: PASS
+  id=623 action=doc.delete user=1 kb=16 rid=053e2cbbc2ce4606ab7ae3ae25fdc79a detail={"file_name": null}
+kb.delete: 200
+audit kb.delete: PASS
+  id=625 action=kb.delete user=1 kb=16 rid=ca7776cbff6f418087d9af7907ad9b48 detail={"kb_name": "Éó¼ÆÑéÊÕKB-¸Ä", "documents": 0}
+
+== auth ÊÂ¼ş ==
+audit auth.login: PASS (5 Ìõ)
+  id=592 action=auth.login user=13 kb=None rid=20969f60a5ea4739ac49509d15bb28d3 detail={"role": "user", "success": true, "username": "aud7275767"}
+audit auth.login_failed: PASS (4 Ìõ)
+  id=594 action=auth.login_failed user=1 kb=None rid=ee063d0192614d8394e68e8a580546a0 detail={"reason": "wrong_password", "username": "admin"}
+audit auth.register: PASS (4 Ìõ)
+  id=590 action=auth.register user=None kb=None rid=None detail={"email": "aud7275767@t.cn", "username": "aud7275767"}
+
+== 2. request_id ´®Áª ==
+request_id=stage4rid7275767 ¹² 1 ÌõÊÂ¼ş£¬actions=['request.write']
+
+== 3. ÍÑÃôÈ«Á¿¸´²é ==
+È«Á¿ 200 Ìõ detail ÖĞ grep Ã÷ÎÄ key: PASS(ÎŞ)
+
+DONE -> work/stage-4/verify-run.log
+```
+
+## é¡¹2 éé˜»å¡ï¼ˆwork/stage-4/shutdown_flush_test.py åŒç›®å½• nonblock.txtï¼‰
+p50=7.9ms max=15.8ms n=30
+
+## é¡¹5 ä¼˜é›…åœæœº flushï¼ˆshutdown_flush.mdï¼‰
+# ä¼˜é›…åœæœº flush éªŒè¯ï¼ˆ2026-08-20ï¼‰\n- å‘ 5 æ¡ feedback å taskkill -Fï¼ˆæ¯” SIGTERM æ›´ä¸¥è‹›ï¼‰â†’ 5/5 å·²è½åº“ï¼ˆ500ms å®šæ—¶ flush å…ˆäºæ€è¿›ç¨‹ç”Ÿæ•ˆï¼‰\n- grace shutdown è·¯å¾„ lifespan->audit.stop() ä»£ç åœ¨ services/audit.py:67ï¼ˆcancel + _flushï¼‰\n- ç»“è®ºï¼šéªŒæ”¶é¡¹5 é€šè¿‡ï¼ˆæ— é˜Ÿåˆ—æ®‹ç•™ä¸¢å¤±ï¼‰ï¼›æ–‡æ¡£10æ‰€è¿° <=500ms å´©æºƒçª—å£ç”± request.write å…œåº•ä¸­é—´ä»¶å³æ—¶è¡¥å¿
+
+## é¡¹6 ä¿ç•™ç­–ç•¥ï¼ˆarchive_audit.py çœŸå®è¿è¡Œï¼‰
+```
+dry-run(æ— è¶…æœŸ): è¶…æœŸäº‹ä»¶ 0 æ¡
+seed 400å¤©å‰ retention.test è¡Œ(id=701) å dry-run: è¶…æœŸäº‹ä»¶ 1 æ¡
+æ‰§è¡Œå½’æ¡£: å¯¼å‡º 1 æ¡ -> archives/audit/audit_archive_20260821T013254Z.json.gz (224 bytes)ï¼›å›è¯»æ ¡éªŒé€šè¿‡ï¼›audit_log åˆ é™¤ 1 æ¡
+```

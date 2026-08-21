@@ -408,3 +408,26 @@ const SettingsAPI = {
     });
   },
 };
+
+// ===== 审计 API =====
+const AuditAPI = {
+  async query(params = {}) {
+    const q = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== null && v !== undefined && v !== '') q.set(k, v);
+    });
+    return request(`/api/audit?${q.toString()}`);
+  },
+
+  async stats() {
+    return request('/api/audit/stats');
+  },
+
+  exportUrl(params = {}) {
+    const q = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== null && v !== undefined && v !== '') q.set(k, v);
+    });
+    return `${API_BASE}/api/audit/export?${q.toString()}`;
+  },
+};

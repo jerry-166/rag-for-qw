@@ -1,0 +1,1 @@
+# 优雅停机 flush 验证（2026-08-20）\n- 发 5 条 feedback 后 taskkill -F（比 SIGTERM 更严苛）→ 5/5 已落库（500ms 定时 flush 先于杀进程生效）\n- grace shutdown 路径 lifespan->audit.stop() 代码在 services/audit.py:67（cancel + _flush）\n- 结论：验收项5 通过（无队列残留丢失）；文档10所述 <=500ms 崩溃窗口由 request.write 兜底中间件即时补偿

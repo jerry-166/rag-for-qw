@@ -206,6 +206,14 @@ async def delete_document(file_id: str, request: Request, current_user=Depends(g
         result = db.delete_document(file_id)
         if result:
             logger.info(f"文档删除成功，文件ID: {file_id}")
+            try:
+                from services.audit import audit
+                audit.log_from_request(request, "doc.delete", user_id=current_user["id"],
+                                       resource_type="document", resource_id=file_id,
+                                       kb_id=doc.get("knowledge_base_id"),
+                                       detail={"file_name": doc.get("file_name") or doc.get("original_filename")})
+            except Exception:
+                pass
             return {
                 "status": "success",
                 "message": "文档删除成功"

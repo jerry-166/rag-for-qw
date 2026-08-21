@@ -85,7 +85,7 @@ async def split_document(file_id: str, req: Request, current_user=Depends(get_cu
         )
         process_result = processor.split_document(markdown_content, strategy=strategy_name)
         logger.debug(f"文档切割完成（策略 {process_result.get('strategy')}），生成 {len(process_result['chunks'])} 个段落")
-        audit.log("process.split.done", user_id=current_user["id"],
+        audit.log_from_request(req, "process.split.done", user_id=current_user["id"],
                   resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
                   detail={"strategy": process_result.get("strategy"), "chunks": len(process_result["chunks"])})
 
@@ -173,7 +173,7 @@ async def split_document(file_id: str, req: Request, current_user=Depends(get_cu
 
 
 @router.post("/generate/{file_id}")
-async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(get_current_user)):
+async def generate_sub_questions_and_summary(file_id: str, req: Request, current_user=Depends(get_current_user)):
     """生成子问题和摘要接口（支持增量模式，断点续跑）"""
     logger.info(f"开始生成子问题和摘要，文件ID: {file_id}")
     start_time = time.time()
@@ -211,7 +211,7 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
             if doc["status"] not in ["generated", "completed"]:
                 db.update_document(file_id, status="generated")
             logger.info(f"增强器已全部关闭，跳过生成并推进状态，文件ID: {file_id}")
-            audit.log("process.generate.api_done", user_id=current_user["id"],
+            audit.log_from_request(req, "process.generate.api_done", user_id=current_user["id"],
                       resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
                       detail={"chunks": len(chunks), "enabled_enhancers": [], "mode": "noop",
                               "processing_time_ms": round((time.time() - start_time) * 1000, 1)})
@@ -321,7 +321,7 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
         sub_questions_count = sum(len(r["sub_questions"]) for r in results.values())
         summaries_count = sum(1 for r in results.values() if r["summary"])
 
-        audit.log("process.generate.api_done", user_id=current_user["id"],
+        audit.log_from_request(req, "process.generate.api_done", user_id=current_user["id"],
                   resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
                   detail={"chunks": len(chunks), "sub_questions_count": sub_questions_count,
                           "summaries_count": summaries_count, "enabled_enhancers": sorted(enabled),
@@ -371,7 +371,7 @@ async def generate_sub_questions_and_summary(file_id: str, current_user=Depends(
 
 
 @router.get("/generate/{file_id}/missing")
-async def get_missing_enhancements(file_id: str, current_user=Depends(get_current_user)):
+async def get_missing_enhancements(file_id: str, req: Request, current_user=Depends(get_current_user)):
     """缺口检测接口（文档 03 §3.4 补生成显性化）。
 
     轻量纯 PG 查询，零 LLM/embedding 调用：
@@ -431,7 +431,7 @@ async def get_missing_enhancements(file_id: str, current_user=Depends(get_curren
                         "entity": missing_entity},
             "need_backfill": missing_both > 0,
         }
-        audit.log("process.generate.missing_check", user_id=current_user["id"],
+        audit.log_from_request(req, "process.generate.missing_check", user_id=current_user["id"],
                   resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
                   detail={"enabled_enhancers": sorted(enabled), "total_chunks": len(chunks),
                           "missing_chunks": missing_both})
@@ -658,7 +658,7 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
         )
 
         logger.info(f"导入到Milvus成功，文件ID: {file_id}")
-        audit.log("process.import.done", user_id=current_user["id"],
+        audit.log_from_request(request, "process.import.done", user_id=current_user["id"],
                   resource_type="document", resource_id=file_id, kb_id=doc["knowledge_base_id"],
                   detail={"chunks": chunk_count, "vectors": vector_count,
                           "sub_questions": sub_question_count, "vector_dim": vector_dim,

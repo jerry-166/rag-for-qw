@@ -160,6 +160,17 @@ class App {
           this.navigate('auth');
         }
         break;
+      case 'audit':
+        if (this.isAuthenticated) {
+          await this.renderAppLayout('审计中心', async () => {
+            if (window.AuditPage) {
+              await window.AuditPage.render();
+            }
+          });
+        } else {
+          this.navigate('auth');
+        }
+        break;
       default:
         this.navigate('knowledge-bases');
     }
@@ -537,6 +548,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.SearchAPI = SearchAPI;
   window.AgentAPI = AgentAPI;
   window.SettingsAPI = SettingsAPI;
+  window.AuditAPI = AuditAPI;
 
   // 初始化应用
   window.App = new App();

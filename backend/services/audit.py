@@ -80,6 +80,22 @@ class AuditService:
 
     # ---------- 埋点入口（业务侧调用，微秒级） ----------
 
+    def log_from_request(self, request, action, **kwargs):
+        """便捷埋点：从 request.state 自动补全 request_id / client_ip / user_agent
+
+        业务侧用法（文档 07 显式埋点）：
+            audit.log_from_request(request, "kb.create", user_id=..., ...)
+        """
+        try:
+            state = getattr(request, 'state', None)
+            kwargs.setdefault('request_id', getattr(state, 'request_id', None))
+            client = getattr(request, 'client', None)
+            kwargs.setdefault('client_ip', client.host if client else None)
+            kwargs.setdefault('user_agent', request.headers.get('user-agent'))
+        except Exception:
+            pass
+        return self.log(action, **kwargs)
+
     def log(self, action, *, user_id=None, resource_type=None, resource_id=None,
             kb_id=None, request_id=None, client_ip=None, user_agent=None, detail=None):
         """记录一条审计事件（不阻塞、不抛异常）"""
