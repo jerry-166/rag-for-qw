@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RAGFlow - 智能知识库系统</title>
-  <link rel="stylesheet" href="css/main.css?v=20260806" />
+  <link rel="stylesheet" href="css/tokens.css?v=20260821" />
+  <link rel="stylesheet" href="css/main.css?v=20260821" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <!-- Markdown 渲染库 -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -18,9 +19,9 @@
     <div id="loading-screen" class="loading-screen">
       <div class="loading-logo">
         <svg viewBox="0 0 36 36" fill="none">
-          <rect width="36" height="36" rx="10" fill="#6366f1" opacity=".25"/>
-          <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="18" cy="26" r="4" fill="#818cf8"/>
+          <rect width="36" height="36" rx="10" fill="var(--accent)" opacity=".28"/>
+          <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="18" cy="26" r="4" fill="var(--accent)"/>
         </svg>
         <span>RAGFlow</span>
       </div>
@@ -35,9 +36,9 @@
       <div class="auth-card">
         <div class="auth-logo">
           <svg viewBox="0 0 36 36" fill="none">
-            <rect width="36" height="36" rx="10" fill="#6366f1" opacity=".25"/>
-            <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="18" cy="26" r="4" fill="#818cf8"/>
+            <rect width="36" height="36" rx="10" fill="var(--accent)" opacity=".28"/>
+            <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="18" cy="26" r="4" fill="var(--accent)"/>
           </svg>
           <h1>RAGFlow</h1>
         </div>
@@ -105,13 +106,15 @@
         <div class="sidebar-header">
           <div class="sidebar-logo">
             <svg viewBox="0 0 28 28" fill="none">
-              <rect width="28" height="28" rx="8" fill="#6366f1" opacity=".2"/>
-              <path d="M6 14 L10 8 L14 14 L18 8 L22 14" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="14" cy="20" r="3" fill="#818cf8"/>
+              <rect width="28" height="28" rx="8" fill="var(--accent)" opacity=".25"/>
+              <path d="M6 14 L10 8 L14 14 L18 8 L22 14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="14" cy="20" r="3" fill="var(--accent)"/>
             </svg>
             <span>RAGFlow</span>
           </div>
-          <button class="sidebar-collapse" id="sidebar-toggle" title="折叠侧边栏">‹</button>
+          <button class="sidebar-collapse" id="sidebar-toggle" title="折叠侧边栏" aria-label="折叠侧边栏">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M10 3 L5 8 L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
 
         <nav class="sidebar-nav">
@@ -180,7 +183,9 @@
               <span class="user-role" id="sidebar-role">普通用户</span>
             </div>
           </div>
-          <button class="btn-logout" id="logout-btn" title="退出登录">⎋</button>
+          <button class="btn-logout" id="logout-btn" title="退出登录" aria-label="退出登录">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4.5 4.5a5 5 0 1 0 7 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
         </div>
       </aside>
 

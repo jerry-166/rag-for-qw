@@ -201,6 +201,11 @@ class App {
     
     // 初始化主题切换
     this.initThemeToggle();
+
+    // 根据当前页面高亮导航项（每次重渲染布局后恢复）
+    document.querySelectorAll('.nav-item').forEach(nav => {
+      nav.classList.toggle('active', nav.dataset.page === this.currentPage);
+    });
     
     // 并行加载统计数据和页面内容
     const pageContainer = document.getElementById('page-container');
@@ -306,9 +311,21 @@ class App {
   }
 
   initSidebarEvents() {
-    // 侧边栏切换
-    document.getElementById('sidebar-toggle').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('collapsed');
+    // 侧边栏切换（状态持久化）
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    if (localStorage.getItem('rag_sidebar_collapsed') === '1') {
+      sidebar.classList.add('collapsed');
+    }
+    const syncToggleTitle = () => {
+      sidebarToggle.title = sidebar.classList.contains('collapsed') ? '展开侧边栏' : '折叠侧边栏';
+      sidebarToggle.setAttribute('aria-label', sidebarToggle.title);
+    };
+    syncToggleTitle();
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      localStorage.setItem('rag_sidebar_collapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
+      syncToggleTitle();
     });
     
     // 移动端菜单
