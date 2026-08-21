@@ -1,0 +1,71 @@
+== 0. 登录 ==
+admin login ok (user_id=1)
+register aud7275146: 200
+aud7275146 login ok (user_id=11)
+login failed path: 401 (expect 401)
+
+== 1. 事件目录走查（做了什么 vs 记了什么）==
+kb.create: 200 kb_id=14
+audit kb.create: PASS
+  id=518 action=kb.create user=1 kb=14 rid=None detail={"kb_name": "审计验收KB", "enhancers": ["summary"], "description": "stage4-circle1", "chunk_strategy": "recursive"}
+kb.update: 200
+audit kb.update: PASS
+  id=520 action=kb.update user=1 kb=14 rid=None detail={"changes": {"kb_name": {"after": "审计验收KB-改", "before": "审计验收KB"}, "chunk_strategy": {"after": "markdown", "before": "recursive"}}}
+doc.upload(markdown): 200 doc_id=23
+audit doc.upload: PASS
+  id=522 action=doc.upload user=1 kb=14 rid=67bf86fd7422403c848f90b67f7be3c8 detail={"source": "markdown", "file_name": "audit_test.md", "size_bytes": 585, "duration_ms": 13.4}
+process.split: 200 chunks={'file_id': '23', 'status': 'success', 'chunks': ['这是一个用于 Stage 4 审计验收的 Markdown 文档。\n\nRAG 通过检索增强生成。\n\nMilvus 是向量数据库，支持标量过滤。\n\n这是一个用于 Stage 4 审计验收的 Markdown 文档。\n\nRAG 通过检索增强生成。\n\nMilvus 是向量数据库，支持标量过滤。\n\n这是一个用于 Stage 4 审计验收的 Markdown 文档。\n\nRAG 通过检索增强生成。\n\nMilvus 是向量数据库，支持标量过滤。'], 'chunks_count': 1, 'avg_chunk_size': 217.0, 'processing_time_ms': 404.2932987213135, 'message': '文档切割成功'}
+audit process.split.done: PASS
+  id=524 action=process.split.done user=1 kb=14 rid=None detail={"chunks": 1, "strategy": "markdown"}
+process.generate: 200
+audit process.generate.done: PASS
+  id=526 action=process.generate.done user=None kb=14 rid=None detail={"mode": "incremental", "batch_size": 16, "duration_ms": 5557.9, "total_chunks": 1, "max_concurrency": 8, "enabled_enhancers": ["summary"]}
+process.import: 200
+audit process.import.done: PASS
+  id=531 action=process.import.done user=1 kb=14 rid=None detail={"chunks": 1, "vectors": 1, "vector_dim": 1536, "sub_questions": 0, "processing_time_ms": 26627.1}
+search native: 200 results=1 resp_rid=None
+audit request.write(native) with explicit RID: PASS
+  id=533 action=request.write user=None kb=None rid=stage4rid7275146 detail={"path": "/api/milvus/query", "method": "POST", "duration_ms": 1551.14, "status_code": 200}
+search advanced: 200
+search hybrid: 200
+agent.chat: 200
+audit agent.chat: PASS
+  id=537 action=agent.chat user=1 kb=14 rid=f1ed4f09c3934ea9b35b19fb4e8848af detail={"query": "什么是RAG？", "agent_type": "claw", "session_id": null, "sources_count": 0, "retrieval_mode": null}
+  id=502 action=agent.chat user=1 kb=None rid=8b298161060f40e094771a04824a2da3 detail={"query": "什么是RAG？", "agent_type": "claw", "session_id": null, "sources_count": 0, "retrieval_mode": null}
+feedback.like: 200
+audit feedback.like: PASS
+  id=539 action=feedback.like user=1 kb=None rid=a9a3df2c60bd48739432f184292d7c55 detail={"value": 1, "comment": "验收点赞", "trace_id": "stage4trace7275146", "session_id": null, "message_index": null}
+  id=504 action=feedback.like user=1 kb=None rid=fe116837aec2493d85522019ac23ccd0 detail={"value": 1, "comment": "验收点赞", "trace_id": "stage4trace7274988", "session_id": null, "message_index": null}
+settings.update: 200 updated=['RETRIEVAL_TOP_K', 'LITELLM_API_KEY']
+audit settings.update: PASS
+  detail: {"changes": [{"key": "RETR***OP_K", "after": 7, "before": 5}, {"key": "LITE***_KEY", "after": "sk-audit1234567890xyz", "before": "sk-uMXpyFMXPJB4tsVTRpeQTg"}]}
+
+== 4. 权限过滤 ==
+normal user aud7275146(id=11) /api/audit: total=2 user_ids={11} -> PASS
+normal user queries others: 403 (expect 403) -> PASS
+normal user export: 403 (expect 403) -> PASS
+normal user stats: 403 (expect 403) -> PASS
+admin stats: 200 -> {"status": "success", "today_events": 544, "total_events": 544, "active_users_24h": 6, "top_actions_7d": [{"action": "request.write", "cnt": 458}, {"action": "bm25.cache.tokenize_batch", "cnt": 10}, {
+admin export: 200 bytes=120867 starts='id,occurred_at,user_id,action,resource_type,resource_id,kb_i'
+doc.delete: 200
+audit doc.delete: PASS
+  id=545 action=doc.delete user=1 kb=14 rid=d068f5a3f61a43c78fe9ed7d50daf54c detail={"file_name": null}
+kb.delete: 200
+audit kb.delete: PASS
+  id=547 action=kb.delete user=1 kb=14 rid=064a144089114e12ba9f4885da797023 detail={"kb_name": "审计验收KB-改", "documents": 0}
+
+== auth 事件 ==
+audit auth.login: PASS (4 条)
+  id=514 action=auth.login user=11 kb=None rid=173d43132ec140bcbf44def8dda7c3fc detail={"role": "user", "success": true, "username": "aud7275146"}
+audit auth.login_failed: PASS (2 条)
+  id=516 action=auth.login_failed user=1 kb=None rid=f2dfc398b96440b6be18e077f2665cc2 detail={"reason": "wrong_password", "username": "admin"}
+audit auth.register: PASS (2 条)
+  id=512 action=auth.register user=None kb=None rid=None detail={"email": "aud7275146@t.cn", "username": "aud7275146"}
+
+== 2. request_id 串联 ==
+request_id=stage4rid7275146 共 1 条事件，actions=['request.write']
+
+== 3. 脱敏全量复查 ==
+全量 200 条 detail 中 grep 明文 key: FAIL [543, 541]
+
+DONE -> work/stage-4/verify-run.log
