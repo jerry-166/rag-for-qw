@@ -1,0 +1,96 @@
+{
+ "status": "success",
+ "query": "RRF融合排序是怎么工作的",
+ "results": [
+  {
+   "type": "subquestion",
+   "chunk_id": 6162,
+   "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第4部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+   "content": "RRF融合排序中，如何通过组合调优获得叠加收益？",
+   "distance": 0.7530325651168823,
+   "created_at": 1787272716313,
+   "metadata": {
+    "source": "e2e_doc.md",
+    "document_id": "19",
+    "chunk_id": 6162,
+    "chunk_index": 39,
+    "user_id": 7,
+    "role": "user",
+    "knowledge_base_id": 13
+   },
+   "rerank_score": 0.9873462319374084
+  },
+  {
+   "type": "subquestion",
+   "chunk_id": 6126,
+   "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第1部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+   "content": "监控RRF融合排序系统时，P95延迟、吞吐量、错误率和质量评分分别如何定义和采集？",
+   "distance": 0.5740944743156433,
+   "created_at": 1787272716313,
+   "metadata": {
+    "source": "e2e_doc.md",
+    "document_id": "19",
+    "chunk_id": 6126,
+    "chunk_index": 3,
+    "user_id": 7,
+    "role": "user",
+    "knowledge_base_id": 13
+   },
+   "rerank_score": 0.9728679060935974
+  },
+  {
+   "type": "subquestion",
+   "chunk_id": 6162,
+   "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第4部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+   "content": "RRF融合排序的工程落地细节中，典型做法是什么？",
+   "distance": 0.7785253524780273,
+   "created_at": 1787272716313,
+   "metadata": {
+    "source": "e2e_doc.md",
+    "document_id": "19",
+    "chunk_id": 6162,
+    "chunk_index": 39,
+    "user_id": 7,
+    "role": "user",
+    "knowledge_base_id": 13
+   },
+   "rerank_score": 0.9608586430549622
+  },
+  {
+   "type": "subquestion",
+   "chunk_id": 6126,
+   "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第1部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+   "content": "RRF融合排序系统在运维中如何设计灰度开关与回退机制？",
+   "distance": 0.664442777633667,
+   "created_at": 1787272716313,
+   "metadata": {
+    "source": "e2e_doc.md",
+    "document_id": "19",
+    "chunk_id": 6126,
+    "chunk_index": 3,
+    "user_id": 7,
+    "role": "user",
+    "knowledge_base_id": 13
+   },
+   "rerank_score": 0.9596385955810547
+  },
+  {
+   "type": "subquestion",
+   "chunk_id": 6126,
+   "chunk_text": "Reciprocal Rank Fusion 将多路召回结果按排名倒数求和融合，常数 k 常取 60。RRF 无需分数归一化，对不同打分体系稳健。在第1部分中，我们关注RRF 融合排序的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。",
+   "content": "在RRF融合排序的工程落地中，如何建立基线配置并进行迭代？",
+   "distance": 0.6834802627563477,
+   "created_at": 1787272716313,
+   "metadata": {
+    "source": "e2e_doc.md",
+    "document_id": "19",
+    "chunk_id": 6126,
+    "chunk_index": 3,
+    "user_id": 7,
+    "role": "user",
+    "knowledge_base_id": 13
+   },
+   "rerank_score": 0.9497458934783936
+  }
+ ]
+}

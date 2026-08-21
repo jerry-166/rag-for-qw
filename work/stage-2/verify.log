@@ -1,0 +1,26 @@
+# Stage 2/3 修复合并验证日志 2026年08月20日 22:19:40
+
+== py_compile ==
+py_compile: ALL PASS (7 files)
+
+== node --check ==
+OK frontend/js/pages/settings.js
+OK frontend/js/pages/documents.js
+OK frontend/js/pages/pipeline.js
+OK frontend/js/pages/search.js
+OK frontend/js/app.js
+OK frontend/js/api.js
+import app OK
+
+== 运行时验证（uvicorn :8003, admin/Stage1@Test） ==
+login: 200 (token acquired)
+GET /api/audit: 200
+  create KB(chunk_strategy=recursive, enhancers=[summary,sub_question]): 200 (kb_id=7, 已删除 200)
+  create KB(chunk_strategy=markdown, enhancers=[summary]): 200 (kb_id=8, 已删除 200)
+  GET /api/faq: 200
+  GET /api/faq-pr?mine=true: 200
+  GET /api/faq-pr (无参, P1-7 ANY 路径): 200
+  GET /api/process/generate/14/missing: 200 -> {"total_chunks":12,"missing":{"sub_question":0,"summary":0},"need_backfill":false}
+  POST /api/milvus/query mode=graph (kb 未指定 + kb=2): 200, 日志出现 '[GraphStrategy] 实体集合未启用或未指定 KB，降级 native'
+  server.log 中 NameError 计数: 0
+  服务已停止 (GET /docs = 000)
