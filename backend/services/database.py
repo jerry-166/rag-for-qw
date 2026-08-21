@@ -342,37 +342,40 @@ class Database:
             return False
     
     def execute(self, query, params=None):
-        """执行SQL查询"""
+        """执行SQL写入（独立游标，理由同 fetchall）"""
         try:
-            if params:
-                self.cursor.execute(query, params)
-            else:
-                self.cursor.execute(query)
+            with self.conn.cursor() as cur:
+                cur.execute(query, params)
             return True
         except Exception as e:
             logger.error(f"执行查询失败: {e}")
             return False
     
     def fetchall(self, query, params=None):
-        """执行查询并返回所有结果"""
+        """执行查询并返回所有结果
+
+        每次调用使用独立游标（with conn.cursor()）：db.cursor 是进程级共享对象，
+        asyncio 并发（如 hybrid 检索首请求耗时数秒的 Milvus 懒加载期间，其他
+        协程并发写审计/查询 PG）会交错 execute/fetchall，导致
+        "no results to fetch" 或结果串行污染——正是 /api/hybrid/search 不传
+        use_rerank（=默认 rerank 路径，首请求触发集合懒加载）返回空的原因。
+        psycopg2 连接本身是线程安全的（串行化访问），autocommit 下按调用
+        分配游标无副作用。
+        """
         try:
-            if params:
-                self.cursor.execute(query, params)
-            else:
-                self.cursor.execute(query)
-            return self.cursor.fetchall()
+            with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(query, params)
+                return cur.fetchall()
         except Exception as e:
             logger.error(f"查询失败: {e}")
             return []
-    
+
     def fetchone(self, query, params=None):
-        """执行查询并返回第一条结果"""
+        """执行查询并返回第一条结果（独立游标，理由同 fetchall）"""
         try:
-            if params:
-                self.cursor.execute(query, params)
-            else:
-                self.cursor.execute(query)
-            return self.cursor.fetchone()
+            with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(query, params)
+                return cur.fetchone()
         except Exception as e:
             logger.error(f"查询失败: {e}")
             return None

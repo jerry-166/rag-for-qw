@@ -2,8 +2,8 @@
 
 装配规则：
   - {sub_question, summary} 双开  → CombinedEnhancer（合并 prompt，token 成本最优，= 迁移前默认行为）
-  - 只开 summary                  → SummaryEnhancer（独立精简 prompt）
-  - 只开 sub_question             → SubQuestionEnhancer（独立精简 prompt）
+  - 只开 summary / sub_question     → 委托 CombinedEnhancer 合并 prompt 只取所需字段
+    （03§7 对照实验 C/C2 未达标后的回退方案，保质量、多花 token）
   - entity                        → EntityEnhancer（实体/关系抽取，06 Phase 2）
   - 全关                          → no-op（generate 阶段秒回，纯原文 RAG）
 

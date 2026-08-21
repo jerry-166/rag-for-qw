@@ -1,31 +1,20 @@
-"""摘要增强器（单开路径）：独立精简 prompt，只生成摘要。
+"""摘要增强器（单开路径）：复用合并 prompt，只取摘要字段。
 
-质量对照实验（文档 03 §7）C 组的实现载体；
-仅当启用集中只有 summary 时由 pipeline 选用。
+质量对照实验（文档 03 §7）结论：C2 组独立精简 prompt
+摘要忠实度 -0.44，超 0.3 门槛未达标；
+按 §7 回退方案，单开路径复用 CombinedEnhancer 合并 prompt，
+生成后只取启用的摘要字段（多花子问题 token 但保质量）。
 """
 
 from __future__ import annotations
 
 from typing import List
 
-from pydantic import BaseModel
-
 from config import init_logger
-from services.enhancers.base import Enhancer, parse_llm_raw, call_llm_batch, build_chain
+from services.enhancers.base import Enhancer
+from services.enhancers.combined import CombinedEnhancer
 
 logger = init_logger(__name__)
-
-
-class SummaryOnly(BaseModel):
-    summary: str
-
-
-SUMMARY_TEMPLATE = (
-    "你是一个专业的文档解析助手，负责为给定的文档段落生成摘要。\n"
-    "请根据以下文档段落，生成一段简明扼要的摘要。\n"
-    "文档段落：{document_text}\n"
-    "请严格按照以下JSON格式返回结果：{{'summary':'摘要内容'}}"
-)
 
 
 class SummaryEnhancer(Enhancer):
@@ -33,13 +22,10 @@ class SummaryEnhancer(Enhancer):
     output_fields = ("summary",)
 
     def __init__(self, chat_model):
-        self.chain = build_chain(chat_model, SUMMARY_TEMPLATE, SummaryOnly)
+        # 回退（03§7）：委托 CombinedEnhancer（合并 prompt），生成后只取摘要
+        self._combined = CombinedEnhancer(chat_model)
 
     async def enhance_batch(self, chunks: List[str]) -> List[dict]:
-        inputs = [{"document_text": doc[:3000]} for doc in chunks]
-        raw_results = await call_llm_batch(self.chain, inputs, "摘要批次")
+        results = await self._combined.enhance_batch(chunks)
         # 统一结果结构：subqs 恒为空（未启用）
-        return [
-            {"subqs": [], "summary": parsed["summary"]}
-            for parsed in (parse_llm_raw(raw, "摘要批次") for raw in raw_results)
-        ]
+        return [{"subqs": [], "summary": r["summary"]} for r in results]

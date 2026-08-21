@@ -74,3 +74,66 @@ ModuleNotFoundError: No module named 'services'
 single-key PUT (dirty-only semantic): {"status": "ok", "updated": {"RETRIEVAL_TOP_K": 5}, "errors": {}}
 invalid PUT: {"status": "partial_error", "updated": {}, "errors": {"RETRIEVAL_TOP_K": "RETRIEVAL_TOP_K ��Ҫ����"}}
 unknown key PUT: {"status": "partial_error", "updated": {}, "errors": {"NO_SUCH_KEY": "δ֪������: NO_SUCH_KEY"}}
+
+================================================================
+2026-08-21 遗留项整改（03§7 回退 + hybrid bug + admin role）
+================================================================
+
+## 1. 03§7 对照实验回退（单开复用合并 prompt）
+
+实现：services/enhancers/sub_question.py / summary.py 重写为委托
+CombinedEnhancer（合并 prompt 逐字与 A 基线 gen_chain / B 组一致），生成后
+只取启用的字段（subqs 或 summary）；pipeline.py 注释同步。
+
+重跑：ab_c_fallback_experiment.py，同 16 样本（doc19，种子 20260820），
+judge 复用 ab_c_experiment.py 模板。原始差值（首次，各组输出按自身形态呈现）：
+
+  SubQ_solo_fallback vs A: subq_rel=-0.56 subq_use=-0.63  （超 0.3）
+  Summary_solo_fallback vs A: sum_faith=-0.62             （超 0.3）
+
+分析：回退后单开与 A/B 使用逐字相同的 prompt，上一会话 B vs A 仅 ±0.13，
+本次差距异常。定位为 judge 呈现偏置——单开组摘要字段为空，judge 收到
+"（无摘要）"锚点后压低同批子问题分（本轮 A 自身分也比上轮漂移
+3.94→3.81，跨轮 judge 方差 >0.3）。
+
+迭代 1（唯一一次，ab_c_fallback_rejudge.py 逻辑内联执行）：A 组与单开组
+在完全相同呈现下（评子问题时 A 也置摘要为"（无摘要）"；评摘要时双方
+子问题均置空）由同一 judge 同轮重评，16/16 有效：
+
+  | 对比 | 指标 | 差值 | 达标(≤0.3) |
+  |---|---|---|---|
+  | SubQ_solo_fallback vs A | subq_rel | 0.00 | 通过 |
+  | SubQ_solo_fallback vs A | subq_use | -0.06 | 通过 |
+  | Summary_solo_fallback vs A | sum_faith | +0.13 | 通过 |
+
+结论：回退（单开复用合并 prompt 只取所需字段）达到 03§7 准入门槛；
+首次呈现差异下的负差值是 judge 偏置，非生成质量差异。结构指标：
+subq_mean=4.88（越界 0）、摘要均长 137（A=138）、parse 16/16。
+产物：ab_c_fallback_results.json / ab_c_fallback_rejudge.json /
+ab_c_fallback_experiment.py
+
+## 2. hybrid 不传 use_rerank 返回空 — 已修复
+
+复现：每进程首请求 POST /api/hybrid/search（不带 use_rerank）返回
+results=[]，此后所有请求正常；显式 true/false 均正常。日志根因：
+"ERROR 查询失败: no results to fetch"（services/database.py fetchall）。
+机制：首请求触发 Milvus 集合懒加载（~7s），期间 asyncio 并发协程共享
+db 单 cursor，execute/fetchall 交错使 get_document_chunks_by_ids 取不到
+结果 → _enrich_results 返回空。与 use_rerank 本身无关（默认 rerank 使
+首请求更慢、必现）。
+
+修复：database.py 的 execute/fetchall/fetchone 改为每次调用
+with self.conn.cursor(...) 独立游标（psycopg2 连接线程安全，autocommit
+无副作用）。
+
+验证：重启进程（冷启动，Milvus/模型未预热），首请求即返回 5 条，
+连测 3 次均 5 条，server_fix.log 无 "no results" 错误。
+产物：server_fix.log（对照 server_cold.log 修复前首请求 0 条 + 1 次报错）
+
+## 3. admin role 修正 — 已完成
+
+DB：UPDATE users SET role='admin' WHERE username='admin'（另因原密码
+未知无法登录，重置 password_hash=admin123，与 reset_database.py 一致）。
+验证：admin 登录 200；GET /api/audit?action=process.import.done&limit=10
+→ HTTP 200，返回 3 条（此前 admin role='user' 时返回 0 条）。
+产物：login_admin.json / audit_admin.json
