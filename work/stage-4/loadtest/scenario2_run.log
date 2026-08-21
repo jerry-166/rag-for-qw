@@ -1,0 +1,43 @@
+Exception in thread Thread-1 (rss_sampler):
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\threading.py", line 1044, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\threading.py", line 995, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\rag-for-qw\work\stage-4\loadtest\scenario2_search.py", line 26, in rss_sampler
+    import psutil
+ModuleNotFoundError: No module named 'psutil'
+warmup /api/milvus/query 200
+warmup /api/milvus/query 200
+warmup /api/milvus/query 200
+warmup /api/elasticsearch/search 200
+warmup /api/hybrid/search 200
+{"tag": "native", "ep": "/api/milvus/query", "body": {"use_rerank": true, "knowledge_base_id": 17, "limit": 10, "retrieval_mode": "native"}, "n": 40, "conc": 10, "wall_s": 464.4, "qps": 0.09, "ok": 40, "err": 0, "err_rate": 0.0, "p50_ms": 109219, "p95_ms": 191729, "p99_ms": 191739, "max_ms": 191741, "err_codes": {}, "rss_start": null}
+{"tag": "advanced", "ep": "/api/milvus/query", "body": {"use_rerank": true, "knowledge_base_id": 17, "limit": 10, "retrieval_mode": "advanced"}, "n": 80, "conc": 10, "wall_s": 889.9, "qps": 0.09, "ok": 80, "err": 0, "err_rate": 0.0, "p50_ms": 110970, "p95_ms": 117176, "p99_ms": 164564, "max_ms": 164568, "err_codes": {}, "rss_start": null}
+{"tag": "hybrid_vec", "ep": "/api/milvus/query", "body": {"use_rerank": true, "knowledge_base_id": 17, "limit": 10, "retrieval_mode": "hybrid"}, "n": 40, "conc": 10, "wall_s": 236.8, "qps": 0.17, "ok": 40, "err": 0, "err_rate": 0.0, "p50_ms": 58626, "p95_ms": 75833, "p99_ms": 92114, "max_ms": 92116, "err_codes": {}, "rss_start": null}
+{"tag": "keyword", "ep": "/api/elasticsearch/search", "body": {"use_rerank": true, "knowledge_base_id": 17, "limit": 10}, "n": 200, "conc": 20, "wall_s": 1952.0, "qps": 0.1, "ok": 185, "err": 15, "err_rate": 7.5, "p50_ms": 202753, "p95_ms": 211190, "p99_ms": 277186, "max_ms": 295959, "err_codes": {"-1": 5, "401": 10}, "rss_start": null}
+Traceback (most recent call last):
+  File "D:\workspace\rag-for-qw\work\stage-4\loadtest\scenario2_search.py", line 93, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\asyncio\runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "D:\workspace\rag-for-qw\work\stage-4\loadtest\scenario2_search.py", line 84, in main
+    res[tag]=await bench(s,ep,body,n,conc,tag)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\rag-for-qw\work\stage-4\loadtest\scenario2_search.py", line 56, in bench
+    'p50_ms':pctl(ok,50),'p95_ms':pctl(ok,95),'p99_ms':pctl(ok,99),'max_ms':round(max(ok)) if ok else None,
+             ~~~~^^^^^^^
+  File "D:\workspace\rag-for-qw\work\stage-4\loadtest\scenario2_search.py", line 21, in pctl
+    return round(xs[f] if f+1>=len(xs) else xs[f]+(xs[f+1]-xs[f])*(k-f))
+                 ~~^^^
+IndexError: list index out of range

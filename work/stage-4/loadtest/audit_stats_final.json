@@ -1,0 +1,88 @@
+{
+ "status": "success",
+ "today_events": 2639,
+ "total_events": 2639,
+ "active_users_24h": 9,
+ "top_actions_7d": [
+  {
+   "action": "request.write",
+   "cnt": 1784
+  },
+  {
+   "action": "process.embed.done",
+   "cnt": 130
+  },
+  {
+   "action": "process.import.done",
+   "cnt": 126
+  },
+  {
+   "action": "process.split.done",
+   "cnt": 126
+  },
+  {
+   "action": "process.generate.api_done",
+   "cnt": 124
+  },
+  {
+   "action": "doc.upload",
+   "cnt": 123
+  },
+  {
+   "action": "feedback.like",
+   "cnt": 39
+  },
+  {
+   "action": "auth.login",
+   "cnt": 26
+  },
+  {
+   "action": "faq.aggregate",
+   "cnt": 23
+  },
+  {
+   "action": "faq.candidate_create",
+   "cnt": 22
+  },
+  {
+   "action": "process.embed.fill_done",
+   "cnt": 17
+  },
+  {
+   "action": "process.generate.done",
+   "cnt": 15
+  },
+  {
+   "action": "bm25.cache.tokenize_batch",
+   "cnt": 13
+  },
+  {
+   "action": "faq.promote",
+   "cnt": 11
+  },
+  {
+   "action": "faq.demote",
+   "cnt": 5
+  },
+  {
+   "action": "faq.hit",
+   "cnt": 5
+  },
+  {
+   "action": "auth.register",
+   "cnt": 5
+  },
+  {
+   "action": "process.generate.missing_check",
+   "cnt": 5
+  },
+  {
+   "action": "kb.create",
+   "cnt": 5
+  },
+  {
+   "action": "settings.update",
+   "cnt": 4
+  }
+ ]
+}

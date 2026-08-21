@@ -1,0 +1,4 @@
+warmup hybrid_endpoint 200
+{"tag": "hybrid_endpoint", "n": 120, "conc": 20, "wall_s": 1420.8, "qps": 0.08, "ok": 120, "err": 0, "p50_ms": 238861, "p95_ms": 264669, "p99_ms": 325676, "max_ms": 326777, "err_codes": {}, "rss_start_mb": 838.2, "rss_end_mb": 916.3}
+{"tag": "native_norerank", "n": 8, "conc": 8, "wall_s": 4.4, "qps": 1.84, "ok": 3, "err": 5, "p50_ms": 2971, "p95_ms": 4202, "p99_ms": 4312, "max_ms": 4339, "err_codes": {"-1": 1}, "rss_start_mb": 917.6, "rss_end_mb": 924.9}
+{"tag": "native_rerank", "n": 8, "conc": 8, "wall_s": 58.9, "qps": 0.14, "ok": 5, "err": 3, "p50_ms": 35171, "p95_ms": 58853, "p99_ms": 58853, "max_ms": 58853, "err_codes": {"-1": 1}, "rss_start_mb": 925.0, "rss_end_mb": 928.1}

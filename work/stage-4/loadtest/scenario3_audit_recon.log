@@ -1,0 +1,14 @@
+12:15:37 - INFO - 数据库 rag_system 已存在
+12:15:37 - INFO - 成功连接到数据库: rag_system
+12:15:37 - ERROR - 查询失败: column "created_at" does not exist
+LINE 1: ...on,count(*) c from audit_log where user_id=14 and created_at...
+                                                             ^
+
+12:15:37 - ERROR - 查询失败: column "created_at" does not exist
+LINE 1: select max(extract(epoch from now()-created_at)) lag, min(ex...
+                                            ^
+
+audit_by_action: {}
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+TypeError: 'NoneType' object is not iterable
