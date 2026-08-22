@@ -1,10 +1,12 @@
 /**
- * 知识记忆管理页（Stage 3 自进化 RAG，文档 06）
+ * 知识记忆管理页（Stage 3 自进化 RAG，文档 06；圈 4 对齐线框 06）
  *
- * 三个 Tab：
+ * 三个 Tab（带计数徽章）：
  * - 正式知识（active）：可降级/删除
- * - 候选记忆（candidate）：显示命中进度（hit_count/distill_threshold），可升格/删除
- * - PR 审核：我名下 KB 收到的协作 PR（合并/拒绝）
+ * - 候选记忆（candidate）：命中进度环（hit_count/distill_threshold），可升格/删除
+ * - PR 审核：我名下 KB 收到的协作 PR（合并/拒绝 + 审核备注）
+ *
+ * 布局：卡片栅格（候选记忆）/ 表格（正式知识）+ KB 过滤；来源/状态徽章用 tokens 语义色。
  *
  * 挂载 window.FAQPage；同时暴露 window.FaqAPI 薄封装供其他页面复用。
  */
@@ -66,6 +68,7 @@ const FAQPage = {
   page: 1,
   pageSize: 20,
   total: 0,
+  tabCounts: { active: null, candidate: null, pr: null },  // null = 未知（不显示）
   knowledgeBases: [],
 
   async render() {
@@ -75,60 +78,60 @@ const FAQPage = {
 
     const container = document.getElementById('page-container');
     container.innerHTML = `
-      <div class="page-header">
+      <div class="row-between faq-header">
         <div>
           <h1 class="page-title">知识记忆</h1>
-          <p class="page-desc">自进化知识闭环：候选记忆随命中自动成长为正式知识，协作知识经审核后生效</p>
+          <p class="page-desc">对话中沉淀的 FAQ：候选命中达阈值自动蒸馏升格，协作库走 PR 审核</p>
         </div>
-        <button class="btn btn-primary" id="faq-refresh-btn"><span>🔄 刷新</span></button>
+        <button class="btn" id="faq-refresh-btn">🔄 刷新</button>
       </div>
 
-      <div class="doc-toolbar" style="margin-bottom: 12px;">
-        <div class="faq-tabs" id="faq-tabs">
-          <button class="btn btn-sm btn-primary" data-tab="active">正式知识</button>
-          <button class="btn btn-sm btn-secondary" data-tab="candidate">候选记忆</button>
-          <button class="btn btn-sm btn-secondary" data-tab="pr">PR 审核</button>
-        </div>
-        <select id="faq-kb-filter">
+      <div class="tabs faq-tabs" id="faq-tabs">
+        <button data-tab="active" class="on">正式知识<span class="count"></span></button>
+        <button data-tab="candidate">候选记忆<span class="count"></span></button>
+        <button data-tab="pr">PR 审核<span class="count pr-count"></span></button>
+      </div>
+
+      <div class="faq-toolbar">
+        <select id="faq-kb-filter" class="input faq-kb-select">
           <option value="">全部知识库</option>
         </select>
       </div>
 
-      <div class="doc-table-wrap">
-        <table id="faq-table">
-          <thead id="faq-table-head"></thead>
-          <tbody id="faq-table-body">
-            <tr><td colspan="6" style="text-align:center; padding: 40px;">
-              <div class="loading-spinner"></div>
-              <p style="margin-top: 12px; color: var(--text3);">加载中...</p>
-            </td></tr>
-          </tbody>
-        </table>
+      <div id="faq-body">
+        <div class="td-state faq-loading">加载中…</div>
       </div>
-      <div class="faq-pager" id="faq-pager" style="margin-top: 12px; display: flex; gap: 8px; align-items: center; justify-content: flex-end;"></div>
+      <div class="faq-pager" id="faq-pager"></div>
     `;
 
     this.initEvents();
     await this.loadKnowledgeBases();
+    await this.loadCounts();
     await this.loadList();
   },
 
   initEvents() {
-    document.getElementById('faq-refresh-btn').addEventListener('click', () => this.loadList());
+    document.getElementById('faq-refresh-btn').addEventListener('click', () => { this.loadCounts(); this.loadList(); });
     document.getElementById('faq-tabs').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-tab]');
       if (!btn) return;
       this.currentTab = btn.dataset.tab;
       this.page = 1;
       document.querySelectorAll('#faq-tabs button').forEach(b => {
-        b.className = `btn btn-sm ${b.dataset.tab === this.currentTab ? 'btn-primary' : 'btn-secondary'}`;
+        b.classList.toggle('on', b.dataset.tab === this.currentTab);
       });
       this.loadList();
     });
     document.getElementById('faq-kb-filter').addEventListener('change', (e) => {
       this.currentKbId = e.target.value ? parseInt(e.target.value, 10) : null;
       this.page = 1;
+      this.loadCounts();
       this.loadList();
+    });
+    // 空态跳转按钮（如「去问一个问题」→ agent）
+    document.getElementById('faq-body').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-goto]');
+      if (btn && window.App) window.App.navigate(btn.dataset.goto);
     });
   },
 
@@ -145,10 +148,34 @@ const FAQPage = {
     }
   },
 
+  /** 拉三个 Tab 的计数（失败静默，不阻塞主列表） */
+  async loadCounts() {
+    const jobs = [
+      ['active', FaqAPI.listFaqs({ status: 'active', kbId: this.currentKbId, page: 1, pageSize: 1 })],
+      ['candidate', FaqAPI.listFaqs({ status: 'candidate', kbId: this.currentKbId, page: 1, pageSize: 1 })],
+      ['pr', FaqAPI.listPrs({ kbId: this.currentKbId, page: 1, pageSize: 1 })],
+    ];
+    await Promise.all(jobs.map(([k, p]) => p
+      .then(r => { this.tabCounts[k] = r.total ?? 0; })
+      .catch(() => { this.tabCounts[k] = null; })));
+    this.renderTabs();
+  },
+
+  renderTabs() {
+    document.querySelectorAll('#faq-tabs button').forEach(btn => {
+      const k = btn.dataset.tab;
+      const v = this.tabCounts[k];
+      const cntEl = btn.querySelector('.count');
+      if (!cntEl) return;
+      cntEl.textContent = v === null ? '' : String(v);
+      if (k === 'pr' && typeof v === 'number' && v > 0) cntEl.classList.add('has-warn');
+      else cntEl.classList.remove('has-warn');
+    });
+  },
+
   async loadList() {
-    const tbody = document.getElementById('faq-table-body');
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px;">
-      <div class="loading-spinner"></div></td></tr>`;
+    const body = document.getElementById('faq-body');
+    body.innerHTML = '<div class="td-state faq-loading">加载中…</div>';
     try {
       if (this.currentTab === 'pr') {
         await this.loadPrs();
@@ -160,12 +187,11 @@ const FAQPage = {
           pageSize: this.pageSize,
         });
         this.total = resp.total || 0;
-        this.renderFaqRows(resp.items || []);
+        if (this.currentTab === 'candidate') this.renderCandidateCards(resp.items || []);
+        else this.renderFaqRows(resp.items || []);
       }
     } catch (e) {
-      tbody.innerHTML = `<tr><td colspan="6">
-        <div class="empty-state"><div class="empty-icon">❌</div>
-        <p>加载失败: ${this._esc(e.message)}</p></div></td></tr>`;
+      body.innerHTML = `<div class="td-state">加载失败: ${this._esc(e.message)}</div>`;
     }
     this.renderPager();
   },
@@ -173,7 +199,7 @@ const FAQPage = {
   async loadPrs() {
     const resp = await FaqAPI.listPrs({ kbId: this.currentKbId, page: this.page, pageSize: this.pageSize });
     this.total = resp.total || 0;
-    this.renderPrRows(resp.items || []);
+    this.renderPrCards(resp.items || []);
   },
 
   _kbName(kbId) {
@@ -181,58 +207,119 @@ const FAQPage = {
     return kb ? kb.kb_name : `KB#${kbId}`;
   },
 
+  /* ── 正式知识：表格 ─────────────────────────────────── */
   renderFaqRows(items) {
-    const isActive = this.currentTab === 'active';
-    document.getElementById('faq-table-head').innerHTML = `
-      <tr>
-        <th>问题</th><th>答案</th><th>知识库</th><th>命中/热度</th><th>来源</th><th>操作</th>
-      </tr>`;
-    const tbody = document.getElementById('faq-table-body');
+    const body = document.getElementById('faq-body');
     if (!items.length) {
-      tbody.innerHTML = `<tr><td colspan="6">
-        <div class="empty-state"><div class="empty-icon">🧠</div>
-        <p>${isActive ? '暂无正式知识' : '暂无候选记忆'}</p></div></td></tr>`;
+      body.innerHTML = this._emptyState('❖', '还没有正式知识', '在 AI Agent 中提问，或从候选记忆升格。');
       return;
     }
-    tbody.innerHTML = items.map(f => `
-      <tr>
-        <td title="${this._esc(f.question)}">${this._esc(this._cut(f.question, 40))}</td>
-        <td title="${this._esc(f.answer)}">${this._esc(this._cut(f.answer, 60))}</td>
-        <td>${this._esc(this._kbName(f.kb_id))}</td>
-        <td>${f.hit_count}${isActive ? '' : ` / ${f.distill_threshold}`} 次<br>
-            <span style="color: var(--text3); font-size: .75rem;">热度 ${(f.heat_score || 0).toFixed(2)}</span></td>
-        <td>${this._esc(f.source || '-')}</td>
-        <td>
-          ${isActive
-            ? `<button class="btn btn-sm btn-secondary" onclick="FAQPage.demote(${f.id})">降级</button>`
-            : `<button class="btn btn-sm btn-primary" onclick="FAQPage.promote(${f.id})">升格</button>`}
-          <button class="btn btn-sm btn-danger" onclick="FAQPage.removeFaq(${f.id})">删除</button>
-        </td>
-      </tr>`).join('');
+    body.innerHTML = `
+      <table class="table faq-table">
+        <thead><tr>
+          <th>问题</th><th>答案</th><th>知识库</th><th>命中</th><th>来源</th><th>热度</th><th>操作</th>
+        </tr></thead>
+        <tbody>
+          ${items.map(f => `
+            <tr>
+              <td title="${this._esc(f.question)}">${this._esc(this._cut(f.question, 40))}</td>
+              <td title="${this._esc(f.answer)}">${this._esc(this._cut(f.answer, 60))}</td>
+              <td><span class="badge badge-gray">${this._esc(this._kbName(f.kb_id))}</span></td>
+              <td class="num">${f.hit_count ?? 0}</td>
+              <td><span class="badge ${f.source === 'manual' ? 'badge-blue' : 'badge-accent'}">${this._esc(f.source || '-')}</span></td>
+              <td class="num t-dim">${(f.heat_score || 0).toFixed(2)}</td>
+              <td>
+                <button class="btn btn-sm" data-demote="${f.id}">降级</button>
+                <button class="icon-btn" data-remove="${f.id}" title="删除"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+    body.querySelectorAll('[data-demote]').forEach(b =>
+      b.addEventListener('click', () => this.demote(parseInt(b.dataset.demote, 10))));
+    body.querySelectorAll('[data-remove]').forEach(b =>
+      b.addEventListener('click', () => this.removeFaq(parseInt(b.dataset.remove, 10))));
   },
 
-  renderPrRows(items) {
-    document.getElementById('faq-table-head').innerHTML = `
-      <tr><th>提交人</th><th>目标知识库</th><th>问题</th><th>答案</th><th>提交时间</th><th>操作</th></tr>`;
-    const tbody = document.getElementById('faq-table-body');
+  /* ── 候选记忆：卡片栅格 + 命中进度环（线框 06） ───────── */
+  renderCandidateCards(items) {
+    const body = document.getElementById('faq-body');
     if (!items.length) {
-      tbody.innerHTML = `<tr><td colspan="6">
-        <div class="empty-state"><div class="empty-icon">📬</div>
-        <p>暂无待审核的协作提交</p></div></td></tr>`;
+      body.innerHTML = this._emptyState('❖', '还没有候选记忆',
+        '在 AI Agent 中提问，未被覆盖的问题可一键沉淀为候选 FAQ。',
+        { label: '去问一个问题', page: 'agent' });
       return;
     }
-    tbody.innerHTML = items.map(pr => `
-      <tr>
-        <td>${this._esc(pr.submitter_name || `用户#${pr.submitted_by}`)}</td>
-        <td>${this._esc(pr.target_kb_name || `KB#${pr.target_kb_id}`)}</td>
-        <td title="${this._esc(pr.question)}">${this._esc(this._cut(pr.question, 30))}</td>
-        <td title="${this._esc(pr.answer)}">${this._esc(this._cut(pr.answer, 40))}</td>
-        <td style="white-space: nowrap;">${this._fmtTime(pr.created_at)}</td>
-        <td style="white-space: nowrap;">
-          <button class="btn btn-sm btn-primary" onclick="FAQPage.reviewPr(${pr.id}, true)">合并</button>
-          <button class="btn btn-sm btn-danger" onclick="FAQPage.reviewPr(${pr.id}, false)">拒绝</button>
-        </td>
-      </tr>`).join('');
+    body.innerHTML = `<div class="faq-grid">${items.map(f => {
+      const hits = f.hit_count ?? 0;
+      const thr = Math.max(1, f.distill_threshold ?? 1);
+      const reached = hits >= thr;
+      const pct = Math.min(1, hits / thr);
+      const R = 18, C = 2 * Math.PI * R;
+      return `
+        <div class="glass-card faq-card ${reached ? 'faq-card-ready' : ''}">
+          <div class="row-between">
+            <span class="badge ${f.source === 'manual' ? 'badge-blue' : 'badge-accent'}">${f.source === 'manual' ? '手动补全' : '对话沉淀'}</span>
+            <svg class="hit-ring" viewBox="0 0 44 44" title="命中 ${hits}/${thr}">
+              <circle class="bg" cx="22" cy="22" r="${R}"/>
+              <circle class="fg" cx="22" cy="22" r="${R}"
+                stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - pct)).toFixed(1)}"/>
+            </svg>
+          </div>
+          <b class="faq-q">${this._esc(f.question)}</b>
+          <p class="faq-a">答：${this._esc(this._cut(f.answer, 90))}</p>
+          <div class="row-wrap faq-card-meta">
+            <span class="badge badge-gray">${this._esc(this._kbName(f.kb_id))}</span>
+            <span class="t-dim num">${reached ? `命中 ${hits}/${thr}` : `命中 ${hits}/${thr} · 再命中 ${thr - hits} 次自动升格`}</span>
+          </div>
+          <div class="faq-card-actions">
+            <div class="grow"></div>
+            <button class="btn btn-sm" data-remove="${f.id}">删除</button>
+            <button class="btn btn-sm btn-primary" data-promote="${f.id}">${reached ? '升格为正式' : '提前升格'}</button>
+          </div>
+        </div>`;
+    }).join('')}</div>`;
+    body.querySelectorAll('[data-promote]').forEach(b =>
+      b.addEventListener('click', () => this.promote(parseInt(b.dataset.promote, 10))));
+    body.querySelectorAll('[data-remove]').forEach(b =>
+      b.addEventListener('click', () => this.removeFaq(parseInt(b.dataset.remove, 10))));
+  },
+
+  /* ── PR 审核：卡片 + 合并/拒绝 + 备注（线框 06） ─────── */
+  renderPrCards(items) {
+    const body = document.getElementById('faq-body');
+    if (!items.length) {
+      body.innerHTML = this._emptyState('📬', '暂无待审核的协作提交',
+        '其他用户向你的共享知识库提交的 FAQ 会出现在这里。');
+      return;
+    }
+    body.innerHTML = items.map(pr => `
+      <div class="glass-card faq-pr-card">
+        <div class="row-between">
+          <b>${this._esc(pr.question)}</b>
+          <span class="badge badge-yellow">来自 ${this._esc(pr.submitter_name || `用户#${pr.submitted_by}`)} → ${this._esc(pr.target_kb_name || `KB#${pr.target_kb_id}`)}</span>
+        </div>
+        <p class="faq-a">答：${this._esc(pr.answer)}</p>
+        <div class="faq-pr-actions">
+          <input type="text" class="input pr-note" data-pr="${pr.id}" placeholder="审核备注（可选）…" style="height:32px" />
+          <button class="btn btn-sm btn-primary" data-merge="${pr.id}">合并</button>
+          <button class="btn btn-sm btn-danger" data-reject="${pr.id}">拒绝</button>
+        </div>
+      </div>`).join('');
+    body.querySelectorAll('[data-merge]').forEach(b =>
+      b.addEventListener('click', () => this.reviewPr(parseInt(b.dataset.merge, 10), true)));
+    body.querySelectorAll('[data-reject]').forEach(b =>
+      b.addEventListener('click', () => this.reviewPr(parseInt(b.dataset.reject, 10), false)));
+  },
+
+  _emptyState(glyph, title, desc, action = null) {
+    return `
+      <div class="glass-card"><div class="state faq-empty">
+        <div class="glyph">${glyph}</div>
+        <div class="title">${title}</div>
+        <p class="desc">${desc}</p>
+        ${action ? `<button class="btn btn-sm btn-primary" data-goto="${action.page}">${action.label}</button>` : ''}
+      </div></div>`;
   },
 
   renderPager() {
@@ -241,11 +328,11 @@ const FAQPage = {
     const pages = Math.max(1, Math.ceil(this.total / this.pageSize));
     if (this.total <= this.pageSize) { pager.innerHTML = ''; return; }
     pager.innerHTML = `
-      <button class="btn btn-sm btn-secondary" ${this.page <= 1 ? 'disabled' : ''}
-        onclick="FAQPage.goPage(${this.page - 1})">上一页</button>
-      <span style="color: var(--text3); font-size: .8rem;">${this.page} / ${pages}</span>
-      <button class="btn btn-sm btn-secondary" ${this.page >= pages ? 'disabled' : ''}
-        onclick="FAQPage.goPage(${this.page + 1})">下一页</button>`;
+      <button class="btn btn-sm" ${this.page <= 1 ? 'disabled' : ''} data-page="${this.page - 1}">← 上一页</button>
+      <span class="num t-dim">${this.page} / ${pages} · 共 ${this.total} 条</span>
+      <button class="btn btn-sm" ${this.page >= pages ? 'disabled' : ''} data-page="${this.page + 1}">下一页 →</button>`;
+    pager.querySelectorAll('[data-page]').forEach(b =>
+      b.addEventListener('click', () => this.goPage(parseInt(b.dataset.page, 10))));
   },
 
   goPage(p) {
@@ -257,6 +344,7 @@ const FAQPage = {
     try {
       await FaqAPI.promote(id);
       window.App.showToast('已升格为正式知识', 'success');
+      this.loadCounts();
       this.loadList();
     } catch (e) { window.App.showToast('升格失败: ' + e.message, 'error'); }
   },
@@ -265,6 +353,7 @@ const FAQPage = {
     try {
       await FaqAPI.demote(id);
       window.App.showToast('已降级为候选记忆', 'success');
+      this.loadCounts();
       this.loadList();
     } catch (e) { window.App.showToast('降级失败: ' + e.message, 'error'); }
   },
@@ -274,13 +363,14 @@ const FAQPage = {
     try {
       await FaqAPI.remove(id);
       window.App.showToast('已删除', 'success');
+      this.loadCounts();
       this.loadList();
     } catch (e) { window.App.showToast('删除失败: ' + e.message, 'error'); }
   },
 
   async reviewPr(id, approve) {
-    const note = approve ? null : prompt('拒绝原因（可选）：');
-    if (!approve && note === null) return; // 用户点了取消
+    const noteEl = document.querySelector(`.pr-note[data-pr="${id}"]`);
+    const note = noteEl ? noteEl.value.trim() || null : null;
     try {
       if (approve) {
         await FaqAPI.mergePr(id, note);
@@ -289,6 +379,7 @@ const FAQPage = {
         await FaqAPI.rejectPr(id, note);
         window.App.showToast('已拒绝', 'success');
       }
+      this.loadCounts();
       this.loadList();
     } catch (e) { window.App.showToast('操作失败: ' + e.message, 'error'); }
   },
@@ -300,10 +391,6 @@ const FAQPage = {
   _cut(s, n) {
     s = String(s ?? '');
     return s.length > n ? s.slice(0, n) + '…' : s;
-  },
-  _fmtTime(t) {
-    if (!t) return '-';
-    try { return new Date(t).toLocaleString('zh-CN', { hour12: false }); } catch { return t; }
   },
 };
 

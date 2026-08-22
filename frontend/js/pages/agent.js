@@ -269,22 +269,21 @@ window.AgentPage = window.AgentPage || {
         <!-- ── 右侧：主区域 ── -->
         <div class="agent-main" id="agent-main">
 
-          <!-- 顶部工具栏 -->
+          <!-- 顶部工具栏（圈 4：线框 05 — seg 模式切换 + Agent 下拉） -->
           <div class="agent-toolbar">
             <div class="agent-toolbar-left">
               <h1 class="page-title" style="margin:0">AI Agent</h1>
-              <div class="agent-mode-toggle">
-                <button class="mode-btn ${!this.compareMode ? 'active' : ''}" id="mode-single" title="单 Agent 对话">💬 对话</button>
-                <button class="mode-btn ${this.compareMode ? 'active' : ''}" id="mode-compare" title="多 Agent 对比">⚖️ 对比</button>
+              <div class="seg agent-mode-toggle" id="agent-mode-seg">
+                <button class="${!this.compareMode ? 'on' : ''}" id="mode-single" title="单 Agent 对话">对话</button>
+                <button class="${this.compareMode ? 'on' : ''}" id="mode-compare" title="多 Agent 对比">对比</button>
               </div>
             </div>
             <div class="agent-toolbar-right">
-              <button class="btn btn-ghost btn-sm" id="agent-clear-btn" title="清空当前会话">🗑️ 清空</button>
+              <select class="select agent-select" id="agent-type-select" title="选择 Agent">${this._buildAgentTabsOptions()}</select>
+              <button class="icon-btn" id="agent-clear-btn" title="清空当前会话"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             </div>
           </div>
 
-          <!-- Agent 选择标签 -->
-          ${this._buildAgentTabs()}
           ${this._buildCapabilitiesHint()}
 
           <!-- 主内容区 -->
@@ -346,68 +345,44 @@ window.AgentPage = window.AgentPage || {
           ${this._renderMessagesHTML()}
         </div>
 
-        <!-- 知识库选择器 -->
+        <!-- 知识库选择条（圈 4：线框 05 src-chip 风格下拉） -->
         <div class="agent-kb-bar" id="agent-kb-bar">
-          <div class="kb-bar-inner">
-            <span class="kb-bar-label">📚 知识库：</span>
-            <div class="kb-selector-chips" id="kb-selector-chips">
-              ${this._buildKbChips()}
-            </div>
-          </div>
-          <!-- 检索模式选择器 -->
-          <div class="retrieval-mode-selector">
-            <span class="mode-label">🔮 检索模式：</span>
-            <select id="retrieval-mode-select" class="mode-select">
-              <option value="advanced" ${this.selectedRetrievalMode === 'advanced' ? 'selected' : ''}>摘要+子问题</option>
-              <option value="native" ${this.selectedRetrievalMode === 'native' ? 'selected' : ''}>原文匹配</option>
-              <option value="hybrid" ${this.selectedRetrievalMode === 'hybrid' ? 'selected' : ''}>三路融合</option>
-            </select>
-          </div>
-          ${selectedKb ? `
-            <div class="kb-active-hint">
-              <span class="kb-active-badge">✅ 已选：${this._escapeHTML(selectedKb.kb_name)}</span>
-              <span class="kb-active-desc">Agent 将优先在此知识库中检索</span>
-            </div>
-          ` : `
-            <div class="kb-active-hint">
-              <span class="kb-active-badge kb-none">🔓 全局模式</span>
-              <span class="kb-active-desc">未绑定知识库，Agent 将在全量数据中自由检索</span>
-            </div>
-          `}
+          <span class="kb-bar-label">知识库：</span>
+          <select id="kb-select" class="src-chip kb-chip-select">
+            <option value="" ${!this.selectedKbId ? 'selected' : ''}>不限知识库（全局检索）</option>
+            ${this.knowledgeBases.map(kb => `<option value="${kb.id}" ${this.selectedKbId === kb.id ? 'selected' : ''}>🗂 ${this._escapeHTML(kb.kb_name)}</option>`).join('')}
+          </select>
+          <span class="kb-bar-label">模式：</span>
+          <select id="retrieval-mode-select" class="src-chip kb-chip-select">
+            <option value="advanced" ${this.selectedRetrievalMode === 'advanced' ? 'selected' : ''}>摘要+子问题</option>
+            <option value="native" ${this.selectedRetrievalMode === 'native' ? 'selected' : ''}>原文匹配</option>
+            <option value="hybrid" ${this.selectedRetrievalMode === 'hybrid' ? 'selected' : ''}>三路融合</option>
+          </select>
+          ${selectedKb ? `<span class="kb-bar-label kb-bar-hint">已选：${this._escapeHTML(selectedKb.kb_name)} · Agent 将优先在此知识库中检索</span>` : `<span class="kb-bar-label kb-bar-hint">全局模式 · Agent 将在全量数据中自由检索</span>`}
         </div>
 
-        <!-- 输入区 -->
+        <!-- 输入区（圈 4：线框 05 composer） -->
         <div class="agent-input-area">
-          <div class="input-wrapper">
+          <div class="input-wrapper glass-composer">
             <textarea
               id="agent-input"
               class="agent-textarea"
-              placeholder="输入您的问题，按 Enter 发送，Shift+Enter 换行..."
+              placeholder="输入问题，Enter 发送 · Shift+Enter 换行 · 自动长高，超长出滚动条"
               rows="1"
             ></textarea>
             <button class="btn btn-primary agent-send-btn" id="agent-send-btn" title="发送">
               <span class="send-icon">➤</span>
             </button>
           </div>
-          <div class="input-hint">Enter 发送 · Shift+Enter 换行</div>
         </div>
       </div>
     `;
   },
 
-  _buildKbChips() {
-    const options = [
-      `<option value="" ${!this.selectedKbId ? 'selected' : ''}>🔓 不限知识库（全局检索）</option>`,
-      ...this.knowledgeBases.map(kb =>
-        `<option value="${kb.id}" ${this.selectedKbId === kb.id ? 'selected' : ''}>📂 ${this._escapeHTML(kb.kb_name)}</option>`
-      ),
-    ];
-    return `
-      <select class="kb-select" id="kb-select">
-        ${options.join('')}
-      </select>
-      ${this.knowledgeBases.length === 0 ? '<span class="kb-hint-text">（暂无知识库，可前往「知识库」页面创建）</span>' : ''}
-    `;
+  _buildAgentTabsOptions() {
+    return this.agents.map(agent =>
+      `<option value="${agent.type}" ${agent.type === this.selectedAgent ? 'selected' : ''}>Agent：${this._agentLabel(agent.type)}</option>`
+    ).join('');
   },
 
   _renderCompareView() {
@@ -464,7 +439,6 @@ window.AgentPage = window.AgentPage || {
     if (msg.role === 'user') {
       return `
         <div class="message message-user" data-idx="${idx}">
-          <div class="message-avatar user-avatar-icon">👤</div>
           <div class="message-bubble">
             <div class="message-content">${this._escapeHTML(msg.content)}</div>
           </div>
@@ -477,19 +451,23 @@ window.AgentPage = window.AgentPage || {
     const sources = msg.sources || [];   // 精排后来源
     // 反馈状态：null | 'up' | 'down'
     const feedback = msg.feedback || null;
+    // 圈 4：FAQ 直返 / 补全引导标记（SSE 透传，tokens 语义色徽章）
+    const faqBadge = msg._faqHit
+      ? '<span class="badge badge-accent"><i class="dot"></i>FAQ 命中 · 直返</span>' : '';
 
     return `
       <div class="message message-agent" data-idx="${idx}">
-        <div class="message-avatar agent-avatar-icon">🤖</div>
+        <div class="message-avatar agent-avatar-icon">AI</div>
         <div class="message-bubble">
           <div class="message-meta">
             <span class="agent-tag ${msg.agent_type || this.selectedAgent}">${this._agentLabel(msg.agent_type || this.selectedAgent)}</span>
-            ${msg.kb_name ? `<span class="kb-ref-badge">📂 ${this._escapeHTML(msg.kb_name)}</span>` : ''}
-            ${msg.processing_time ? `<span class="processing-time">⏱ ${msg.processing_time}ms</span>` : ''}
+            ${msg.kb_name ? `<span class="kb-ref-badge">🗂 ${this._escapeHTML(msg.kb_name)}</span>` : ''}
+            ${msg.processing_time ? `<span class="processing-time">耗时 ${(msg.processing_time / 1000).toFixed(1)}s</span>` : ''}
             ${sources.length > 0 ? `<span class="sources-count">📚 ${sources.length} 条引用</span>` : ''}
+            ${faqBadge}
           </div>
           <div class="message-content ${isStreaming ? 'streaming-text' : ''}" id="msg-content-${idx}">
-            ${this._renderMarkdown(msg.content)}
+            ${this._renderMarkdown(msg.content)}${isStreaming ? '<span class="cursor-blink"></span>' : ''}
           </div>
           ${sources.length > 0 ? this._renderSourcesPanel(sources, '精排来源') : ''}
           ${citations.length > 0 ? `
@@ -682,23 +660,6 @@ window.AgentPage = window.AgentPage || {
             </div>
           `;
         }).join('')}
-      </div>
-    `;
-  },
-
-  _buildAgentTabs() {
-    if (this.compareMode) return '';
-    const options = this.agents.map(agent => {
-      const icon = this._agentIcon(agent.type);
-      const label = `${icon} ${this._agentLabel(agent.type)}`;
-      return `<option value="${agent.type}" ${agent.type === this.selectedAgent ? 'selected' : ''}>${label}</option>`;
-    }).join('');
-    return `
-      <div class="agent-select-wrapper">
-        <label class="agent-select-label">🤖 选择 Agent</label>
-        <select class="agent-select" id="agent-type-select">
-          ${options}
-        </select>
       </div>
     `;
   },
@@ -905,34 +866,16 @@ window.AgentPage = window.AgentPage || {
     });
   },
 
-  _bindKbChips() {
-    document.querySelectorAll('.kb-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const rawId = chip.dataset.kbId;
-        this.selectedKbId = (rawId === 'null' || rawId === null) ? null : parseInt(rawId, 10);
-        // 更新 chip 高亮
-        document.querySelectorAll('.kb-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        // 刷新知识库状态栏
-        this._refreshKbBar();
-      });
-    });
-  },
-
   _refreshKbBar() {
+    // 圈 4：更新选择条右侧提示文字
     const bar = document.getElementById('agent-kb-bar');
     if (!bar) return;
+    const hintEl = bar.querySelector('.kb-bar-hint');
     const selectedKb = this.knowledgeBases.find(kb => kb.id === this.selectedKbId);
-    // 只更新 hint 部分，不重建整个 bar
-    const hintEl = bar.querySelector('.kb-active-hint');
     if (hintEl) {
-      hintEl.innerHTML = selectedKb ? `
-        <span class="kb-active-badge">✅ 已选：${this._escapeHTML(selectedKb.kb_name)}</span>
-        <span class="kb-active-desc">Agent 将优先在此知识库中检索</span>
-      ` : `
-        <span class="kb-active-badge kb-none">🔓 全局模式</span>
-        <span class="kb-active-desc">未绑定知识库，Agent 将在全量数据中自由检索</span>
-      `;
+      hintEl.textContent = selectedKb
+        ? `已选：${selectedKb.kb_name} · Agent 将优先在此知识库中检索`
+        : '全局模式 · Agent 将在全量数据中自由检索';
     }
     // 重新渲染空状态提示（kb提示可能包含知识库名）
     const msgsEl = document.getElementById('agent-messages');
@@ -1011,7 +954,7 @@ window.AgentPage = window.AgentPage || {
     }
   },
 
-  /** Stage 3：渲染"帮助成长"补全卡片（检索失败引导，文档 06） */
+  /** Stage 3：渲染"帮助成长"补全卡片（检索失败引导，文档 06；圈 4 对齐线框 05 supplement 样式） */
   _renderSupplementCard(msgIdx) {
     const msgContentEl = document.getElementById(`msg-content-${msgIdx}`);
     if (!msgContentEl) return;
@@ -1023,20 +966,22 @@ window.AgentPage = window.AgentPage || {
       ? session.messages[msgIdx - 1].content : '';
 
     const card = document.createElement('div');
-    card.className = 'supplement-card missing-banner-inner';
-    card.style.marginTop = '10px';
+    card.className = 'supplement-card supplement';
     card.innerHTML = `
-      <span class="missing-icon">🌱</span>
-      <div style="flex: 1; min-width: 220px;">
-        <div style="margin-bottom: 6px;">教教我——你的补充会被记住，下次就能直接回答：</div>
-        <input type="text" id="supp-q-${msgIdx}" class="settings-input" style="width: 100%; margin-bottom: 6px;"
-          value="${this._escapeHTML(userQuery)}" placeholder="问题" />
-        <textarea id="supp-a-${msgIdx}" class="settings-input" style="width: 100%;" rows="3"
-          placeholder="正确答案（会被记入知识记忆）"></textarea>
+      <div class="row between supplement-head">
+        <b>✦ 这个问题知识库还没有覆盖</b>
+        <span class="badge badge-accent">沉淀为记忆</span>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="AgentPage.submitSupplement(${msgIdx})">提交</button>
-      <button class="btn-link" onclick="this.closest('.supplement-card').remove()">忽略</button>
+      <p class="supplement-desc">把标准答案补充进来，下次直接命中 FAQ 秒回（写入默认私有库，候选满阈值命中自动升格）。</p>
+      <div class="row supplement-form">
+        <input type="text" id="supp-q-${msgIdx}" class="input grow" value="${this._escapeHTML(userQuery)}" placeholder="问题" />
+        <input type="text" id="supp-a-${msgIdx}" class="input grow" placeholder="补充答案要点…" />
+        <button class="btn btn-primary btn-sm supplement-submit" data-msg-idx="${msgIdx}">提交补全</button>
+      </div>
+      <button class="btn-link supplement-dismiss">忽略</button>
     `;
+    card.querySelector('.supplement-submit')?.addEventListener('click', () => this.submitSupplement(msgIdx));
+    card.querySelector('.supplement-dismiss')?.addEventListener('click', () => card.remove());
     host.appendChild(card);
   },
 
@@ -1107,7 +1052,7 @@ window.AgentPage = window.AgentPage || {
                   const now = performance.now();
                   if (this._lastRenderTs === undefined || now - this._lastRenderTs >= 100) {
                     this._lastRenderTs = now;
-                    msgContentEl.innerHTML = this._renderMarkdown(fullContent);
+                    msgContentEl.innerHTML = this._renderMarkdown(fullContent) + '<span class="cursor-blink"></span>';
                     this._scrollToBottom();
                   }
                 }
@@ -1133,6 +1078,7 @@ window.AgentPage = window.AgentPage || {
               if (msgContentEl) {
                 msgContentEl.innerHTML = this._renderMarkdown(fullContent || '（无回复内容）');
                 msgContentEl.classList.remove('streaming-text');
+                msgContentEl.querySelectorAll('.cursor-blink').forEach(c => c.remove());
               }
               // 【关键兜底】流结束后强制渲染来源面板
               // 防止 retrieved/reranked 事件丢失或时序问题时用户看不到来源

@@ -17,7 +17,7 @@ const SettingsPage = {
   async render() {
     const container = document.getElementById('page-container');
     container.innerHTML = `
-      <div class="settings-layout">
+      <div class="settings-layout settings-layout-v2">
         <div class="settings-header">
           <h2>系统设置</h2>
           <p class="settings-desc">大部分配置修改后立即生效，无需重启服务；敏感项留空表示不修改</p>
@@ -55,22 +55,33 @@ const SettingsPage = {
     const groupOrder = ['retrieval', 'chunking', 'llm', 'session', 'processing', 'model', 'system', 'api_keys'];
     const grouped = {};
     this._groupKeys = {};
+    this._groupTitles = groups;
     for (const [key, meta] of Object.entries(data.writable || {})) {
       const g = meta.group || 'retrieval';
       (grouped[g] = grouped[g] || []).push([key, meta]);
       (this._groupKeys[g] = this._groupKeys[g] || []).push(key);
     }
+    const presentGroups = groupOrder.filter(g => grouped[g] && grouped[g].length);
+    this._presentGroups = presentGroups;
+    this._activeGroup = presentGroups[0] || null;
 
-    let html = '';
+    let html = `<div class="settings-nav glass-card" id="settings-nav">
+      <div class="settings-nav-title label-caps">配置组</div>
+      ${presentGroups.map(g => `
+        <div class="settings-grp ${g === this._activeGroup ? 'on' : ''}" data-nav-group="${g}">
+          <span>${groups[g] || g}</span><i class="dirty-dot" data-nav-dirty="${g}"></i>
+        </div>`).join('')}
+    </div>`;
+
+    html += '<div class="settings-panels">';
 
     // ── 可写配置区（按分组渲染，每组带保存按钮） ───────────
-    for (const g of groupOrder) {
+    for (const g of presentGroups) {
       const items = grouped[g];
-      if (!items || !items.length) continue;
-      html += `<div class="settings-section" data-group="${g}"><div class="settings-section-header">`;
+      html += `<div class="settings-section glass-card" data-group="${g}" ${g !== this._activeGroup ? 'hidden' : ''}><div class="settings-section-header">`;
       html += `<h3>${groups[g] || g}</h3>`;
+      html += `<span class="badge badge-green">运行时生效</span>`;
       html += `<button class="btn btn-sm btn-primary settings-group-save" data-group="${g}" disabled>保存本组</button>`;
-      html += `<span class="settings-badge badge-writable">运行时生效</span>`;
       html += `</div><div class="settings-section-desc">修改后立即生效，无需重启</div>`;
       html += `<div class="settings-group-errors" data-group-errors="${g}"></div>`;
       for (const [key, meta] of items) {
@@ -82,11 +93,10 @@ const SettingsPage = {
     // ── 只读配置区（重启生效） ────────────────────────────
     const readonlyItems = Object.entries(data.readonly || {});
     if (readonlyItems.length) {
-      html += '<div class="settings-section"><div class="settings-section-header">';
-      html += '<h3>需重启的配置</h3>';
-      html += '<span class="settings-badge badge-readonly">只读</span>';
-      html += '</div><div class="settings-section-desc">修改需编辑 .env 文件并重启服务</div>';
-
+      html += '<div class="settings-section glass-card settings-readonly" data-group="__readonly__"><div class="settings-section-header">';
+      html += '<h3>只读配置（需重启）</h3>';
+      html += '<span class="badge badge-gray">编辑 .env 后重启服务</span>';
+      html += '</div>';
       for (const [key, meta] of readonlyItems) {
         html += this._renderField(key, meta);
       }
@@ -103,7 +113,7 @@ const SettingsPage = {
           重置
         </button>
       </div>
-    `;
+    </div>`;
 
     content.innerHTML = html;
     this.initEvents();
@@ -235,6 +245,19 @@ const SettingsPage = {
       });
     });
 
+    // 分组导航切换（圈 4：线框 07 左侧配置组导航，一次只显示一个组面板）
+    document.querySelectorAll('.settings-grp').forEach(item => {
+      item.addEventListener('click', () => {
+        const g = item.dataset.navGroup;
+        this._activeGroup = g;
+        document.querySelectorAll('.settings-grp').forEach(i =>
+          i.classList.toggle('on', i.dataset.navGroup === g));
+        document.querySelectorAll('.settings-section[data-group]').forEach(sec => {
+          sec.hidden = sec.dataset.group !== g;
+        });
+      });
+    });
+
     // 分组保存 + 全部保存 + 重置
     document.querySelectorAll('.settings-group-save').forEach(btn => {
       btn.addEventListener('click', () => this.saveSettings(btn.dataset.group));
@@ -289,13 +312,18 @@ const SettingsPage = {
       btn.textContent = n > 0 ? `保存本组 (${n})` : '保存本组';
       btn.disabled = n === 0;
     });
+    // 导航 dirty 点（圈 4：线框 07 dirty-dot）
+    document.querySelectorAll('[data-nav-dirty]').forEach(dot => {
+      const dirty = this._groupDirtyCount(dot.dataset.navDirty) > 0;
+      dot.style.display = dirty ? 'inline-block' : 'none';
+    });
     // 底部按钮
     const hasDirty = this._dirtyKeys.size > 0;
     const saveBtn = document.getElementById('btn-save-settings');
     const resetBtn = document.getElementById('btn-reset-settings');
     if (saveBtn) {
       saveBtn.disabled = !hasDirty;
-      saveBtn.textContent = hasDirty ? `保存设置 (${this._dirtyKeys.size})` : '保存设置';
+      saveBtn.textContent = hasDirty ? `保存设置 (${this._dirtyKeys.size})` : '保存设置（无改动）';
     }
     if (resetBtn) resetBtn.disabled = !hasDirty;
     // 字段高亮
