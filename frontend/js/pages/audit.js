@@ -20,21 +20,19 @@ const AuditPage = {
     const container = document.getElementById('page-container');
     const isAdmin = (window.UserManager && UserManager.get() && UserManager.get().role === 'admin');
     container.innerHTML = `
-      <div class="audit-layout audit-v2">
-        <div class="audit-header row-between">
-          <div>
-            <h2 class="page-title">${isAdmin ? '审计中心' : '我的活动'}</h2>
-            <p class="audit-desc">全透明审计日志：谁、何时、做了什么、改了什么、从哪来（request_id/IP）</p>
-          </div>
-          ${isAdmin ? '<button class="btn btn-sm" id="audit-export-btn">⬇ 导出 CSV</button>' : ''}
+      <div class="row between mb4">
+        <div>
+          <h1 class="h-title">${isAdmin ? '审计中心' : '我的活动'}</h1>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">全透明审计日志：谁、何时、做了什么、改了什么、从哪来（request_id/IP）</p>
         </div>
-        <div class="audit-stats" id="audit-stats"></div>
-        <div class="audit-filters glass-card" id="audit-filters"></div>
-        <div class="audit-list glass-card" id="audit-list">
-          <div class="settings-loading"><div class="loading-spinner"></div><span>加载审计日志中...</span></div>
-        </div>
-        <div class="audit-pagination" id="audit-pagination"></div>
+        ${isAdmin ? '<button class="btn btn-sm" id="audit-export-btn">⬇ 导出 CSV</button>' : ''}
       </div>
+      <div class="grid stats mb4" id="audit-stats"></div>
+      <div class="glass p5 mb4" id="audit-filters"></div>
+      <div class="glass" id="audit-list">
+        <div class="skeleton" style="height:80px"></div>
+      </div>
+      <div class="row between p4" id="audit-pagination"></div>
     `;
     if (isAdmin) {
       const btn = document.getElementById('audit-export-btn');
@@ -47,13 +45,17 @@ const AuditPage = {
 
   renderFilters() {
     const el = document.getElementById('audit-filters');
+    el.classList.add('row');
+    el.style.flexWrap = 'wrap';
+    el.style.alignItems = 'flex-end';
+    el.style.gap = 'var(--sp-3)';
     const f = this._filters;
     el.innerHTML = `
-      <div class="audit-filter-field"><label>动作</label><input type="text" id="af-action" placeholder="如 kb.create" value="${f.action}"></div>
-      <div class="audit-filter-field"><label>用户 ID</label><input type="text" id="af-user" placeholder="user_id" value="${f.user_id}"></div>
-      <div class="audit-filter-field"><label>请求 ID</label><input type="text" id="af-rid" placeholder="request_id" value="${f.request_id}"></div>
-      <div class="audit-filter-field"><label>资源类型</label>
-        <select id="af-rtype">
+      <div class="field" style="flex:1 1 160px;min-width:160px"><label>动作</label><input class="input" type="text" id="af-action" placeholder="如 kb.create" value="${f.action}"></div>
+      <div class="field" style="flex:1 1 140px;min-width:140px"><label>用户</label><input class="input" type="text" id="af-user" placeholder="用户名/ID" value="${f.user_id}"></div>
+      <div class="field" style="flex:1 1 180px;min-width:180px"><label>请求 ID</label><input class="input" type="text" id="af-rid" placeholder="request_id" value="${f.request_id}"></div>
+      <div class="field" style="flex:1 1 140px;min-width:140px"><label>资源类型</label>
+        <select class="select" id="af-rtype">
           <option value="">全部</option>
           ${['kb', 'document', 'faq', 'user', 'search', 'agent', 'settings'].map(t =>
             `<option value="${t}" ${f.resource_type === t ? 'selected' : ''}>${t}</option>`).join('')}
@@ -85,22 +87,26 @@ const AuditPage = {
       this._stats = await window.AuditAPI.stats();
       const s = this._stats;
       const top = (s.top_actions_7d || []).slice(0, 5)
-        .map(a => `<span class="badge badge-gray num">${this._esc(a.action)} <b>${a.cnt}</b></span>`).join('');
+        .map(a => `<span class="badge ${this._actionBadgeColor(a.action)}">${this._esc(a.action)} <span class="num">${a.cnt}</span></span>`).join('');
+      const topAction = (s.top_actions_7d || [])[0];
+      const failActions = (s.top_actions_7d || []).filter(a => a.action.includes('failed'));
+      const failTotal = failActions.reduce((sum, a) => sum + a.cnt, 0);
+      const failRate = s.total_events > 0 ? (failTotal / s.total_events * 100).toFixed(1) + '%' : '0%';
       document.getElementById('audit-stats').innerHTML = `
-        <div class="audit-stat-card glass-card"><div class="label-caps">24h 事件数</div><b class="num audit-stat-num">${s.today_events ?? 0}</b></div>
-        <div class="audit-stat-card glass-card"><div class="label-caps">24h 活跃用户</div><b class="num audit-stat-num">${s.active_users_24h ?? 0}</b></div>
-        <div class="audit-stat-card glass-card"><div class="label-caps">总事件数</div><b class="num audit-stat-num">${s.total_events ?? 0}</b></div>
-        <div class="audit-stat-card glass-card audit-stat-wide"><div class="label-caps">Top 事件类型（7d）</div><div class="audit-top-list">${top || '近 7 天无事件'}</div></div>
+        <div class="glass" style="padding:14px 18px;display:flex;flex-direction:column;gap:4px;min-width:0"><div class="label-caps">今日事件</div><b class="num" style="font-size:var(--fs-xl)">${s.today_events ?? 0}</b></div>
+        <div class="glass" style="padding:14px 18px;display:flex;flex-direction:column;gap:4px;min-width:0"><div class="label-caps">活跃用户</div><b class="num" style="font-size:var(--fs-xl)">${s.active_users_24h ?? 0}</b></div>
+        <div class="glass" style="padding:14px 18px;display:flex;flex-direction:column;gap:4px;min-width:0"><div class="label-caps">最高频动作</div><b class="num" style="font-size:var(--fs-xl)">${topAction ? topAction.cnt : 0}</b><div class="t3" style="font-size:var(--fs-xs)">${topAction ? this._esc(topAction.action) : '—'}</div></div>
+        <div class="glass" style="padding:14px 18px;display:flex;flex-direction:column;gap:4px;min-width:0"><div class="label-caps">失败率</div><b class="num" style="font-size:var(--fs-xl);color:${parseFloat(failRate) > 5 ? 'var(--danger)' : 'var(--ok)'}">${failRate}</b></div>
       `;
     } catch (err) {
       document.getElementById('audit-stats').innerHTML =
-        `<div class="audit-stat-card glass-card"><div>统计加载失败: ${this._esc(err.message)}</div></div>`;
+        `<div class="glass p4"><div class="label-caps">统计加载失败</div><p class="t2" style="font-size:var(--fs-sm)">${this._esc(err.message)}</p></div>`;
     }
   },
 
   async load() {
     const list = document.getElementById('audit-list');
-    list.innerHTML = '<div class="settings-loading"><div class="loading-spinner"></div><span>加载审计日志中...</span></div>';
+    list.innerHTML = '<div class="skeleton" style="height:120px"></div>';
     try {
       const params = { page: this._page, page_size: this._pageSize, ...this._filters };
       const resp = await window.AuditAPI.query(params);
@@ -108,20 +114,21 @@ const AuditPage = {
       this.renderList(resp.items || []);
       this.renderPagination();
     } catch (err) {
-      list.innerHTML = `<span class="text-red">加载审计日志失败: ${err.message}</span>`;
+      list.innerHTML = `<div class="glass"><div class="state"><div class="glyph" style="color:var(--danger)">✕</div><div class="title">加载失败</div><p class="desc">${this._esc(err.message)}</p></div></div>`;
+      document.getElementById('audit-pagination').innerHTML = '';
     }
   },
 
   renderList(items) {
     const list = document.getElementById('audit-list');
     if (!items.length) {
-      list.innerHTML = '<div class="audit-empty">无匹配的审计记录</div>';
+      list.innerHTML = '<div class="glass"><div class="state"><div class="glyph">≣</div><div class="title">无匹配的审计记录</div><p class="desc">调整筛选条件后重新查询</p></div></div>';
       return;
     }
     list.innerHTML = `
-      <table class="audit-table">
+      <table class="table dense">
         <thead><tr>
-          <th>时间</th><th>用户</th><th>动作</th><th>资源</th><th>KB</th><th>request_id</th><th>IP</th><th></th>
+          <th>时间</th><th>动作</th><th>用户</th><th>资源</th><th>KB</th><th>request_id</th><th>IP</th><th style="text-align:right">操作</th>
         </tr></thead>
         <tbody>
           ${items.map(it => this.renderRow(it)).join('')}
@@ -138,17 +145,21 @@ const AuditPage = {
     });
   },
 
-  /** 动作 → 语义色徽章（圈 4：tokens 语义色对齐线框 08） */
-  _actionBadge(action) {
+  /** 动作 → 语义色徽章 class（wireframe.css 体系：.badge.danger/.warn/.accent/.violet/.ok/.info） */
+  _actionBadgeColor(action) {
     const a = String(action || '');
-    let cls = 'badge-gray';
-    if (/(login_failed|failed|error|delete|remove)/.test(a)) cls = 'badge-red';
-    else if (/(share|pr|promote|demote)/.test(a)) cls = 'badge-yellow';
-    else if (/^(kb\.|user\.)/.test(a)) cls = 'badge-accent';
-    else if (/^faq/.test(a)) cls = 'badge-violet';
-    else if (/^(document|import|upload|split|generate)/.test(a)) cls = 'badge-green';
-    else if (/^search|^agent/.test(a)) cls = 'badge-info';
-    return `<span class="badge ${cls} num">${this._esc(a)}</span>`;
+    if (/(login_failed|failed|error|delete|remove)/.test(a)) return 'badge danger';
+    if (/(share|pr|promote|demote)/.test(a)) return 'badge warn';
+    if (/^(kb\.|user\.)/.test(a)) return 'badge accent';
+    if (/^faq/.test(a)) return 'badge violet';
+    if (/^(document|import|upload|split|generate)/.test(a)) return 'badge ok';
+    if (/^search|^agent/.test(a)) return 'badge info';
+    return 'badge';
+  },
+
+  /** 动作 → 徽章 HTML（线框 08：语义色 + num 等宽） */
+  _actionBadge(action) {
+    return `<span class="${this._actionBadgeColor(action)} num">${this._esc(String(action || ''))}</span>`;
   },
 
   renderRow(it) {
@@ -156,17 +167,17 @@ const AuditPage = {
     const detail = it.detail ? JSON.stringify(it.detail, null, 2) : '';
     const expanded = this._expanded.has(it.id);
     return `
-      <tr class="audit-row" data-id="${it.id}">
+      <tr data-id="${it.id}">
         <td class="num">${t}</td>
-        <td>${this._esc(it.user_name || String(it.user_id ?? '-'))}</td>
         <td>${this._actionBadge(it.action)}</td>
+        <td>${this._esc(it.user_name || String(it.user_id ?? '-'))}</td>
         <td class="mono">${this._esc(it.resource_type || '—')}${it.resource_id ? ':' + String(it.resource_id).slice(0, 12) : ''}</td>
         <td class="num">${it.kb_id ?? '—'}</td>
-        <td class="audit-rid" title="${this._esc(it.request_id || '')}">${it.request_id ? this._esc(String(it.request_id).slice(0, 8)) + '…' : '—'}</td>
+        <td class="mono t3" title="${this._esc(it.request_id || '')}">${it.request_id ? this._esc(String(it.request_id).slice(0, 8)) + '…' : '—'}</td>
         <td class="mono">${this._esc(it.client_ip || '—')}</td>
-        <td><button class="btn btn-sm" id="audit-exp-${it.id}">${expanded ? '收起 ▴' : '详情 ▾'}</button></td>
+        <td style="text-align:right"><button class="btn btn-sm" id="audit-exp-${it.id}">${expanded ? '收起 ▴' : '详情 ▾'}</button></td>
       </tr>
-      ${expanded ? `<tr class="audit-detail-row"><td colspan="8"><pre class="audit-detail">${this._esc(detail)}</pre></td></tr>` : ''}
+      ${expanded ? `<tr><td colspan="8"><pre class="mono t3" style="padding:var(--sp-3);overflow:auto;max-height:240px">${this._esc(detail)}</pre></td></tr>` : ''}
     `;
   },
 
@@ -174,8 +185,8 @@ const AuditPage = {
     const el = document.getElementById('audit-pagination');
     const pages = Math.max(1, Math.ceil(this._total / this._pageSize));
     el.innerHTML = `
-      <span class="t-dim">共 ${this._total} 条 · 每页 ${this._pageSize}</span>
-      <span class="num t-dim">${this._page} / ${pages}</span>
+      <span class="t3">共 ${this._total} 条 · 每页 ${this._pageSize}</span>
+      <span class="num t3">${this._page} / ${pages}</span>
       <button class="btn btn-sm" id="pg-prev" ${this._page <= 1 ? 'disabled' : ''}>← 上一页</button>
       <button class="btn btn-sm" id="pg-next" ${this._page >= pages ? 'disabled' : ''}>下一页 →</button>
     `;
@@ -206,7 +217,10 @@ const AuditPage = {
         a.click();
         URL.revokeObjectURL(a.href);
       })
-      .catch(err => alert('导出失败: ' + err.message));
+      .catch(err => window.UI.alert({
+        title: '导出失败',
+        message: err.message
+      }));
   },
 };
 

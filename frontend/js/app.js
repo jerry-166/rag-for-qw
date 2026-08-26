@@ -241,8 +241,8 @@ class App {
 
   /* ===== 圈 2：头像弹菜单（线框 01 / sidebar.js 蓝本，含退出登录） ===== */
   initAvatarMenu() {
-    const trigger = document.getElementById('user-info-sidebar');
-    const triggerTop = document.getElementById('topbar-avatar-btn');
+    const trigger = document.getElementById('user-info-sidebar') || document.getElementById('user-trigger');
+    const triggerTop = document.getElementById('topbar-avatar-btn') || document.getElementById('topbar-avatar');
     if (!trigger || trigger.dataset.menuInit === '1') return;
     trigger.dataset.menuInit = '1';
 

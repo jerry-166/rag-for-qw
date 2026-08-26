@@ -9,7 +9,7 @@ body.light-mode {
   --surface3: var(--glass-3-bg);
   --border: var(--glass-border);
   --border-light: var(--glass-border-strong);
-  --accent: var(--accent);
+  /* --accent 直接继承 tokens.css 的权威定义（勿用 var(--accent) 自引用，会循环失效） */
   --accent2: var(--accent-strong);
   --green: var(--ok);
   --green-bg: var(--ok-bg);
@@ -478,6 +478,10 @@ input::placeholder, textarea::placeholder { color: var(--text3); }
   min-height: 100vh;
   transition: grid-template-columns .3s cubic-bezier(.22, 1, .36, 1);
 }
+/* 圈 6：Agent / 长内容页面不再撑出 body 滚动条 —— 仅 AI Agent 页生效 */
+.app-shell:has(.agent-layout) { height: 100vh; overflow: hidden; }
+.app-shell:has(.agent-layout) .main-content,
+.app-shell:has(.agent-layout) .page-container { min-height: 0; overflow: hidden; }
 .app-shell:has(.sidebar.collapsed) { grid-template-columns: var(--sidebar-collapsed) minmax(0, 1fr); }
 @media (min-width: 1024px) {
   .app-shell:has(.sidebar.mobile-only) { grid-template-columns: minmax(0, 1fr); }
@@ -3519,11 +3523,43 @@ td {
 .missing-banner-inner .missing-text { flex: 1; min-width: 200px; }
 .missing-banner-inner strong { color: var(--text); }
 
-/* ===== 鏂囨。 03锛欿B 澧炲己鍣ㄥ閫?/ 璁剧疆椤?csv 缁?===== */
-.kb-enhancer-item { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--text2); margin: 4px 0; cursor: pointer; }
+/* ===== 文档 03：KB 增强器多选 / 设置页 csv 组 =====
+   亮色模式下浏览器原生 checkbox 边框极浅，勾选后几乎是同一片灰色，几乎看不出状态。
+   解决方案：放大、加粗边、accent-color 把勾选填色拉成醒目的古铜金（亮色也有 4.5+ 对比度） */
+.kb-enhancer-item,
+.settings-csv-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .85rem; color: var(--text2);
+  margin: 4px 0; cursor: pointer; user-select: none;
+  padding: 4px 8px; border-radius: 6px;
+  transition: background-color var(--transition, .2s ease);
+}
+.kb-enhancer-item:hover,
+.settings-csv-item:hover { background: var(--surface3); color: var(--text); }
+.kb-enhancer-item input[type="checkbox"],
+.settings-csv-item input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  /* Chrome/Edge：原生 appearance 已是方框，深边够，但亮色再加点保险 */
+  outline: 1px solid var(--border-light);
+  outline-offset: -1px;
+  border-radius: 3px;
+}
+/* Firefox：原生外观更细，给一个内置 box-shadow 提升边框强度 */
+@-moz-document url-prefix() {
+  .kb-enhancer-item input[type="checkbox"],
+  .settings-csv-item input[type="checkbox"] {
+    box-shadow: inset 0 0 0 1px var(--border-light);
+  }
+}
+.kb-enhancer-item:has(input:checked),
+.settings-csv-item:has(input:checked) {
+  color: var(--text);
+  background: var(--accent-soft);
+}
 .form-hint { font-size: .72rem; color: var(--text3); margin-top: 6px; }
-.settings-csv-group { display: flex; gap: 14px; flex-wrap: wrap; padding: 4px 0; }
-.settings-csv-item { display: flex; align-items: center; gap: 6px; font-size: .85rem; color: var(--text2); cursor: pointer; }
+.settings-csv-group { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; }
 
 
 /* ===== 审计中心（文档 07 功能版，美化归 05b）===== */
@@ -3737,6 +3773,11 @@ td {
   font-size: .68rem; font-weight: 640; letter-spacing: .08em;
   text-transform: uppercase; color: var(--text3);
 }
+.chunk-item { display:flex; gap:var(--sp-3, 12px); padding:var(--sp-3, 12px); border-radius:var(--r-sm, 6px); border:1px solid transparent; cursor:pointer; transition:all var(--dur-2, .2s); }
+.chunk-item:hover { background: var(--glass-2-bg); }
+.chunk-item.on { background: var(--accent-soft); }
+.chunk-item .cid { width:30px; height:30px; flex:none; border-radius:var(--r-xs, 4px); display:grid; place-items:center; background:var(--glass-2-bg); font-size:var(--fs-xs); font-weight:640; }
+.chunk-item.on .cid { background: var(--accent); color: var(--accent-on); }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
 .mono { font-family: var(--font-mono, ui-monospace, monospace); }
 .row-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -3814,6 +3855,8 @@ td {
 }
 @media (max-width: 900px) { .faq-grid { grid-template-columns: 1fr; } }
 .faq-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.faq-ready { border: 1px solid var(--accent); box-shadow: 0 0 0 1px var(--accent-soft), inset 0 0 0 1px var(--accent-soft); }
+.faq-pr-warn { border-left: 2px solid var(--warn); }
 .faq-card-ready { border-color: var(--accent-soft); }
 .faq-card .hit-ring { width: 40px; height: 40px; flex: none; }
 .hit-ring circle { fill: none; stroke-width: 4; }

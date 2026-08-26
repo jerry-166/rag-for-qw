@@ -20,56 +20,50 @@ const DocumentsPage = {
 
     const container = document.getElementById('page-container');
     container.innerHTML = `
-      <div class="page-header">
+      <div class="row between mb6">
         <div>
-          <h1 class="page-title">文档管理</h1>
-          <p class="page-desc">上传和管理您的文档 · 上传后自动进入处理流水线</p>
+          <h1 class="h-title">文档管理</h1>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">上传和管理您的文档 · 上传后自动进入处理流水线</p>
         </div>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <select id="doc-kb-filter" class="input" style="width:200px; height:36px;">
+        <div class="row" style="gap:var(--sp-2)">
+          <select id="doc-kb-filter" class="select" style="width:200px;height:34px">
             <option value="">全部知识库</option>
           </select>
-          <button class="btn btn-secondary icon-btn-wrap" id="refresh-docs-btn" title="刷新">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
-          </button>
+          <button class="icon-btn" id="refresh-docs-btn" title="刷新">↻</button>
         </div>
       </div>
 
       <!-- 上传区：拖放 + 点击（线框 02 dropzone） -->
-      <div class="upload-zone dropzone-glass" id="upload-zone">
-        <input type="file" id="file-input" accept=".pdf,.md,.markdown" multiple style="display: none;" />
-        <div class="dropzone-glyph">
-          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-        </div>
-        <p class="dz-title">拖放文件到此处，或点击选择</p>
-        <p class="dz-sub">支持 PDF / Markdown · 单个文件不超过 50MB</p>
+      <div class="glass" id="upload-zone" style="border:1.5px dashed var(--glass-border-strong);border-radius:var(--r-lg);padding:var(--sp-8);text-align:center;color:var(--text-2);cursor:pointer;transition:all var(--dur-2) var(--ease-out)">
+        <input type="file" id="file-input" accept=".pdf,.md,.markdown" multiple style="display:none" />
+        <div style="font-size:30px">⇪</div>
+        <p style="font-weight:600;color:var(--text-1)">拖放文件到此处，或点击选择</p>
+        <p class="t3 mt2" style="font-size:var(--fs-xs)">支持 PDF / Markdown · 单个文件不超过 50MB</p>
       </div>
 
       <!-- 处理中队列卡（真实进度，3s 轮询 GET /api/process/{id}/progress） -->
-      <div class="processing-card" id="processing-card" style="display:none;">
-        <div class="processing-head">
-          <span class="h-sec">处理中（<span id="processing-count">0</span>）</span>
-          <span class="processing-api mono-note">progress API · 3s 轮询</span>
+      <div class="glass p5 mb4" id="processing-card" style="display:none">
+        <div class="row between mb4">
+          <span class="h-section" style="font-size:var(--fs-md)">处理中（<span id="processing-count">0</span>）</span>
+          <span class="t3 mono" style="font-size:var(--fs-xs)">progress API · 3s 轮询</span>
         </div>
-        <div id="processing-list"></div>
+        <div id="processing-list" class="col" style="gap:var(--sp-4)"></div>
       </div>
 
       <!-- 文档列表（线框 02 表格结构） -->
-      <div class="doc-card glass-card">
-        <div class="doc-card-head">
-          <h2 class="h-sec">全部文档</h2>
-          <input type="search" class="input" id="doc-search" style="width:220px; height:32px;" placeholder="搜索文件名…" />
+      <div class="glass">
+        <div class="row between p5" style="padding-bottom:var(--sp-3)">
+          <h2 class="h-section" style="font-size:var(--fs-md)">全部文档</h2>
+          <input type="search" class="input" id="doc-search" style="width:220px;height:32px" placeholder="搜索文件名…" />
         </div>
-        <div class="doc-table-wrap">
-          <table id="doc-table">
-            <thead>
-              <tr><th>文件</th><th>知识库</th><th>状态</th><th>上传时间</th><th style="text-align:right;">操作</th></tr>
-            </thead>
-            <tbody id="doc-table-body">
-              <tr><td colspan="5" class="td-state"><div class="loading-spinner"></div><p>加载中...</p></td></tr>
-            </tbody>
-          </table>
-        </div>
+        <table class="table" id="doc-table">
+          <thead>
+            <tr><th>文件</th><th>知识库</th><th>状态</th><th class="num">大小</th><th>上传时间</th><th style="text-align:right">操作</th></tr>
+          </thead>
+          <tbody id="doc-table-body">
+            <tr><td colspan="5"><div class="skeleton" style="height:40px"></div></td></tr>
+          </tbody>
+        </table>
       </div>
     `;
 
@@ -83,11 +77,22 @@ const DocumentsPage = {
     const fileInput = document.getElementById('file-input');
 
     uploadZone.addEventListener('click', () => fileInput.click());
-    uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.style.borderColor = 'var(--accent)';
+      uploadZone.style.background = 'var(--accent-soft)';
+      uploadZone.style.color = 'var(--text-1)';
+    });
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.style.borderColor = '';
+      uploadZone.style.background = '';
+      uploadZone.style.color = '';
+    });
     uploadZone.addEventListener('drop', (e) => {
       e.preventDefault();
-      uploadZone.classList.remove('drag-over');
+      uploadZone.style.borderColor = '';
+      uploadZone.style.background = '';
+      uploadZone.style.color = '';
       if (e.dataTransfer.files.length) this.handleFiles(e.dataTransfer.files);
     });
     fileInput.addEventListener('change', (e) => {
@@ -211,9 +216,9 @@ const DocumentsPage = {
     list.innerHTML = this.progressFiles.map(pf => {
       const p = pf.progress;
       if (!p) {
-        return `<div class="proc-item"><span class="proc-glyph">▮</span>
-          <div class="grow"><div class="row-between"><b>${this._esc(pf.filename)}</b><span class="mono-note">等待进度…</span></div>
-          <div class="progress-bar mt6"><div class="progress-fill" style="width:0%"></div></div></div></div>`;
+        return `<div class="row" style="gap:var(--sp-3)"><span style="font-size:22px">📄</span>
+          <div class="grow"><div class="row between"><b>${this._esc(pf.filename)}</b><span class="t3 mono" style="font-size:var(--fs-xs)">等待进度…</span></div>
+          <div class="progress mt2"><i style="width:0%"></i></div></div></div>`;
       }
       const sp = p.stage_progress || { done: 0, total: 0 };
       const pct = sp.total ? Math.round(sp.done / sp.total * 100) : (p.stage === 'done' ? 100 : 0);
@@ -224,21 +229,21 @@ const DocumentsPage = {
       const eta = this._etaText(p);
       const timing = p.timing_ms || {};
       const badges = [];
-      if (timing.split_time != null) badges.push(`<span class="badge badge-green">切割 ✓ ${this._fmtMs(timing.split_time)}</span>`);
-      if (p.stage === 'generating') badges.push(`<span class="badge badge-yellow">● 生成中</span>`);
-      else if (timing.generate_time != null) badges.push(`<span class="badge badge-green">生成 ✓ ${this._fmtMs(timing.generate_time)}</span>`);
-      if (p.stage === 'importing') badges.push(`<span class="badge badge-yellow">● 导入中</span>`);
-      else if (p.stage === 'done') badges.push(`<span class="badge badge-green">导入 ✓ ${this._fmtMs(timing.import_time)}</span>`);
-      if (p.stage === 'awaiting_import') badges.push(`<span class="badge badge-gray">导入 · 待执行</span>`);
-      if (p.stage === 'awaiting_split') badges.push(`<span class="badge badge-gray">切割 · 待执行</span>`);
+      if (timing.split_time != null) badges.push(`<span class="badge ok">切割 ✓ ${this._fmtMs(timing.split_time)}</span>`);
+      if (p.stage === 'generating') badges.push(`<span class="badge warn"><i class="dot"></i>生成中</span>`);
+      else if (timing.generate_time != null) badges.push(`<span class="badge ok">生成 ✓ ${this._fmtMs(timing.generate_time)}</span>`);
+      if (p.stage === 'importing') badges.push(`<span class="badge warn"><i class="dot"></i>导入中</span>`);
+      else if (p.stage === 'done') badges.push(`<span class="badge ok">导入 ✓ ${this._fmtMs(timing.import_time)}</span>`);
+      if (p.stage === 'awaiting_import') badges.push(`<span class="badge">导入 · 待执行</span>`);
+      if (p.stage === 'awaiting_split') badges.push(`<span class="badge">切割 · 待执行</span>`);
 
-      return `<div class="proc-item">
-        <span class="proc-glyph">▮</span>
+      return `<div class="row" style="gap:var(--sp-3)">
+        <span style="font-size:22px">📄</span>
         <div class="grow">
-          <div class="row-between"><b>${this._esc(pf.filename)}</b>
-            <span class="mono-note">${stageLabel} ${sp.done}/${sp.total}${eta ? ' · ' + eta : ''}</span></div>
-          <div class="progress-bar mt6"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <div class="proc-badges">${badges.join('')}</div>
+          <div class="row between"><b>${this._esc(pf.filename)}</b>
+            <span class="t2 num" style="font-size:var(--fs-xs)">${stageLabel} ${sp.done}/${sp.total}${eta ? ' · ' + eta : ''}</span></div>
+          <div class="progress mt2"><i style="width:${pct}%"></i></div>
+          <div class="row wrap mt2" style="gap:6px">${badges.join('')}</div>
         </div>
       </div>`;
     }).join('');
@@ -270,10 +275,10 @@ const DocumentsPage = {
       this.documents = response.documents || [];
 
       if (this.documents.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5" class="td-state">
-          <div class="empty-state"><div class="empty-icon">📄</div>
-          <div class="empty-title">暂无文档</div>
-          <div class="empty-desc">拖放文件到上方上传区添加文档</div></div></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="5">
+          <div class="state"><div class="glyph">📄</div>
+          <div class="title">暂无文档</div>
+          <div class="desc">拖放文件到上方上传区添加文档</div></div></td></tr>`;
         return;
       }
 
@@ -291,11 +296,11 @@ const DocumentsPage = {
       });
       if (this.progressFiles.length) { this._renderProcessingList(); this._startProgressPolling(); }
     } catch (error) {
-      tableBody.innerHTML = `<tr><td colspan="5" class="td-state">
-        <div class="empty-state"><div class="empty-icon">✕</div>
-        <div class="empty-title">加载失败</div>
-        <div class="empty-desc">${this._esc(error.message || '无法加载文档列表')}</div>
-        <button class="btn btn-secondary" id="doc-retry-load" style="margin-top:8px;">重新加载</button></div></td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="5">
+        <div class="state"><div class="glyph" style="color:var(--danger)">✕</div>
+        <div class="title">加载失败</div>
+        <div class="desc">${this._esc(error.message || '无法加载文档列表')}</div>
+        <button class="btn btn-sm mt4" id="doc-retry-load">重新加载</button></div></td></tr>`;
       const retry = document.getElementById('doc-retry-load');
       if (retry) retry.addEventListener('click', () => this.loadDocuments());
     }
@@ -303,24 +308,21 @@ const DocumentsPage = {
 
   _statusMeta(status) {
     const map = {
-      uploaded:    { text: '已上传',  cls: 'badge-gray' },
-      chunk_done:  { text: '生成中',  cls: 'badge-yellow' },
-      generated:   { text: '待入库',  cls: 'badge-cyan' },
-      importing:   { text: '入库中',  cls: 'badge-yellow' },
-      completed:   { text: '已完成',  cls: 'badge-green' },
-      failed:      { text: '失败',    cls: 'badge-red' },
-      processing:  { text: '处理中',  cls: 'badge-yellow' },
+      uploaded:    { text: '已上传',  cls: '' },
+      chunk_done:  { text: '生成中',  cls: 'warn' },
+      generated:   { text: '待入库',  cls: 'info' },
+      importing:   { text: '入库中',  cls: 'warn' },
+      completed:   { text: '已完成',  cls: 'ok' },
+      failed:      { text: '失败',    cls: 'danger' },
+      processing:  { text: '处理中',  cls: 'warn' },
     };
-    return map[status] || { text: status, cls: 'badge-gray' };
+    return map[status] || { text: status, cls: '' };
   },
 
   _renderRow(doc) {
     const meta = this._statusMeta(doc.status);
     const kb = this.kbs.find(k => String(k.id) === String(doc.knowledge_base_id || doc.kb_id));
     const kbName = kb ? kb.kb_name : (doc.kb_name || '—');
-    const size = doc.file_size ? (doc.file_size / 1024 >= 1024
-      ? (doc.file_size / 1024 / 1024).toFixed(1) + ' MB'
-      : Math.round(doc.file_size / 1024) + ' KB') : '—';
     const isFailed = doc.status === 'failed';
     const isFresh = doc.status === 'uploaded' || doc.status === 'processing';
     const actionBtn = isFailed
@@ -329,16 +331,16 @@ const DocumentsPage = {
         ? `<button class="btn btn-sm btn-primary act-pipeline" data-file-id="${doc.file_id}">开始处理</button>`
         : `<button class="btn btn-sm act-pipeline" data-file-id="${doc.file_id}">流水线</button>`;
 
+    const size = doc.file_size != null ? (doc.file_size > 1048576 ? (doc.file_size / 1048576).toFixed(1) + ' MB' : (doc.file_size / 1024).toFixed(0) + ' KB') : '—';
     return `<tr data-file-id="${doc.file_id}" data-name="${this._esc(doc.filename)}" data-status="${doc.status}">
-      <td class="td-name"><b>${this._esc(doc.filename)}</b></td>
-      <td class="td-kb">${this._esc(kbName)}</td>
-      <td><span class="badge ${meta.cls} doc-status-pill">${meta.text}</span></td>
-      <td class="td-time">${new Date(doc.created_at).toLocaleDateString()}</td>
-      <td class="td-actions" style="text-align:right; white-space:nowrap;">
+      <td><b style="color:var(--text-1)">${this._esc(doc.filename)}</b></td>
+      <td>${this._esc(kbName)}</td>
+      <td><span class="badge ${meta.cls}">${meta.text}</span></td>
+      <td class="num">${size}</td>
+      <td>${new Date(doc.created_at).toLocaleDateString()}</td>
+      <td style="text-align:right;white-space:nowrap">
         ${actionBtn}
-        <button class="icon-btn act-delete" data-file-id="${doc.file_id}" title="删除" aria-label="删除">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
-        </button>
+        <button class="icon-btn act-delete" data-file-id="${doc.file_id}" title="删除" aria-label="删除">🗑</button>
       </td>
     </tr>`;
   },
@@ -356,7 +358,13 @@ const DocumentsPage = {
   },
 
   async deleteDocument(docId) {
-    if (!confirm('确定要删除这个文档吗？')) return;
+    const ok = await window.UI.confirm({
+      title: '删除文档',
+      message: '确定要删除这个文档吗？该操作不可恢复。',
+      okText: '删除',
+      danger: true
+    });
+    if (!ok) return;
     try {
       await window.DocumentAPI.delete(docId);
       window.App.showToast('文档删除成功', 'success');
@@ -381,9 +389,9 @@ const DocumentsPage = {
       if (!noMatch) {
         noMatch = document.createElement('tr');
         noMatch.id = 'doc-no-match';
-        noMatch.innerHTML = `<td colspan="5" class="td-state"><div class="empty-state">
-          <div class="empty-icon">◎</div><div class="empty-title">没有找到匹配的文档</div>
-          <div class="empty-desc">尝试调整搜索关键词</div></div></td>`;
+        noMatch.innerHTML = `<td colspan="5"><div class="state">
+          <div class="glyph">◎</div><div class="title">没有找到匹配的文档</div>
+          <div class="desc">尝试调整搜索关键词</div></div></td>`;
         body.appendChild(noMatch);
       }
     } else if (noMatch) noMatch.remove();

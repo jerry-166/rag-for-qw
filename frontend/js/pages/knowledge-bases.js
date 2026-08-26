@@ -5,21 +5,15 @@ const KnowledgeBasesPage = {
   async render() {
     const container = document.getElementById('page-container');
     container.innerHTML = `
-      <div class="page-header">
+      <div class="row between mb6">
         <div>
-          <h1 class="page-title">知识库管理</h1>
-          <p class="page-desc">管理您的知识库，上传和组织文档</p>
+          <h1 class="h-title">知识库管理</h1>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">组织你的知识空间：上传文档、配置策略、协作共享</p>
         </div>
-        <button class="btn btn-primary" id="create-kb-btn">
-          <span>+ 创建知识库</span>
-        </button>
+        <button class="btn btn-primary" id="create-kb-btn">＋ 创建知识库</button>
       </div>
-      <div id="kb-list" class="kb-grid">
-        <!-- 知识库列表将在这里渲染 -->
-        <div class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>加载中...</p>
-        </div>
+      <div id="kb-list" class="grid kb">
+        <div class="skeleton" style="height:120px"></div>
       </div>
     `;
     
@@ -43,58 +37,44 @@ const KnowledgeBasesPage = {
       
       if (this.knowledgeBases.length === 0) {
         container.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">🗂️</div>
-            <div class="empty-title">暂无知识库</div>
-            <div class="empty-desc">点击右上角按钮创建您的第一个知识库</div>
+          <div class="glass card center" style="padding:var(--sp-10)">
+            <div class="glyph" style="font-size:32px">🗂️</div>
+            <p class="mt2" style="font-weight:600">暂无知识库</p>
+            <p class="t2 mt2" style="font-size:var(--fs-sm)">点击右上角按钮创建您的第一个知识库</p>
           </div>
         `;
         return;
       }
       
       container.innerHTML = this.knowledgeBases.map(kb => `
-        <div class="kb-card" data-kb-id="${kb.id}">
-          <div class="kb-card-header">
-            <div class="kb-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c0-1.66 3.58-3 8-3s8 1.34 8 3-3.58 3-8 3-8-1.34-8-3z"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
-            </div>
-            <div class="kb-actions">
-              <button class="icon-btn" title="分享（协作）" aria-label="分享" onclick="KnowledgeBasesPage.showShareModal(${kb.id})">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
-              </button>
-              <button class="icon-btn" title="克隆为我的副本" aria-label="克隆" onclick="KnowledgeBasesPage.cloneKnowledgeBase(${kb.id})">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              </button>
-              <button class="icon-btn" title="编辑" aria-label="编辑" onclick="KnowledgeBasesPage.editKnowledgeBase(${kb.id})">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-              </button>
-              <button class="icon-btn" title="删除" aria-label="删除" onclick="KnowledgeBasesPage.deleteKnowledgeBase(${kb.id})">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
-              </button>
+        <div class="glass card card-hover" data-kb-id="${kb.id}">
+          <div class="row between">
+            <span class="brand-mark" style="width:38px;height:38px">📚</span>
+            <div class="row" style="gap:2px">
+              <button class="icon-btn" title="分享（协作）" aria-label="分享" onclick="KnowledgeBasesPage.showShareModal(${kb.id})">🤝</button>
+              <button class="icon-btn" title="克隆为我的副本" aria-label="克隆" onclick="KnowledgeBasesPage.cloneKnowledgeBase(${kb.id})">⧉</button>
+              <button class="icon-btn" title="编辑" aria-label="编辑" onclick="KnowledgeBasesPage.editKnowledgeBase(${kb.id})">✎</button>
+              <button class="icon-btn" title="删除" aria-label="删除" onclick="KnowledgeBasesPage.deleteKnowledgeBase(${kb.id})">🗑</button>
             </div>
           </div>
-          <div class="kb-name">${this._esc(kb.kb_name)}</div>
-          <div class="kb-desc">${this._esc(kb.description) || '无描述'}</div>
-          <div class="kb-badges">${this._kbBadges(kb)}</div>
-          <div class="kb-meta">
-            <span>更新于 ${new Date(kb.created_at).toLocaleDateString()}</span>
-          </div>
+          <h3 class="mt4" style="font-size:var(--fs-lg);font-weight:620">${this._esc(kb.kb_name)}</h3>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">${this._esc(kb.description) || '无描述'}</p>
+          <div class="row mt4 wrap" style="gap:6px">${this._kbBadges(kb)}</div>
+          <p class="t3 mt4" style="font-size:var(--fs-xs)">更新于 ${new Date(kb.created_at).toLocaleDateString()}</p>
         </div>
       `).join('') + `
-        <div class="kb-card kb-card-add" onclick="KnowledgeBasesPage.showCreateModal()" title="创建知识库">
-          <div class="add-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
-          <div class="add-label">创建知识库</div>
-        </div>
+        <button class="glass card card-hover center" style="border-style:dashed;color:var(--text-2);cursor:pointer;font:inherit" onclick="KnowledgeBasesPage.showCreateModal()" title="创建知识库">
+          <div style="font-size:28px">＋</div>
+          <p class="mt2">创建知识库</p>
+        </button>
       `;
       
       // 添加点击事件
       this.knowledgeBases.forEach(kb => {
-        const card = document.querySelector(`.kb-card[data-kb-id="${kb.id}"]`);
+        const card = document.querySelector(`.glass.card[data-kb-id="${kb.id}"]`);
         if (card) {
           card.addEventListener('click', (e) => {
-            if (!e.target.closest('.kb-actions')) {
+            if (!e.target.closest('.icon-btn')) {
               window.App.navigate('documents', { kb_id: kb.id });
             }
           });
@@ -103,13 +83,11 @@ const KnowledgeBasesPage = {
     } catch (error) {
       console.error('加载知识库失败:', error);
       container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">❌</div>
-          <div class="empty-title">加载失败</div>
-          <div class="empty-desc">${error.message || '无法加载知识库列表'}</div>
-          <button class="btn btn-secondary" onclick="KnowledgeBasesPage.loadKnowledgeBases()">
-            重新加载
-          </button>
+        <div class="glass card center" style="padding:var(--sp-10)">
+          <div class="glyph" style="font-size:32px;color:var(--danger)">✕</div>
+          <p class="mt2" style="font-weight:600">加载失败</p>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">${error.message || '无法加载知识库列表'}</p>
+          <button class="btn btn-sm mt4" onclick="KnowledgeBasesPage.loadKnowledgeBases()">重新加载</button>
         </div>
       `;
     }
@@ -171,6 +149,25 @@ const KnowledgeBasesPage = {
       </div>
     `;
     document.body.appendChild(modal);
+    this._bindModalClose(modal);
+  },
+
+  /* 浮层弹框通用关闭：点遮罩关闭 + Esc 关闭（点击弹框内部不关） */
+  _bindModalClose(overlay) {
+    const close = () => overlay.remove();
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) close();
+    });
+    const onKey = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
+    document.addEventListener('keydown', onKey);
+    // 关闭按钮点击后清理 keydown 监听（通过 MutationObserver 检测移除）
+    const observer = new MutationObserver(() => {
+      if (!document.body.contains(overlay)) {
+        document.removeEventListener('keydown', onKey);
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true });
   },
 
   _enhChecked(kb, name) {
@@ -207,6 +204,28 @@ const KnowledgeBasesPage = {
     }
   },
 
+  /* 通用弹窗：薄委托到全局 UI 工具（design/ui.js），保持本页 API 不变 */
+  _showConfirm(opts) {
+    return window.UI.confirm({
+      title: opts.title,
+      message: opts.message,
+      okText: opts.confirmText || '确定',
+      cancelText: opts.cancelText || '取消',
+      danger: !!opts.danger
+    });
+  },
+
+  _showPrompt(opts) {
+    return window.UI.prompt({
+      title: opts.title,
+      message: opts.message,
+      defaultValue: opts.defaultValue || '',
+      placeholder: opts.placeholder || '',
+      okText: opts.confirmText || '确定',
+      cancelText: opts.cancelText || '取消'
+    });
+  },
+
   editKnowledgeBase(kbId) {
     const kb = this.knowledgeBases.find(kb => kb.id === kbId);
     if (kb) {
@@ -215,10 +234,15 @@ const KnowledgeBasesPage = {
   },
 
   async deleteKnowledgeBase(kbId) {
-    if (!confirm('确定要删除这个知识库吗？')) {
-      return;
-    }
-    
+    const kb = this.knowledgeBases.find(k => k.id === kbId);
+    const ok = await this._showConfirm({
+      title: '删除知识库',
+      message: `确定要删除「${kb?.kb_name || ''}」吗？该操作不可恢复，所有文档与向量都会一并清除。`,
+      confirmText: '删除',
+      danger: true
+    });
+    if (!ok) return;
+
     try {
       await window.KnowledgeBaseAPI.delete(kbId);
       window.App.showToast('知识库删除成功', 'success');
@@ -286,6 +310,7 @@ const KnowledgeBasesPage = {
       </div>
     `;
     document.body.appendChild(modal);
+    this._bindModalClose(modal);
     this._loadShareList(kbId);
   },
 
@@ -303,8 +328,8 @@ const KnowledgeBasesPage = {
         <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;" class="kb-share-row">
           <span style="flex: 1;">${this._esc(s.shared_to_username || `用户#${s.shared_to_user_id}`)}</span>
           ${s.can_write_directly
-            ? '<span class="badge badge-green">可写入</span>'
-            : '<span class="badge badge-gray">仅 PR</span>'}
+            ? '<span class="badge ok">可写入</span>'
+            : '<span class="badge">仅 PR</span>'}
           ${s.shared_to_username
             ? `<button class="btn btn-sm btn-ghost"
                  onclick="KnowledgeBasesPage.unshare(${kbId}, '${this._esc(s.shared_to_username)}')">取消分享</button>`
@@ -343,8 +368,13 @@ const KnowledgeBasesPage = {
 
   async cloneKnowledgeBase(kbId) {
     const kb = this.knowledgeBases.find(k => k.id === kbId);
-    const name = prompt('克隆副本名称（留空使用默认名）：',
-      kb ? `${kb.kb_name}（克隆）` : '');
+    const name = await this._showPrompt({
+      title: '克隆知识库',
+      message: '为克隆副本起个名字（留空使用默认名）',
+      defaultValue: kb ? `${kb.kb_name}（克隆）` : '',
+      placeholder: '输入新名称',
+      confirmText: '开始克隆'
+    });
     if (name === null) return; // 用户取消
     try {
       const result = await window.FaqAPI.cloneKb(kbId, name.trim() || null);
@@ -366,16 +396,16 @@ const KnowledgeBasesPage = {
     // 切割策略：未配置 = 跟随全局；配置了 auto = "auto 切割"
     const strategy = kb.chunk_strategy;
     badges.push(strategy
-      ? `<span class="badge badge-info">${strategy === 'auto' ? 'auto 切割' : this._esc(strategy)}</span>`
-      : `<span class="badge badge-gray">跟随全局</span>`);
+      ? `<span class="badge info">${strategy === 'auto' ? 'auto 切割' : this._esc(strategy)}</span>`
+      : `<span class="badge">跟随全局</span>`);
     // 增强器：sub_question + summary → "子问题+摘要"；部分 → 单项；无 → "纯原文"
     const enh = kb.enhancers == null ? null : kb.enhancers;
     if (enh && enh.includes('sub_question') && enh.includes('summary')) {
-      badges.push('<span class="badge badge-accent">子问题+摘要</span>');
+      badges.push('<span class="badge accent">子问题+摘要</span>');
     } else if (enh && enh.length) {
-      badges.push(`<span class="badge badge-accent">${enh.includes('sub_question') ? '子问题' : '摘要'}</span>`);
+      badges.push(`<span class="badge accent">${enh.includes('sub_question') ? '子问题' : '摘要'}</span>`);
     } else if (enh && enh.length === 0) {
-      badges.push('<span class="badge badge-gray">纯原文</span>');
+      badges.push('<span class="badge">纯原文</span>');
     }
     return badges.join('');
   }

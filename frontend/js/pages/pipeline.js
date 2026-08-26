@@ -53,27 +53,24 @@ const PipelinePage = {
     
     if (!this.currentDocId) {
       container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">❌</div>
-          <div class="empty-title">文档ID缺失</div>
-          <div class="empty-desc">请从文档管理页面选择一个文档进行处理</div>
-          <button class="btn btn-primary" onclick="window.App.navigate('documents')">
-            返回文档管理
-          </button>
-        </div>
+        <div class="glass"><div class="state">
+          <div class="glyph" style="color:var(--danger)">✕</div>
+          <div class="title">文档ID缺失</div>
+          <div class="desc">请从文档管理页面选择一个文档进行处理</div>
+          <button class="btn btn-sm" onclick="window.App.navigate('documents')">返回文档管理</button>
+        </div></div>
       `;
       return;
     }
     
     container.innerHTML = `
-      <div class="pipe-topinfo">
-        <button class="btn btn-sm btn-ghost" id="pipe-back-btn">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
-          返回文档管理</button>
+      <div class="row between mb4">
+        <button class="btn btn-sm btn-ghost" id="pipe-back-btn">← 返回文档管理</button>
         <span class="badge" id="pipe-file-badge">${this.documentData ? '' : '加载中…'}</span>
-        <span class="mono-note" id="pipe-meta-note" style="margin-left:auto;"></span>
+        <div class="spacer"></div>
+        <span class="t3 mono" id="pipe-meta-note" style="font-size:var(--fs-xs)"></span>
       </div>
-      <div class="stepper-card glass-card" id="stepper-card">
+      <div class="glass p6 mb4" id="stepper-card">
         <div class="stepper" id="pipeline-steps">
           ${this.steps.map((step, index) => `
             <div class="step ${step.status === 'done' ? 'done' : step.status === 'active' ? 'running' : ''}" data-step="${index}">
@@ -83,16 +80,15 @@ const PipelinePage = {
             ${index < this.steps.length - 1 ? `<div class="step-link" data-link="${index}"><i style="transform:scaleX(0)"></i></div>` : ''}
           `).join('')}
         </div>
-        <div class="stepper-detail num" id="stepper-detail"></div>
-        <div class="progress-bar mt6" id="stepper-progress"><div class="progress-fill" style="width:0%"></div></div>
+        <div class="num row between mt6" id="stepper-detail" style="font-size:var(--fs-sm)"></div>
+        <div class="progress mt2" id="stepper-progress"><i style="width:0%"></i></div>
       </div>
 
+      <div class="grid stats mb4" id="pipe-stats" style="display:none"></div>
+      <div id="pipe-error-card" style="display:none"></div>
+
       <div id="step-content">
-        <!-- 步骤内容将在这里渲染 -->
-        <div class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>加载中...</p>
-        </div>
+        <div class="skeleton" style="height:200px"></div>
       </div>
     `;
 
@@ -114,14 +110,12 @@ const PipelinePage = {
     } catch (error) {
       console.error('渲染流水线页面失败:', error);
       container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">❌</div>
-          <div class="empty-title">页面加载失败</div>
-          <div class="empty-desc">${error.message || '未知错误'}</div>
-          <button class="btn btn-primary" onclick="window.App.navigate('documents')">
-            返回文档管理
-          </button>
-        </div>
+        <div class="glass"><div class="state">
+          <div class="glyph" style="color:var(--danger)">✕</div>
+          <div class="title">页面加载失败</div>
+          <div class="desc">${error.message || '未知错误'}</div>
+          <button class="btn btn-sm" onclick="window.App.navigate('documents')">返回文档管理</button>
+        </div></div>
       `;
     }
   },
@@ -267,6 +261,8 @@ const PipelinePage = {
 
     // 吞吐明细行 + 阶段进度条
     this._renderStepperDetail(p);
+    // 6 统计卡 + 失败卡
+    this._renderStats(p);
   },
 
   /** 步骤副标题：真实 timing_ms / stage_progress */
@@ -302,10 +298,10 @@ const PipelinePage = {
   /** 吞吐明细行：本阶段进度 / 已运行 / 预计剩余 + 历史耗时；底部进度条 */
   _renderStepperDetail(p) {
     const detail = document.getElementById('stepper-detail');
-    const bar = document.querySelector('#stepper-progress .progress-fill');
+    const bar = document.querySelector('#stepper-progress > i');
     if (!detail) return;
     if (!p) {
-      detail.innerHTML = `<span class="t-dim">等待进度数据…</span>`;
+      detail.innerHTML = `<span class="t3">等待进度数据…</span>`;
       return;
     }
     const sp = p.stage_progress || {};
@@ -322,21 +318,94 @@ const PipelinePage = {
       .filter(Boolean).join(' · ');
 
     if (p.stage === 'done') {
-      detail.innerHTML = `<span>全部完成 · 共 <b>${p.total_chunks}</b> chunks</span>
-        <span class="t-dim" style="margin-left:auto;">历史耗时：${histStr || '—'}</span>`;
+      detail.innerHTML = `<span>全部完成 · 共 <b class="num">${p.total_chunks}</b> chunks</span>
+        <span class="t3" style="font-size:var(--fs-xs)">历史耗时：${histStr || '—'}</span>`;
       if (bar) bar.style.width = '100%';
       return;
     }
     if (p.stage === 'failed') {
-      detail.innerHTML = `<span style="color:var(--red);">处理失败${p.last_error ? ' · ' + this._esc(p.last_error.message || '') : ''}</span>
-        <span class="t-dim" style="margin-left:auto;">历史耗时：${histStr || '—'}</span>`;
+      detail.innerHTML = `<span style="color:var(--danger)">处理失败${p.last_error ? ' · ' + this._esc(p.last_error.message || '') : ''}</span>
+        <span class="t3" style="font-size:var(--fs-xs)">历史耗时：${histStr || '—'}</span>`;
       return;
     }
     const stageName = { awaiting_split: '文档切割', generating: '生成增强', awaiting_import: '嵌入入库', importing: '嵌入入库' }[p.stage] || p.stage;
     detail.innerHTML = `
-      <span>当前阶段 <b>${stageName}</b>${sp.total > 0 ? ` · 进度 <b>${sp.done}/${sp.total}</b>` : ''}</span>
-      <span class="t-dim" style="margin-left:auto;">历史耗时：${histStr || '—'}</span>`;
+      <span>当前阶段 <b>${stageName}</b>${sp.total > 0 ? ` · 进度 <b class="num">${sp.done}/${sp.total}</b>` : ''}</span>
+      <span class="t3" style="font-size:var(--fs-xs)">历史耗时：${histStr || '—'}</span>`;
   },
+
+  /** 6 统计卡 + 失败卡（线框 03 §全文档累计统计带 / 失败态） */
+  _renderStats(p) {
+    const el = document.getElementById('pipe-stats');
+    const errEl = document.getElementById('pipe-error-card');
+    if (!el) return;
+    const s = this.stats;
+    const t = (p && p.timing_ms) || this.timings || {};
+    const chunksCount = s.chunksCount || (p && p.total_chunks) || 0;
+    if (chunksCount > 0) {
+      const avgChars = this.chunks.length > 0
+        ? Math.round(this.chunks.reduce((a, c) => a + (c.content ? c.content.length : 0), 0) / this.chunks.length)
+        : 0;
+      const subqCount = s.subQuestionsCount;
+      const summaryCount = s.summariesCount;
+      const entityCount = s.entityCount || 0;
+      const vectorCount = s.vectorCount;
+      const vectorDim = s.vectorDim;
+      const totalMs = (t.split_time || 0) + (t.generate_time || 0) + (t.import_time || 0);
+      const parts = [];
+      if (t.split_time != null) parts.push(`切割 ${this._fmtTime(t.split_time)}`);
+      if (t.generate_time != null) parts.push(`生成 ${this._fmtTime(t.generate_time)}`);
+      if (t.import_time != null) parts.push(`导入 ${this._fmtTime(t.import_time)}`);
+      el.style.display = '';
+      el.innerHTML = `
+        <div class="glass p4"><div class="label-caps">Chunks</div><b class="num" style="font-size:var(--fs-2xl)">${chunksCount}</b><div class="t3" style="font-size:var(--fs-xs)">平均 ${avgChars} 字/chunk</div></div>
+        <div class="glass p4"><div class="label-caps">子问题</div><b class="num" style="font-size:var(--fs-2xl)">${subqCount || '—'}</b><div class="t3" style="font-size:var(--fs-xs)">${summaryCount > 0 ? '均 ' + (subqCount / Math.max(summaryCount, 1)).toFixed(1) + ' 个/chunk' : '待生成'}</div></div>
+        <div class="glass p4"><div class="label-caps">摘要</div><b class="num" style="font-size:var(--fs-2xl)">${summaryCount || '—'}</b><div class="t3" style="font-size:var(--fs-xs)">已生成 ${summaryCount} chunk</div></div>
+        <div class="glass p4"><div class="label-caps">实体</div><b class="num" style="font-size:var(--fs-2xl)">${entityCount || '—'}</b><div class="t3" style="font-size:var(--fs-xs)">${entityCount ? `关系 ${s.entityRelationCount || '?'} 条` : '未启用'}</div></div>
+        <div class="glass p4"><div class="label-caps">向量</div><b class="num" style="font-size:var(--fs-2xl)">${vectorCount || '—'}</b><div class="t3" style="font-size:var(--fs-xs)">${vectorCount ? `维度 ${vectorDim}` : '待导入'}</div></div>
+        <div class="glass p4"><div class="label-caps">累计耗时</div><b class="num" style="font-size:var(--fs-2xl)">${totalMs > 0 ? this._fmtTime(totalMs) : '—'}</b><div class="t3" style="font-size:var(--fs-xs)">${parts.join(' + ') || '—'}</div></div>
+      `;
+    } else {
+      el.style.display = 'none';
+    }
+    // 失败卡
+    if (errEl) {
+      if (p && p.last_error) {
+        const e = p.last_error;
+        errEl.style.display = '';
+        errEl.innerHTML = `
+          <div class="glass p5 mt4" style="border-color:var(--danger)">
+            <div class="row between">
+              <div class="row" style="gap:var(--sp-3)">
+                <span style="color:var(--danger);font-size:20px">✕</span>
+                <div>
+                  <b>${e.operation || '处理'}阶段失败</b>
+                  <p class="t2 mono" style="font-size:var(--fs-xs)">${e.operation || ''} · ${this._esc(e.message || '')} · ${e.at || ''}</p>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="PipelinePage.retryFromFailure()">从失败点重试</button>
+            </div>
+          </div>`;
+      } else {
+        errEl.style.display = 'none';
+      }
+    }
+  },
+
+  retryFromFailure() {
+    const p = this._lastProgress;
+    if (!p || !p.last_error) return;
+    const op = p.last_error.operation || '';
+    if (op.includes('split') || op.includes('import')) {
+      this.currentStep = op.includes('split') ? 1 : 3;
+      this.renderStepContent();
+    } else {
+      this.currentStep = 2;
+      this.renderStepContent();
+    }
+  },
+
+  _esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); },
 
   /** 拉取进度接口并刷新 stepper（页面进入 + 各阶段操作后调用） */
   async refreshProgress() {
@@ -403,77 +472,55 @@ const PipelinePage = {
   },
 
   async renderStep1(container) {
+    const stepStatus = this.steps[0].status;
     container.innerHTML = `
-      <div class="pipeline-panel">
-        <div class="pipeline-panel-header">
-          <div class="panel-icon" style="background: #7c3aed22;">📄</div>
-          <div>
-            <div class="panel-title">Step 1 · PDF 解析 → Markdown 转换</div>
-            <div class="panel-subtitle">对比原始 PDF 和结构化 Markdown 内容</div>
+      <div class="glass p6">
+        <div class="row between mb4">
+          <div class="row" style="gap:var(--sp-3)">
+            <span style="font-size:24px">📄</span>
+            <div>
+              <h2 class="h-section">Step 1 · PDF 解析 → Markdown 转换</h2>
+              <p class="t3 mt2" style="font-size:var(--fs-xs)">对比原始 PDF 和结构化 Markdown 内容</p>
+            </div>
           </div>
-          <div style="flex: 1;"></div>
-          <span class="api-tag"><span class="api-method post">POST</span>/api/upload/pdf</span>
-          <span class="api-tag"><span class="api-method get">GET</span>/api/markdown/{file_id}</span>
-          <span class="api-tag"><span class="api-method get">GET</span>/api/pdf/{file_id}</span>
-          <span class="badge ${this.steps[0].status === 'done' ? 'badge-green' : this.steps[0].status === 'active' ? 'badge-blue' : 'badge-gray'}">
-            ${this.steps[0].status === 'done' ? '✓ 已完成' : this.steps[0].status === 'active' ? '⚡ 进行中' : '· 等待中'}
-          </span>
+          <div class="row" style="gap:var(--sp-2)">
+            <span class="badge ${stepStatus === 'done' ? 'ok' : stepStatus === 'active' ? 'info' : ''}">${stepStatus === 'done' ? '✓ 已完成' : stepStatus === 'active' ? '⚡ 进行中' : '· 等待中'}</span>
+          </div>
         </div>
-        
-        <div class="compare-layout">
-          <!-- 左：原始 PDF 预览 -->
-          <div class="compare-pane">
-            <div class="compare-pane-header">
-              <span class="tag-pdf">PDF</span>
-              原始文件预览
-              <div style="flex: 1;"></div>
-              <span style="color: var(--text3); font-size: .75rem;">${this.documentData?.filename || '未知文件'}</span>
+
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--sp-4)">
+          <div class="glass">
+            <div class="row between p4" style="border-bottom:1px solid var(--glass-border)">
+              <span class="badge info">PDF</span>
+              <span class="t3" style="font-size:var(--fs-xs)">${this.documentData?.filename || '未知文件'}</span>
             </div>
-            <div class="md-viewer" style="background: #1e1e2e; color: #e2e8f0;">
-              <div id="pdf-viewer" style="width: 100%; height: 100%;">
-                <div style="padding: 16px; text-align: center;">
-                  <div class="loading-spinner" style="margin: 20px auto;"></div>
-                  <p style="color: var(--text3);">加载 PDF 中...</p>
-                </div>
-              </div>
+            <div id="pdf-viewer" style="height:400px;overflow:auto">
+              <div class="state"><div class="glyph float-anim">📄</div><p class="desc">加载 PDF 中...</p></div>
             </div>
           </div>
-
-          <!-- 右：转换后 Markdown -->
-          <div class="compare-pane">
-            <div class="compare-pane-header">
-              <span class="tag-md">MD</span>
-              解析后 Markdown
-              <div style="flex: 1;"></div>
-              <span style="color: var(--green); font-size: .75rem;">✓ 表格/公式已结构化</span>
+          <div class="glass">
+            <div class="row between p4" style="border-bottom:1px solid var(--glass-border)">
+              <span class="badge ok">MD</span>
+              <span class="t3" style="font-size:var(--fs-xs);color:var(--ok)">✓ 表格/公式已结构化</span>
             </div>
-            <div class="md-viewer" id="markdown-viewer">
-              <div style="padding: 16px; color: var(--text3);">加载中...</div>
+            <div id="markdown-viewer" style="height:400px;overflow:auto;padding:var(--sp-4)">
+              <div class="skeleton" style="height:100%"></div>
             </div>
           </div>
         </div>
 
-        <div class="pipeline-action-bar">
-          <div class="action-info">
-            解析完成 · 识别到 <strong style="color: var(--text)">${this.documentData?.tables_count || 0}</strong> 张表格、<strong style="color: var(--text)">${this.documentData?.formulas_count || 0}</strong> 个公式
-            <span style="margin-left: 20px;">文件大小: ${this.documentData ? (this.documentData.file_size / 1024 / 1024).toFixed(2) + ' MB' : '未知'}</span>
+        <div class="row between mt6" style="border-top:1px solid var(--glass-border);padding-top:var(--sp-4)">
+          <span class="t2" style="font-size:var(--fs-sm)">解析完成 · 识别到 <b class="num">${this.documentData?.tables_count || 0}</b> 张表格、<b class="num">${this.documentData?.formulas_count || 0}</b> 个公式 · <span class="t3">文件大小: ${this.documentData ? (this.documentData.file_size / 1024 / 1024).toFixed(2) + ' MB' : '未知'}</span></span>
+          <div class="row" style="gap:var(--sp-2)">
+            <button class="btn btn-sm" onclick="PipelinePage.downloadMarkdown()">↓ 下载 MD</button>
+            <button class="btn btn-sm" onclick="PipelinePage.downloadPDF()">↓ 下载 PDF</button>
+            <button class="btn btn-primary btn-sm" onclick="PipelinePage.nextStep()">下一步：切割 →</button>
           </div>
-          <button class="btn btn-secondary" onclick="PipelinePage.downloadMarkdown()">
-            ↓ 下载 Markdown
-          </button>
-          <button class="btn btn-secondary" onclick="PipelinePage.downloadPDF()">
-            ↓ 下载 PDF
-          </button>
-          <button class="btn btn-primary" onclick="PipelinePage.nextStep()">
-            下一步：切割文档 →
-          </button>
         </div>
       </div>
     `;
-    
-    // 加载 Markdown 内容
+
     await this.loadMarkdown();
-    // 加载 PDF 内容
     await this.loadPDF();
   },
 
@@ -564,10 +611,7 @@ const PipelinePage = {
     } catch (error) {
       console.error('加载PDF失败:', error);
       document.getElementById('pdf-viewer').innerHTML = `
-        <div style="padding: 16px; text-align: center; color: var(--red);">
-          <p>加载 PDF 失败: ${error.message}</p>
-          <p style="color: var(--text3); margin-top: 8px;">文件大小: ${this.documentData ? (this.documentData.file_size / 1024 / 1024).toFixed(2) + ' MB' : '未知'}</p>
-        </div>
+        <div class="state"><div class="glyph" style="color:var(--danger)">✕</div><div class="title">加载 PDF 失败</div><p class="desc">${error.message}<br>文件大小: ${this.documentData ? (this.documentData.file_size / 1024 / 1024).toFixed(2) + ' MB' : '未知'}</p></div>
       `;
     }
   },
@@ -581,13 +625,7 @@ const PipelinePage = {
     } else {
       // 使用链接方式
       pdfViewer.innerHTML = `
-        <div style="padding: 16px;">
-          <h3 style="color: #a78bfa; margin-bottom: 12px;">${this.documentData?.filename || 'PDF 文件'}</h3>
-          <a href="${pdfUrl}" target="_blank" class="btn btn-primary" style="display: inline-block; margin: 10px 0;">
-            📄 打开 PDF
-          </a>
-          <p style="color: var(--text3); margin-top: 8px;">文件大小: ${this.documentData ? (this.documentData.file_size / 1024 / 1024).toFixed(2) + ' MB' : '未知'}</p>
-        </div>
+        <div class="state"><div class="glyph">📄</div><div class="title">${this.documentData?.filename || 'PDF 文件'}</div><a href="${pdfUrl}" target="_blank" class="btn btn-sm btn-primary mt4">📄 打开 PDF</a><p class="t3 mt4" style="font-size:var(--fs-xs)">文件大小: ${this.documentData ? (this.documentData.file_size / 1024 / 1024).toFixed(2) + ' MB' : '未知'}</p></div>
       `;
     }
   },
@@ -631,7 +669,7 @@ const PipelinePage = {
         viewer.innerHTML = '<div style="padding: 16px; color: var(--text3);">暂无 Markdown 内容</div>';
       }
     } catch (error) {
-      document.getElementById('markdown-viewer').innerHTML = `<div style="padding: 16px; color: var(--red);">加载失败: ${error.message}</div>`;
+      document.getElementById('markdown-viewer').innerHTML = `<div class="state"><div class="glyph" style="color:var(--danger)">✕</div><div class="title">加载失败</div><p class="desc">${error.message}</p></div>`;
     }
   },
 
@@ -664,74 +702,57 @@ const PipelinePage = {
   },
 
   async renderStep2(container) {
+    const stepStatus = this.steps[1].status;
     container.innerHTML = `
-      <div class="pipeline-panel">
-        <div class="pipeline-panel-header">
-          <div class="panel-icon" style="background: var(--cyan-bg);">✂️</div>
-          <div>
-            <div class="panel-title">Step 2 · 文档切割 · Chunk 预览</div>
-            <div class="panel-subtitle">基于语义边界切割，点击左侧 Chunk 查看内容</div>
-          </div>
-          <div style="flex: 1;"></div>
-          <span class="api-tag"><span class="api-method post">POST</span>/api/process/split/{file_id}</span>
-          <span class="badge ${this.steps[1].status === 'done' ? 'badge-green' : this.steps[1].status === 'active' ? 'badge-blue' : 'badge-gray'}">
-            ${this.steps[1].status === 'done' ? '✓ 已完成' : this.steps[1].status === 'active' ? '⚡ 进行中' : '· 等待中'}
-          </span>
-        </div>
-
-        <!-- MD 全文预览提示条 -->
-        <div class="full-md-bar">
-          <span style="color: var(--text3);">完整 Markdown：</span>
-          <span>${this.documentData?.filename?.replace('.pdf', '.md') || 'unknown.md'}</span>
-          <div style="flex: 1;"></div>
-          <span class="mono-note" id="md-bar-timing">${this.timings.split ? this._fmtTime(this.timings.split) : ''}</span>
-          <span style="color: var(--green); font-size: .75rem; margin-left: 8px;">已切割为 ${this.chunks.length || 0} 个 Chunk</span>
-        </div>
-
-        <div class="chunk-layout">
-          <!-- 左：Chunk 列表 -->
-          <div class="chunk-list-panel">
-            <div class="chunk-list-header">
-              Chunk 列表
-              <span class="chunk-count-badge">${this.chunks.length || 0}</span>
-            </div>
-            <div class="chunk-list-scroll" id="chunk-list">
-              <!-- Chunk 列表将在这里渲染 -->
-              <div style="padding: 16px; text-align: center; color: var(--text3);">加载中...</div>
+      <div class="glass p6">
+        <div class="row between mb4">
+          <div class="row" style="gap:var(--sp-3)">
+            <span style="font-size:24px">✂</span>
+            <div>
+              <h2 class="h-section">Step 2 · 文档切割 · Chunk 预览</h2>
+              <p class="t3 mt2" style="font-size:var(--fs-xs)">基于语义边界切割，点击左侧 Chunk 查看内容</p>
             </div>
           </div>
+          <span class="badge ${stepStatus === 'done' ? 'ok' : stepStatus === 'active' ? 'info' : ''}">${stepStatus === 'done' ? '✓ 已完成' : stepStatus === 'active' ? '⚡ 进行中' : '· 等待中'}</span>
+        </div>
 
-          <!-- 右：Chunk 详情 -->
-          <div class="chunk-detail-panel">
-            <div class="chunk-detail-title" id="chunk-detail-title">
-              选择一个 Chunk 查看详情
+        <div class="glass p4 row between mb4" style="font-size:var(--fs-sm)">
+          <span class="t3" style="font-size:var(--fs-xs)">完整 Markdown：</span>
+          <span class="mono t2">${this.documentData?.filename?.replace('.pdf', '.md') || 'unknown.md'}</span>
+          <div class="spacer"></div>
+          <span class="t3 mono num" id="md-bar-timing" style="font-size:var(--fs-xs)">${this.timings.split ? this._fmtTime(this.timings.split) : ''}</span>
+          <span class="badge ok">已切割 ${this.chunks.length || 0} 个 Chunk</span>
+        </div>
+
+        <div class="grid" style="grid-template-columns:300px 1fr;gap:var(--sp-4)">
+          <div class="glass col" style="gap:0;max-height:500px">
+            <div class="row between p4" style="border-bottom:1px solid var(--glass-border)">
+              <span class="label-caps">Chunk 列表</span>
+              <span class="badge num">${this.chunks.length || 0}</span>
             </div>
-            <div class="chunk-detail-content" id="chunk-detail-content">
-              <div style="padding: 20px; text-align: center; color: var(--text3);">
-                点击左侧 Chunk 列表查看详情
-              </div>
+            <div id="chunk-list" style="overflow:auto;flex:1">
+              <div class="skeleton" style="height:60px;margin:var(--sp-2)"></div>
             </div>
-            <div class="stats-row" id="chunk-stats">
-              <!-- 统计信息将在这里渲染 -->
+          </div>
+          <div class="glass p5 col" style="gap:var(--sp-3)">
+            <div class="row between" id="chunk-detail-title"><span class="t2" style="font-size:var(--fs-sm)">选择一个 Chunk 查看详情</span></div>
+            <div id="chunk-detail-content" class="mono t2" style="font-size:var(--fs-xs);white-space:pre-wrap;background:var(--glass-1-bg);border-radius:var(--r-sm);padding:var(--sp-3);max-height:300px;overflow:auto">
+              <p class="t3">点击左侧 Chunk 列表查看详情</p>
             </div>
+            <div class="row wrap" id="chunk-stats" style="gap:6px"></div>
           </div>
         </div>
 
-        <div class="pipeline-action-bar">
-          <div class="action-info">
-            共生成 <strong style="color: var(--text)">${this.chunks.length || 0}</strong> 个 Chunk · 平均 <strong style="color: var(--text)">~${this.chunks.length ? Math.round(this.chunks.reduce((sum, chunk) => sum + (typeof chunk === 'string' ? chunk.length : chunk.content.length), 0) / this.chunks.length) : 0}</strong> 字符/Chunk
+        <div class="row between mt6" style="border-top:1px solid var(--glass-border);padding-top:var(--sp-4)">
+          <span class="t2" style="font-size:var(--fs-sm)">共 <b class="num">${this.chunks.length || 0}</b> 个 Chunk · 平均 <b class="num">~${this.chunks.length ? Math.round(this.chunks.reduce((sum, chunk) => sum + (typeof chunk === 'string' ? chunk.length : chunk.content.length), 0) / this.chunks.length) : 0}</b> 字符/Chunk</span>
+          <div class="row" style="gap:var(--sp-2)">
+            <button class="btn btn-sm btn-ghost" onclick="PipelinePage.previousStep()">← 返回解析</button>
+            <button class="btn btn-sm btn-primary" onclick="PipelinePage.nextStep()">下一步：生成增强 →</button>
           </div>
-          <button class="btn btn-ghost" onclick="PipelinePage.previousStep()">
-            ← 返回解析
-          </button>
-          <button class="btn btn-primary" onclick="PipelinePage.nextStep()">
-            下一步：生成增强 →
-          </button>
         </div>
       </div>
     `;
-    
-    // 加载 Chunk 数据
+
     await this.loadChunks();
   },
 
@@ -772,7 +793,7 @@ const PipelinePage = {
     } catch (error) {
       this.hideLoading();
       const el = document.getElementById('chunk-list');
-      if (el) el.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
+      if (el) el.innerHTML = `<div class="state"><div class="glyph" style="color:var(--danger)">✕</div><p class="desc">加载失败: ${error.message}</p></div>`;
     }
   },
 
@@ -846,20 +867,21 @@ const PipelinePage = {
   updateChunkList() {
     const chunkList = document.getElementById('chunk-list');
     if (this.chunks.length === 0) {
-      chunkList.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--text3);">暂无 Chunk 数据</div>`;
+      chunkList.innerHTML = `<div class="state"><div class="glyph">📄</div><p class="desc">暂无 Chunk 数据</p></div>`;
       return;
     }
-    
+
     chunkList.innerHTML = this.chunks.map((chunk, index) => {
       const rawPreview = chunk.content.substring(0, 120);
       const cleanPreview = this._escapeHtml(this._stripMarkdown(rawPreview).substring(0, 80));
+      const isActive = this.selectedChunk === index;
       return `
-        <div class="chunk-item ${this.selectedChunk === index ? 'active' : ''}" onclick="PipelinePage.selectChunk(${index})">
-          <div class="chunk-item-header">
-            <span class="chunk-num">#${index + 1}</span>
-            <span class="chunk-type">${this._escapeHtml(chunk.type || '文本')}</span>
+        <div class="chunk-item ${isActive ? 'on' : ''}" onclick="PipelinePage.selectChunk(${index})" style="display:flex;gap:var(--sp-3);padding:var(--sp-3);border-radius:var(--r-sm);cursor:pointer;border:1px solid transparent;transition:all var(--dur-2) var(--ease-out);${isActive ? 'background:var(--accent-soft);border-color:transparent' : ''}">
+          <span style="width:30px;height:30px;border-radius:var(--r-xs);display:grid;place-items:center;background:var(--glass-2-bg);font-size:var(--fs-xs);font-weight:640;${isActive ? 'background:var(--accent);color:var(--accent-on)' : ''}">${index + 1}</span>
+          <div>
+            <div class="row between"><b style="font-size:var(--fs-sm)">Chunk #${index + 1}</b><span class="badge" style="height:18px;font-size:10px">${this._escapeHtml(chunk.type || '文本')}</span></div>
+            <p class="t3" style="font-size:var(--fs-xs)">${cleanPreview}${cleanPreview.length >= 80 ? '...' : ''}</p>
           </div>
-          <div class="chunk-preview">${cleanPreview}${cleanPreview.length >= 80 ? '...' : ''}</div>
         </div>
       `;
     }).join('');
@@ -868,115 +890,91 @@ const PipelinePage = {
   selectChunk(index) {
     this.selectedChunk = index;
     const chunk = this.chunks[index];
-    // 确保chunk是对象
     const chunkObj = typeof chunk === 'string' ? { content: chunk, type: '文本' } : chunk;
     document.getElementById('chunk-detail-title').innerHTML = `
-      <span class="chunk-num" style="background: var(--accent);">#${index + 1}</span>
-      ${chunkObj.type || '文本'}
-      <div style="flex: 1;"></div>
-      <span class="annotation">🔤 字符数：${chunkObj.content.length}</span>
-      <span class="annotation" style="margin-left: 6px;">📏 Token 数：~${Math.round(chunkObj.content.length / 4)}</span>
+      <span class="badge accent">#${index + 1}</span>
+      <span class="t2" style="font-size:var(--fs-sm)">${chunkObj.type || '文本'}</span>
+      <div class="spacer"></div>
+      <span class="badge">🔤 ${chunkObj.content.length} 字</span>
+      <span class="badge">📏 ~${Math.round(chunkObj.content.length / 4)} tokens</span>
     `;
     document.getElementById('chunk-detail-content').textContent = chunkObj.content;
     document.getElementById('chunk-stats').innerHTML = `
-      <div class="stat-chip">📄 来源页：${chunkObj.page || '未知'}</div>
-      <div class="stat-chip">🏷️ 类型：${chunkObj.type || '文本'}</div>
+      <span class="badge">📄 来源页：${chunkObj.page || '未知'}</span>
+      <span class="badge">🏷️ 类型：${chunkObj.type || '文本'}</span>
     `;
     this.updateChunkList();
   },
 
   async renderStep3(container) {
+    const stepStatus = this.steps[2].status;
     container.innerHTML = `
-      <div class="pipeline-panel">
-        <div class="pipeline-panel-header">
-          <div class="panel-icon" style="background: var(--yellow-bg);">🧠</div>
-          <div>
-            <div class="panel-title">Step 3 · 生成子问题 & 摘要</div>
-            <div class="panel-subtitle">点击左侧不同 Chunk，查看对应的子问题和摘要</div>
+      <div class="glass p6">
+        <div class="row between mb4">
+          <div class="row" style="gap:var(--sp-3)">
+            <span style="font-size:24px">🧠</span>
+            <div>
+              <h2 class="h-section">Step 3 · 生成子问题 & 摘要</h2>
+              <p class="t3 mt2" style="font-size:var(--fs-xs)">点击左侧不同 Chunk，查看对应的子问题和摘要</p>
+            </div>
           </div>
-          <div style="flex: 1;"></div>
-          <span class="api-tag"><span class="api-method post">POST</span>/api/process/generate/{file_id}</span>
-          <span class="badge ${this.steps[2].status === 'done' ? 'badge-green' : this.steps[2].status === 'active' ? 'badge-blue' : 'badge-gray'}">
-            ${this.steps[2].status === 'done' ? '✓ 已完成' : this.steps[2].status === 'active' ? '⚡ 进行中' : '· 等待中'}
-          </span>
+          <span class="badge ${stepStatus === 'done' ? 'ok' : stepStatus === 'active' ? 'info' : ''}">${stepStatus === 'done' ? '✓ 已完成' : stepStatus === 'active' ? '⚡ 进行中' : '· 等待中'}</span>
         </div>
 
-        <!-- 缺口检测提示条（文档 03 §3.5）：检测到存量缺口时显示，显性补生成 -->
-        <div id="missing-banner" class="missing-banner" style="display:none;"></div>
+        <div id="missing-banner" class="glass p4 mb4" style="display:none;background:var(--warn-bg);border-color:transparent"></div>
 
-        <div class="gen-layout">
-          <!-- 左：Chunk 选择器 -->
-          <div class="gen-chunk-selector">
-            <div class="chunk-list-header">
-              选择 Chunk
-              <span class="chunk-count-badge">${this.chunks.length || 0}</span>
+        <div class="grid" style="grid-template-columns:300px 1fr;gap:var(--sp-4)">
+          <div class="glass col" style="gap:0;max-height:500px">
+            <div class="row between p4" style="border-bottom:1px solid var(--glass-border)">
+              <span class="label-caps">Chunk 明细（${this.chunks.length}）</span>
+              <span class="t3" style="font-size:var(--fs-xs)">完成 ${Object.keys(this.generationResults).length} · 排队 ${Math.max(0, this.chunks.length - Object.keys(this.generationResults).length)}</span>
             </div>
-            <div class="chunk-list-scroll" id="gen-chunk-list">
-              <!-- Chunk 列表将在这里渲染 -->
-              <div style="padding: 16px; text-align: center; color: var(--text3);">加载中...</div>
+            <div id="gen-chunk-list" style="overflow:auto;flex:1">
+              <div class="skeleton" style="height:60px;margin:var(--sp-2)"></div>
             </div>
-
-            <!-- 总体进度 -->
-            <div style="padding: 10px 14px; border-top: 1px solid var(--border);">
-              <div style="font-size: .75rem; color: var(--text3); margin-bottom: 6px; display: flex; justify-content: space-between;">
-                <span>生成进度</span><span style="color: var(--accent2)">${Object.keys(this.generationResults).length} / ${this.chunks.length}</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: ${this.chunks.length ? (Object.keys(this.generationResults).length / this.chunks.length) * 100 : 0}%;"></div>
-              </div>
+            <div style="padding:var(--sp-3);border-top:1px solid var(--glass-border)">
+              <div class="row between mb2"><span class="t3" style="font-size:var(--fs-xs)">生成进度</span><span class="num t3" style="font-size:var(--fs-xs);color:var(--accent)">${Object.keys(this.generationResults).length} / ${this.chunks.length}</span></div>
+              <div class="progress"><i style="width:${this.chunks.length ? (Object.keys(this.generationResults).length / this.chunks.length) * 100 : 0}%"></i></div>
             </div>
           </div>
 
-          <!-- 右：子问题 + 摘要 -->
-          <div class="gen-detail">
-            <!-- 子问题区 -->
-            <div class="gen-detail-half">
-              <div class="gen-section-title" style="color: var(--accent2);">
-                💬 子问题
-                <span style="background: var(--accent); color: #fff; border-radius: 12px; padding: 1px 8px; font-size: .7rem; font-weight: 700;">${this.selectedChunk !== null && this.generationResults[this.selectedChunk] ? this.generationResults[this.selectedChunk].sub_questions.length : 0}</span>
-                <div style="flex: 1;"></div>
-                <span class="annotation">Chunk #${this.selectedChunk !== null ? this.selectedChunk + 1 : '0'} · ${this.selectedChunk !== null && this.chunks[this.selectedChunk] ? this.chunks[this.selectedChunk].type : '未知'}</span>
+          <div class="col" style="gap:var(--sp-4)">
+            <div class="glass p5">
+              <div class="row between mb4">
+                <span class="label-caps" style="color:var(--accent)">💬 子问题</span>
+                <span class="badge accent num">${this.selectedChunk !== null && this.generationResults[this.selectedChunk] ? this.generationResults[this.selectedChunk].sub_questions.length : 0}</span>
+                <div class="spacer"></div>
+                <span class="t3" style="font-size:var(--fs-xs)">Chunk #${this.selectedChunk !== null ? this.selectedChunk + 1 : '0'}</span>
               </div>
-              <div class="subq-list" id="subq-list">
-                <!-- 子问题列表将在这里渲染 -->
-                <div style="padding: 16px; text-align: center; color: var(--text3);">选择一个 Chunk 查看子问题</div>
+              <div id="subq-list" class="col" style="gap:var(--sp-2)">
+                <p class="t3 center" style="font-size:var(--fs-sm)">选择一个 Chunk 查看子问题</p>
               </div>
             </div>
-
-            <!-- 摘要区 -->
-            <div class="gen-detail-half">
-              <div class="gen-section-title" style="color: var(--cyan);">
-                📝 摘要
-                <div style="flex: 1;"></div>
-                <span class="annotation">~${this.selectedChunk !== null && this.generationResults[this.selectedChunk] ? this.generationResults[this.selectedChunk].summary.length : 0} 字</span>
+            <div class="glass p5">
+              <div class="row between mb4">
+                <span class="label-caps" style="color:var(--info)">📝 摘要</span>
+                <div class="spacer"></div>
+                <span class="t3 num" style="font-size:var(--fs-xs)">~${this.selectedChunk !== null && this.generationResults[this.selectedChunk] ? this.generationResults[this.selectedChunk].summary.length : 0} 字</span>
               </div>
-              <div class="summary-box" id="summary-box">
-                <div style="padding: 16px; text-align: center; color: var(--text3);">选择一个 Chunk 查看摘要</div>
+              <div id="summary-box" class="t2" style="font-size:var(--fs-sm);line-height:1.6;border-left:2px solid var(--accent);padding-left:var(--sp-3)">
+                <p class="t3">选择一个 Chunk 查看摘要</p>
               </div>
-              <div class="stats-row" id="gen-stats">
-                <!-- 统计信息将在这里渲染 -->
-              </div>
+              <div class="row wrap mt4" id="gen-stats" style="gap:6px"></div>
             </div>
           </div>
         </div>
 
-        <div class="pipeline-action-bar">
-          <div class="action-info">
-            已生成 <strong style="color: var(--text)">${Object.keys(this.generationResults).length}/${this.chunks.length}</strong> 个 Chunk 的增强内容
+        <div class="row between mt6" style="border-top:1px solid var(--glass-border);padding-top:var(--sp-4)">
+          <span class="t2" style="font-size:var(--fs-sm)">已生成 <b class="num">${Object.keys(this.generationResults).length}/${this.chunks.length}</b> 个 Chunk 的增强内容</span>
+          <div class="row" style="gap:var(--sp-2)">
+            <button class="btn btn-sm btn-ghost" onclick="PipelinePage.previousStep()">← 返回切割</button>
+            <button class="btn btn-sm btn-primary" onclick="PipelinePage.nextStep()">下一步：嵌入入库 →</button>
           </div>
-          <button class="btn btn-ghost" onclick="PipelinePage.previousStep()">
-            ← 返回切割
-          </button>
-          <button class="btn btn-primary" onclick="PipelinePage.nextStep()">
-            下一步：嵌入入库 →
-          </button>
         </div>
       </div>
     `;
-    
-    // 确保_chunks数据已加载（防止跳过第2步直接进入第3步时chunks为空导致报错）
+
     await this._ensureChunksLoaded();
-    // 加载生成结果
     await this.loadGenerationResults();
   },
 
@@ -1051,7 +1049,7 @@ const PipelinePage = {
     } catch (error) {
       this.hideLoading();
       const el = document.getElementById('gen-chunk-list');
-      if (el) el.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--red);">加载失败: ${error.message}</div>`;
+      if (el) el.innerHTML = `<div class="state"><div class="glyph" style="color:var(--danger)">✕</div><p class="desc">加载失败: ${error.message}</p></div>`;
     }
   },
 
@@ -1069,16 +1067,14 @@ const PipelinePage = {
       if (r.missing.sub_question > 0) parts.push(`子问题 ×${r.missing.sub_question}`);
       if (r.missing.summary > 0) parts.push(`摘要 ×${r.missing.summary}`);
       banner.innerHTML = `
-        <div class="missing-banner-inner">
-          <span class="missing-icon">⚠</span>
-          <span class="missing-text grow">
-            <strong>检测到增强缺口</strong> · ${r.missing_chunks} 个 Chunk 缺失（${parts.join('、')}）。
-            补生成不会影响已有增强内容，仅补缺失部分。
-          </span>
-          <button class="btn btn-warning btn-sm" onclick="PipelinePage.backfillEnhancements()">
-            一键补生成
-          </button>
-          <button class="btn-link" onclick="document.getElementById('missing-banner').style.display='none'">忽略</button>
+        <div class="row" style="gap:var(--sp-3);align-items:center">
+          <span style="font-size:18px;color:var(--warn)">⚠</span>
+          <div class="grow">
+            <b style="font-size:var(--fs-sm)">检测到增强缺口</b>
+            <span class="t2" style="font-size:var(--fs-sm)"> · ${r.missing_chunks} 个 Chunk 缺失（${parts.join('、')}）</span>
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="PipelinePage.backfillEnhancements()">一键补生成</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('missing-banner').style.display='none'">忽略</button>
         </div>
       `;
       banner.style.display = 'block';
@@ -1106,15 +1102,22 @@ const PipelinePage = {
     chunkList.innerHTML = this.chunks.map((chunk, index) => {
       const hasResult = this.generationResults[index] !== undefined;
       const chunkObj = typeof chunk === 'string' ? { content: chunk, type: '文本' } : chunk;
-      const rawPreview = (chunkObj.content || '').substring(0, 120);
-      const cleanPreview = this._escapeHtml(this._stripMarkdown(rawPreview).substring(0, 80));
+      const chars = (chunkObj.content || '').length;
+      const subqCount = hasResult ? this.generationResults[index].sub_questions.length : 0;
+      const hasSummary = hasResult && this.generationResults[index].summary;
+      const isActive = this.selectedChunk === index;
+      const statusBadge = hasResult
+        ? '<span class="badge ok" style="height:18px;font-size:10px">✓ ' + this._fmtTime(this.timings.generate / Math.max(this.chunks.length, 1)) + '</span>'
+        : (index === this.chunks.findIndex((c, i) => !this.generationResults[i]) && this._lastProgress?.stage === 'generating'
+          ? '<span class="badge warn" style="height:18px;font-size:10px">◌ 生成中</span>'
+          : '<span class="badge" style="height:18px;font-size:10px">排队</span>');
       return `
-        <div class="chunk-item ${this.selectedChunk === index ? 'active' : ''}" onclick="PipelinePage.selectGenChunk(${index})">
-          <div class="chunk-item-header">
-            <span class="chunk-num">#${index + 1}</span>
-            <span class="chunk-type" style="color: ${hasResult ? 'var(--green)' : 'var(--text3)'}">${hasResult ? '✓ 已生成' : '待处理'}</span>
+        <div class="chunk-item ${isActive ? 'on' : ''}" onclick="PipelinePage.selectGenChunk(${index})">
+          <span class="cid">${index + 1}</span>
+          <div class="grow">
+            <div class="row between"><b style="font-size:var(--fs-sm)">Chunk #${index + 1}</b>${statusBadge}</div>
+            <p class="t3" style="font-size:var(--fs-xs)">${chars} 字 · ${subqCount} 子问题 · 摘要${hasSummary ? '✓' : '◌'}${this.stats.entityCount ? ' · ' + (chunkObj.entities || '?') + ' 实体' : ''}</p>
           </div>
-          <div class="chunk-preview">${cleanPreview}${cleanPreview.length >= 80 ? '...' : ''}</div>
         </div>
       `;
     }).join('');
@@ -1127,21 +1130,18 @@ const PipelinePage = {
     
     if (result) {
       document.getElementById('subq-list').innerHTML = result.sub_questions.map((q, i) => `
-        <div class="subq-item">
-          <span class="subq-icon">❓</span>
-          ${q}
-        </div>
+        <div class="glass p3" style="border-radius:var(--r-sm);font-size:var(--fs-sm);color:var(--text-2)">${q}</div>
       `).join('');
-      
-      document.getElementById('summary-box').innerHTML = result.summary || '<div style="padding: 16px; text-align: center; color: var(--text3);">暂无摘要</div>';
-      
+
+      document.getElementById('summary-box').innerHTML = result.summary || '<p class="t3">暂无摘要</p>';
+
       document.getElementById('gen-stats').innerHTML = `
-        <div class="stat-chip">🔤 摘要压缩比：${result.summary ? (chunk.content.length / result.summary.length).toFixed(1) + 'x' : 'N/A'}</div>
-        <div class="stat-chip">📊 关键词：${result.keywords ? result.keywords.join(', ') : 'N/A'}</div>
+        <span class="badge">压缩比 ${result.summary ? (chunk.content.length / result.summary.length).toFixed(1) + 'x' : 'N/A'}</span>
+        <span class="badge">关键词 ${result.keywords ? result.keywords.length : 0}</span>
       `;
     } else {
-      document.getElementById('subq-list').innerHTML = `<div style="padding: 16px; text-align: center; color: var(--text3);">该 Chunk 尚未生成增强内容</div>`;
-      document.getElementById('summary-box').innerHTML = `<div style="padding: 16px; text-align: center; color: var(--text3);">该 Chunk 尚未生成增强内容</div>`;
+      document.getElementById('subq-list').innerHTML = '<p class="t3" style="font-size:var(--fs-sm)">该 Chunk 尚未生成增强内容</p>';
+      document.getElementById('summary-box').innerHTML = '<p class="t3">该 Chunk 尚未生成增强内容</p>';
       document.getElementById('gen-stats').innerHTML = '';
     }
     
@@ -1149,104 +1149,54 @@ const PipelinePage = {
   },
 
   async renderStep4(container) {
+    const stepStatus = this.steps[3].status;
     container.innerHTML = `
-      <div class="pipeline-panel">
-        <div class="pipeline-panel-header">
-          <div class="panel-icon" style="background: var(--green-bg);">🚀</div>
-          <div>
-            <div class="panel-title">Step 4 · 嵌入向量化 & 导入 Milvus</div>
-            <div class="panel-subtitle">生成向量嵌入并写入向量数据库，完成知识库构建</div>
+      <div class="glass p6">
+        <div class="row between mb4">
+          <div class="row" style="gap:var(--sp-3)">
+            <span style="font-size:24px">🚀</span>
+            <div>
+              <h2 class="h-section">Step 4 · 嵌入向量化 & 导入 Milvus</h2>
+              <p class="t3 mt2" style="font-size:var(--fs-xs)">生成向量嵌入并写入向量数据库，完成知识库构建</p>
+            </div>
           </div>
-          <div style="flex: 1;"></div>
-          <span class="api-tag"><span class="api-method post">POST</span>/api/process/import/{file_id}</span>
-          <span class="badge ${this.steps[3].status === 'done' ? 'badge-green' : this.steps[3].status === 'active' ? 'badge-blue' : 'badge-gray'}">
-            ${this.steps[3].status === 'done' ? '✓ 已完成' : this.steps[3].status === 'active' ? '⚡ 进行中' : '· 等待中'}
-          </span>
+          <span class="badge ${stepStatus === 'done' ? 'ok' : stepStatus === 'active' ? 'info' : ''}">${stepStatus === 'done' ? '✓ 已完成' : stepStatus === 'active' ? '⚡ 进行中' : '· 等待中'}</span>
         </div>
 
-        <!-- 导入成功状态 -->
-        <div class="import-success-layout">
-          <div class="success-circle">✅</div>
-          <div class="success-title">导入 Milvus 成功！</div>
-          <div class="success-subtitle">
-            文档 <strong>${this.documentData?.filename || '未知文件'}</strong> 已完成全部处理流程，知识库已就绪。
-          </div>
+        <div class="glass p6 center mb4">
+          <div style="font-size:48px">✅</div>
+          <h2 class="h-title mt4">导入 Milvus 成功！</h2>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">文档 <b>${this.documentData?.filename || '未知文件'}</b> 已完成全部处理流程，知识库已就绪。</p>
+        </div>
 
-          <!-- 统计卡片：先用占位符，数据回来后由 _fillImportStats() 填充 -->
-          <div class="milvus-stats-grid">
-            <div class="milvus-stat-card">
-              <span class="milvus-stat-val" id="stat-chunk-count">
-                <span class="loading-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;"></span>
-              </span>
-              <div class="milvus-stat-label">Chunk 总数</div>
-            </div>
-            <div class="milvus-stat-card">
-              <span class="milvus-stat-val" id="stat-vector-count">
-                <span class="loading-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;"></span>
-              </span>
-              <div class="milvus-stat-label">向量总数</div>
-            </div>
-            <div class="milvus-stat-card">
-              <span class="milvus-stat-val" id="stat-subq-count">
-                <span class="loading-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;"></span>
-              </span>
-              <div class="milvus-stat-label">子问题向量</div>
-            </div>
-            <div class="milvus-stat-card">
-              <span class="milvus-stat-val" id="stat-vec-dim" style="color: var(--green)">
-                <span class="loading-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;"></span>
-              </span>
-              <div class="milvus-stat-label">向量维度</div>
-            </div>
-          </div>
+        <div class="grid stats mb4">
+          <div class="glass p4"><div class="label-caps">Chunk 总数</div><b class="num" style="font-size:var(--fs-2xl)" id="stat-chunk-count">—</b></div>
+          <div class="glass p4"><div class="label-caps">向量总数</div><b class="num" style="font-size:var(--fs-2xl)" id="stat-vector-count">—</b></div>
+          <div class="glass p4"><div class="label-caps">子问题向量</div><b class="num" style="font-size:var(--fs-2xl)" id="stat-subq-count">—</b></div>
+          <div class="glass p4"><div class="label-caps">向量维度</div><b class="num" style="font-size:var(--fs-2xl);color:var(--ok)" id="stat-vec-dim">—</b></div>
+        </div>
 
-          <!-- 处理时间线：id 化，数据回来后回填 -->
-          <div class="milvus-timeline" style="max-width: 600px; width: 100%; margin-top: 30px;">
-            <div class="timeline-item">
-              <span class="timeline-icon">📤</span>
-              <span class="timeline-label">PDF 上传 & 解析</span>
-              <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time" id="tl-upload">-</span>
-            </div>
-            <div class="timeline-item">
-              <span class="timeline-icon">✂️</span>
-              <span class="timeline-label">文档切割 (<span id="tl-chunk-count">${this.chunks.length || '?'}</span> Chunks)</span>
-              <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time" id="tl-split">-</span>
-            </div>
-            <div class="timeline-item">
-              <span class="timeline-icon">🧠</span>
-              <span class="timeline-label">LLM 生成子问题 & 摘要</span>
-              <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time" id="tl-generate">-</span>
-            </div>
-            <div class="timeline-item">
-              <span class="timeline-icon">⚡</span>
-              <span class="timeline-label">嵌入向量生成 & 写入 Milvus</span>
-              <span class="timeline-status">✓ 完成</span>
-              <span class="timeline-time" id="tl-embed">-</span>
-            </div>
+        <div class="glass p5 mb4">
+          <div class="label-caps mb4">处理时间线</div>
+          <div class="col" style="gap:var(--sp-3)">
+            <div class="row between" style="font-size:var(--fs-sm)"><span>📤 PDF 上传 & 解析</span><span class="badge ok">✓</span><span class="num t3" id="tl-upload" style="font-size:var(--fs-xs)">—</span></div>
+            <div class="row between" style="font-size:var(--fs-sm)"><span>✂ 文档切割 (<span id="tl-chunk-count">${this.chunks.length || '?'}</span> Chunks)</span><span class="badge ok">✓</span><span class="num t3" id="tl-split" style="font-size:var(--fs-xs)">—</span></div>
+            <div class="row between" style="font-size:var(--fs-sm)"><span>🧠 LLM 生成子问题 & 摘要</span><span class="badge ok">✓</span><span class="num t3" id="tl-generate" style="font-size:var(--fs-xs)">—</span></div>
+            <div class="row between" style="font-size:var(--fs-sm)"><span>⚡ 嵌入向量 & 写入 Milvus</span><span class="badge ok">✓</span><span class="num t3" id="tl-embed" style="font-size:var(--fs-xs)">—</span></div>
           </div>
         </div>
 
-        <div class="pipeline-action-bar">
-          <div class="action-info" id="step4-total-time">
-            总耗时 <strong style="color: var(--green)">计算中...</strong> · Collection: <strong style="color: var(--text)">rag_knowledge_base</strong>
+        <div class="row between" style="border-top:1px solid var(--glass-border);padding-top:var(--sp-4)" id="step4-total-time">
+          <span class="t2" style="font-size:var(--fs-sm)">总耗时 <b class="num" style="color:var(--ok)">计算中...</b> · Collection: <b>rag_knowledge_base</b></span>
+          <div class="row" style="gap:var(--sp-2)">
+            <button class="btn btn-sm btn-ghost" onclick="PipelinePage.previousStep()">← 返回生成</button>
+            <button class="btn btn-sm btn-primary" onclick="window.App.navigate('search')">🔍 去检索验证</button>
+            <button class="btn btn-sm" onclick="window.App.navigate('documents')">+ 处理下一个文档</button>
           </div>
-          <button class="btn btn-ghost" onclick="PipelinePage.previousStep()">
-            ← 返回生成
-          </button>
-          <button class="btn btn-primary" onclick="window.App.navigate('search')">
-            🔍 去检索验证
-          </button>
-          <button class="btn btn-success" onclick="window.App.navigate('documents')">
-            + 处理下一个文档
-          </button>
         </div>
       </div>
     `;
-    
-    // 加载导入结果
+
     await this._ensureChunksLoaded();
     await this.loadImportResults();
   },
@@ -1384,7 +1334,7 @@ const PipelinePage = {
         }
       };
       const totalTime = r.total_time || formatTime(this.timings.upload + this.timings.split + this.timings.generate + this.timings.import);
-      totalBar.innerHTML = `总耗时 <strong style="color: var(--green)">${totalTime}</strong> · Collection: <strong style="color: var(--text)">rag_knowledge_base</strong>`;
+      totalBar.innerHTML = `<span class="t2" style="font-size:var(--fs-sm)">总耗时 <b class="num" style="color:var(--ok)">${totalTime}</b> · Collection: <b>rag_knowledge_base</b></span>`;
     }
   },
 
@@ -1479,40 +1429,18 @@ const PipelinePage = {
   },
 
   showLoading(message = '加载中...') {
-    // 检查是否已存在加载元素
     let loadingElement = document.getElementById('pipeline-loading');
     if (!loadingElement) {
       loadingElement = document.createElement('div');
       loadingElement.id = 'pipeline-loading';
-      loadingElement.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        flex-direction: column;
-        color: white;
-        font-size: 16px;
-      `;
+      loadingElement.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:var(--sp-4);background:rgba(0,0,0,0.52);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)';
       document.body.appendChild(loadingElement);
     }
-    
     loadingElement.innerHTML = `
-      <div style="text-align: center;">
-        <div class="loading-spinner" style="width: 50px; height: 50px; border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
-        <div>${message}</div>
+      <div class="glass p6" style="text-align:center">
+        <div class="progress indeterminate" style="width:120px;margin:0 auto var(--sp-4)"><i></i></div>
+        <div class="t2" style="font-size:var(--fs-sm)">${message}</div>
       </div>
-      <style>
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      </style>
     `;
     loadingElement.style.display = 'flex';
   },

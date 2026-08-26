@@ -78,30 +78,33 @@ const FAQPage = {
 
     const container = document.getElementById('page-container');
     container.innerHTML = `
-      <div class="row-between faq-header">
+      <div class="row between mb6">
         <div>
-          <h1 class="page-title">知识记忆</h1>
-          <p class="page-desc">对话中沉淀的 FAQ：候选命中达阈值自动蒸馏升格，协作库走 PR 审核</p>
+          <h1 class="h-title">知识记忆</h1>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">对话中沉淀的 FAQ：候选命中达阈值自动蒸馏升格，协作库走 PR 审核</p>
         </div>
-        <button class="btn" id="faq-refresh-btn">🔄 刷新</button>
+        <div class="row" style="gap:var(--sp-2)">
+          <button class="btn btn-sm" id="faq-refresh-btn">🔄 刷新</button>
+          <button class="btn" id="faq-supplement-btn">＋ 手动补全</button>
+        </div>
       </div>
 
-      <div class="tabs faq-tabs" id="faq-tabs">
+      <div class="tabs faq-tabs mb4" id="faq-tabs">
         <button data-tab="active" class="on">正式知识<span class="count"></span></button>
         <button data-tab="candidate">候选记忆<span class="count"></span></button>
         <button data-tab="pr">PR 审核<span class="count pr-count"></span></button>
       </div>
 
-      <div class="faq-toolbar">
-        <select id="faq-kb-filter" class="input faq-kb-select">
+      <div class="row mb4">
+        <select id="faq-kb-filter" class="select" style="width:200px">
           <option value="">全部知识库</option>
         </select>
       </div>
 
       <div id="faq-body">
-        <div class="td-state faq-loading">加载中…</div>
+        <div class="skeleton" style="height:120px"></div>
       </div>
-      <div class="faq-pager" id="faq-pager"></div>
+      <div class="row mt4" id="faq-pager" style="justify-content:center"></div>
     `;
 
     this.initEvents();
@@ -112,6 +115,7 @@ const FAQPage = {
 
   initEvents() {
     document.getElementById('faq-refresh-btn').addEventListener('click', () => { this.loadCounts(); this.loadList(); });
+    document.getElementById('faq-supplement-btn').addEventListener('click', () => this.showSupplementModal());
     document.getElementById('faq-tabs').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-tab]');
       if (!btn) return;
@@ -175,7 +179,7 @@ const FAQPage = {
 
   async loadList() {
     const body = document.getElementById('faq-body');
-    body.innerHTML = '<div class="td-state faq-loading">加载中…</div>';
+    body.innerHTML = '<div class="skeleton" style="height:120px"></div>';
     try {
       if (this.currentTab === 'pr') {
         await this.loadPrs();
@@ -191,7 +195,7 @@ const FAQPage = {
         else this.renderFaqRows(resp.items || []);
       }
     } catch (e) {
-      body.innerHTML = `<div class="td-state">加载失败: ${this._esc(e.message)}</div>`;
+      body.innerHTML = `<div class="glass"><div class="state"><div class="glyph" style="color:var(--danger)">✕</div><div class="title">加载失败</div><p class="desc">${this._esc(e.message)}</p></div></div>`;
     }
     this.renderPager();
   },
@@ -207,7 +211,7 @@ const FAQPage = {
     return kb ? kb.kb_name : `KB#${kbId}`;
   },
 
-  /* ── 正式知识：表格 ─────────────────────────────────── */
+  /* ── 正式知识：表格（线框 06：正式知识 Tab） ─────────── */
   renderFaqRows(items) {
     const body = document.getElementById('faq-body');
     if (!items.length) {
@@ -215,22 +219,22 @@ const FAQPage = {
       return;
     }
     body.innerHTML = `
-      <table class="table faq-table">
+      <table class="table">
         <thead><tr>
-          <th>问题</th><th>答案</th><th>知识库</th><th>命中</th><th>来源</th><th>热度</th><th>操作</th>
+          <th>问题</th><th>答案</th><th>知识库</th><th>命中</th><th>来源</th><th>热度</th><th style="text-align:right">操作</th>
         </tr></thead>
         <tbody>
           ${items.map(f => `
             <tr>
               <td title="${this._esc(f.question)}">${this._esc(this._cut(f.question, 40))}</td>
               <td title="${this._esc(f.answer)}">${this._esc(this._cut(f.answer, 60))}</td>
-              <td><span class="badge badge-gray">${this._esc(this._kbName(f.kb_id))}</span></td>
+              <td><span class="badge">${this._esc(this._kbName(f.kb_id))}</span></td>
               <td class="num">${f.hit_count ?? 0}</td>
-              <td><span class="badge ${f.source === 'manual' ? 'badge-blue' : 'badge-accent'}">${this._esc(f.source || '-')}</span></td>
-              <td class="num t-dim">${(f.heat_score || 0).toFixed(2)}</td>
-              <td>
+              <td><span class="badge ${f.source === 'manual' ? 'info' : 'accent'}">${f.source === 'manual' ? '手动补全' : '对话沉淀'}</span></td>
+              <td class="num t3">${(f.heat_score || 0).toFixed(2)}</td>
+              <td style="text-align:right;white-space:nowrap">
                 <button class="btn btn-sm" data-demote="${f.id}">降级</button>
-                <button class="icon-btn" data-remove="${f.id}" title="删除"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button class="icon-btn" data-remove="${f.id}" title="删除">🗑</button>
               </td>
             </tr>`).join('')}
         </tbody>
@@ -241,7 +245,7 @@ const FAQPage = {
       b.addEventListener('click', () => this.removeFaq(parseInt(b.dataset.remove, 10))));
   },
 
-  /* ── 候选记忆：卡片栅格 + 命中进度环（线框 06） ───────── */
+  /* ── 候选记忆：双列卡片栅格 + 命中进度环（线框 06） ───── */
   renderCandidateCards(items) {
     const body = document.getElementById('faq-body');
     if (!items.length) {
@@ -250,31 +254,31 @@ const FAQPage = {
         { label: '去问一个问题', page: 'agent' });
       return;
     }
-    body.innerHTML = `<div class="faq-grid">${items.map(f => {
+    body.innerHTML = `<div class="grid faq">${items.map(f => {
       const hits = f.hit_count ?? 0;
       const thr = Math.max(1, f.distill_threshold ?? 1);
       const reached = hits >= thr;
       const pct = Math.min(1, hits / thr);
       const R = 18, C = 2 * Math.PI * R;
       return `
-        <div class="glass-card faq-card ${reached ? 'faq-card-ready' : ''}">
-          <div class="row-between">
-            <span class="badge ${f.source === 'manual' ? 'badge-blue' : 'badge-accent'}">${f.source === 'manual' ? '手动补全' : '对话沉淀'}</span>
-            <svg class="hit-ring" viewBox="0 0 44 44" title="命中 ${hits}/${thr}">
+        <div class="glass card card-hover col ${reached ? 'faq-ready' : ''}">
+          <div class="row between">
+            <span class="badge ${f.source === 'manual' ? 'info' : 'accent'}">${f.source === 'manual' ? '手动补全' : '对话沉淀'}</span>
+            <svg class="ring" viewBox="0 0 44 44" title="命中 ${hits}/${thr}">
               <circle class="bg" cx="22" cy="22" r="${R}"/>
               <circle class="fg" cx="22" cy="22" r="${R}"
                 stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - pct)).toFixed(1)}"/>
             </svg>
           </div>
-          <b class="faq-q">${this._esc(f.question)}</b>
-          <p class="faq-a">答：${this._esc(this._cut(f.answer, 90))}</p>
-          <div class="row-wrap faq-card-meta">
-            <span class="badge badge-gray">${this._esc(this._kbName(f.kb_id))}</span>
-            <span class="t-dim num">${reached ? `命中 ${hits}/${thr}` : `命中 ${hits}/${thr} · 再命中 ${thr - hits} 次自动升格`}</span>
+          <b style="font-size:var(--fs-lg)">${this._esc(f.question)}</b>
+          <p class="t2" style="font-size:var(--fs-sm)">答：${this._esc(this._cut(f.answer, 90))}</p>
+          <div class="row wrap" style="gap:6px">
+            <span class="badge">${this._esc(this._kbName(f.kb_id))}</span>
+            <span class="t3 num" style="font-size:var(--fs-xs)">${reached ? `已达阈值 ${hits}/${thr} · 待蒸馏` : `命中 ${hits}/${thr} · 再命中 ${thr - hits} 次自动升格`}</span>
           </div>
-          <div class="faq-card-actions">
-            <div class="grow"></div>
-            <button class="btn btn-sm" data-remove="${f.id}">删除</button>
+          <div class="row" style="border-top:1px solid var(--glass-border);padding-top:var(--sp-3)">
+            <div class="spacer"></div>
+            <button class="btn btn-sm btn-ghost" data-remove="${f.id}">删除</button>
             <button class="btn btn-sm btn-primary" data-promote="${f.id}">${reached ? '升格为正式' : '提前升格'}</button>
           </div>
         </div>`;
@@ -285,7 +289,7 @@ const FAQPage = {
       b.addEventListener('click', () => this.removeFaq(parseInt(b.dataset.remove, 10))));
   },
 
-  /* ── PR 审核：卡片 + 合并/拒绝 + 备注（线框 06） ─────── */
+  /* ── PR 审核：卡片 + 合并/拒绝 + 备注（线框 06：左缘警示条） ── */
   renderPrCards(items) {
     const body = document.getElementById('faq-body');
     if (!items.length) {
@@ -293,19 +297,19 @@ const FAQPage = {
         '其他用户向你的共享知识库提交的 FAQ 会出现在这里。');
       return;
     }
-    body.innerHTML = items.map(pr => `
-      <div class="glass-card faq-pr-card">
-        <div class="row-between">
+    body.innerHTML = `<div class="col">${items.map(pr => `
+      <div class="glass card faq-pr-warn">
+        <div class="row between">
           <b>${this._esc(pr.question)}</b>
-          <span class="badge badge-yellow">来自 ${this._esc(pr.submitter_name || `用户#${pr.submitted_by}`)} → ${this._esc(pr.target_kb_name || `KB#${pr.target_kb_id}`)}</span>
+          <span class="badge warn">来自 ${this._esc(pr.submitter_name || `用户#${pr.submitted_by}`)} → ${this._esc(pr.target_kb_name || `KB#${pr.target_kb_id}`)}</span>
         </div>
-        <p class="faq-a">答：${this._esc(pr.answer)}</p>
-        <div class="faq-pr-actions">
-          <input type="text" class="input pr-note" data-pr="${pr.id}" placeholder="审核备注（可选）…" style="height:32px" />
+        <p class="t2 mt4" style="font-size:var(--fs-sm)">答：${this._esc(pr.answer)}</p>
+        <div class="row mt4">
+          <input type="text" class="input grow pr-note" data-pr="${pr.id}" placeholder="审核备注（可选）…" style="height:32px" />
           <button class="btn btn-sm btn-primary" data-merge="${pr.id}">合并</button>
           <button class="btn btn-sm btn-danger" data-reject="${pr.id}">拒绝</button>
         </div>
-      </div>`).join('');
+      </div>`).join('')}</div>`;
     body.querySelectorAll('[data-merge]').forEach(b =>
       b.addEventListener('click', () => this.reviewPr(parseInt(b.dataset.merge, 10), true)));
     body.querySelectorAll('[data-reject]').forEach(b =>
@@ -314,7 +318,7 @@ const FAQPage = {
 
   _emptyState(glyph, title, desc, action = null) {
     return `
-      <div class="glass-card"><div class="state faq-empty">
+      <div class="glass"><div class="state">
         <div class="glyph">${glyph}</div>
         <div class="title">${title}</div>
         <p class="desc">${desc}</p>
@@ -329,7 +333,7 @@ const FAQPage = {
     if (this.total <= this.pageSize) { pager.innerHTML = ''; return; }
     pager.innerHTML = `
       <button class="btn btn-sm" ${this.page <= 1 ? 'disabled' : ''} data-page="${this.page - 1}">← 上一页</button>
-      <span class="num t-dim">${this.page} / ${pages} · 共 ${this.total} 条</span>
+      <span class="num t3" style="font-size:var(--fs-sm)">${this.page} / ${pages} · 共 ${this.total} 条</span>
       <button class="btn btn-sm" ${this.page >= pages ? 'disabled' : ''} data-page="${this.page + 1}">下一页 →</button>`;
     pager.querySelectorAll('[data-page]').forEach(b =>
       b.addEventListener('click', () => this.goPage(parseInt(b.dataset.page, 10))));
@@ -359,7 +363,13 @@ const FAQPage = {
   },
 
   async removeFaq(id) {
-    if (!confirm('确定删除这条知识记忆？删除后不可恢复。')) return;
+    const ok = await window.UI.confirm({
+      title: '删除知识记忆',
+      message: '确定删除这条知识记忆？删除后不可恢复。',
+      okText: '删除',
+      danger: true
+    });
+    if (!ok) return;
     try {
       await FaqAPI.remove(id);
       window.App.showToast('已删除', 'success');
@@ -382,6 +392,67 @@ const FAQPage = {
       this.loadCounts();
       this.loadList();
     } catch (e) { window.App.showToast('操作失败: ' + e.message, 'error'); }
+  },
+
+  /* 手动补全弹窗（线框 06 头部按钮：问题 + 答案 + 目标 KB） */
+  showSupplementModal() {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">手动补全知识</h3>
+          <button type="button" class="modal-close" aria-label="关闭">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-field">
+            <label>问题</label>
+            <input type="text" id="supp-question" placeholder="用户会怎么问？（标准问法）" />
+          </div>
+          <div class="form-field">
+            <label>答案</label>
+            <textarea id="supp-answer" rows="4" placeholder="标准答案要点"></textarea>
+          </div>
+          <div class="form-field">
+            <label>目标知识库</label>
+            <select id="supp-kb">
+              <option value="">默认私有库（我的知识库）</option>
+              ${this.knowledgeBases.map(kb => `<option value="${kb.id}">${this._esc(kb.kb_name)}</option>`).join('')}
+            </select>
+            <div class="form-hint">私有库直接写入候选；他人共享库将提交 PR 由库主审核</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-act="cancel">取消</button>
+          <button type="button" class="btn btn-primary" data-act="ok">提交补全</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    const close = () => overlay.remove();
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay.querySelector('.modal-close').addEventListener('click', close);
+    overlay.querySelector('[data-act="cancel"]').addEventListener('click', close);
+    overlay.querySelector('[data-act="ok"]').addEventListener('click', async () => {
+      const question = overlay.querySelector('#supp-question').value.trim();
+      const answer = overlay.querySelector('#supp-answer').value.trim();
+      const kbId = overlay.querySelector('#supp-kb').value || null;
+      if (!question || !answer) {
+        window.App.showToast('问题和答案都不能为空', 'error');
+        return;
+      }
+      try {
+        await FaqAPI.supplement({ question, answer, kb_id: kbId ? parseInt(kbId, 10) : null });
+        window.App.showToast('已提交补全（进入候选记忆）', 'success');
+        close();
+        this.loadCounts();
+        this.loadList();
+      } catch (e) {
+        window.App.showToast('提交失败: ' + e.message, 'error');
+      }
+    });
+    const onKey = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
+    document.addEventListener('keydown', onKey);
   },
 
   _esc(s) {

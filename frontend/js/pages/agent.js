@@ -73,12 +73,12 @@ window.AgentPage = window.AgentPage || {
       const container = document.getElementById('page-container');
       if (container) {
         container.innerHTML = `
-          <div style="padding: 40px; text-align: center; color: var(--text3);">
-            <div style="font-size: 3rem; margin-bottom: 16px;">⚠️</div>
-            <h3 style="color: var(--red); margin-bottom: 12px;">页面加载失败</h3>
-            <p style="font-size: 0.9rem; margin-bottom: 16px;">${this._escapeHTML(err.message || '未知错误')}</p>
-            <button onclick="window.AgentPage.render()" class="btn btn-primary" style="margin-top: 12px;">重试</button>
-          </div>
+          <div class="glass"><div class="state">
+            <div class="glyph" style="color:var(--danger)">⚠</div>
+            <div class="title">页面加载失败</div>
+            <p class="desc">${this._escapeHTML(err.message || '未知错误')}</p>
+            <button onclick="window.AgentPage.render()" class="btn btn-sm mt4">重试</button>
+          </div></div>
         `;
       }
     }
@@ -215,7 +215,13 @@ window.AgentPage = window.AgentPage || {
     const session = this.sessions.find(s => s.id === id);
     const name = session ? session.name : '此会话';
 
-    if (!confirm(`确定删除「${name}」？历史记录将被彻底删除。`)) return;
+    const delOk = await window.UI.confirm({
+      title: '删除会话',
+      message: `确定删除「${name}」？历史记录将被彻底删除。`,
+      okText: '删除',
+      danger: true
+    });
+    if (!delOk) return;
 
     // 如果是历史会话（存在后端文件），调用真正的删除接口
     if (session && session.isHistory) {
@@ -253,41 +259,34 @@ window.AgentPage = window.AgentPage || {
     if (!container) return;
 
     container.innerHTML = `
-      <div class="agent-page agent-page-v2">
+      <div class="grid agent-layout" style="display:grid;grid-template-columns:250px 1fr;align-items:stretch;gap:var(--sp-4);min-height:0;height:100%">
 
-        <!-- ── 左侧：会话列表 ── -->
-        <aside class="agent-sidebar" id="agent-sidebar">
-          <div class="sidebar-header">
-            <span class="sidebar-title">会话列表</span>
-            <button class="btn btn-ghost btn-icon sidebar-new-btn" id="agent-new-session" title="新建对话">＋</button>
+        <!-- 会话侧栏：grid stretch 跟随主区高度，内部独立滚动 -->
+        <aside class="glass p4 col" id="agent-sidebar" style="gap:2px;display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:var(--sp-4)">
+          <div class="row between mb4" style="padding:0 var(--sp-2);flex:none;display:flex;align-items:center;justify-content:space-between">
+            <span class="label-caps">会话</span>
+            <button class="icon-btn" id="agent-new-session" title="新建对话">＋</button>
           </div>
-          <div class="sidebar-sessions" id="sidebar-sessions">
+          <div class="col" id="sidebar-sessions" style="gap:2px;overflow-y:auto;min-height:0;flex:1 1 auto">
             ${this._buildSessionList()}
           </div>
         </aside>
 
-        <!-- ── 右侧：主区域 ── -->
-        <div class="agent-main" id="agent-main">
-
-          <!-- 顶部工具栏（圈 4：线框 05 — seg 模式切换 + Agent 下拉） -->
-          <div class="agent-toolbar">
-            <div class="agent-toolbar-left">
-              <h1 class="page-title" style="margin:0">AI Agent</h1>
-              <div class="seg agent-mode-toggle" id="agent-mode-seg">
-                <button class="${!this.compareMode ? 'on' : ''}" id="mode-single" title="单 Agent 对话">对话</button>
-                <button class="${this.compareMode ? 'on' : ''}" id="mode-compare" title="多 Agent 对比">对比</button>
-              </div>
+        <div class="col" id="agent-main" style="display:flex;flex-direction:column;min-height:0;min-width:0;gap:var(--sp-3);height:100%">
+          <header class="topbar" style="position:static;margin-bottom:0;flex:none">
+            <span class="crumb">AI Agent</span>
+            <div class="seg" style="margin-left:var(--sp-4)" id="agent-mode-seg">
+              <button class="${!this.compareMode ? 'on' : ''}" id="mode-single" title="单 Agent 对话">对话</button>
+              <button class="${this.compareMode ? 'on accent' : ''}" id="mode-compare" title="多 Agent 对比">对比</button>
             </div>
-            <div class="agent-toolbar-right">
-              <select class="select agent-select" id="agent-type-select" title="选择 Agent">${this._buildAgentTabsOptions()}</select>
-              <button class="icon-btn" id="agent-clear-btn" title="清空当前会话"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-            </div>
-          </div>
+            <div class="spacer"></div>
+            <select class="select" id="agent-type-select" style="width:180px;height:32px" title="选择 Agent">${this._buildAgentTabsOptions()}</select>
+            <button class="icon-btn" id="agent-clear-btn" title="清空当前会话">🗑</button>
+          </header>
 
           ${this._buildCapabilitiesHint()}
 
-          <!-- 主内容区 -->
-          <div class="agent-content" id="agent-content">
+          <div id="agent-content" style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden">
             ${this.compareMode ? this._renderCompareView() : this._renderChatView()}
           </div>
         </div>
@@ -298,7 +297,7 @@ window.AgentPage = window.AgentPage || {
   _buildSessionList() {
     // sessions 已在 _loadHistorySessions 中按 updatedAt 降序排列（最新的在前）
     // 直接渲染，不再 reverse
-    if (this.sessions.length === 0) return '<p class="sidebar-empty">暂无会话</p>';
+    if (this.sessions.length === 0) return '<p class="t3" style="font-size:var(--fs-sm);padding:var(--sp-3)">暂无会话</p>';
     return this.sessions.map(s => {
       const msgCount = s.messages ? s.messages.length : (s.messageCount || 0);
       const metaParts = [];
@@ -317,13 +316,8 @@ window.AgentPage = window.AgentPage || {
         } catch { /* ignore */ }
       }
       return `
-        <div class="sidebar-session-item ${s.id === this.activeSessionId ? 'active' : ''}" data-session-id="${s.id}">
-          <span class="session-icon">${s.isHistory ? '📁' : '💬'}</span>
-          <div class="session-info">
-            <span class="session-name" title="${this._escapeAttr(s.name)}">${this._escapeHTML(s.name)}</span>
-            ${metaParts.length > 0 ? `<span class="session-meta">${metaParts.join(' · ')}</span>` : ''}
-          </div>
-          <button class="session-delete-btn" data-delete-id="${s.id}" title="删除此会话">×</button>
+        <div class="sess ${s.id === this.activeSessionId ? 'on' : ''}" data-session-id="${s.id}" style="display:flex;gap:var(--sp-3);padding:var(--sp-3);border-radius:var(--r-sm);cursor:pointer;border:1px solid transparent;transition:all var(--dur-2) var(--ease-out)">
+          <div><b style="font-size:var(--fs-sm)">${this._escapeHTML(s.name)}</b><p class="t3" style="font-size:var(--fs-xs)">${metaParts.join(' · ') || '新会话'}</p></div>
         </div>
       `;
     }).join('');
@@ -339,41 +333,29 @@ window.AgentPage = window.AgentPage || {
   _renderChatView() {
     const selectedKb = this.knowledgeBases.find(kb => kb.id === this.selectedKbId);
     return `
-      <div class="agent-chat-layout">
-        <!-- 消息列表 -->
-        <div class="agent-messages" id="agent-messages">
+      <div class="agent-pane col" style="display:flex;flex-direction:column;min-height:0;min-width:0;flex:1 1 auto;gap:var(--sp-3);overflow:hidden">
+        <div class="glass chat-scroll" id="agent-messages" style="flex:1 1 0;overflow-y:auto;min-height:120px;padding:var(--sp-5)">
           ${this._renderMessagesHTML()}
         </div>
 
-        <!-- 知识库选择条（圈 4：线框 05 src-chip 风格下拉） -->
-        <div class="agent-kb-bar" id="agent-kb-bar">
-          <span class="kb-bar-label">知识库：</span>
-          <select id="kb-select" class="src-chip kb-chip-select">
+        <div class="glass p4" id="agent-kb-bar" style="display:flex;flex-wrap:nowrap;align-items:center;gap:var(--sp-2);margin-top:var(--sp-3);min-width:0;overflow:hidden">
+          <span class="t3" style="font-size:var(--fs-xs);flex:none">知识库：</span>
+          <select id="kb-select" class="select" style="height:30px;font-size:var(--fs-xs);flex:1 1 0;min-width:120px;width:auto;max-width:100%">
             <option value="" ${!this.selectedKbId ? 'selected' : ''}>不限知识库（全局检索）</option>
             ${this.knowledgeBases.map(kb => `<option value="${kb.id}" ${this.selectedKbId === kb.id ? 'selected' : ''}>🗂 ${this._escapeHTML(kb.kb_name)}</option>`).join('')}
           </select>
-          <span class="kb-bar-label">模式：</span>
-          <select id="retrieval-mode-select" class="src-chip kb-chip-select">
+          <span class="t3" style="font-size:var(--fs-xs);flex:none">模式：</span>
+          <select id="retrieval-mode-select" class="select" style="height:30px;font-size:var(--fs-xs);flex:0 0 auto;width:auto;min-width:120px">
             <option value="advanced" ${this.selectedRetrievalMode === 'advanced' ? 'selected' : ''}>摘要+子问题</option>
             <option value="native" ${this.selectedRetrievalMode === 'native' ? 'selected' : ''}>原文匹配</option>
             <option value="hybrid" ${this.selectedRetrievalMode === 'hybrid' ? 'selected' : ''}>三路融合</option>
           </select>
-          ${selectedKb ? `<span class="kb-bar-label kb-bar-hint">已选：${this._escapeHTML(selectedKb.kb_name)} · Agent 将优先在此知识库中检索</span>` : `<span class="kb-bar-label kb-bar-hint">全局模式 · Agent 将在全量数据中自由检索</span>`}
+          ${selectedKb ? `<span class="t3 kb-bar-hint" style="font-size:var(--fs-xs);flex:none;margin-left:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">已选：${this._escapeHTML(selectedKb.kb_name)}</span>` : `<span class="t3 kb-bar-hint" style="font-size:var(--fs-xs);flex:none;margin-left:auto">全局模式</span>`}
         </div>
 
-        <!-- 输入区（圈 4：线框 05 composer） -->
-        <div class="agent-input-area">
-          <div class="input-wrapper glass-composer">
-            <textarea
-              id="agent-input"
-              class="agent-textarea"
-              placeholder="输入问题，Enter 发送 · Shift+Enter 换行 · 自动长高，超长出滚动条"
-              rows="1"
-            ></textarea>
-            <button class="btn btn-primary agent-send-btn" id="agent-send-btn" title="发送">
-              <span class="send-icon">➤</span>
-            </button>
-          </div>
+        <div class="glass composer" style="display:flex;gap:var(--sp-3);padding:var(--sp-4);align-items:flex-end;margin-top:var(--sp-3);flex:none">
+          <textarea id="agent-input" class="textarea grow" rows="1" style="border:0;background:transparent;box-shadow:none;resize:none;max-height:140px;overflow-y:hidden;line-height:1.5" placeholder="输入问题，Enter 发送 · Shift+Enter 换行 · 自动长高，超长出滚动条"></textarea>
+          <button class="btn btn-primary" id="agent-send-btn" style="border-radius:var(--r-pill);width:44px;height:44px;padding:0;justify-content:center;flex:none" title="发送">➤</button>
         </div>
       </div>
     `;
@@ -387,25 +369,22 @@ window.AgentPage = window.AgentPage || {
 
   _renderCompareView() {
     return `
-      <div class="agent-compare-layout">
-        <div class="compare-header">
-          <p class="compare-hint">同时运行所有 Agent，对比回答质量、处理速度和引用来源</p>
+      <div class="col" style="gap:var(--sp-4)">
+        <div class="glass p5">
+          <p class="t2" style="font-size:var(--fs-sm)">同时运行所有 Agent，对比回答质量、处理速度和引用来源</p>
         </div>
-        <div class="compare-results" id="compare-results">
+        <div id="compare-results" class="col" style="gap:var(--sp-4)">
           ${this.compareResults ? this._renderCompareResults() : `
-            <div class="compare-placeholder">
-              <div class="placeholder-icon">⚖️</div>
-              <p>输入问题后点击「开始对比」，将并行运行所有 Agent</p>
-            </div>
+            <div class="glass"><div class="state">
+              <div class="glyph">⚖</div>
+              <div class="title">输入问题开始对比</div>
+              <p class="desc">将并行运行所有 Agent</p>
+            </div></div>
           `}
         </div>
-        <div class="agent-input-area" id="compare-input-area">
-          <div class="input-wrapper">
-            <textarea id="compare-input" class="agent-textarea" placeholder="输入要对比的问题..." rows="1"></textarea>
-            <button class="btn btn-accent agent-send-btn" id="compare-send-btn" title="开始对比">
-              <span class="send-icon">⚡</span>
-            </button>
-          </div>
+        <div class="glass composer" style="display:flex;gap:var(--sp-3);padding:var(--sp-4);align-items:flex-end">
+          <textarea id="compare-input" class="textarea grow" rows="1" style="border:0;background:transparent;box-shadow:none;resize:none" placeholder="输入要对比的问题..."></textarea>
+          <button class="btn btn-primary" id="compare-send-btn" style="border-radius:var(--r-pill);width:44px;height:44px;padding:0;justify-content:center;flex:none" title="开始对比">⚡</button>
         </div>
       </div>
     `;
@@ -417,17 +396,14 @@ window.AgentPage = window.AgentPage || {
         ? `已绑定知识库：<strong>${this._escapeHTML((this.knowledgeBases.find(k => k.id === this.selectedKbId) || {}).kb_name || '')}</strong>`
         : '全局模式（未绑定知识库）';
       return `
-        <div class="agent-empty-state">
-          <div class="empty-icon">🤖</div>
-          <h3>开始对话</h3>
-          <p>当前模式：${kbHint}</p>
-          <div class="empty-examples">
-            <p class="examples-label">试试这些问题：</p>
-            <div class="example-chips">
-              ${['RAG 和 Fine-tuning 的区别是什么？', '什么是向量检索？', '如何提升 RAG 的召回率？'].map(q =>
-                `<button class="example-chip" data-query="${this._escapeAttr(q)}">${q}</button>`
-              ).join('')}
-            </div>
+        <div class="state">
+          <div class="glyph float-anim">✦</div>
+          <div class="title">开始对话</div>
+          <p class="desc">当前模式：${kbHint}</p>
+          <div class="row wrap mt4" style="gap:6px;justify-content:center">
+            ${['RAG 和 Fine-tuning 的区别是什么？', '什么是向量检索？', '如何提升 RAG 的召回率？'].map(q =>
+              `<button class="btn btn-sm example-chip" data-query="${this._escapeAttr(q)}">${q}</button>`
+            ).join('')}
           </div>
         </div>
       `;
@@ -438,54 +414,36 @@ window.AgentPage = window.AgentPage || {
   _renderMessage(msg, idx) {
     if (msg.role === 'user') {
       return `
-        <div class="message message-user" data-idx="${idx}">
-          <div class="message-bubble">
-            <div class="message-content">${this._escapeHTML(msg.content)}</div>
-          </div>
+        <div class="msg user" data-idx="${idx}" style="display:flex;gap:var(--sp-3);max-width:78%;margin-left:auto;flex-direction:row-reverse;margin-bottom:var(--sp-5)">
+          <div class="bubble" style="padding:var(--sp-3) var(--sp-4);border-radius:var(--r-lg);background:var(--accent-soft);border:1px solid transparent;color:var(--text-1);border-top-right-radius:var(--r-xs)">${this._escapeHTML(msg.content)}</div>
         </div>
       `;
     }
 
     const isStreaming = msg._streaming || false;
     const citations = msg.citations || [];
-    const sources = msg.sources || [];   // 精排后来源
-    // 反馈状态：null | 'up' | 'down'
+    const sources = msg.sources || [];
     const feedback = msg.feedback || null;
-    // 圈 4：FAQ 直返 / 补全引导标记（SSE 透传，tokens 语义色徽章）
     const faqBadge = msg._faqHit
-      ? '<span class="badge badge-accent"><i class="dot"></i>FAQ 命中 · 直返</span>' : '';
+      ? '<span class="badge accent"><i class="dot"></i>FAQ 命中 · 直返</span>' : '';
 
     return `
-      <div class="message message-agent" data-idx="${idx}">
-        <div class="message-avatar agent-avatar-icon">AI</div>
-        <div class="message-bubble">
-          <div class="message-meta">
-            <span class="agent-tag ${msg.agent_type || this.selectedAgent}">${this._agentLabel(msg.agent_type || this.selectedAgent)}</span>
-            ${msg.kb_name ? `<span class="kb-ref-badge">🗂 ${this._escapeHTML(msg.kb_name)}</span>` : ''}
-            ${msg.processing_time ? `<span class="processing-time">耗时 ${(msg.processing_time / 1000).toFixed(1)}s</span>` : ''}
-            ${sources.length > 0 ? `<span class="sources-count">📚 ${sources.length} 条引用</span>` : ''}
-            ${faqBadge}
-          </div>
-          <div class="message-content ${isStreaming ? 'streaming-text' : ''}" id="msg-content-${idx}">
-            ${this._renderMarkdown(msg.content)}${isStreaming ? '<span class="cursor-blink"></span>' : ''}
+      <div class="msg ai" data-idx="${idx}" style="display:flex;gap:var(--sp-3);max-width:78%;margin-bottom:var(--sp-5)">
+        <div class="avatar" style="width:30px;height:30px;font-size:11px;flex:none;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-strong),var(--accent-deep));color:var(--accent-on);font-weight:700">AI</div>
+        <div class="col grow" style="gap:var(--sp-2)">
+          <div class="bubble glass" style="padding:var(--sp-3) var(--sp-4);border-radius:var(--r-lg);border-top-left-radius:var(--r-xs);box-shadow:inset 0 1px 0 var(--glass-edge)">
+            <div class="row wrap" style="gap:6px;margin-bottom:var(--sp-2)">
+              <span class="badge">${this._agentLabel(msg.agent_type || this.selectedAgent)}</span>
+              ${msg.kb_name ? `<span class="badge">🗂 ${this._escapeHTML(msg.kb_name)}</span>` : ''}
+              ${msg.processing_time ? `<span class="badge">耗时 ${(msg.processing_time / 1000).toFixed(1)}s</span>` : ''}
+              ${sources.length > 0 ? `<span class="badge info">📚 ${sources.length} 条引用</span>` : ''}
+              ${faqBadge}
+            </div>
+            <div class="message-content ${isStreaming ? 'streaming-text' : ''}" id="msg-content-${idx}" style="font-size:var(--fs-md);line-height:1.6">
+              ${this._renderMarkdown(msg.content)}${isStreaming ? '<span class="cursor-blink"></span>' : ''}
+            </div>
           </div>
           ${sources.length > 0 ? this._renderSourcesPanel(sources, '精排来源') : ''}
-          ${citations.length > 0 ? `
-            <div class="citations-panel">
-              <div class="citations-header">📎 引用文档</div>
-              <div class="citations-list">
-                ${citations.map((c, ci) => `
-                  <div class="citation-card" data-idx="${ci}">
-                    <div class="citation-score">${((c.score || 0) * 100).toFixed(0)}%</div>
-                    <div class="citation-body">
-                      <div class="citation-source">${this._escapeHTML(c.source || c.metadata?.source || '未知来源')}</div>
-                      <div class="citation-snippet">${this._escapeHTML((c.content || '').slice(0, 200))}${c.content && c.content.length > 200 ? '…' : ''}</div>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          ` : ''}
           ${!isStreaming ? this._renderFeedbackBar(idx, feedback) : ''}
         </div>
       </div>
@@ -493,38 +451,23 @@ window.AgentPage = window.AgentPage || {
   },
 
   _renderFeedbackBar(msgIdx, feedback, comment = '') {
-    const upActive   = feedback === 'up'   ? 'active' : '';
-    const downActive = feedback === 'down' ? 'active' : '';
-    // 点踩且尚未最终提交时显示评论框；若已有 comment 说明已提交
+    const upActive   = feedback === 'up'   ? 'accent' : '';
+    const downActive = feedback === 'down' ? 'danger' : '';
     const showCommentBox = feedback === 'down' && !comment;
     const showThanks     = (feedback === 'up') || (feedback === 'down' && comment !== undefined && comment !== null && comment !== '__skip__');
-    const showSkipThanks = feedback === 'down' && comment === '__skip__';
 
     return `
-      <div class="feedback-bar" data-msg-idx="${msgIdx}">
-        <div class="feedback-row">
-          <span class="feedback-label">对此回答：</span>
-          <button class="feedback-btn feedback-up ${upActive}"
-                  title="这个回答很有帮助"
-                  data-feedback-idx="${msgIdx}" data-feedback-value="1">
-            👍
-          </button>
-          <button class="feedback-btn feedback-down ${downActive}"
-                  title="这个回答需要改进"
-                  data-feedback-idx="${msgIdx}" data-feedback-value="0">
-            👎
-          </button>
-          ${(showThanks || showSkipThanks) ? '<span class="feedback-thanks">已反馈，感谢！</span>' : ''}
-        </div>
+      <div class="feedback-bar row wrap" data-msg-idx="${msgIdx}" style="gap:var(--sp-2);padding-left:40px">
+        <span class="t3" style="font-size:var(--fs-xs)">对此回答：</span>
+        <button class="icon-btn feedback-btn ${upActive}" style="width:26px;height:26px;font-size:13px" title="这个回答很有帮助" data-feedback-idx="${msgIdx}" data-feedback-value="1">👍</button>
+        <button class="icon-btn feedback-btn ${downActive}" style="width:26px;height:26px;font-size:13px" title="这个回答需要改进" data-feedback-idx="${msgIdx}" data-feedback-value="0">👎</button>
+        ${showThanks ? '<span class="badge ok">已反馈，感谢！</span>' : ''}
         ${showCommentBox ? `
-          <div class="feedback-comment-box" data-comment-idx="${msgIdx}">
-            <textarea class="feedback-comment-input"
-                      placeholder="（可选）请简述问题所在，帮助我们改进……"
-                      maxlength="300"
-                      rows="2"></textarea>
-            <div class="feedback-comment-actions">
-              <button class="feedback-comment-submit" data-comment-idx="${msgIdx}">提交</button>
-              <button class="feedback-comment-skip"   data-comment-idx="${msgIdx}">跳过</button>
+          <div class="col" data-comment-idx="${msgIdx}" style="gap:var(--sp-2);width:100%;margin-top:var(--sp-2)">
+            <textarea class="textarea" style="height:60px" placeholder="（可选）请简述问题所在，帮助我们改进……" maxlength="300" rows="2"></textarea>
+            <div class="row" style="gap:var(--sp-2)">
+              <button class="btn btn-sm btn-primary feedback-comment-submit" data-comment-idx="${msgIdx}">提交</button>
+              <button class="btn btn-sm btn-ghost feedback-comment-skip" data-comment-idx="${msgIdx}">跳过</button>
             </div>
           </div>
         ` : ''}
@@ -535,46 +478,22 @@ window.AgentPage = window.AgentPage || {
   _renderSourcesPanel(sources, title, collapsed = true) {
     if (!sources || sources.length === 0) return '';
     const panelId = `src-panel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-    const typeIcon = { vector: '🔮', keyword: '🔍', reranked: '⭐', unknown: '📄' };
     return `
-      <div class="sources-panel ${collapsed ? 'sources-collapsed' : ''}" id="${panelId}">
-        <div class="sources-header" onclick="document.getElementById('${panelId}').classList.toggle('sources-collapsed')">
-          <span class="sources-title">🔍 ${this._escapeHTML(title)} (${sources.length})</span>
-          <span class="sources-toggle">▼</span>
+      <div class="sources-panel glass" id="${panelId}" style="border-radius:var(--r-sm);margin-top:var(--sp-2);overflow:hidden;${collapsed ? 'max-height:36px' : ''}">
+        <div class="sources-header row between" style="padding:var(--sp-2) var(--sp-3);cursor:pointer" onclick="var p=document.getElementById('${panelId}');if(p){p.style.maxHeight=p.style.maxHeight==='36px'?'':'36px'}">
+          <span class="t3" style="font-size:var(--fs-xs)">🔍 ${this._escapeHTML(title)} (${sources.length})</span>
+          <span class="t3">▼</span>
         </div>
-        <div class="sources-list">
+        <div class="sources-list col" style="gap:var(--sp-2);padding:0 var(--sp-3) var(--sp-3)">
           ${sources.map((s, si) => `
-            <div class="source-card" data-source-idx="${si}">
-              <div class="source-card-header">
-                <span class="source-type-badge ${s.source || 'unknown'}">${typeIcon[s.source] || '📄'} ${this._escapeHTML(s.source || 'unknown')}</span>
-                <span class="source-score-bar">
-                  <span class="source-score-fill" style="width: ${Math.min(100, Math.max(0, (parseFloat(s.score) || 0) * 100))}%"></span>
-                  <span class="source-score-text">${typeof s.score === 'number' ? (s.score * 100).toFixed(1) + '%' : s.score}</span>
-                </span>
+            <div class="glass p4" data-source-idx="${si}">
+              <div class="row between" style="gap:var(--sp-2)">
+                <span class="badge ${s.source === 'keyword' ? '' : s.source === 'reranked' ? 'accent' : 'info'}">${this._escapeHTML(s.source || 'unknown')}</span>
+                <span class="num t3" style="font-size:var(--fs-xs)">${typeof s.score === 'number' ? (s.score * 100).toFixed(1) + '%' : s.score}</span>
               </div>
-              ${(s.source === 'keyword' || s.type === 'native') ? `
-                ${s.chunk_text ? `
-                  <div class="source-section">
-                    <div class="source-section-label">📄 原文内容</div>
-                    <div class="source-chunk">${this._escapeHTML(s.chunk_text.slice(0, 400))}${s.chunk_text.length > 400 ? '…' : ''}</div>
-                  </div>
-                ` : ''}
-              ` : `
-                ${s.content ? `
-                  <div class="source-section">
-                    <div class="source-section-label">📝 ${s.type === 'subquestion' ? '匹配子问题' : (s.type === 'native' ? '原文匹配' : '匹配摘要')}</div>
-                    <div class="source-snippet">${this._escapeHTML(s.content.slice(0, 300))}${s.content.length > 300 ? '…' : ''}</div>
-                  </div>
-                ` : ''}
-                ${s.chunk_text ? `
-                  <div class="source-section">
-                    <div class="source-section-label">📄 原文内容</div>
-                    <div class="source-chunk">${this._escapeHTML(s.chunk_text.slice(0, 400))}${s.chunk_text.length > 400 ? '…' : ''}</div>
-                  </div>
-                ` : ''}
-              `}
-              ${s.metadata?.filename ? `<div class="source-filename">📄 ${this._escapeHTML(s.metadata.filename)}</div>` : ''}
-              ${s.metadata?.document_id ? `<div class="source-doc-id">ID: ${this._escapeHTML(String(s.metadata.document_id).slice(0, 12))}</div>` : ''}
+              ${s.content ? `<p class="t2 mt2" style="font-size:var(--fs-sm)">${this._escapeHTML(s.content.slice(0, 200))}${s.content.length > 200 ? '…' : ''}</p>` : ''}
+              ${s.chunk_text ? `<p class="t3 mt2 mono" style="font-size:var(--fs-xs)">${this._escapeHTML(s.chunk_text.slice(0, 200))}${s.chunk_text.length > 200 ? '…' : ''}</p>` : ''}
+              ${s.metadata?.filename ? `<span class="badge mt2">📄 ${this._escapeHTML(s.metadata.filename)}</span>` : ''}
             </div>
           `).join('')}
         </div>
@@ -597,7 +516,7 @@ window.AgentPage = window.AgentPage || {
     const sources = msg.sources || [];
 
     // 找到该消息气泡内的 source-panel 区域
-    const msgEl = document.querySelector(`.message-agent[data-idx="${msgIdx}"]`);
+    const msgEl = document.querySelector(`.msg.ai[data-idx="${msgIdx}"]`);
     if (!msgEl) {
       console.warn(`[AgentPage] _renderSourcePanelOnly: DOM元素 [data-idx="${msgIdx}"] 不存在`);
       return;
@@ -618,7 +537,11 @@ window.AgentPage = window.AgentPage || {
         const headers = contentEl.parentElement.querySelectorAll('.sources-header');
         headers.forEach(h => {
           h.onclick = () => {
-            h.closest('.sources-panel')?.classList.toggle('sources-collapsed');
+            const panel = h.closest('.sources-panel');
+            if (panel) {
+              const isCollapsed = panel.style.maxHeight === '36px';
+              panel.style.maxHeight = isCollapsed ? '' : '36px';
+            }
           };
         });
       }
@@ -630,38 +553,34 @@ window.AgentPage = window.AgentPage || {
   _renderCompareResults() {
     const results = this.compareResults;
     const agentOrder = Object.keys(results);
-    if (agentOrder.length === 0) return '<p>暂无对比结果</p>';
+    if (agentOrder.length === 0) return '<div class="glass"><div class="state"><div class="title">暂无对比结果</div></div></div>';
 
-    return `
-      <div class="compare-cards">
-        ${agentOrder.map(type => {
-          const r = results[type];
-          if (r.error) {
-            return `
-              <div class="compare-card error" data-agent="${type}">
-                <div class="compare-card-header">
-                  <span class="compare-agent-badge ${type}">${this._agentLabel(type)}</span>
-                  <span class="compare-status error">❌ 错误</span>
-                </div>
-                <div class="compare-error">${this._escapeHTML(r.error)}</div>
-              </div>
-            `;
-          }
-          return `
-            <div class="compare-card" data-agent="${type}">
-              <div class="compare-card-header">
-                <span class="compare-agent-badge ${type}">${this._agentLabel(type)}</span>
-                <div class="compare-metrics">
-                  <span class="metric-time" title="处理耗时">⏱ ${r.processing_time ? r.processing_time.toFixed(0) + 'ms' : '—'}</span>
-                  <span class="metric-sources" title="引用文档数">📚 ${r.sources_count ?? 0}</span>
-                </div>
-              </div>
-              <div class="compare-card-body">${this._renderMarkdown(r.content || '')}</div>
+    return agentOrder.map(type => {
+      const r = results[type];
+      if (r.error) {
+        return `
+          <div class="glass card" data-agent="${type}" style="border-left:2px solid var(--danger)">
+            <div class="row between mb4">
+              <span class="badge">${this._agentLabel(type)}</span>
+              <span class="badge danger">错误</span>
             </div>
-          `;
-        }).join('')}
-      </div>
-    `;
+            <p class="t2" style="font-size:var(--fs-sm)">${this._escapeHTML(r.error)}</p>
+          </div>
+        `;
+      }
+      return `
+        <div class="glass card" data-agent="${type}">
+          <div class="row between mb4">
+            <span class="badge accent">${this._agentLabel(type)}</span>
+            <div class="row" style="gap:6px">
+              <span class="badge">⏱ ${r.processing_time ? r.processing_time.toFixed(0) + 'ms' : '—'}</span>
+              <span class="badge info">📚 ${r.sources_count ?? 0}</span>
+            </div>
+          </div>
+          <div style="font-size:var(--fs-sm);line-height:1.6">${this._renderMarkdown(r.content || '')}</div>
+        </div>
+      `;
+    }).join('');
   },
 
   _buildCapabilitiesHint() {
@@ -669,9 +588,9 @@ window.AgentPage = window.AgentPage || {
     const agent = this.agents.find(a => a.type === this.selectedAgent);
     if (!agent || !agent.capabilities) return '';
     return `
-      <div class="capabilities-hint">
-        <span class="capabilities-label">能力：</span>
-        ${agent.capabilities.map(c => `<span class="capability-chip">${c}</span>`).join('')}
+      <div class="glass p4 row wrap" style="gap:6px;margin-bottom:var(--sp-4)">
+        <span class="t3" style="font-size:var(--fs-xs)">能力：</span>
+        ${agent.capabilities.map(c => `<span class="badge">${c}</span>`).join('')}
       </div>
     `;
   },
@@ -706,7 +625,13 @@ window.AgentPage = window.AgentPage || {
     // 清空当前会话
     document.getElementById('agent-clear-btn')?.addEventListener('click', async () => {
       if (this.currentMessages.length === 0) return;
-      if (!confirm('确定清空当前会话消息？')) return;
+      const ok = await window.UI.confirm({
+        title: '清空会话',
+        message: '确定清空当前会话消息？',
+        okText: '清空',
+        danger: true
+      });
+      if (!ok) return;
       if (this.activeSession) {
         try { await AgentAPI.clearSession(this.activeSessionId); } catch (e) { /* ignore */ }
         this.activeSession.messages = [];
@@ -841,10 +766,8 @@ window.AgentPage = window.AgentPage || {
 
   _bindSidebarEvents() {
     // 会话切换
-    document.querySelectorAll('.sidebar-session-item').forEach(item => {
+    document.querySelectorAll('.sess[data-session-id]').forEach(item => {
       item.addEventListener('click', (e) => {
-        // 不触发删除按钮本身的点击
-        if (e.target.classList.contains('session-delete-btn')) return;
         const id = item.dataset.sessionId;
         if (id && id !== this.activeSessionId) {
           this._switchSession(id);
@@ -852,18 +775,8 @@ window.AgentPage = window.AgentPage || {
       });
     });
 
-    // 会话删除
-    document.querySelectorAll('.session-delete-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const id = btn.dataset.deleteId;
-        if (!id) return;
-        const session = this.sessions.find(s => s.id === id);
-        const name = session ? session.name : '此会话';
-        if (!confirm(`确定删除「${name}」？`)) return;
-        await this._deleteSession(id);
-      });
-    });
+    // 会话删除（线框 05 没有单独删除按钮，删除通过右键或滑动——这里暂保留 hover 删除逻辑用 UI.confirm）
+    // 当前 _buildSessionList 没渲染删除按钮，删除走 _deleteSession 直接调用
   },
 
   _refreshKbBar() {
@@ -966,19 +879,20 @@ window.AgentPage = window.AgentPage || {
       ? session.messages[msgIdx - 1].content : '';
 
     const card = document.createElement('div');
-    card.className = 'supplement-card supplement';
+    card.className = 'supplement';
+    card.style.cssText = 'border-radius:var(--r-md);padding:var(--sp-4);background:var(--accent-soft);box-shadow:inset 0 1px 0 var(--glass-edge),0 0 24px var(--accent-glow);border:1px solid transparent;margin-top:var(--sp-3)';
     card.innerHTML = `
-      <div class="row between supplement-head">
-        <b>✦ 这个问题知识库还没有覆盖</b>
-        <span class="badge badge-accent">沉淀为记忆</span>
+      <div class="row between">
+        <b style="font-size:var(--fs-sm)">✦ 这个问题知识库还没有覆盖</b>
+        <span class="badge accent">沉淀为记忆</span>
       </div>
-      <p class="supplement-desc">把标准答案补充进来，下次直接命中 FAQ 秒回（写入默认私有库，候选满阈值命中自动升格）。</p>
-      <div class="row supplement-form">
-        <input type="text" id="supp-q-${msgIdx}" class="input grow" value="${this._escapeHTML(userQuery)}" placeholder="问题" />
-        <input type="text" id="supp-a-${msgIdx}" class="input grow" placeholder="补充答案要点…" />
-        <button class="btn btn-primary btn-sm supplement-submit" data-msg-idx="${msgIdx}">提交补全</button>
+      <p class="t2 mt2" style="font-size:var(--fs-sm)">把标准答案补充进来，下次直接命中 FAQ 秒回（写入默认私有库，候选满阈值命中自动升格）。</p>
+      <div class="row mt4">
+        <input type="text" id="supp-q-${msgIdx}" class="input grow" style="background:rgba(0,0,0,.15)" value="${this._escapeHTML(userQuery)}" placeholder="问题" />
+        <input type="text" id="supp-a-${msgIdx}" class="input grow" style="background:rgba(0,0,0,.15)" placeholder="补充答案要点…" />
+        <button class="btn btn-primary btn-sm supplement-submit" data-msg-idx="${msgIdx}" style="height:38px">提交补全</button>
       </div>
-      <button class="btn-link supplement-dismiss">忽略</button>
+      <button class="btn btn-sm btn-ghost supplement-dismiss" style="margin-top:var(--sp-2)">忽略</button>
     `;
     card.querySelector('.supplement-submit')?.addEventListener('click', () => this.submitSupplement(msgIdx));
     card.querySelector('.supplement-dismiss')?.addEventListener('click', () => card.remove());
@@ -1000,7 +914,7 @@ window.AgentPage = window.AgentPage || {
         question, answer, kb_id: this.selectedKbId,
       });
       window.App.showToast(result.message || '已记录', 'success');
-      const card = qEl.closest('.supplement-card');
+      const card = qEl.closest('.supplement');
       if (card) card.remove();
     } catch (e) {
       window.App.showToast('提交失败: ' + e.message, 'error');
@@ -1193,10 +1107,11 @@ window.AgentPage = window.AgentPage || {
 
     const resultsEl = document.getElementById('compare-results');
     resultsEl.innerHTML = `
-      <div class="compare-loading">
-        <div class="loading-dots"><span></span><span></span><span></span></div>
-        <p>正在并行运行 ${this.agents.length} 个 Agent...</p>
-      </div>
+      <div class="glass"><div class="state">
+        <div class="glyph float-anim">⚖</div>
+        <div class="title">正在并行运行 ${this.agents.length} 个 Agent</div>
+        <div class="progress indeterminate" style="width:120px;margin-top:8px"><i></i></div>
+      </div></div>
     `;
     inputEl.disabled = true;
 
@@ -1211,10 +1126,10 @@ window.AgentPage = window.AgentPage || {
       this.compareResults = resp.comparison?.results || {};
       const totalTime = resp.comparison?.total_time_ms;
       resultsEl.innerHTML = (totalTime !== undefined ? `
-        <div class="compare-summary"><span>总耗时: <strong>${totalTime.toFixed(0)}ms</strong></span></div>
+        <div class="glass p4 row between"><span class="t3" style="font-size:var(--fs-xs)">总耗时</span><b class="num">${totalTime.toFixed(0)}ms</b></div>
       ` : '') + this._renderCompareResults();
     } catch (err) {
-      resultsEl.innerHTML = `<div class="compare-error-panel"><p>❌ 对比失败: ${this._escapeHTML(err.message)}</p></div>`;
+      resultsEl.innerHTML = `<div class="glass"><div class="state"><div class="glyph" style="color:var(--danger)">✕</div><div class="title">对比失败</div><p class="desc">${this._escapeHTML(err.message)}</p></div></div>`;
     } finally {
       this.compareLoading = false;
       inputEl.disabled = false;
@@ -1262,10 +1177,10 @@ window.AgentPage = window.AgentPage || {
     const msg = session.messages[msgIdx];
 
     // 读取输入框内容
-    const msgEl = document.querySelector(`.message-agent[data-idx="${msgIdx}"]`);
+    const msgEl = document.querySelector(`.msg.ai[data-idx="${msgIdx}"]`);
     let comment = null;
     if (!skip && msgEl) {
-      const textarea = msgEl.querySelector('.feedback-comment-input');
+      const textarea = msgEl.querySelector('.feedback-bar textarea, .textarea');
       comment = textarea ? textarea.value.trim() : null;
     }
 
@@ -1305,12 +1220,12 @@ window.AgentPage = window.AgentPage || {
      * feedback : null | 'up' | 'down'
      * comment  : null（点踩展开评论框中） | '__skip__'（明确跳过） | string（已提交） | 'ok'（点赞已提交）
      */
-    const msgEl = document.querySelector(`.message-agent[data-idx="${msgIdx}"]`);
+    const msgEl = document.querySelector(`.msg.ai[data-idx="${msgIdx}"]`);
     if (!msgEl) return;
 
     const barEl = msgEl.querySelector('.feedback-bar');
     if (!barEl) {
-      const bubble = msgEl.querySelector('.message-bubble');
+      const bubble = msgEl.querySelector('.bubble');
       if (bubble) {
         bubble.insertAdjacentHTML('beforeend', this._renderFeedbackBar(msgIdx, feedback, comment));
       }
