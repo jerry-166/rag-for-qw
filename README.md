@@ -115,19 +115,25 @@ rag-for-qw/
 │   ├── requirements.txt        # 依赖管理
 │   └── .env.example            # 环境变量示例
 ├── frontend/                   # 前端代码
+│   ├── design/                 # 【Stage 5 新前端】玻璃风实现（详见下文“前端架构说明”）
+│   │   ├── index.html          # 新前端入口（引入 tokens.css + wireframe.css，复用 ../js/）
+│   │   ├── preview.html        # 设计稿预览页
+│   │   ├── tokens.css          # 设计令牌（颜色/间距/字号变量）
+│   │   ├── ui.js               # 全局 UI 工具（玻璃风 confirm/prompt/alert modal）
+│   │   └── page-wireframes/    # 8 页线框设计稿 + wireframe.css + sidebar.js
 │   ├── css/
-│   │   └── main.css            # 主样式文件（含暗黑模式）
+│   │   └── main.css            # 旧主样式（历史，design/ 体系替代）
 │   ├── js/
-│   │   ├── api.js              # API调用封装
-│   │   ├── app.js              # 应用入口
+│   │   ├── api.js              # API调用封装（design 复用）
+│   │   ├── app.js              # 应用入口（design 复用）
 │   │   ├── auth.js             # 认证逻辑
 │   │   └── pages/
-│   │       ├── knowledge-bases.js # 知识库管理页面
-│   │       ├── documents.js      # 文档管理页面
-│   │       ├── pipeline.js       # 文档处理流程页面
-│   │       ├── search.js         # 知识检索页面
-│   │       └── agent.js          # AI Agent页面
-│   └── index.html              # 主HTML文件
+│   │       ├── knowledge-bases.js # 知识库管理页面（design 复用）
+│   │       ├── documents.js      # 文档管理页面（design 复用）
+│   │       ├── pipeline.js       # 文档处理流程页面（design 复用）
+│   │       ├── search.js         # 知识检索页面（design 复用）
+│   │       └── agent.js          # AI Agent页面（design 复用）
+│   └── index.html              # 旧主HTML入口（历史保留，访问 design/index.html 进入新前端）
 ├── img/                        # 项目截图
 │   ├── login.png               # 登录页面
 │   ├── registration.png        # 注册页面
@@ -204,6 +210,27 @@ python -m http.server 8000
 7. **访问系统**
 
 打开浏览器，访问 `http://localhost:8000`
+
+> **前端有两个入口**（同一静态服务下）：
+> - `http://localhost:8000/` → 旧前端入口 `frontend/index.html`（历史保留）
+> - `http://localhost:8000/design/index.html` → **Stage 5 新前端** `frontend/design/index.html`（玻璃风 UI，推荐访问）
+>
+> 新前端在 Stage 5 重构中落地：用 `design/` 下的 `tokens.css` + `page-wireframes/wireframe.css` 玻璃风样式体系替代旧 `css/main.css`，但**复用 `js/` 下的全部业务逻辑**（api.js/app.js/pages/*.js 不变），通过 `design/ui.js` + `design/bridge.js` 桥接新模板与旧逻辑。详见下文“前端架构说明”。
+
+## 前端架构说明（Stage 5 后）
+
+项目前端在 Stage 5 引入了 **`frontend/design/`** 作为新前端实现，与旧 `frontend/index.html` 并存于同一静态服务下：
+
+| 维度 | 旧前端 `frontend/index.html` | 新前端 `frontend/design/index.html` |
+|------|------------------------------|--------------------------------------|
+| 样式 | `css/main.css`（历史） | `design/tokens.css` + `design/page-wireframes/wireframe.css`（玻璃风设计令牌体系） |
+| HTML 模板 | index.html 内联 | index.html 内联 + `design/page-wireframes/0X-*.html` 8 页线框设计稿（标准答案） |
+| UI 组件 | 原生 confirm/prompt/alert | `design/ui.js` 玻璃风 modal（confirm/prompt/alert 统一 Promise 包装） |
+| 业务 JS | `js/api.js` + `js/app.js` + `js/pages/*.js` | **完全复用**（相对路径 `../js/`） |
+| 桥接 | — | `design/bridge.js` + `design/page-wireframes/sidebar.js`（连接新模板与旧 App/Page 生命周期） |
+| 访问 | `http://host:port/` | `http://host:port/design/index.html` |
+
+**关键约定**：`design/page-wireframes/` 下的 8 个线框 HTML 是用户验证过的"标准答案"设计稿。落地生产页面时（`js/pages/*.js` 的 render 逻辑），HTML 结构与 class 名优先对齐线框稿，旧 `js/pages/*.js` 只负责注入真实数据与事件绑定。详见 `docs/plans/` 下 Stage 5 相关文档与 `.codebuddy/memory/MEMORY.md` 的"UI 实现约定"。
 
 ## 配置说明
 
