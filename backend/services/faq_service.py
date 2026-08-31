@@ -306,7 +306,8 @@ class FAQService:
             old_answer = faq["answer"]
             ok = db.promote_faq(faq_id, answer=distilled)
             if ok:
-                audit.log("faq.promote", resource_type="faq", resource_id=faq_id,
+                audit.log("faq.promote", user_id=faq.get("submitter_id"),
+                          resource_type="faq", resource_id=faq_id,
                           kb_id=faq["kb_id"],
                           detail={"via": "threshold", "hit_count": faq["hit_count"],
                                   "before": old_answer[:300], "after": distilled[:300]})
