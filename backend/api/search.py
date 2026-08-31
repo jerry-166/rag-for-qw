@@ -124,7 +124,7 @@ async def _milvus_search(request: QueryRequest, req: Request, current_user: dict
     milvus_client = req.app.state['milvus_client']
     metadata_filter = _build_metadata_filter(request, current_user)
     multiplier = 2 if request.use_rerank else 1
-    return milvus_client.query(
+    return await milvus_client.aquery(
         query_text=request.query,
         limit=_effective_limit(request) * multiplier,
         metadata_filter=metadata_filter,
@@ -185,7 +185,7 @@ async def query_milvus(
         # 召回：use_rerank 时多取几条供精排使用
         multiplier = 3 if request.use_rerank else 1
         effective_limit = _effective_limit(request)
-        raw_results = milvus_client.query(
+        raw_results = await milvus_client.aquery(
             query_text=request.query,
             limit=effective_limit * multiplier,
             metadata_filter=metadata_filter,

@@ -1,4 +1,5 @@
 from typing import Optional
+import asyncio
 import time
 
 from config import settings, init_logger, get_runtime
@@ -783,7 +784,21 @@ class MilvusClient:
             return []
         logger.info(f"[MilvusClient] {retrieval_mode} 模式检索完成，返回 {len(results)} 条结果")
         return results
-    
+
+    async def aquery(self, query_text, limit=5, metadata_filter=None, retrieval_mode="advanced"):
+        """query() 的异步包装：整体移出事件循环（含同步 embed_query HTTP +
+        同步 pymilvus search，每请求 ~5-8s 同步段——Stage 4 复验 §9.2）。"""
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: self.query(
+                query_text=query_text,
+                limit=limit,
+                metadata_filter=metadata_filter,
+                retrieval_mode=retrieval_mode,
+            ),
+        )
+
     def get_collection_info(self):
         """获取集合信息"""
         try:

@@ -113,6 +113,8 @@ def rag_hybrid_search(
 
             logger.info(f"[rag_tools] 向量检索开始，query={query[:50]}, retrieval_mode={retrieval_mode}, knowledge_base_id={knowledge_base_id}, 可见KB过滤={'knowledge_base_ids' in kb_filter}")
 
+            # 注：此处保持同步 query()——本工具是同步 @tool，LangGraph 在 worker
+            # 线程执行，不阻塞事件循环；L1 embedding 缓存（文档 08）同样生效于此。
             raw = milvus.query(
                 query_text=query,
                 limit=per_k,
