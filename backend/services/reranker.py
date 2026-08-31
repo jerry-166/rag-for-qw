@@ -20,6 +20,47 @@ from config import settings, init_logger, get_runtime
 
 logger = init_logger(__name__)
 
+# Stage 4 压测复验 §9.1/§9.3：默认线程池并发 predict 导致 torch intra-op 线程
+# 超订阅（10 并发 × ~12 线程挤 12 物理核）+ Windows c10.dll 偶发崩溃
+# （"predict 只读推理多线程安全"的旧假设已被实测证伪）。
+# 治理：专用有界线程池 + torch.set_num_threads 硬预算。
+import concurrent.futures
+
+_RERANK_EXECUTOR = None
+_EXECUTOR_LOCK = None  # threading.Lock，延迟创建
+
+
+def _get_rerank_executor():
+    """懒创建专用有界线程池（worker 数与 torch 线程数可热调）。"""
+    global _RERANK_EXECUTOR, _EXECUTOR_LOCK
+    import threading
+    if _EXECUTOR_LOCK is None:
+        _EXECUTOR_LOCK = threading.Lock()
+    with _EXECUTOR_LOCK:
+        if _RERANK_EXECUTOR is None:
+            workers = int(get_runtime("RERANK_MAX_CONCURRENCY", 1))
+            try:
+                import torch
+                torch.set_num_threads(int(get_runtime("RERANK_TORCH_THREADS", 8)))
+            except ImportError:
+                pass  # sentence_transformers 不可用时反正走不到 predict
+            _RERANK_EXECUTOR = concurrent.futures.ThreadPoolExecutor(
+                max_workers=workers, thread_name_prefix="rerank")
+            logger.info(
+                f"[Reranker] 专用线程池就绪: workers={workers}, "
+                f"torch_threads={get_runtime('RERANK_TORCH_THREADS', 8)}"
+            )
+    return _RERANK_EXECUTOR
+
+
+def reset_rerank_executor():
+    """热调参数后重建线程池（在途任务不等待，自然排空）。"""
+    global _RERANK_EXECUTOR
+    if _RERANK_EXECUTOR is not None:
+        _RERANK_EXECUTOR.shutdown(wait=False)
+        _RERANK_EXECUTOR = None
+        logger.info("[Reranker] 线程池已重置，下次调用按新参数重建")
+
 
 class BaseReranker(ABC):
     """Reranker 抽象基类 — 统一接口"""
@@ -209,12 +250,12 @@ class CrossEncoderReranker(BaseReranker):
                 for r in results
             ]
 
-            # predict 是同步重计算（秒级），必须放入线程池执行，否则会阻塞
-            # asyncio 事件循环导致所有并发请求排队（Stage 4 压测：native+rerank
-            # p50=35s 的主因）。CrossEncoder.predict 为只读推理，官方实现无共享
-            # 可变状态，多线程并发调用安全；默认线程池可并行多份推理。
+            # predict 放入专用有界线程池（RERANK_MAX_CONCURRENCY × RERANK_TORCH_THREADS
+            # 乘积须 ≤ 物理核数，防超订阅与 c10.dll 并发崩溃——Stage 4 复验实测教训：
+            # 默认线程池下 10 并发 × torch intra-op ~12 线程 = 120 线程挤 12 核，
+            # 单发 2-3s 放大到 ~62s/请求，且 Windows 下偶发 c10.dll APPCRASH）
             loop = asyncio.get_running_loop()
-            scores = await loop.run_in_executor(None, model.predict, pairs)
+            scores = await loop.run_in_executor(_get_rerank_executor(), model.predict, pairs)
 
             # 按分数降序排列
             scored = list(zip(results, scores))

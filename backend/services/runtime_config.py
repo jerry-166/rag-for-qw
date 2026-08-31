@@ -29,6 +29,7 @@ GROUPS: Dict[str, str] = {
     "system": "系统配置",
     "evolving": "自进化记忆",
     "api_keys": "API Keys",
+    "cache": "缓存配置",
 }
 
 
@@ -77,6 +78,18 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
         "type": "int", "min": 1, "max": 1000,
         "label": "Milvus 搜索探针数",
         "description": "IVF 索引搜索时的 nprobe，越大召回越高但越慢",
+    },
+    "RERANK_MAX_CONCURRENCY": {
+        "group": "retrieval",
+        "type": "int", "min": 1, "max": 8,
+        "label": "Rerank 并发数",
+        "description": "rerank 专用线程池 worker 数（与 torch 线程数乘积≤物理核数，防超订阅）",
+    },
+    "RERANK_TORCH_THREADS": {
+        "group": "retrieval",
+        "type": "int", "min": 1, "max": 16,
+        "label": "Rerank torch 线程数",
+        "description": "单次 predict 的 torch intra-op 线程预算",
     },
 
     # ── 文档切分（下次导入文档时生效，已导入的不受影响）──
@@ -450,6 +463,12 @@ def _reset_reranker() -> None:
     logger.info("[RuntimeConfig] Reranker 实例已重置")
 
 
+def _reset_rerank_pool() -> None:
+    """热调 rerank 线程预算后重建专用线程池。"""
+    from services.reranker import reset_rerank_executor
+    reset_rerank_executor()
+
+
 def _reset_agents() -> None:
     """重置 Agent 实例缓存，下次请求按新配置重建。"""
     try:
@@ -517,6 +536,8 @@ def _apply_log_levels() -> None:
 _APPLY_HANDLERS: Dict[str, Callable[[Dict[str, Any]], None]] = {
     "RERANKER_TYPE": lambda st: _reset_reranker(),
     "LLM_RERANKER_MAX_TOKENS": lambda st: _reset_reranker(),
+    "RERANK_MAX_CONCURRENCY": lambda st: _reset_rerank_pool(),
+    "RERANK_TORCH_THREADS": lambda st: _reset_rerank_pool(),
     "DEFAULT_MODEL": lambda st: (_reset_reranker(), _reset_agents()),
     "EMBEDDING_MODEL": lambda st: (_reset_reranker(), _reset_agents()),
     "LITELLM_BASE_URL": lambda st: (_reset_reranker(), _reset_agents()),
