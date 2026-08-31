@@ -1,0 +1,10 @@
+10:38:09 - INFO - 数据库 rag_system 已存在
+10:38:09 - INFO - 成功连接到数据库: rag_system
+10:38:09 - ERROR - 查询失败: column "created_at" does not exist
+LINE 1: select action,count(*) c from audit_log where created_at>='2...
+                                                      ^
+
+10:38:09 - ERROR - 查询失败: column "created_at" does not exist
+LINE 1: ...poch from '2026-08-29T10:38:09.883958'::timestamp-created_at...
+                                                             ^
+

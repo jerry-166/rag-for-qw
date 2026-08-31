@@ -1,0 +1,97 @@
+{
+ "note": "recovered from stdout log after client KeyError crash (detail lost, summaries intact)",
+ "crashed_group": "hybrid_endpoint (backend c10.dll APPCRASH 0xc0000005 at 22:28)",
+ "summaries": {
+  "native": {
+   "tag": "native",
+   "ep": "/api/milvus/query",
+   "body": {
+    "use_rerank": true,
+    "knowledge_base_id": 17,
+    "limit": 10,
+    "retrieval_mode": "native"
+   },
+   "n": 40,
+   "conc": 10,
+   "wall_s": 294.8,
+   "qps": 0.14,
+   "ok": 40,
+   "err": 0,
+   "err_rate": 0.0,
+   "p50_ms": 70265,
+   "p95_ms": 89945,
+   "p99_ms": 97375,
+   "max_ms": 102124,
+   "err_codes": {},
+   "rss_start": 1307.3
+  },
+  "advanced": {
+   "tag": "advanced",
+   "ep": "/api/milvus/query",
+   "body": {
+    "use_rerank": true,
+    "knowledge_base_id": 17,
+    "limit": 10,
+    "retrieval_mode": "advanced"
+   },
+   "n": 80,
+   "conc": 10,
+   "wall_s": 643.6,
+   "qps": 0.12,
+   "ok": 80,
+   "err": 0,
+   "err_rate": 0.0,
+   "p50_ms": 78262,
+   "p95_ms": 92144,
+   "p99_ms": 102168,
+   "max_ms": 102415,
+   "err_codes": {},
+   "rss_start": 1111.2
+  },
+  "hybrid_vec": {
+   "tag": "hybrid_vec",
+   "ep": "/api/milvus/query",
+   "body": {
+    "use_rerank": true,
+    "knowledge_base_id": 17,
+    "limit": 10,
+    "retrieval_mode": "hybrid"
+   },
+   "n": 40,
+   "conc": 10,
+   "wall_s": 155.7,
+   "qps": 0.26,
+   "ok": 40,
+   "err": 0,
+   "err_rate": 0.0,
+   "p50_ms": 36199,
+   "p95_ms": 51100,
+   "p99_ms": 58241,
+   "max_ms": 59111,
+   "err_codes": {},
+   "rss_start": 1107.5
+  },
+  "keyword": {
+   "tag": "keyword",
+   "ep": "/api/elasticsearch/search",
+   "body": {
+    "use_rerank": true,
+    "knowledge_base_id": 17,
+    "limit": 10
+   },
+   "n": 200,
+   "conc": 20,
+   "wall_s": 1600.1,
+   "qps": 0.12,
+   "ok": 200,
+   "err": 0,
+   "err_rate": 0.0,
+   "p50_ms": 158815,
+   "p95_ms": 175779,
+   "p99_ms": 180561,
+   "max_ms": 183566,
+   "err_codes": {},
+   "rss_start": 1194.3
+  }
+ }
+}

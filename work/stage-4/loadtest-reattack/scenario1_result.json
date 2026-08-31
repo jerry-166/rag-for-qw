@@ -1,0 +1,962 @@
+{
+ "config": {
+  "noop": 30,
+  "real": 3,
+  "note": "reattack reduced",
+  "started": "2026-08-29 10:44:08",
+  "finished": "2026-08-29 10:54:08"
+ },
+ "noop": [
+  {
+   "doc": "reattack-doc-000-向量数据库.md",
+   "kb": "noop",
+   "file_id": 185,
+   "ok": true,
+   "ms": 217.0748999924399,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 971.0986999998568,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 42.094800010090694,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 71999.58390000393,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-001-检索增强生成.md",
+   "kb": "noop",
+   "file_id": 199,
+   "ok": true,
+   "ms": 458.07870000135154,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 1141.3403999904403,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 43.024200000218116,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 28415.445999999065,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-002-文档切片策略.md",
+   "kb": "noop",
+   "file_id": 197,
+   "ok": true,
+   "ms": 454.27200000267476,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 1144.502700000885,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 43.07289999269415,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 32506.344499997795,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-003-嵌入模型.md",
+   "kb": "noop",
+   "file_id": 194,
+   "ok": true,
+   "ms": 448.74890000210144,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 1150.2932000003057,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 43.4660999890184,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 105008.03279998945,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-004-重排序.md",
+   "kb": "noop",
+   "file_id": 184,
+   "ok": true,
+   "ms": 206.9822000048589,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 726.5734999964479,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 29.721500002779067,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 21900.03269999579,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-005-知识图谱.md",
+   "kb": "noop",
+   "file_id": 192,
+   "ok": true,
+   "ms": 427.27290000766516,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 707.3005999991437,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 29.64849999989383,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 48107.95190000499,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-006-语义缓存.md",
+   "kb": "noop",
+   "file_id": 187,
+   "ok": true,
+   "ms": 213.1299000029685,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 732.1156999969389,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 29.66250000463333,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 86450.63219999429,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-007-多路召回.md",
+   "kb": "noop",
+   "file_id": 186,
+   "ok": true,
+   "ms": 210.97469999222085,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 726.4547000086168,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 29.821000003721565,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 16003.163900008076,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-008-查询改写.md",
+   "kb": "noop",
+   "file_id": 188,
+   "ok": true,
+   "ms": 86.69219999865163,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 486.8253999884473,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 34.28920000442304,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 34385.7805999869,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-009-评估基准.md",
+   "kb": "noop",
+   "file_id": 189,
+   "ok": true,
+   "ms": 88.08900001167785,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 637.9502000054345,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 34.89990001253318,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 46431.11069999577,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-010-分布式索引.md",
+   "kb": "noop",
+   "file_id": 190,
+   "ok": true,
+   "ms": 88.20270000433084,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 611.9283000007272,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 34.98240000044461,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 85316.81859999662,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-011-倒排索引.md",
+   "kb": "noop",
+   "file_id": 191,
+   "ok": true,
+   "ms": 90.08779999567196,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 612.029399999301,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 34.87499999755528,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 38988.513500007684,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-012-分词算法.md",
+   "kb": "noop",
+   "file_id": 193,
+   "ok": true,
+   "ms": 134.65439999708906,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 553.7620999966748,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 47.48249999829568,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 41860.27410000679,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-013-文本压缩.md",
+   "kb": "noop",
+   "file_id": 195,
+   "ok": true,
+   "ms": 150.9766000090167,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 532.9402000061236,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 47.3004000086803,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 51720.31540000171,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-014-联邦学习.md",
+   "kb": "noop",
+   "file_id": 196,
+   "ok": true,
+   "ms": 149.79379999567755,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 531.1185000027763,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 47.61900000448804,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 49059.90229999588,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-015-数据脱敏.md",
+   "kb": "noop",
+   "file_id": 198,
+   "ok": true,
+   "ms": 149.8961000033887,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 530.7887999952072,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 48.11250000784639,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 128302.8428000107,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-016-流式计算.md",
+   "kb": "noop",
+   "file_id": 200,
+   "ok": true,
+   "ms": 105.55870000098366,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 541.3809000019683,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 42.79570000653621,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 31395.065900011105,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-017-消息队列.md",
+   "kb": "noop",
+   "file_id": 201,
+   "ok": true,
+   "ms": 105.2415000012843,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 526.2946000002557,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 42.450799999642186,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 40629.47990000248,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-018-一致性哈希.md",
+   "kb": "noop",
+   "file_id": 206,
+   "ok": true,
+   "ms": 140.5846000125166,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 526.6552999964915,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 42.239800008246675,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 64741.706800006796,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-019-熔断降级.md",
+   "kb": "noop",
+   "file_id": 202,
+   "ok": true,
+   "ms": 96.31249999802094,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 526.6418999963207,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 42.092500007129274,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 17408.888599995407,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-020-向量数据库.md",
+   "kb": "noop",
+   "file_id": 207,
+   "ok": true,
+   "ms": 139.0940999990562,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 623.4282999939751,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 41.94229999848176,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 55199.2801999877,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-021-检索增强生成.md",
+   "kb": "noop",
+   "file_id": 203,
+   "ok": true,
+   "ms": 112.57699999259785,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 615.737000000081,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 41.70690001046751,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 69634.29830000678,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-022-文档切片策略.md",
+   "kb": "noop",
+   "file_id": 204,
+   "ok": true,
+   "ms": 112.52039999817498,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 619.56160000409,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 41.65880000800826,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 25066.28769999952,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-023-嵌入模型.md",
+   "kb": "noop",
+   "file_id": 205,
+   "ok": true,
+   "ms": 128.50170000456274,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 620.1832000078866,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 41.990900004748255,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 53475.74710000481,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-024-重排序.md",
+   "kb": "noop",
+   "file_id": 212,
+   "ok": true,
+   "ms": 179.84910000814125,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 585.2423000033014,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 34.26250000484288,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 27773.777299997164,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-025-知识图谱.md",
+   "kb": "noop",
+   "file_id": 208,
+   "ok": true,
+   "ms": 115.97539999638684,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 622.3652999906335,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 34.5311999990372,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 66661.90120000101,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-026-语义缓存.md",
+   "kb": "noop",
+   "file_id": 209,
+   "ok": true,
+   "ms": 140.23139998607803,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 620.139200007543,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 34.534799997345544,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 93369.56419999478,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-027-多路召回.md",
+   "kb": "noop",
+   "file_id": 210,
+   "ok": true,
+   "ms": 122.55949999962468,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 619.4010000035632,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 33.871899999212474,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 14432.261199995992,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-028-查询改写.md",
+   "kb": "noop",
+   "file_id": 213,
+   "ok": true,
+   "ms": 148.56489999510814,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 604.5256000070367,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 19.452299995464273,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 22813.074000005145,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-029-评估基准.md",
+   "kb": "noop",
+   "file_id": 211,
+   "ok": true,
+   "ms": 127.61009999667294,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 308.6911999998847,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 18.630999999004416,
+    "code": 200,
+    "msg": "增强器已全部关闭（纯原文 RAG），跳过生成"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 29739.7110999882,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  }
+ ],
+ "real": [
+  {
+   "doc": "reattack-doc-1000-向量数据库.md",
+   "kb": "real",
+   "file_id": 216,
+   "ok": true,
+   "ms": 78.70009999896865,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 312.0669000054477,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 13874.006800004281,
+    "code": 200,
+    "msg": "生成子问题和摘要成功（增量模式）"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 59636.47149999451,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-1001-检索增强生成.md",
+   "kb": "real",
+   "file_id": 214,
+   "ok": true,
+   "ms": 75.28489999822341,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 821.0216000006767,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 19490.301699988777,
+    "code": 200,
+    "msg": "生成子问题和摘要成功（增量模式）"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 33996.93079999997,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  },
+  {
+   "doc": "reattack-doc-1002-文档切片策略.md",
+   "kb": "real",
+   "file_id": 215,
+   "ok": true,
+   "ms": 74.85249999444932,
+   "code": 200,
+   "msg": "Markdown上传成功",
+   "api/process/split": {
+    "ok": true,
+    "ms": 821.8649999907939,
+    "code": 200,
+    "msg": "文档切割成功"
+   },
+   "api/process/generate": {
+    "ok": true,
+    "ms": 6913.9412000076845,
+    "code": 200,
+    "msg": "生成子问题和摘要成功（增量模式）"
+   },
+   "api/process/import": {
+    "ok": true,
+    "ms": 54181.19970000407,
+    "code": 200,
+    "msg": "导入到Milvus成功"
+   }
+  }
+ ],
+ "upload_summary_noop": {
+  "ok": 30,
+  "total": 30,
+  "wall_s": 0.7
+ },
+ "upload_summary_real": {
+  "ok": 3,
+  "total": 3,
+  "wall_s": 0.1
+ },
+ "api_process_split_summary_noop": {
+  "ok": 30,
+  "total": 30,
+  "wall_s": 5.1,
+  "p50_ms": 618,
+  "p95_ms": 1143,
+  "max_ms": 1150
+ },
+ "api_process_generate_summary_noop": {
+  "ok": 30,
+  "total": 30,
+  "wall_s": 0.3,
+  "p50_ms": 42,
+  "p95_ms": 48,
+  "max_ms": 48
+ },
+ "api_process_import_summary_noop": {
+  "ok": 30,
+  "total": 30,
+  "wall_s": 512.7,
+  "p50_ms": 44146,
+  "p95_ms": 99771,
+  "max_ms": 128303
+ },
+ "api_process_split_summary_real": {
+  "ok": 3,
+  "total": 3,
+  "wall_s": 0.8,
+  "p50_ms": 821,
+  "p95_ms": 822,
+  "max_ms": 822
+ },
+ "api_process_generate_summary_real": {
+  "ok": 3,
+  "total": 3,
+  "wall_s": 20.8,
+  "p50_ms": 13874,
+  "p95_ms": 18929,
+  "max_ms": 19490
+ },
+ "api_process_import_summary_real": {
+  "ok": 3,
+  "total": 3,
+  "wall_s": 59.6,
+  "p50_ms": 54181,
+  "p95_ms": 59091,
+  "max_ms": 59636
+ }
+}

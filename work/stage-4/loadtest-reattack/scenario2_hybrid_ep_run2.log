@@ -1,0 +1,4 @@
+warmup 200
+{"tag": "hybrid_endpoint", "ep": "/api/hybrid/search", "body": {"use_rerank": true, "knowledge_base_id": 17, "limit": 10}, "n": 200, "conc": 20, "wall_s": 1583.2, "qps": 0.13, "ok": 200, "err": 0, "err_rate": 0.0, "p50_ms": 149407, "p95_ms": 206736, "p99_ms": 268886, "max_ms": 268891, "err_codes": {}, "rss_start": 1314.9}
+RSS: start=911.0MB end=1314.9MB samples=795
+HYBRID_EP DONE

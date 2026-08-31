@@ -1,0 +1,9 @@
+[upload noop] 30/30 ok, wall=0.7s
+[upload real] 3/3 ok, wall=0.1s
+[/api/process/split noop] {'ok': 30, 'total': 30, 'wall_s': 5.1, 'p50_ms': 618, 'p95_ms': 1143, 'max_ms': 1150}
+[/api/process/generate noop] {'ok': 30, 'total': 30, 'wall_s': 0.3, 'p50_ms': 42, 'p95_ms': 48, 'max_ms': 48}
+[/api/process/import noop] {'ok': 30, 'total': 30, 'wall_s': 512.7, 'p50_ms': 44146, 'p95_ms': 99771, 'max_ms': 128303}
+[/api/process/split real] {'ok': 3, 'total': 3, 'wall_s': 0.8, 'p50_ms': 821, 'p95_ms': 822, 'max_ms': 822}
+[/api/process/generate real] {'ok': 3, 'total': 3, 'wall_s': 20.8, 'p50_ms': 13874, 'p95_ms': 18929, 'max_ms': 19490}
+[/api/process/import real] {'ok': 3, 'total': 3, 'wall_s': 59.6, 'p50_ms': 54181, 'p95_ms': 59091, 'max_ms': 59636}
+SCENARIO1 DONE

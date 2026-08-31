@@ -1,0 +1,9 @@
+{
+ "audit_by_action": {
+  "faq.aggregate": 20,
+  "faq.candidate_create": 20,
+  "faq.demote": 5,
+  "auth.login": 1,
+  "request.write": 1
+ },
+ "max_flush_lag_s": 
