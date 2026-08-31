@@ -1,0 +1,146 @@
+/* ============================================================
+   RAG-for-QW Design Tokens — "Aurora Nocturne Glass"
+   极夜底色 · 极光环境光 · 无色玻璃 · 方向性边缘光 · 香槟金单点缀
+   暗色为主（body 默认），亮色通过 body.light-mode 整套切换。
+   ============================================================ */
+
+:root {
+  /* ---------- 底色（极夜） ---------- */
+  --bg-deep: #06070b;              /* 页面最底层 */
+  --bg-raise: #0b0d13;             /* 内容区微抬升 */
+
+  /* ---------- 极光环境光（body::before 渲染，给玻璃提供可模糊的"景"） ---------- */
+  --aurora-1: rgba(99, 102, 241, 0.16);   /* 靛蓝 */
+  --aurora-2: rgba(45, 212, 191, 0.10);   /* 青 */
+  --aurora-3: rgba(230, 192, 122, 0.07);  /* 金 */
+
+  /* ---------- 玻璃材质（三级） ---------- */
+  --glass-1-bg: rgba(255, 255, 255, 0.05);    /* 大容器/内容卡片 */
+  --glass-2-bg: rgba(255, 255, 255, 0.075);   /* 侧栏/面板/弹层 */
+  --glass-3-bg: rgba(255, 255, 255, 0.13);    /* 浮层/hover 态 */
+  /* 顶栏/sticky 悬浮件：近实色磨砂，滚动内容不透字（审稿反馈） */
+  --glass-topbar-bg: rgba(11, 13, 19, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-strong: rgba(255, 255, 255, 0.16);
+  --glass-edge: rgba(255, 255, 255, 0.14);    /* 方向性边缘光（inset 顶部高光） */
+  --glass-blur: 22px;
+  --glass-blur-strong: 32px;
+  --glass-saturate: 160%;
+
+  /* ---------- 文字 ---------- */
+  --text-1: #f3f4f8;                          /* 主文本  对比度≈15:1 */
+  --text-2: rgba(235, 238, 246, 0.66);        /* 次文本  对比度≈7:1  */
+  --text-3: rgba(235, 238, 246, 0.44);        /* 辅助/占位（仅大字或图标辅助） */
+
+  /* ---------- 点缀：香槟金（唯一品牌色） ---------- */
+  --accent: #e2bc7d;
+  --accent-strong: #eec98e;                   /* hover / 高光 */
+  --accent-deep: #b98f4e;                     /* 按压 */
+  --accent-on: #201708;                       /* 金底上的文字 */
+  --accent-soft: rgba(226, 188, 125, 0.14);   /* 金色弱底（选中态/标记） */
+  --accent-glow: rgba(226, 188, 125, 0.28);   /* 光晕 */
+
+  /* ---------- 语义色 ---------- */
+  --ok: #5dd39e;        --ok-bg: rgba(93, 211, 158, 0.13);
+  --warn: #f0b95c;      --warn-bg: rgba(240, 185, 92, 0.14);
+  --danger: #f28383;    --danger-bg: rgba(242, 131, 131, 0.13);
+  --info: #7ec8f5;      --info-bg: rgba(126, 200, 245, 0.13);
+  --violet: #b7a6f5;    --violet-bg: rgba(183, 166, 245, 0.13);
+
+  /* ---------- 检索漏斗分层色（FAQ/实体/向量） ---------- */
+  --layer-faq: #e2bc7d;
+  --layer-entity: #b7a6f5;
+  --layer-vector: #7ec8f5;
+
+  /* ---------- 字体 ---------- */
+  --font-ui: "Inter", -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+  --fs-xs: 12px;  --fs-sm: 13px;  --fs-md: 14px;  --fs-lg: 15px;
+  --fs-xl: 18px;  --fs-2xl: 22px; --fs-3xl: 28px; --fs-4xl: 36px;
+  --lh-tight: 1.25; --lh-normal: 1.55;
+  --ls-caps: 0.08em;   /* 小标签大写/加宽字距 */
+
+  /* ---------- 间距（4 基数） ---------- */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px;
+
+  /* ---------- 圆角 ---------- */
+  --r-xs: 8px; --r-sm: 12px; --r-md: 16px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* ---------- 阴影 / 光晕 ---------- */
+  --shadow-1: 0 2px 10px rgba(0, 0, 0, 0.30);
+  --shadow-2: 0 10px 34px rgba(0, 0, 0, 0.42);
+  --shadow-3: 0 22px 60px rgba(0, 0, 0, 0.52);
+  --glow-accent: 0 0 0 1px var(--accent-soft), 0 6px 24px var(--accent-glow);
+
+  /* ---------- 动效 ---------- */
+  --dur-1: 120ms; --dur-2: 200ms; --dur-3: 340ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---------- 布局 ---------- */
+  --sidebar-w: 232px;
+  --sidebar-w-collapsed: 68px;
+  --topbar-h: 60px;
+  --content-max: 1360px;
+
+  /* ---------- 断点（注释即契约：≥1440 / 1024-1439 / 768-1023 / <768） ---------- */
+  /* <1024 侧栏折叠为图标轨；<768 侧栏转为抽屉（overlay） */
+
+  /* ---------- 层级 ---------- */
+  --z-base: 0; --z-sticky: 20; --z-drawer: 40; --z-modal: 60; --z-toast: 80;
+
+  /* ---------- 噪点（胶片颗粒，body::after） ---------- */
+  --grain-opacity: 0.05;
+
+  color-scheme: dark;
+}
+
+/* ============ 亮色（Frost / macOS 毛玻璃方向） ============ */
+body.light-mode {
+  --bg-deep: #e9ebf1;
+  --bg-raise: #f2f3f8;
+
+  --aurora-1: rgba(99, 102, 241, 0.14);
+  --aurora-2: rgba(45, 212, 191, 0.12);
+  --aurora-3: rgba(226, 188, 125, 0.16);
+
+  --glass-1-bg: rgba(255, 255, 255, 0.56);
+  --glass-2-bg: rgba(255, 255, 255, 0.68);
+  --glass-3-bg: rgba(255, 255, 255, 0.82);
+  --glass-topbar-bg: rgba(242, 243, 248, 0.85);
+  --glass-border: rgba(20, 24, 40, 0.08);
+  --glass-border-strong: rgba(20, 24, 40, 0.14);
+  --glass-edge: rgba(255, 255, 255, 0.85);
+
+  --text-1: #181b23;                       /* 对比度≈14:1 */
+  --text-2: rgba(24, 27, 35, 0.66);        /* 对比度≈6.5:1 */
+  --text-3: rgba(24, 27, 35, 0.44);
+
+  /* 亮底上香槟金降明度为古铜，保证文本级对比度 ≥4.5 */
+  --accent: #8f6a24;
+  --accent-strong: #a87d2f;
+  --accent-deep: #75551a;
+  --accent-on: #fffaf0;
+  --accent-soft: rgba(143, 106, 36, 0.13);
+  --accent-glow: rgba(143, 106, 36, 0.22);
+
+  --ok: #1d7a4f;        --ok-bg: rgba(29, 122, 79, 0.11);
+  --warn: #96660f;      --warn-bg: rgba(150, 102, 15, 0.12);
+  --danger: #b33737;    --danger-bg: rgba(179, 55, 55, 0.10);
+  --info: #1668a8;      --info-bg: rgba(22, 104, 168, 0.10);
+  --violet: #6550c8;    --violet-bg: rgba(101, 80, 200, 0.11);
+
+  --layer-faq: #8f6a24;
+  --layer-entity: #6550c8;
+  --layer-vector: #1668a8;
+
+  --shadow-1: 0 2px 10px rgba(20, 24, 40, 0.08);
+  --shadow-2: 0 10px 34px rgba(20, 24, 40, 0.13);
+  --shadow-3: 0 22px 60px rgba(20, 24, 40, 0.18);
+  --glow-accent: 0 0 0 1px var(--accent-soft), 0 6px 24px var(--accent-glow);
+
+  --grain-opacity: 0.035;
+
+  color-scheme: light;
+}

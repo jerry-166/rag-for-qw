@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>线框 01 · 全局壳 + 知识库</title>
+<link rel="stylesheet" href="../tokens.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+<div class="shell">
+
+  <!-- ========== 浮空玻璃侧栏（sticky，与内容同圆角层级） ========== -->
+  <aside class="sidenav glass-2">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 36 36" fill="none"><path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="26" r="4" fill="var(--accent)"/></svg>
+      </span>
+      <span class="brand-name">RAGFlow</span>
+    </div>
+
+    <nav class="col" style="gap:2px">
+      <a class="nav-item on" href="#"><span class="n-ico">◈</span><span class="n-label">知识库</span></a>
+      <a class="nav-item" href="02-documents.html"><span class="n-ico">▤</span><span class="n-label">文档管理</span></a>
+      <a class="nav-item" href="04-search.html"><span class="n-ico">◎</span><span class="n-label">知识检索</span></a>
+      <a class="nav-item" href="05-agent.html"><span class="n-ico">✦</span><span class="n-label">AI Agent</span></a>
+      <a class="nav-item" href="06-faq.html"><span class="n-ico">❖</span><span class="n-label">知识记忆</span></a>
+      <a class="nav-item" href="07-settings.html"><span class="n-ico">⚙</span><span class="n-label">设置</span></a>
+      <a class="nav-item" href="08-audit.html"><span class="n-ico">≣</span><span class="n-label">审计中心</span></a>
+    </nav>
+
+    <div class="spacer"></div>
+
+    <!-- 统计概览：压缩为两行数字带 -->
+    <div class="glass p4 mt4 stats-body">
+      <div class="label-caps mb4">统计概览</div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--sp-2)">
+        <div><div class="num" style="font-size:var(--fs-lg);font-weight:640">131</div><div class="t3" style="font-size:var(--fs-xs)">文档</div></div>
+        <div><div class="num" style="font-size:var(--fs-lg);font-weight:640">8777</div><div class="t3" style="font-size:var(--fs-xs)">Chunk</div></div>
+        <div><div class="num" style="font-size:var(--fs-lg);font-weight:640">7766</div><div class="t3" style="font-size:var(--fs-xs)">子问题</div></div>
+        <div><div class="num" style="font-size:var(--fs-lg);font-weight:640">1631</div><div class="t3" style="font-size:var(--fs-xs)">摘要</div></div>
+      </div>
+    </div>
+
+    <div class="user-trigger" role="button" aria-haspopup="menu" aria-label="用户菜单" tabindex="0" title="用户菜单"><div class="avatar">A</div><div class="user-meta"><span class="u-name">admin</span><span class="u-role">管理员</span></div><span class="user-chev">&rsaquo;</span></div>
+  </aside>
+
+  <!-- ========== 主区 ========== -->
+  <main>
+    <header class="topbar glass-3">
+      <span class="crumb">知识库</span>
+      <div class="spacer"></div>
+      <button class="icon-btn" title="切换主题">☾</button>
+      <div class="avatar" style="width:30px;height:30px">A</div>
+    </header>
+
+    <div class="content">
+      <div class="row between mb6">
+        <div>
+          <h1 class="h-title">知识库管理</h1>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">组织你的知识空间：上传文档、配置策略、协作共享</p>
+        </div>
+        <button class="btn btn-primary">＋ 创建知识库</button>
+      </div>
+
+      <div class="grid kb">
+        <!-- KB 卡片：策略徽标直接表达"跟随全局/自定义"语义（brief §三.1） -->
+        <div class="glass card card-hover">
+          <div class="row between">
+            <span class="brand-mark" style="width:38px;height:38px">📚</span>
+            <div class="row" style="gap:2px">
+              <button class="icon-btn" title="分享">🤝</button>
+              <button class="icon-btn" title="克隆">⧉</button>
+              <button class="icon-btn" title="编辑">✎</button>
+              <button class="icon-btn" title="删除">🗑</button>
+            </div>
+          </div>
+          <h3 class="mt4" style="font-size:var(--fs-lg);font-weight:620">计网</h3>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">计算机网络资料</p>
+          <div class="row mt4 wrap" style="gap:6px">
+            <span class="badge">12 文档</span>
+            <span class="badge info">auto 切割</span>
+            <span class="badge accent">子问题+摘要</span>
+          </div>
+          <p class="t3 mt4" style="font-size:var(--fs-xs)">更新于 2026/8/20</p>
+        </div>
+
+        <div class="glass card card-hover">
+          <div class="row between">
+            <span class="brand-mark" style="width:38px;height:38px">🧠</span>
+            <div class="row" style="gap:2px">
+              <button class="icon-btn" title="分享">🤝</button>
+              <button class="icon-btn" title="克隆">⧉</button>
+              <button class="icon-btn" title="编辑">✎</button>
+              <button class="icon-btn" title="删除">🗑</button>
+            </div>
+          </div>
+          <h3 class="mt4" style="font-size:var(--fs-lg);font-weight:620">我的知识库</h3>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">默认私有库 · FAQ 全局补全落点</p>
+          <div class="row mt4 wrap" style="gap:6px">
+            <span class="badge">3 文档</span>
+            <span class="badge">跟随全局</span>
+            <span class="badge violet">默认</span>
+          </div>
+          <p class="t3 mt4" style="font-size:var(--fs-xs)">更新于 2026/8/21</p>
+        </div>
+
+        <div class="glass card card-hover">
+          <div class="row between">
+            <span class="brand-mark" style="width:38px;height:38px">🤝</span>
+            <div class="row" style="gap:2px">
+              <button class="icon-btn" title="分享管理">🤝</button>
+              <button class="icon-btn" title="克隆">⧉</button>
+              <button class="icon-btn" title="编辑">✎</button>
+              <button class="icon-btn" title="删除">🗑</button>
+            </div>
+          </div>
+          <h3 class="mt4" style="font-size:var(--fs-lg);font-weight:620">团队共享库</h3>
+          <p class="t2 mt2" style="font-size:var(--fs-sm)">已分享给 3 人 · 2 个待审 PR</p>
+          <div class="row mt4 wrap" style="gap:6px">
+            <span class="badge">48 文档</span>
+            <span class="badge warn">2 PR 待审</span>
+            <span class="badge ok">共享中</span>
+          </div>
+          <p class="t3 mt4" style="font-size:var(--fs-xs)">更新于 2026/8/19</p>
+        </div>
+
+        <!-- 创建占位卡 -->
+        <button class="glass card card-hover center" style="border-style:dashed;color:var(--text-2);cursor:pointer;font:inherit">
+          <div style="font-size:28px">＋</div>
+          <p class="mt2">创建知识库</p>
+        </button>
+      </div>
+
+      <!-- 分享弹窗（组件示例，实际为 glass-3 模态） -->
+      <div class="glass-3 p6 mt8" style="max-width:520px">
+        <div class="label-caps">模态示例</div>
+        <h3 class="h-section mt2">分享「团队共享库」</h3>
+        <div class="field mt4">
+          <label>用户名</label>
+          <input class="input" placeholder="输入要分享的用户名" />
+        </div>
+        <label class="row mt4" style="gap:var(--sp-2);font-size:var(--fs-sm);color:var(--text-2)">
+          <span class="switch on"></span> 允许直接写入（关闭则对方仅能提交 PR，由我审核）
+        </label>
+        <div class="mt6">
+          <div class="label-caps mb4">已分享（2）</div>
+          <div class="row between p4 glass mt2">
+            <span>alice <span class="badge ok" style="margin-left:6px">可写入</span></span>
+            <button class="btn btn-sm btn-ghost">取消分享</button>
+          </div>
+          <div class="row between p4 glass mt2">
+            <span>bob <span class="badge" style="margin-left:6px">仅 PR</span></span>
+            <button class="btn btn-sm btn-ghost">取消分享</button>
+          </div>
+        </div>
+        <div class="row mt6" style="justify-content:flex-end">
+          <button class="btn btn-ghost">取消</button>
+          <button class="btn btn-primary">确认分享</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+	<script src="sidebar.js"></script>
+</body>
+</html>

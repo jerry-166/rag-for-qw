@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RAGFlow 设计系统预览 — Aurora Nocturne Glass</title>
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="page-wireframes/wireframe.css" />
+<script src="page-wireframes/sidebar.js"></script>
+<style>
+  .pv-wrap { max-width: 1080px; margin: 0 auto; padding: var(--sp-8) var(--sp-5) 120px; }
+  .pv-sec { margin-top: var(--sp-12); }
+  .pv-sec > .label-caps { margin-bottom: var(--sp-3); display: block; }
+  .pv-sec > .h-section { margin-bottom: var(--sp-4); }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: var(--sp-3); }
+  .swatch { border-radius: var(--r-sm); overflow: hidden; border: 1px solid var(--glass-border); }
+  .swatch .c { height: 64px; }
+  .swatch .n { padding: 8px 10px; font-size: var(--fs-xs); }
+  .swatch .n b { display: block; font-weight: 620; }
+  .swatch .n span { color: var(--text-3); font-family: var(--font-mono); }
+  .glass-demo { position: relative; border-radius: var(--r-lg); overflow: hidden; padding: var(--sp-8); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+  .glass-demo .aurora-a { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(99,102,241,.55), transparent 70%); top: -60px; left: -40px; }
+  .glass-demo .aurora-b { position: absolute; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(45,212,191,.45), transparent 70%); bottom: -80px; right: 10%; }
+  .glass-demo .aurora-c { position: absolute; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(226,188,125,.5), transparent 70%); top: 20%; left: 45%; }
+  .glass-demo .glass, .glass-demo .glass-2, .glass-demo .glass-3 { position: relative; padding: var(--sp-5); min-height: 110px; }
+  .type-row { display: flex; align-items: baseline; gap: var(--sp-4); padding: var(--sp-2) 0; border-bottom: 1px dashed var(--glass-border); }
+  .type-row .spec { width: 150px; flex: none; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-3); }
+  .demo-line { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; padding: var(--sp-3) 0; }
+  .wf-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--sp-3); }
+  .wf-links a { display: block; padding: var(--sp-4); border-radius: var(--r-md); text-decoration: none; color: var(--text-1); }
+  .wf-links a:hover { border-color: var(--accent); }
+  .wf-links .no { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="pv-wrap">
+
+  <!-- ============ Hero ============ -->
+  <header class="pv-sec" style="margin-top:0">
+    <span class="label-caps">RAGFlow · Design System v1 · 2026-08-21</span>
+    <h1 class="h-display mt2">Aurora Nocturne Glass</h1>
+    <p class="t2 mt4" style="max-width:640px">
+      极夜底色上浮起三层极光，所有界面元素是无色玻璃——靠高斯模糊透出环境光、靠顶部一道方向性边缘光塑形、
+      靠胶片噪点去数字化。唯一品牌色是香槟金，像夜里的一盏灯。
+      <button class="btn btn-sm" style="margin-left:8px" onclick="document.body.classList.toggle('light-mode')">切换暗/亮</button>
+    </p>
+  </header>
+
+  <!-- ============ 色彩 ============ -->
+  <section class="pv-sec">
+    <span class="label-caps">01 · Color</span>
+    <h2 class="h-section">色彩（暗色值 / 亮色自动整套切换）</h2>
+    <div class="swatches">
+      <div class="swatch"><div class="c" style="background:#06070b"></div><div class="n"><b>bg-deep</b><span>#06070b</span></div></div>
+      <div class="swatch"><div class="c" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)"></div><div class="n"><b>glass-2</b><span>white 6%</span></div></div>
+      <div class="swatch"><div class="c" style="background:#e2bc7d"></div><div class="n"><b>accent 香槟金</b><span>#e2bc7d</span></div></div>
+      <div class="swatch"><div class="c" style="background:#5dd39e"></div><div class="n"><b>ok</b><span>#5dd39e</span></div></div>
+      <div class="swatch"><div class="c" style="background:#f0b95c"></div><div class="n"><b>warn</b><span>#f0b95c</span></div></div>
+      <div class="swatch"><div class="c" style="background:#f28383"></div><div class="n"><b>danger</b><span>#f28383</span></div></div>
+      <div class="swatch"><div class="c" style="background:#7ec8f5"></div><div class="n"><b>info / 向量层</b><span>#7ec8f5</span></div></div>
+      <div class="swatch"><div class="c" style="background:#b7a6f5"></div><div class="n"><b>violet / 实体层</b><span>#b7a6f5</span></div></div>
+    </div>
+    <p class="t3 mt4" style="font-size:var(--fs-xs)">对比度（暗底）：主文本 ≈15:1，次文本 ≈7:1；亮底主文本 ≈14:1。均过 WCAG AA（≥4.5:1）。金色在亮模式降为古铜 #8f6a24 保对比度。</p>
+  </section>
+
+  <!-- ============ 玻璃材质 ============ -->
+  <section class="pv-sec">
+    <span class="label-caps">02 · Glass Material</span>
+    <h2 class="h-section">三级玻璃（置于极光之上观察透出）</h2>
+    <div class="glass-demo" style="border:1px solid var(--glass-border)">
+      <div class="aurora-a drift"></div><div class="aurora-b drift-2"></div><div class="aurora-c drift"></div>
+      <div class="glass"><b>glass-1</b><p class="t2" style="font-size:var(--fs-sm)">内容卡片 · 白 3.5% · blur 22</p></div>
+      <div class="glass-2"><b>glass-2</b><p class="t2" style="font-size:var(--fs-sm)">侧栏/面板 · 白 6%</p></div>
+      <div class="glass-3"><b>glass-3</b><p class="t2" style="font-size:var(--fs-sm)">浮层/弹窗 · 白 10%</p></div>
+    </div>
+    <p class="t3 mt4" style="font-size:var(--fs-xs)">手法：backdrop blur 22px + saturate 160% → 透出极光的朦胧色；inset 顶部 1px 高光 = 方向性边缘光；body::after 全局 5% 胶片噪点去塑料感。</p>
+  </section>
+
+  <!-- ============ 字体 ============ -->
+  <section class="pv-sec">
+    <span class="label-caps">03 · Typography</span>
+    <h2 class="h-section">字体梯度（系统字栈，零加载成本）</h2>
+    <div class="type-row"><span class="spec">4xl · 36 · -2%</span><span class="h-display" style="font-size:var(--fs-4xl)">知识即记忆</span></div>
+    <div class="type-row"><span class="spec">3xl · 28</span><span class="h-display">文档处理流水线</span></div>
+    <div class="type-row"><span class="spec">2xl · 22</span><span class="h-title">生成子问题与摘要</span></div>
+    <div class="type-row"><span class="spec">xl · 18</span><span class="h-section">混合检索结果</span></div>
+    <div class="type-row"><span class="spec">md · 14</span><span>正文：RAG 系统包含切块、增强、导入三个阶段。</span></div>
+    <div class="type-row"><span class="spec">sm · 13 / t2</span><span class="t2">次要说明：检索耗时 2550ms，返回 1 条结果。</span></div>
+    <div class="type-row"><span class="spec">caps · 12 · +8%</span><span class="label-caps" style="text-transform:uppercase">Section Label</span></div>
+    <div class="type-row"><span class="spec">mono</span><span class="mono t2">POST /api/process/generate/149 · 12 chunks · 12.9s</span></div>
+  </section>
+
+  <!-- ============ 组件 ============ -->
+  <section class="pv-sec">
+    <span class="label-caps">04 · Components</span>
+    <h2 class="h-section">基础组件</h2>
+    <div class="glass p6">
+      <div class="demo-line">
+        <button class="btn btn-primary">主要操作</button>
+        <button class="btn">次要操作</button>
+        <button class="btn btn-ghost">幽灵按钮</button>
+        <button class="btn btn-danger">危险操作</button>
+        <button class="btn btn-primary" disabled>禁用</button>
+        <button class="btn btn-sm">小按钮</button>
+        <span class="icon-btn" title="设置">⚙</span>
+      </div>
+      <div class="demo-line">
+        <span class="badge">默认</span>
+        <span class="badge ok"><i class="dot"></i>已完成</span>
+        <span class="badge warn"><i class="dot"></i>进行中</span>
+        <span class="badge danger">失败</span>
+        <span class="badge info">向量</span>
+        <span class="badge violet">实体</span>
+        <span class="badge accent">FAQ 命中</span>
+      </div>
+      <div class="demo-line">
+        <div class="field grow" style="max-width:260px"><label>输入框</label><input class="input" placeholder="输入用户名" /></div>
+        <div class="field" style="width:200px"><label>下拉</label><select class="select"><option>跟随全局配置</option><option>Markdown 标题切割</option></select></div>
+        <div class="field"><label>开关</label><span class="switch on" role="switch" aria-checked="true" tabindex="0"></span></div>
+        <div class="field grow" style="max-width:200px"><label>滑块 · Top-K 5</label><input type="range" class="range" value="50" /></div>
+      </div>
+      <div class="demo-line">
+        <div class="seg"><button>向量</button><button>关键词</button><button class="on accent">混合 RRF</button></div>
+        <div class="grow" style="max-width:320px"><div class="progress"><i style="width:64%"></i></div><p class="t3 mt2" style="font-size:var(--fs-xs)">生成增强 12/19 chunks · 预计剩余 8s</p></div>
+        <div class="progress indeterminate grow" style="max-width:160px"><i></i></div>
+      </div>
+      <div class="tabs mt4">
+        <button class="on">正式知识<span class="count">128</span></button>
+        <button>候选记忆<span class="count">17</span></button>
+        <button>PR 审核<span class="count">3</span></button>
+      </div>
+    </div>
+
+    <h3 class="mt8 mb4" style="font-size:var(--fs-md);font-weight:620">悬停交互（鼠标移入卡片试试）</h3>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="glass card card-hover">
+        <b>浮起 + 流光扫过</b>
+        <p class="t2 mt2" style="font-size:var(--fs-sm)">hover 时卡片上浮 5px、边缘光增强、金色光晕浮现，一道斜向流光 0.9s 扫过玻璃面。</p>
+      </div>
+      <div class="glass card card-hover">
+        <b>玻璃镜面反射</b>
+        <p class="t2 mt2" style="font-size:var(--fs-sm)">流光带 -20° 倾斜，模拟光源掠过镜面的镜面反射（specular sweep）。</p>
+      </div>
+      <div class="glass card shine">
+        <b>.shine 通用触发器</b>
+        <p class="t2 mt2" style="font-size:var(--fs-sm)">任何玻璃元素加 .shine 类即获得悬停扫光（不浮起），用于列表行、面板等场景。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 三态 ============ -->
+  <section class="pv-sec">
+    <span class="label-caps">05 · States</span>
+    <h2 class="h-section">空 / 加载 / 错误（全局统一规范）</h2>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="glass"><div class="state">
+        <div class="glyph">◇</div><div class="title">暂无文档</div>
+        <p class="desc">上传第一份 PDF 或 Markdown，开始构建你的知识库。</p>
+        <button class="btn btn-primary btn-sm">上传文档</button>
+      </div></div>
+      <div class="glass p5 col">
+        <div class="skeleton" style="height:18px;width:55%"></div>
+        <div class="skeleton" style="height:12px"></div>
+        <div class="skeleton" style="height:12px;width:82%"></div>
+        <div class="skeleton" style="height:12px;width:64%"></div>
+        <p class="t3" style="font-size:var(--fs-xs)">骨架屏：列表/卡片加载态一律用 shimmer，不用转圈（进度明确时用真实进度条替代）。</p>
+      </div>
+      <div class="glass"><div class="state">
+        <div class="glyph" style="color:var(--danger)">✕</div><div class="title">导入失败</div>
+        <p class="desc mono" style="font-size:var(--fs-xs)">import · Milvus 连接超时 · 2026-08-21 14:03</p>
+        <div class="row"><button class="btn btn-sm btn-primary">重试本阶段</button><button class="btn btn-sm btn-ghost">查看详情</button></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ 业务组件 ============ -->
+  <section class="pv-sec">
+    <span class="label-caps">06 · Domain Components</span>
+    <h2 class="h-section">Pipeline 步进器 · 检索漏斗 · 对话气泡</h2>
+    <div class="glass p6">
+      <div class="stepper mb6">
+        <div class="step done"><span class="orb">✓</span><div><div class="s-name">上传解析</div><div class="s-sub num">311ms</div></div></div>
+        <div class="step-link"><i style="transform:scaleX(1)"></i></div>
+        <div class="step done"><span class="orb">✓</span><div><div class="s-name">文档切割</div><div class="s-sub num">12 chunks</div></div></div>
+        <div class="step-link"><i style="transform:scaleX(.6)"></i></div>
+        <div class="step running"><span class="orb">3</span><div><div class="s-name">生成增强</div><div class="s-sub num">7/12 · 剩 ~8s</div></div></div>
+        <div class="step-link"><i style="transform:scaleX(0)"></i></div>
+        <div class="step"><span class="orb">4</span><div><div class="s-name">嵌入入库</div><div class="s-sub">等待</div></div></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div class="funnel">
+          <div class="funnel-layer hit l-faq"><span class="badge accent">FAQ</span><div class="fl-bar"><i style="width:100%;background:var(--layer-faq)"></i></div><b class="num">1 命中</b></div>
+          <div class="funnel-arrow">↓ 未直返，继续</div>
+          <div class="funnel-layer hit l-entity"><span class="badge violet">实体图谱</span><div class="fl-bar"><i style="width:45%;background:var(--layer-entity)"></i></div><b class="num">3</b></div>
+          <div class="funnel-arrow">↓</div>
+          <div class="funnel-layer hit l-vector"><span class="badge info">向量分层</span><div class="fl-bar"><i style="width:80%;background:var(--layer-vector)"></i></div><b class="num">12</b></div>
+        </div>
+        <div class="col">
+          <div class="msg user"><div class="bubble">RAG 系统包含哪些阶段？</div></div>
+          <div class="msg ai"><div class="avatar" style="width:28px;height:28px;font-size:11px">AI</div><div class="bubble glass">包含切块、增强与导入三个阶段<span class="cursor-blink"></span></div></div>
+          <div class="row wrap" style="padding-left:40px">
+            <span class="src-chip">① 摘要 · doc#149</span><span class="src-chip">② 子问题 · chunk#3</span><span class="src-chip">＋2 来源</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 页面线框 ============ -->
+  <section class="pv-sec">
+    <span class="label-caps">07 · Page Wireframes</span>
+    <h2 class="h-section">各页线框（新窗口打开）</h2>
+    <div class="wf-links">
+      <a class="glass card-hover" href="page-wireframes/01-shell-kb.html" target="_blank"><span class="no">01</span><br><b>全局壳 + 知识库</b><p class="t3" style="font-size:var(--fs-xs)">浮空侧栏 · KB 卡片 · 分享/克隆</p></a>
+      <a class="glass card-hover" href="page-wireframes/02-documents.html" target="_blank"><span class="no">02</span><br><b>文档管理</b><p class="t3" style="font-size:var(--fs-xs)">上传队列 · 真实进度</p></a>
+      <a class="glass card-hover" href="page-wireframes/03-pipeline.html" target="_blank"><span class="no">03</span><br><b>Pipeline 流水线</b><p class="t3" style="font-size:var(--fs-xs)">步进器 · 缺口提示 · 真进度</p></a>
+      <a class="glass card-hover" href="page-wireframes/04-search.html" target="_blank"><span class="no">04</span><br><b>知识检索</b><p class="t3" style="font-size:var(--fs-xs)">搜索 Hero · 漏斗可视化</p></a>
+      <a class="glass card-hover" href="page-wireframes/05-agent.html" target="_blank"><span class="no">05</span><br><b>AI Agent</b><p class="t3" style="font-size:var(--fs-xs)">SSE 流式 · 补全卡片</p></a>
+      <a class="glass card-hover" href="page-wireframes/06-faq.html" target="_blank"><span class="no">06</span><br><b>知识记忆 FAQ</b><p class="t3" style="font-size:var(--fs-xs)">三态队列 · 进度环</p></a>
+      <a class="glass card-hover" href="page-wireframes/07-settings.html" target="_blank"><span class="no">07</span><br><b>设置</b><p class="t3" style="font-size:var(--fs-xs)">分组导航 · dirty 保存</p></a>
+      <a class="glass card-hover" href="page-wireframes/08-audit.html" target="_blank"><span class="no">08</span><br><b>审计中心</b><p class="t3" style="font-size:var(--fs-xs)">筛选 · 密表 · 导出</p></a>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

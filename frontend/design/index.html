@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>RAGFlow - 智能知识库系统</title>
+  <!-- 设计稿样式（直接作为产品样式） -->
+  <link rel="stylesheet" href="tokens.css" />
+  <link rel="stylesheet" href="page-wireframes/wireframe.css" />
+  <!-- 外部依赖（与原 index.html 一致） -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.worker.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- 启动加载屏 -->
+    <div id="loading-screen" style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:24px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="brand-mark" style="width:42px;height:42px">
+          <svg width="20" height="20" viewBox="0 0 36 36" fill="none">
+            <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="18" cy="26" r="4" fill="var(--accent)"/>
+          </svg>
+        </span>
+        <span style="font-weight:680;letter-spacing:-0.01em;font-size:var(--fs-xl)">RAGFlow</span>
+      </div>
+      <div class="progress indeterminate" style="width:140px"><i></i></div>
+    </div>
+  </div>
+
+  <!-- 模板：认证页（玻璃风登录卡） -->
+  <template id="tpl-auth">
+    <div class="auth-page" style="min-height:100vh;display:grid;place-items:center;padding:var(--sp-6)">
+      <div class="glass-2" style="width:100%;max-width:380px;padding:var(--sp-8)">
+        <div class="brand" style="display:flex;align-items:center;gap:var(--sp-3);justify-content:center;margin-bottom:var(--sp-4)">
+          <span class="brand-mark" style="width:42px;height:42px">
+            <svg width="20" height="20" viewBox="0 0 36 36" fill="none">
+              <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="18" cy="26" r="4" fill="var(--accent)"/>
+            </svg>
+          </span>
+          <span class="brand-name" style="font-size:var(--fs-xl)">RAGFlow</span>
+        </div>
+        <p class="t2 center" style="margin-bottom:var(--sp-6);font-size:var(--fs-sm)">智能文档知识库系统</p>
+
+        <div class="seg" style="width:100%;margin-bottom:var(--sp-5)">
+          <button class="auth-tab on" data-tab="login" style="flex:1" type="button">登录</button>
+          <button class="auth-tab" data-tab="register" style="flex:1" type="button">注册</button>
+        </div>
+
+        <form id="login-form" class="auth-form col" style="gap:var(--sp-4)">
+          <div class="field"><label>用户名</label><input class="input" type="text" id="login-username" placeholder="输入用户名" required /></div>
+          <div class="field"><label>密码</label><input class="input" type="password" id="login-password" placeholder="输入密码" required /></div>
+          <div id="login-error" class="form-error hidden" style="color:var(--danger);font-size:var(--fs-sm)"></div>
+          <button type="submit" class="btn btn-primary" style="height:42px"><span class="btn-text">登 录</span><span class="btn-loading hidden">登录中...</span></button>
+        </form>
+
+        <form id="register-form" class="auth-form col hidden" style="gap:var(--sp-4)">
+          <div class="field"><label>用户名</label><input class="input" type="text" id="reg-username" placeholder="输入用户名（3-20字符）" required /></div>
+          <div class="field"><label>邮箱</label><input class="input" type="email" id="reg-email" placeholder="输入邮箱地址" required /></div>
+          <div class="field"><label>密码</label><input class="input" type="password" id="reg-password" placeholder="输入密码（6位以上）" required /></div>
+          <div id="register-error" class="form-error hidden" style="color:var(--danger);font-size:var(--fs-sm)"></div>
+          <div id="register-success" class="form-success hidden" style="color:var(--ok);font-size:var(--fs-sm)"></div>
+          <button type="submit" class="btn btn-primary" style="height:42px"><span class="btn-text">注 册</span><span class="btn-loading hidden">注册中...</span></button>
+        </form>
+      </div>
+    </div>
+  </template>
+
+  <!-- 模板：主应用框架（浮空玻璃壳） -->
+  <template id="tpl-app">
+    <div class="shell">
+      <aside class="sidenav glass-2" id="sidebar">
+        <div class="brand">
+          <span class="brand-mark">
+            <svg width="18" height="18" viewBox="0 0 36 36" fill="none">
+              <path d="M8 18 L13 10 L18 18 L23 10 L28 18" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="18" cy="26" r="4" fill="var(--accent)"/>
+            </svg>
+          </span>
+          <span class="brand-name">RAGFlow</span>
+        </div>
+
+        <nav class="sidebar-nav col" style="gap:2px">
+          <a class="nav-item" data-page="knowledge-bases" href="#"><span class="n-ico">◈</span><span class="n-label">知识库</span></a>
+          <a class="nav-item" data-page="documents" href="#"><span class="n-ico">▤</span><span class="n-label">文档管理</span></a>
+          <a class="nav-item" data-page="search" href="#"><span class="n-ico">◎</span><span class="n-label">知识检索</span></a>
+          <a class="nav-item" data-page="agent" href="#"><span class="n-ico">✦</span><span class="n-label">AI Agent</span></a>
+          <a class="nav-item" data-page="faq" href="#"><span class="n-ico">❖</span><span class="n-label">知识记忆</span></a>
+          <a class="nav-item" data-page="settings" href="#"><span class="n-ico">⚙</span><span class="n-label">设置</span></a>
+          <a class="nav-item" data-page="audit" href="#"><span class="n-ico">≣</span><span class="n-label">审计中心</span></a>
+        </nav>
+
+        <div class="spacer"></div>
+
+        <!-- 用户触发区：头像 + 用户名/角色 + ›（sidebar.js 接管） -->
+        <div class="user-trigger" id="user-trigger" role="button" aria-haspopup="menu" aria-label="用户菜单" tabindex="0" title="用户菜单">
+          <div class="avatar" id="user-avatar">U</div>
+          <div class="user-meta">
+            <span class="u-name" id="sidebar-username">用户</span>
+            <span class="u-role" id="sidebar-role">普通用户</span>
+          </div>
+          <span class="user-chev">›</span>
+        </div>
+      </aside>
+
+      <main>
+        <header class="topbar">
+          <button class="icon-btn" id="mobile-menu-btn" title="菜单" style="display:none">☰</button>
+          <div class="crumb" id="topbar-breadcrumb">知识库</div>
+          <div class="spacer"></div>
+          <button class="icon-btn" id="theme-toggle" title="切换主题">☾</button>
+          <div class="avatar" id="topbar-avatar" style="width:30px;height:30px">U</div>
+        </header>
+
+        <div class="content" id="page-container">
+          <!-- 动态内容 -->
+        </div>
+      </main>
+    </div>
+  </template>
+
+  <!-- 业务脚本：API 层（不改契约） + UI 弹窗工具 + 各页面 + app.js + sidebar.js -->
+  <script src="../js/api.js"></script>
+  <script src="ui.js"></script>
+  <script src="../js/pages/knowledge-bases.js"></script>
+  <script src="../js/pages/documents.js"></script>
+  <script src="../js/pages/pipeline.js"></script>
+  <script src="../js/pages/search.js"></script>
+  <script src="../js/pages/agent.js"></script>
+  <script src="../js/pages/faq.js"></script>
+  <script src="../js/pages/settings.js"></script>
+  <script src="../js/pages/audit.js"></script>
+  <script src="bridge.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="page-wireframes/sidebar.js"></script>
+</body>
+</html>
