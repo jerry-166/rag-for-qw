@@ -1,0 +1,379 @@
+INFO:     Started server process [40192]
+INFO:     Waiting for application startup.
+22:32:29 - INFO - 正在初始化应用...
+22:32:29 - INFO - 存储实例初始化完成，存储类型: local
+22:32:29 - INFO - [预热] 后台并发预热已启动：milvus / search / agents
+22:32:29 - INFO - [Audit] 审计管道已启动（批量 100 条 / 500ms）
+INFO:     Application startup complete.
+22:32:29 - INFO - BM25 内存检索引擎已创建（尚未加载索引）
+22:32:29 - INFO - 搜索引擎: BM25 (纯内存)
+INFO:     Uvicorn running on http://0.0.0.0:8003 (Press CTRL+C to quit)
+22:32:29 - INFO - [Agent预热] 开始后台预热所有 Agent...
+22:32:29 - INFO - 数据库 rag_system 已存在
+22:32:30 - INFO - 成功连接到数据库: rag_system
+INFO:     127.0.0.1:56173 - "GET /docs HTTP/1.1" 200 OK
+22:32:30 - INFO - BM25 索引从 PG 加载完成，共 3779 条 chunk，11 个分桶
+22:32:30 - INFO - BM25 索引加载完成，共 3779 条 chunk
+22:32:30 - INFO - BM25 分桶: bucket=1:1, chunks=372
+22:32:30 - INFO - BM25 分桶: bucket=1:20, chunks=1
+22:32:30 - INFO - BM25 分桶: bucket=1:21, chunks=1
+22:32:30 - INFO - BM25 分桶: bucket=14:17, chunks=1999
+22:32:30 - INFO - BM25 分桶: bucket=1:22, chunks=1
+22:32:30 - INFO - BM25 分桶: bucket=1:28, chunks=1
+22:32:30 - INFO - BM25 分桶: bucket=1:2, chunks=1046
+22:32:30 - INFO - BM25 分桶: bucket=7:6, chunks=49
+22:32:30 - INFO - BM25 分桶: bucket=7:12, chunks=49
+22:32:30 - INFO - BM25 分桶: bucket=7:13, chunks=49
+22:32:30 - INFO - BM25 分桶: bucket=14:18, chunks=211
+22:32:30 - INFO - [Readiness] search 就绪
+22:32:30 - INFO - 正在连接 Zilliz Cloud: https://in03-7dc201e632cee68.serverless.aws-eu-central-1.cloud.zilliz.com
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:53: PyMilvusDeprecationWarning: `connections.connect` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  connections.connect(
+22:32:30 - INFO - [memory_manager] MemoryManager 初始化，workspace: D:\workspace\rag-for-qw\backend\agent\workspace
+22:32:30 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw\backend\agent\sessions
+22:32:30 - INFO - [AgentRegistry] 初始化完成
+22:32:30 - INFO - [AgentRegistry] 注册 Agent: simple
+22:32:30 - INFO - [AgentRegistry] 注册 Agent: advanced
+22:32:30 - INFO - [AgentRegistry] 注册 Agent: claw
+22:32:30 - INFO - [AgentRegistry] 设置默认 Agent: claw
+22:32:30 - INFO - [AgentRegistry] Agent 注册中心配置完成，默认: claw
+22:32:31 - INFO - [SimpleAgentAdapter] 初始化完成
+22:32:31 - INFO - [AgentRegistry] 获取 Agent 实例: simple
+22:32:31 - INFO - [Agent预热] simple Agent 预热完成 (0.75s)
+22:32:31 - INFO - [AdvancedRAGAgent] 设置工具
+22:32:31 - INFO - [intent_classifier] 意图分类器初始化完成
+22:32:31 - INFO - [EntityExtractor] 实体提取器初始化完成
+22:32:31 - INFO - 任务规划器初始化完成
+22:32:31 - INFO - 工具管理器初始化
+22:32:31 - INFO - [ToolManager] 注册工具 clarify
+22:32:31 - INFO - [ToolManager] 注册工具 generate_answer
+22:32:31 - INFO - [ToolManager] 注册工具 analyze
+22:32:31 - INFO - [ToolManager] 注册工具 summarize
+22:32:31 - INFO - [ToolManager] 注册工具 knowledge_retrieval
+22:32:31 - INFO - [AdvancedRAGAgent] 注册内置工具完成
+22:32:31 - INFO - [ConversationManager] 对话管理器初始化完成
+22:32:31 - INFO - [ResponseGenerator] 初始化完成，LLM: metadata={'lc_versions': {'langchain-core': '1.5.6', 'langchain': '1.3.15', 'langchain-openai': '1.5.1'}} profile={'name': 'GPT-4o', 'release_date': '2024-05-13', 'last_updated': '2024-08-06', 'open_weights': False, 'max_input_tokens': 128000, 'max_output_tokens': 16384, 'text_inputs': True, 'image_inputs': True, 'audio_inputs': False, 'pdf_inputs': True, 'video_inputs': False, 'text_outputs': True, 'image_outputs': False, 'audio_outputs': False, 'video_outputs': False, 'reasoning_output': False, 'tool_calling': True, 'structured_output': True, 'attachment': True, 'temperature': True, 'image_url_inputs': True, 'pdf_tool_message': True, 'image_tool_message': True, 'tool_choice': True, 'tool_call_streaming': True} client=<openai.resources.chat.completions.completions.Completions object at 0x0000027DA3967C50> async_client=<openai.resources.chat.completions.completions.AsyncCompletions object at 0x0000027DA4078050> root_client=<openai.OpenAI object at 0x0000027DA39679D0> root_async_client=<openai.AsyncOpenAI object at 0x0000027DA3967D90> model_name='gpt-4o' temperature=0.7 model_kwargs={} openai_api_key=SecretStr('**********') openai_api_base='http://localhost:4000' stream_chunk_timeout=120.0
+22:32:31 - INFO - [AdvancedRAGAgent] 构建工作流
+22:32:31 - INFO - [workflow] 工作流编译完成
+22:32:31 - INFO - [AdvancedRAGAgent] 初始化完成
+22:32:31 - INFO - [AdvancedAgentAdapter] 初始化完成
+22:32:31 - INFO - [AgentRegistry] 获取 Agent 实例: advanced
+22:32:31 - INFO - [Agent预热] advanced Agent 预热完成 (0.03s)
+22:32:31 - INFO - [ClawAgentAdapter] 初始化完成
+22:32:31 - INFO - [AgentRegistry] 获取 Agent 实例: claw
+22:32:31 - INFO - [Agent预热] claw Agent 预热完成 (0.01s)
+22:32:31 - INFO - Reranker 初始化完成，类型: CrossEncoderReranker
+22:32:31 - INFO - [CrossEncoderReranker] 开始加载模型: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70...
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 4114.99it/s]
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:63: PyMilvusDeprecationWarning: `db.using_database` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  db.using_database(self.db_name)
+22:32:31 - INFO - Zilliz Cloud 连接成功，使用数据库: rag_system
+22:32:31 - INFO - [Readiness] milvus 就绪
+22:32:31 - INFO - [Tracing] Langfuse 连接验证: 成功
+22:32:34 - INFO - [Tracing] 初始化完成: backend=langfuse, status=ok
+22:32:34 - INFO - [Tracing] Langfuse Host → https://cloud.langfuse.com
+22:32:34 - INFO - [CrossEncoderReranker] 模型加载完成: C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70
+22:32:34 - INFO - [Agent预热] Reranker 模型预热完成 (2.78s)
+22:32:34 - INFO - [Readiness] agents 就绪
+INFO:     127.0.0.1:63054 - "GET /docs HTTP/1.1" 200 OK
+22:37:40 - INFO - 开始用户登录，用户名: admin
+22:37:40 - INFO - 用户登录成功，用户名: admin
+INFO:     127.0.0.1:50823 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50823 - "OPTIONS /api/knowledge-bases HTTP/1.1" 200 OK
+22:37:40 - INFO - 开始获取知识库列表
+22:37:40 - INFO - 获取知识库列表成功，共 9 个知识库
+INFO:     127.0.0.1:63953 - "GET /api/knowledge-bases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63953 - "OPTIONS /api/stats/overview HTTP/1.1" 200 OK
+22:37:40 - INFO - 开始获取统计概览，用户: admin
+22:37:40 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:50823 - "GET /api/stats/overview HTTP/1.1" 200 OK
+22:37:40 - INFO - 开始获取统计概览，用户: admin
+22:37:40 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:50823 - "GET /api/stats/overview HTTP/1.1" 200 OK
+22:38:12 - INFO - 开始用户登录，用户名: admin
+22:38:13 - INFO - 用户登录成功，用户名: admin
+INFO:     127.0.0.1:62820 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "OPTIONS /api/knowledge-bases HTTP/1.1" 200 OK
+22:38:13 - INFO - 开始获取知识库列表
+22:38:13 - INFO - 获取知识库列表成功，共 9 个知识库
+INFO:     127.0.0.1:57926 - "GET /api/knowledge-bases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57926 - "OPTIONS /api/stats/overview HTTP/1.1" 200 OK
+22:38:13 - INFO - 开始获取统计概览，用户: admin
+22:38:13 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:62820 - "GET /api/stats/overview HTTP/1.1" 200 OK
+22:38:13 - INFO - 开始获取统计概览，用户: admin
+22:38:13 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:62820 - "GET /api/stats/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "OPTIONS /api/knowledge-bases HTTP/1.1" 200 OK
+22:38:15 - INFO - 开始创建知识库，名称: stage5-baseline-2026-08-21T14-38-05
+22:38:15 - INFO - 知识库创建成功，ID: 29
+INFO:     127.0.0.1:57926 - "POST /api/knowledge-bases HTTP/1.1" 200 OK
+22:38:15 - INFO - 开始获取知识库列表
+22:38:15 - INFO - 获取知识库列表成功，共 10 个知识库
+INFO:     127.0.0.1:57926 - "GET /api/knowledge-bases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57926 - "OPTIONS /api/documents HTTP/1.1" 200 OK
+22:38:17 - INFO - 开始获取文档列表，知识库ID: None
+22:38:17 - INFO - 获取文档列表成功，共 10 个文档
+INFO:     127.0.0.1:62820 - "GET /api/documents HTTP/1.1" 200 OK
+22:38:17 - INFO - 开始获取统计概览，用户: admin
+22:38:17 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:62820 - "GET /api/stats/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "OPTIONS /api/upload/markdown HTTP/1.1" 200 OK
+22:38:18 - INFO - 开始处理Markdown上传请求，文件名: stage5-baseline.md
+22:38:18 - INFO - Markdown上传成功，文件ID: 151
+INFO:     127.0.0.1:57926 - "POST /api/upload/markdown HTTP/1.1" 200 OK
+22:38:18 - INFO - 开始获取知识库列表
+22:38:18 - INFO - 获取知识库列表成功，共 10 个知识库
+INFO:     127.0.0.1:57926 - "GET /api/knowledge-bases HTTP/1.1" 200 OK
+22:38:18 - INFO - 开始获取统计概览，用户: admin
+22:38:18 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:57926 - "GET /api/stats/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57926 - "OPTIONS /api/process/progress/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "OPTIONS /api/documents/151/preview HTTP/1.1" 200 OK
+22:38:20 - INFO - 开始获取文档预览，文件ID: 151
+22:38:20 - INFO - 获取文档预览成功，文件ID: 151
+INFO:     127.0.0.1:57926 - "GET /api/documents/151/preview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57926 - "OPTIONS /api/markdown/151 HTTP/1.1" 200 OK
+22:38:20 - INFO - 开始获取Markdown内容，文件ID: 151
+22:38:20 - INFO - 获取Markdown内容成功，文件ID: 151
+INFO:     127.0.0.1:62820 - "GET /api/markdown/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "OPTIONS /api/pdf/151 HTTP/1.1" 200 OK
+22:38:20 - INFO - 开始获取PDF文件，文件ID: 151
+22:38:20 - INFO - 获取PDF文件成功，文件ID: 151
+INFO:     127.0.0.1:57926 - "GET /api/pdf/151 HTTP/1.1" 200 OK
+22:38:20 - INFO - 开始获取统计概览，用户: admin
+22:38:20 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:57926 - "GET /api/stats/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57926 - "OPTIONS /api/process/split/151 HTTP/1.1" 200 OK
+22:38:23 - INFO - 开始切割文档，文件ID: 151
+22:38:23 - INFO - 使用递归字符切分，段落数: 1
+22:38:23 - INFO - 文档切分完成（策略=auto），段落数: 1，耗时: 0.00秒
+22:38:23 - INFO - 文档切割成功，文件ID: 151, 段落数: 1
+INFO:     127.0.0.1:62820 - "POST /api/process/split/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "OPTIONS /api/process/generate/151 HTTP/1.1" 200 OK
+22:38:26 - INFO - 开始生成子问题和摘要，文件ID: 151
+22:38:26 - INFO - 增量模式：1 个块中 1 个需要生成（启用集: ['sub_question', 'summary']）
+22:38:26 - INFO - 增量批次 0 开始，包含 1 个块
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+22:38:33 - INFO - 批量保存 1 个块的增强数据成功
+22:38:33 - INFO - 增量批次 0 完成并已持久化，耗时: 6.93秒
+22:38:33 - INFO - 增量批次处理完成，总耗时: 6.93秒
+22:38:33 - INFO - 生成子问题和摘要成功（增量），文件ID: 151, 子问题数: 3
+INFO:     127.0.0.1:57926 - "POST /api/process/generate/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57926 - "OPTIONS /api/process/generate/151/missing HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "GET /api/process/generate/151/missing HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "OPTIONS /api/process/import/151 HTTP/1.1" 200 OK
+22:38:36 - INFO - 开始导入到Milvus，文件ID: 151
+22:38:36 - INFO - 文档状态已设为 importing（防并发），文件ID: 151
+22:38:36 - INFO - 开始生成并填充增强内容的嵌入（启用集: ['sub_question', 'summary']）...
+22:38:36 - INFO - 共 1 条数据需要生成嵌入
+22:38:36 - INFO - 需要生成 1 个摘要嵌入和 3 个子问题嵌入
+22:38:38 - INFO - 摘要/子问题嵌入并行完成，摘要: 1 条，子问题: 3 条，耗时: 2.67秒
+22:38:38 - INFO - 嵌入填充完成，耗时: 0.00秒
+22:38:38 - INFO - 嵌入生成和填充总耗时: 2.67秒
+22:38:38 - INFO - 开始生成 chunk 原文向量，共 1 个 chunk...
+22:38:38 - INFO - 开始生成嵌入，共 1 个批次，文本数量: 1
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+22:38:39 - INFO - 嵌入生成完成，总耗时: 0.55秒，平均每条文本耗时: 0.5467秒
+22:38:39 - INFO - chunk 原文向量生成完成，耗时: 0.55秒
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:132: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  list_collections()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:119: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  return _pymilvus()[5]()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:167: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.summaries_collection = Collection(name=summaries_collection)
+22:38:41 - INFO - 摘要集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:197: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.subquestions_collection = Collection(name=subquestions_collection)
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+22:38:42 - INFO - 子问题集合已存在，直接使用
+22:38:42 - INFO - 开始处理chunk原文向量集合: chunk_vectors
+22:38:42 - INFO - chunk原文向量集合已存在，直接获取...
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:228: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.chunks_collection = Collection(name=chunks_collection)
+22:38:42 - INFO - chunk原文向量集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:254: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.faq_collection = Collection(name=faq_collection)
+22:38:43 - INFO - FAQ 记忆集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:282: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.entities_collection = Collection(name=entities_collection)
+22:38:45 - INFO - 实体向量集合已存在，直接使用
+22:38:45 - INFO - 开始导入 1 个文档数据
+22:38:45 - INFO - 导入 1 条摘要数据
+22:38:45 - INFO - 开始执行摘要数据插入...
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:364: PyMilvusDeprecationWarning: `Collection.insert` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.summaries_collection.insert(summaries_entities, timeout=60)
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+22:38:45 - INFO - 摘要数据导入成功
+22:38:45 - INFO - 导入 3 条子问题数据
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:393: PyMilvusDeprecationWarning: `Collection.insert` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.subquestions_collection.insert(subquestions_entities)
+22:38:45 - INFO - 子问题数据导入成功
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:421: PyMilvusDeprecationWarning: `Collection.insert` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.chunks_collection.insert([
+22:38:46 - INFO - chunk原文向量写入成功，共 1 条
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:433: PyMilvusDeprecationWarning: `Collection.flush` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.summaries_collection.flush()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:434: PyMilvusDeprecationWarning: `Collection.flush` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.subquestions_collection.flush()
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:436: PyMilvusDeprecationWarning: `Collection.flush` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.chunks_collection.flush()
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62820 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63929 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+22:38:59 - INFO - 数据导入完成
+22:38:59 - INFO - 导入到Milvus成功，文件ID: 151
+INFO:     127.0.0.1:57926 - "POST /api/process/import/151 HTTP/1.1" 200 OK
+22:38:59 - INFO - 开始获取统计概览，用户: admin
+22:38:59 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:63929 - "GET /api/stats/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63929 - "GET /api/process/progress/151 HTTP/1.1" 200 OK
+22:39:01 - INFO - 开始获取知识库列表
+22:39:01 - INFO - 获取知识库列表成功，共 10 个知识库
+INFO:     127.0.0.1:63929 - "GET /api/knowledge-bases HTTP/1.1" 200 OK
+22:39:01 - INFO - 开始获取统计概览，用户: admin
+22:39:01 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:63929 - "GET /api/stats/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63929 - "OPTIONS /api/milvus/query HTTP/1.1" 200 OK
+22:39:04 - INFO - 开始 Milvus 向量检索, 查询文本: RAG 系统包含哪些阶段, mode=advanced
+22:39:07 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=21, query_len=12
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:103: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+22:39:07 - INFO - [MilvusClient] advanced 模式检索完成，返回 4 条结果
+22:39:08 - INFO - Milvus 向量检索成功
+INFO:     127.0.0.1:63929 - "POST /api/milvus/query HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63929 - "OPTIONS /api/elasticsearch/search HTTP/1.1" 200 OK
+22:39:11 - INFO - 开始关键词检索, 查询文本: RAG 系统包含哪些阶段, 后端=bm25
+22:39:11 - INFO - rank_bm25 加载成功
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\ASUS\AppData\Local\Temp\jieba.cache
+Loading model cost 0.590 seconds.
+Prefix dict has been built successfully.
+22:39:12 - INFO - jieba 分词器加载成功
+22:39:12 - INFO - 分词缓存批量写回完成: 1 条
+22:39:12 - INFO - 分词缓存命中 0/1，按需分词并回写 1 条（630.5ms）
+22:39:12 - INFO - BM25 模型构建完成: bucket=1:29, 文档数=1, token总数=58
+22:39:12 - INFO - Elasticsearch 关键词检索成功
+INFO:     127.0.0.1:50444 - "POST /api/elasticsearch/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51245 - "OPTIONS /api/hybrid/search HTTP/1.1" 200 OK
+22:39:19 - INFO - 开始混合检索, 查询文本: RAG 系统包含哪些阶段
+22:39:20 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=14, query_len=12
+22:39:20 - INFO - [MilvusClient] advanced 模式检索完成，返回 4 条结果
+22:39:20 - INFO - 混合检索成功
+INFO:     127.0.0.1:51245 - "POST /api/hybrid/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51245 - "OPTIONS /api/agent/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51316 - "OPTIONS /api/agent/sessions?limit=50 HTTP/1.1" 200 OK
+22:39:25 - INFO - 开始获取知识库列表
+22:39:25 - INFO - 获取知识库列表成功，共 10 个知识库
+INFO:     127.0.0.1:53138 - "GET /api/knowledge-bases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51245 - "GET /api/agent/list HTTP/1.1" 200 OK
+22:39:25 - INFO - [session_store] SessionStore 初始化，存储目录: D:\workspace\rag-for-qw\backend\agent\sessions
+INFO:     127.0.0.1:51316 - "GET /api/agent/sessions?limit=50 HTTP/1.1" 200 OK
+22:39:25 - INFO - 开始获取统计概览，用户: admin
+22:39:25 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:51316 - "GET /api/stats/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51316 - "OPTIONS /api/agent/chat/stream HTTP/1.1" 200 OK
+22:39:27 - INFO - [Tracing] Langfuse v3+/v4+ 已加载
+22:39:27 - INFO - [Tracing] Langfuse callback handler 已创建
+INFO:     127.0.0.1:51245 - "POST /api/agent/chat/stream HTTP/1.1" 200 OK
+22:39:27 - INFO - [ClawAgentAdapter] 流式处理查询: RAG 系统包含哪些阶段？一句话回答
+22:39:27 - INFO - [rag_workflow] RAG Agent 工作流编译完成
+22:39:27 - INFO - [intent_classifier] 意图分类器初始化完成
+22:39:27 - INFO - [rag_workflow] 开始意图分类，查询: RAG 系统包含哪些阶段？一句话回答
+22:39:27 - INFO - [session_store] 获取会话消息: session_1787323165387
+22:39:27 - INFO - [intent_classifier] 规则分类结果: {}
+22:39:27 - INFO - 调用LLM进行意图识别...
+22:39:27 - INFO - 查询: RAG 系统包含哪些阶段？一句话回答
+22:39:30 - INFO - [intent_classifier] 识别出的主要意图: retrieval
+22:39:30 - INFO - [intent_classifier] 子意图: ['summarization']
+22:39:30 - INFO - [rag_workflow] LLM分类为: retrieval（置信度 90%）
+22:39:30 - INFO - [rag_workflow] 路由中...
+22:39:30 - INFO - [rag_workflow] 开始扩展查询，查询: RAG 系统包含哪些阶段？一句话回答
+解析结果: {'primary_intent': 'retrieval', 'confidence': 0.9, 'sub_intents': ['summarization'], 'reasoning': '用户的查询是关于RAG系统的具体信息，属于知识检索类查询。同时，用户要求用一句话回答，具有一定的总结性，因此包含summarization作为次要意图。', 'metadata': {}}
+INFO:     127.0.0.1:51316 - "OPTIONS /api/settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "GET /api/settings HTTP/1.1" 200 OK
+22:39:31 - INFO - 开始获取统计概览，用户: admin
+22:39:31 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:56073 - "GET /api/stats/overview HTTP/1.1" 200 OK
+22:39:33 - INFO - 查询扩展完成：原始查询 → 2 个子问题
+22:39:33 - INFO - [rag_workflow] 扩展查询完成
+INFO:     127.0.0.1:56073 - "OPTIONS /api/audit/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51316 - "GET /api/audit/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51316 - "OPTIONS /api/audit?page=1&page_size=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "GET /api/audit?page=1&page_size=50 HTTP/1.1" 200 OK
+22:39:34 - INFO - 开始获取统计概览，用户: admin
+22:39:34 - INFO - 获取统计概览成功，用户: admin
+INFO:     127.0.0.1:56073 - "GET /api/stats/overview HTTP/1.1" 200 OK
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:132: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  list_collections()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:119: PyMilvusDeprecationWarning: `utility.list_collections` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  return _pymilvus()[5]()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:167: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.summaries_collection = Collection(name=summaries_collection)
+22:39:36 - INFO - 摘要集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:197: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.subquestions_collection = Collection(name=subquestions_collection)
+22:39:37 - INFO - 子问题集合已存在，直接使用
+22:39:37 - INFO - 开始处理chunk原文向量集合: chunk_vectors
+22:39:37 - INFO - chunk原文向量集合已存在，直接获取...
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:228: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.chunks_collection = Collection(name=chunks_collection)
+22:39:37 - INFO - chunk原文向量集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:254: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.faq_collection = Collection(name=faq_collection)
+22:39:38 - INFO - FAQ 记忆集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:282: PyMilvusDeprecationWarning: `Collection` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.entities_collection = Collection(name=entities_collection)
+22:39:38 - INFO - 实体向量集合已存在，直接使用
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:480: PyMilvusDeprecationWarning: `Collection.load` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  self.faq_collection.load()
+D:\workspace\rag-for-qw\backend\services\milvus_client.py:482: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  results = self.faq_collection.search(
+22:39:39 - INFO - [rag_workflow] 开始检索, query=RAG 系统包含哪些阶段？一句话回答, retrieval_mode=advanced, knowledge_base_id=None, queries_count=3
+22:39:39 - INFO - [rag_tools] 向量检索开始，query=RAG 系统包含哪些阶段？一句话回答, retrieval_mode=advanced, knowledge_base_id=None
+22:39:39 - INFO - [rag_tools] 向量检索开始，query=RAG 系统在信息检索和生成中的工作流程包括哪些步骤？, retrieval_mode=advanced, knowledge_base_id=None
+22:39:39 - INFO - [rag_tools] 向量检索开始，query=RAG 系统的主要组件和它们的功能是什么？, retrieval_mode=advanced, knowledge_base_id=None
+22:39:41 - INFO - 摘要集合已存在，直接使用
+22:39:41 - INFO - 摘要集合已存在，直接使用
+22:39:41 - INFO - 摘要集合已存在，直接使用
+22:39:42 - INFO - 子问题集合已存在，直接使用
+22:39:42 - INFO - 开始处理chunk原文向量集合: chunk_vectors
+22:39:42 - INFO - chunk原文向量集合已存在，直接获取...
+22:39:42 - INFO - 子问题集合已存在，直接使用
+22:39:42 - INFO - 子问题集合已存在，直接使用
+22:39:42 - INFO - 开始处理chunk原文向量集合: chunk_vectors
+22:39:42 - INFO - 开始处理chunk原文向量集合: chunk_vectors
+22:39:42 - INFO - chunk原文向量集合已存在，直接获取...
+22:39:42 - INFO - chunk原文向量集合已存在，直接获取...
+22:39:42 - INFO - chunk原文向量集合已存在，直接使用
+22:39:42 - INFO - chunk原文向量集合已存在，直接使用
+22:39:43 - INFO - chunk原文向量集合已存在，直接使用
+22:39:43 - INFO - FAQ 记忆集合已存在，直接使用
+22:39:43 - INFO - FAQ 记忆集合已存在，直接使用
+22:39:43 - INFO - FAQ 记忆集合已存在，直接使用
+22:39:43 - INFO - 实体向量集合已存在，直接使用
+22:39:43 - INFO - 实体向量集合已存在，直接使用
+22:39:45 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=4, query_len=27
+D:\workspace\rag-for-qw\backend\services\retrieval_strategies.py:103: PyMilvusDeprecationWarning: `Collection.search` is an ORM-style PyMilvus API and will be removed in PyMilvus 3.1. Use `MilvusClient` instead.
+  hits_list = collection.search(
+22:39:46 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=4, query_len=21
+22:39:46 - INFO - 实体向量集合已存在，直接使用
+22:39:46 - INFO - [MilvusClient] advanced 模式检索完成，返回 4 条结果
+22:39:46 - INFO - 向量检索完成，返回 4 条结果
+22:39:46 - INFO - 关键词检索完成，返回 0 条结果
+22:39:46 - INFO - 精排完成（阈值 0.3），保留 2 条结果
+22:39:46 - INFO - 混合检索最终返回 2 条结果
+22:39:46 - INFO - [MilvusClient] advanced 模式检索完成，返回 4 条结果
+22:39:47 - INFO - [MilvusClient] 开始检索, retrieval_mode=advanced, limit=4, query_len=18
+22:39:48 - INFO - [MilvusClient] advanced 模式检索完成，返回 4 条结果
+22:39:48 - INFO - 向量检索完成，返回 4 条结果
+22:39:48 - INFO - 向量检索完成，返回 4 条结果
+22:39:49 - INFO - 关键词检索完成，返回 0 条结果
+22:39:49 - INFO - 关键词检索完成，返回 0 条结果
+22:39:49 - INFO - 混合检索最终返回 0 条结果
+22:39:49 - INFO - 混合检索最终返回 0 条结果

@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-21T16-02-49",
+  "ts": "2026-08-22T01-14-52",
   "results": [
     {
       "step": "01 登录页渲染",
@@ -14,7 +14,7 @@
     {
       "step": "03 新建测试 KB",
       "ok": true,
-      "extra": "name=stage5-baseline-2026-08-21T16-02-49"
+      "extra": "name=stage5-baseline-2026-08-22T01-14-52"
     },
     {
       "step": "04 文档页渲染",
@@ -24,7 +24,7 @@
     {
       "step": "05 上传 markdown",
       "ok": true,
-      "extra": "http=200 file_id=158"
+      "extra": "http=200 file_id=163"
     },
     {
       "step": "05b 进度接口轮询",
@@ -64,7 +64,7 @@
     {
       "step": "08 Agent SSE 对话",
       "ok": true,
-      "extra": "首块 53ms"
+      "extra": "首块 77ms"
     },
     {
       "step": "09 设置页渲染",
@@ -87,6 +87,6 @@
   "badRequests": [],
   "testResources": {
     "user": "admin",
-    "kbName": "stage5-baseline-2026-08-21T16-02-49"
+    "kbName": "stage5-baseline-2026-08-22T01-14-52"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-21T06-19-23",
+  "ts": "2026-08-26T19-20-57",
   "results": [
     {
       "step": "01 登录页渲染",
@@ -7,91 +7,27 @@
       "extra": ""
     },
     {
-      "step": "02 登录并进入知识库列表",
-      "ok": true,
-      "extra": ""
-    },
-    {
-      "step": "03 新建测试 KB",
-      "ok": true,
-      "extra": "name=stage5-baseline-2026-08-21T06-19-23"
-    },
-    {
-      "step": "04 文档页渲染",
-      "ok": true,
-      "extra": ""
-    },
-    {
-      "step": "05 上传 markdown",
-      "ok": true,
-      "extra": "http=200 file_id=149"
-    },
-    {
-      "step": "05b 进度接口轮询",
-      "ok": true,
-      "extra": "stage=awaiting_split progress={\"done\":0,\"total\":0}"
-    },
-    {
-      "step": "06.1 pipeline 切割",
-      "ok": true,
-      "extra": "stage=generating clicked=true"
-    },
-    {
-      "step": "06.2 pipeline 生成",
-      "ok": true,
-      "extra": "stage=awaiting_import clicked=true"
-    },
-    {
-      "step": "06.3 pipeline 导入",
-      "ok": true,
-      "extra": "stage=done clicked=true"
-    },
-    {
-      "step": "07 检索-vector",
-      "ok": true,
-      "extra": "结果节点=5"
-    },
-    {
-      "step": "07 检索-keyword",
-      "ok": true,
-      "extra": "结果节点=1"
-    },
-    {
-      "step": "07 检索-hybrid",
-      "ok": true,
-      "extra": "结果节点=2"
-    },
-    {
-      "step": "08 Agent SSE 对话",
-      "ok": true,
-      "extra": "首块 30ms"
-    },
-    {
-      "step": "09 设置页渲染",
-      "ok": true,
-      "extra": ""
-    },
-    {
-      "step": "10 审计页渲染",
-      "ok": true,
-      "extra": ""
+      "step": "EXCEPTION 旅程中断",
+      "ok": false,
+      "extra": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.nav-item') to be visible\u001b[22m\n"
     }
   ],
   "consoleIssues": [
     {
       "page": "main",
       "type": "error",
-      "text": "PDF.js渲染失败: InvalidPDFException"
-    },
-    {
-      "page": "main",
-      "type": "error",
-      "text": "加载统计概览失败: TypeError: Cannot set properties of null (setting 'textContent')\n    at Object.loadStatsOverview (http://localhost:8000/js/pages/pipeline.js?v=20260806:1261:63)\n    at async Object.loadImportResults (http://localhost:8000/js/pages/pipeline.js?v=20260806:1189:7)\n    at async Object.renderSt"
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
     }
   ],
-  "badRequests": [],
+  "badRequests": [
+    {
+      "page": "main",
+      "url": "http://localhost:8003/api/auth/login",
+      "status": 401
+    }
+  ],
   "testResources": {
     "user": "admin",
-    "kbName": "stage5-baseline-2026-08-21T06-19-23"
+    "kbName": "stage5-baseline-2026-08-26T19-20-57"
   }
 }

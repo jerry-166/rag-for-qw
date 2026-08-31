@@ -66,3 +66,6 @@ faq-page.png
 backend/boot.log
 backend/boot.err
 backend/_diag_faq.py
+
+# accidental token dumps
+work/stage-5/token.txt
