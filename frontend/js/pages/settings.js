@@ -486,8 +486,7 @@ const SettingsPage = {
           await this.loadSettings();
         }
       }
-    } catch (err) {
-      window.App.showToast(`保存失败: ${err.message}`, 'error');
+    } catch (err) { /* request() 已自动 toast */
     } finally {
       if (btn) { btn.disabled = false; }
       this._refreshDirtyUI();

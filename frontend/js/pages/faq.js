@@ -345,21 +345,25 @@ const FAQPage = {
   },
 
   async promote(id) {
+    const done = window.btnLoading(document.querySelector(`[data-promote="${id}"]`), '…');
     try {
       await FaqAPI.promote(id);
       window.App.showToast('已升格为正式知识', 'success');
       this.loadCounts();
       this.loadList();
-    } catch (e) { window.App.showToast('升格失败: ' + e.message, 'error'); }
+    } catch (e) { /* request() 已自动 toast */ }
+    finally { done(); }
   },
 
   async demote(id) {
+    const done = window.btnLoading(document.querySelector(`[data-demote="${id}"]`), '…');
     try {
       await FaqAPI.demote(id);
       window.App.showToast('已降级为候选记忆', 'success');
       this.loadCounts();
       this.loadList();
-    } catch (e) { window.App.showToast('降级失败: ' + e.message, 'error'); }
+    } catch (e) { /* request() 已自动 toast */ }
+    finally { done(); }
   },
 
   async removeFaq(id) {
@@ -375,10 +379,12 @@ const FAQPage = {
       window.App.showToast('已删除', 'success');
       this.loadCounts();
       this.loadList();
-    } catch (e) { window.App.showToast('删除失败: ' + e.message, 'error'); }
+    } catch (e) { /* request() 已自动 toast */ }
   },
 
   async reviewPr(id, approve) {
+    const sel = approve ? `[data-merge="${id}"]` : `[data-reject="${id}"]`;
+    const done = window.btnLoading(document.querySelector(sel), approve ? '合并中…' : '…');
     const noteEl = document.querySelector(`.pr-note[data-pr="${id}"]`);
     const note = noteEl ? noteEl.value.trim() || null : null;
     try {
@@ -391,7 +397,8 @@ const FAQPage = {
       }
       this.loadCounts();
       this.loadList();
-    } catch (e) { window.App.showToast('操作失败: ' + e.message, 'error'); }
+    } catch (e) { /* request() 已自动 toast */ }
+    finally { done(); }
   },
 
   /* 手动补全弹窗（线框 06 头部按钮：问题 + 答案 + 目标 KB） */
@@ -441,6 +448,7 @@ const FAQPage = {
         window.App.showToast('问题和答案都不能为空', 'error');
         return;
       }
+      const done = window.btnLoading(overlay.querySelector('[data-act="ok"]'), '提交中…');
       try {
         await FaqAPI.supplement({ question, answer, kb_id: kbId ? parseInt(kbId, 10) : null });
         window.App.showToast('已提交补全（进入候选记忆）', 'success');
@@ -448,8 +456,9 @@ const FAQPage = {
         this.loadCounts();
         this.loadList();
       } catch (e) {
-        window.App.showToast('提交失败: ' + e.message, 'error');
+        /* request() 已自动 toast */
       }
+      finally { done(); }
     });
     const onKey = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
     document.addEventListener('keydown', onKey);

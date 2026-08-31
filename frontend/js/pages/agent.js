@@ -225,9 +225,14 @@ window.AgentPage = window.AgentPage || {
 
     // 如果是历史会话（存在后端文件），调用真正的删除接口
     if (session && session.isHistory) {
-      try { await AgentAPI.deleteSession(id); } catch (e) { console.warn('删除失败:', e); }
+      try {
+        await AgentAPI.deleteSession(id);
+      } catch (e) {
+        // request() 已自动 toast 错误；后端未删除，保留本地条目保持一致
+        return;
+      }
     } else {
-      try { await AgentAPI.clearSession(id); } catch (e) { /* ignore */ }
+      try { await AgentAPI.clearSession(id); } catch (e) { /* 本地新会话无后端文件，忽略 */ }
     }
 
     const idx = this.sessions.findIndex(s => s.id === id);
@@ -633,7 +638,12 @@ window.AgentPage = window.AgentPage || {
       });
       if (!ok) return;
       if (this.activeSession) {
-        try { await AgentAPI.clearSession(this.activeSessionId); } catch (e) { /* ignore */ }
+        try {
+          await AgentAPI.clearSession(this.activeSessionId);
+        } catch (e) {
+          // request() 已自动 toast 错误；后端未清空，保留本地消息保持一致
+          return;
+        }
         this.activeSession.messages = [];
       }
       this._renderMessages();
@@ -916,9 +926,7 @@ window.AgentPage = window.AgentPage || {
       window.App.showToast(result.message || '已记录', 'success');
       const card = qEl.closest('.supplement');
       if (card) card.remove();
-    } catch (e) {
-      window.App.showToast('提交失败: ' + e.message, 'error');
-    }
+    } catch (e) { /* request() 已自动 toast */ }
   },
 
   async _processStream(stream, msgIdx) {
@@ -1210,7 +1218,12 @@ window.AgentPage = window.AgentPage || {
         sessionId: this.activeSessionId,  // fallback
       });
     } catch (err) {
-      console.warn('[AgentPage] 反馈提交失败（不影响使用）:', err.message);
+      // 提交失败：回滚 UI 到未反馈状态（避免"已反馈"的虚假成功）+ 明确提示
+      console.warn('[AgentPage] 反馈提交失败:', err.message);
+      window.App.showToast('反馈提交失败，请稍后重试', 'error');
+      msg.feedback = null;
+      msg.feedbackComment = null;
+      this._updateFeedbackBar(msgIdx, null, null);
     }
   },
 

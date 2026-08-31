@@ -7,6 +7,9 @@ const DocumentsPage = {
   selectedFiles: [],
   documents: [],
   kbs: [],
+  _page: 1,
+  _pageSize: 20,
+  _total: 0,
   // 处理中文件：{ file_id, filename } → 轮询进度渲染队列卡
   progressFiles: [],
   _progressTimer: null,
@@ -65,6 +68,7 @@ const DocumentsPage = {
           </tbody>
         </table>
       </div>
+      <div class="row between p4" id="doc-pagination"></div>
     `;
 
     this.initEvents();
@@ -104,6 +108,7 @@ const DocumentsPage = {
     document.getElementById('doc-search').addEventListener('input', () => this.filterDocuments());
     document.getElementById('doc-kb-filter').addEventListener('change', (e) => {
       this.currentKbId = e.target.value || null;
+      this._page = 1;
       this.loadDocuments();
     });
   },
@@ -120,26 +125,60 @@ const DocumentsPage = {
       window.App.showToast('仅支持 PDF / Markdown 文件', 'warning');
       return;
     }
-    this.uploadFiles(valid);
+    // 前端大小校验（与提示文案一致，避免上传超限后才被后端拒绝）
+    const MAX_SIZE = 50 * 1024 * 1024;
+    const tooLarge = valid.filter(f => f.size > MAX_SIZE);
+    if (tooLarge.length) {
+      window.App.showToast(`「${tooLarge.map(f => f.name).join('、')}」超过 50MB 上限，已跳过`, 'warning');
+    }
+    const accepted = valid.filter(f => f.size <= MAX_SIZE);
+    if (!accepted.length) return;
+    this.uploadFiles(accepted);
+  },
+
+  /** 上传/解析阶段 loading：dropzone 显示 spinner + 文件名，用户能感知"没卡住" */
+  _setUploading(names) {
+    const zone = document.getElementById('upload-zone');
+    if (!zone) return;
+    zone.innerHTML = `
+      <div class="spinner" style="width:28px;height:28px;border:3px solid var(--glass-border-strong);border-top-color:var(--accent);border-radius:50%;margin:0 auto;animation:spin .8s linear infinite"></div>
+      <p style="font-weight:600;color:var(--text-1);margin-top:12px">上传中 · MinerU 解析中…</p>
+      <p class="t3 mt2" style="font-size:var(--fs-xs);color:var(--text-2)">${names}</p>
+      <p class="t3 mt2" style="font-size:var(--fs-xs)">解析较慢，请耐心等待，不要关闭页面</p>
+    `;
+    zone.style.pointerEvents = 'none';
+    zone.style.opacity = '0.7';
+  },
+
+  _resetUploadZone() {
+    const zone = document.getElementById('upload-zone');
+    if (!zone) return;
+    zone.innerHTML = `
+      <div style="font-size:30px">⇪</div>
+      <p style="font-weight:600;color:var(--text-1)">拖放文件到此处，或点击选择</p>
+      <p class="t3 mt2" style="font-size:var(--fs-xs)">支持 PDF / Markdown · 单个文件不超过 50MB</p>
+    `;
+    zone.style.pointerEvents = '';
+    zone.style.opacity = '';
   },
 
   async uploadFiles(files) {
-    // KB 目标：页面上有 KB 下拉时以选中值为准（无下拉或未选→默认 KB，与旧行为一致）
+    // KB 目标：页面上有 KB 下拉时以选中值为准
     const kbSel = document.getElementById('doc-kb-filter');
     if (kbSel && kbSel.value) this.currentKbId = kbSel.value;
+    this._setUploading(files.map(f => f.name).join('、'));
     for (const file of files) {
       try {
         const resp = await window.DocumentAPI.upload(file, this.currentKbId);
-        window.App.showToast(`文件 ${file.name} 上传成功`, 'success');
+        window.App.showToast(`文件 ${file.name} 上传成功，进入处理队列`, 'success');
         const fid = resp.file_id || resp.fileId;
         if (fid) {
           this.progressFiles.push({ file_id: String(fid), filename: file.name });
           this._progressStart[String(fid)] = Date.now();
         }
-      } catch (error) {
-        window.App.showToast(`上传失败 (${file.name}): ` + error.message, 'error');
-      }
+      } catch (error) { /* request() 已自动 toast */ }
     }
+    this._resetUploadZone();
     this._renderProcessingList();
     this._startProgressPolling();
     await this.loadDocuments();
@@ -163,16 +202,27 @@ const DocumentsPage = {
     if (!card) { this._stopProgressPolling(); return; }
 
     const finished = [];
+    const failed = [];
     for (const pf of this.progressFiles) {
       try {
         const p = await window.DocumentAPI.getProgress(pf.file_id);
         pf.progress = p;
         if (p.stage === 'done') finished.push(pf);
+        else if (p.stage === 'failed') failed.push(pf);
       } catch { /* 单文件失败静默，下轮再试 */ }
     }
     if (finished.length) {
       this.progressFiles = this.progressFiles.filter(pf => !finished.includes(pf));
       window.App.showToast(`${finished.map(f => f.filename).join('、')} 处理完成`, 'success');
+      await this.loadDocuments();
+    }
+    // 处理失败：移出队列并明确告知用户（否则会无限轮询等不到 done）
+    if (failed.length) {
+      this.progressFiles = this.progressFiles.filter(pf => !failed.includes(pf));
+      const reason = failed.map(f => f.progress?.last_error?.message).find(Boolean);
+      window.App.showToast(
+        `${failed.map(f => f.filename).join('、')} 处理失败${reason ? '：' + reason : '，可到流水线页查看详情并重试'}`,
+        'error');
       await this.loadDocuments();
     }
     this._renderProcessingList();
@@ -271,19 +321,22 @@ const DocumentsPage = {
     const tableBody = document.getElementById('doc-table-body');
     if (!tableBody) return;
     try {
-      const response = await window.DocumentAPI.list(this.currentKbId);
+      const response = await window.DocumentAPI.list(this.currentKbId, this._page, this._pageSize);
       this.documents = response.documents || [];
+      this._total = response.total || 0;
 
-      if (this.documents.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5">
+      if (this.documents.length === 0 && this._total === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6">
           <div class="state"><div class="glyph">📄</div>
           <div class="title">暂无文档</div>
           <div class="desc">拖放文件到上方上传区添加文档</div></div></td></tr>`;
+        this._renderPagination();
         return;
       }
 
       tableBody.innerHTML = this.documents.map(doc => this._renderRow(doc)).join('');
       this._bindRowEvents();
+      this._renderPagination();
 
       // 重进页面时，把仍在处理中的文档重新纳入进度队列（断点可见性）
       const known = new Set(this.progressFiles.map(pf => String(pf.file_id)));
@@ -296,7 +349,7 @@ const DocumentsPage = {
       });
       if (this.progressFiles.length) { this._renderProcessingList(); this._startProgressPolling(); }
     } catch (error) {
-      tableBody.innerHTML = `<tr><td colspan="5">
+      tableBody.innerHTML = `<tr><td colspan="6">
         <div class="state"><div class="glyph" style="color:var(--danger)">✕</div>
         <div class="title">加载失败</div>
         <div class="desc">${this._esc(error.message || '无法加载文档列表')}</div>
@@ -365,13 +418,15 @@ const DocumentsPage = {
       danger: true
     });
     if (!ok) return;
+    // 行内按钮 loading 态（确认弹窗关闭后表格按钮仍在）
+    const btn = document.querySelector(`#doc-table-body .act-delete[data-file-id="${docId}"]`);
+    const done = window.btnLoading(btn, '删除中…');
     try {
       await window.DocumentAPI.delete(docId);
       window.App.showToast('文档删除成功', 'success');
       await this.loadDocuments();
-    } catch (error) {
-      window.App.showToast('删除失败: ' + error.message, 'error');
-    }
+    } catch (error) { /* request() 已自动 toast */ }
+    finally { done(); }
   },
 
   filterDocuments() {
@@ -395,6 +450,22 @@ const DocumentsPage = {
         body.appendChild(noMatch);
       }
     } else if (noMatch) noMatch.remove();
+  },
+
+  _renderPagination() {
+    const el = document.getElementById('doc-pagination');
+    if (!el) return;
+    const pages = Math.max(1, Math.ceil(this._total / this._pageSize));
+    el.innerHTML = `
+      <span class="t3">共 ${this._total} 条</span>
+      <span class="num t3">${this._page} / ${pages}</span>
+      <button class="btn btn-sm" id="doc-pg-prev" ${this._page <= 1 ? 'disabled' : ''}>← 上一页</button>
+      <button class="btn btn-sm" id="doc-pg-next" ${this._page >= pages ? 'disabled' : ''}>下一页 →</button>
+    `;
+    const prev = document.getElementById('doc-pg-prev');
+    const next = document.getElementById('doc-pg-next');
+    if (prev && !prev.disabled) prev.addEventListener('click', () => { this._page--; this.loadDocuments(); });
+    if (next && !next.disabled) next.addEventListener('click', () => { this._page++; this.loadDocuments(); });
   },
 
   _esc(str) {

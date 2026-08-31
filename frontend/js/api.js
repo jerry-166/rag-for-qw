@@ -7,20 +7,22 @@ const API_BASE = (typeof window !== 'undefined' && window.API_BASE)
   ? window.API_BASE
   : window.location.origin.replace(/:\d+$/, ':8003');
 
-// Token 管理
+// Token 管理（sessionStorage：每个标签页独立会话，支持同浏览器多账号同时登录）
 const TokenManager = {
-  get() { return localStorage.getItem('rag_token'); },
-  set(token) { localStorage.setItem('rag_token', token); },
-  clear() { localStorage.removeItem('rag_token'); localStorage.removeItem('rag_user'); },
+  _store: typeof sessionStorage !== 'undefined' ? sessionStorage : localStorage,
+  get() { return this._store.getItem('rag_token'); },
+  set(token) { this._store.setItem('rag_token', token); },
+  clear() { this._store.removeItem('rag_token'); this._store.removeItem('rag_user'); },
 };
 
 // 用户信息管理
 const UserManager = {
+  _store: typeof sessionStorage !== 'undefined' ? sessionStorage : localStorage,
   get() {
-    try { return JSON.parse(localStorage.getItem('rag_user') || 'null'); } catch { return null; }
+    try { return JSON.parse(this._store.getItem('rag_user') || 'null'); } catch { return null; }
   },
-  set(user) { localStorage.setItem('rag_user', JSON.stringify(user)); },
-  clear() { localStorage.removeItem('rag_user'); },
+  set(user) { this._store.setItem('rag_user', JSON.stringify(user)); },
+  clear() { this._store.removeItem('rag_user'); },
 };
 
 // 通用请求函数
@@ -43,11 +45,13 @@ async function request(path, options = {}) {
       headers,
     });
 
-    // 401 → 跳转登录
+    // 401 → 跳转登录（标记 _isAuthError 避免重复 toast）
     if (resp.status === 401) {
       TokenManager.clear();
       window.App && window.App.navigate('auth');
-      throw new Error('登录已过期，请重新登录');
+      const authErr = new Error('登录已过期，请重新登录');
+      authErr._isAuthError = true;
+      throw authErr;
     }
 
     // 根据responseType处理响应
@@ -65,11 +69,20 @@ async function request(path, options = {}) {
       return data;
     }
   } catch (err) {
-    if (err.name === 'TypeError' && err.message.includes('fetch')) {
-      throw new Error('无法连接到服务器，请检查后端是否已启动');
-    }
-    throw err;
+  // 网络层失败（后端未启动/断网）转换为友好中文提示，并统一走下方自动 toast（原实现提前 throw 会绕过 toast 导致静默失败）
+  let e = err;
+  if (err.name === 'TypeError' && err.message.includes('fetch')) {
+    e = new Error('无法连接到服务器，请检查后端是否已启动');
   }
+  // 非静默 + 非 401 跳转 + 写操作（POST/PUT/DELETE/PATCH）自动 toast 错误
+  // 读操作（GET）由页面自行决定如何展示错误
+  const isWrite = options.method && options.method !== 'GET';
+  if (!options._silent && !e._isAuthError && isWrite && e.message && window.App && window.App.showToast) {
+    window.App.showToast(e.message, 'error');
+    e._autoToasted = true; // 页面层 catch 可检查此标记，避免重复 toast（双保险）
+  }
+  throw e;
+}
 }
 
 // ===== Auth API =====
@@ -124,9 +137,12 @@ const KnowledgeBaseAPI = {
 
 // ===== 文档 API =====
 const DocumentAPI = {
-  async list(kb_id = null) {
-    const q = kb_id ? `?kb_id=${kb_id}` : '';
-    return request(`/api/documents${q}`);
+  async list(kb_id = null, page = 1, pageSize = 20) {
+    const params = new URLSearchParams();
+    if (kb_id) params.set('kb_id', kb_id);
+    params.set('page', page);
+    params.set('page_size', pageSize);
+    return request(`/api/documents?${params.toString()}`);
   },
 
   async upload(file, kb_id = null) {
@@ -264,14 +280,20 @@ const AgentAPI = {
     if (knowledge_base_id) body.knowledge_base_id = knowledge_base_id;
     if (retrieval_mode) body.retrieval_mode = retrieval_mode;
 
-    const resp = await fetch(`${API_BASE}/api/agent/chat/stream`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(body),
-    });
+    let resp;
+    try {
+      resp = await fetch(`${API_BASE}/api/agent/chat/stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (err) {
+      // 网络层失败（后端未启动/断网）转换为友好中文提示
+      throw new Error('无法连接到服务器，请检查后端是否已启动');
+    }
 
     if (!resp.ok) {
       const data = await resp.json().catch(() => ({}));
@@ -377,9 +399,11 @@ const SearchAPI = {
 
   async vectorSearch(query, limit = 5, knowledge_base_id = null, options = {}) {
     const opts = { query, limit, knowledge_base_id, ...options };
+    // _silent：搜索失败由页面 inline 错误卡（带重试按钮）展示，避免 toast + 卡片双重反馈
     return request('/api/milvus/query', {
       method: 'POST',
       body: this._buildBody(opts),
+      _silent: true,
     });
   },
 
@@ -388,6 +412,7 @@ const SearchAPI = {
     return request('/api/elasticsearch/search', {
       method: 'POST',
       body: this._buildBody(opts),
+      _silent: true,
     });
   },
 
@@ -396,6 +421,7 @@ const SearchAPI = {
     return request('/api/hybrid/search', {
       method: 'POST',
       body: this._buildBody(opts),
+      _silent: true,
     });
   },
 };

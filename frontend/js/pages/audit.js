@@ -201,26 +201,30 @@ const AuditPage = {
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   },
 
-  exportCsv() {
-    const url = window.AuditAPI.exportUrl({ format: 'csv', ...this._filters });
-    const token = window.TokenManager.get();
-    // 导出接口需要鉴权头，用 fetch 下载
-    fetch(url, { headers: { Authorization: 'Bearer ' + token } })
-      .then(r => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.blob();
-      })
-      .then(blob => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'audit_export.csv';
-        a.click();
-        URL.revokeObjectURL(a.href);
-      })
-      .catch(err => window.UI.alert({
+  async exportCsv() {
+    const btn = document.getElementById('audit-export-btn');
+    const done = window.btnLoading(btn, '导出中…');
+    try {
+      const url = window.AuditAPI.exportUrl({ format: 'csv', ...this._filters });
+      const token = window.TokenManager.get();
+      // 导出接口需要鉴权头，用 fetch 下载
+      const r = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const blob = await r.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'audit_export.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      window.App.showToast('导出成功，已开始下载', 'success');
+    } catch (err) {
+      window.UI.alert({
         title: '导出失败',
         message: err.message
-      }));
+      });
+    } finally {
+      done();
+    }
   },
 };
 

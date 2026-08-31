@@ -15,8 +15,8 @@ class App {
       this.initTheme();
       
       // 检查登录状态
-      const token = localStorage.getItem('rag_token');
-      const user = localStorage.getItem('rag_user');
+      const token = sessionStorage.getItem('rag_token');
+      const user = sessionStorage.getItem('rag_user');
       
       if (token && user) {
         this.isAuthenticated = true;
@@ -321,8 +321,8 @@ class App {
   }
 
   logout() {
-    localStorage.removeItem('rag_token');
-    localStorage.removeItem('rag_user');
+    sessionStorage.removeItem('rag_token');
+    sessionStorage.removeItem('rag_user');
     this.isAuthenticated = false;
     this.user = null;
     this.navigate('auth');
@@ -514,8 +514,8 @@ class App {
         btnLoading.classList.remove('hidden');
         
         const data = await window.AuthAPI.login(username, password);
-        localStorage.setItem('rag_token', data.access_token);
-        localStorage.setItem('rag_user', JSON.stringify({
+        sessionStorage.setItem('rag_token', data.access_token);
+        sessionStorage.setItem('rag_user', JSON.stringify({
           username: data.username,
           user_id: data.user_id,
           role: data.role
@@ -596,23 +596,27 @@ class App {
     const toastContainer = document.getElementById('toast-container') || this.createToastContainer();
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
+    // 动态内容（文件名/用户名/后端 detail）统一转义，防止注入 HTML
+    const safeMsg = String(message ?? '').replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     toast.innerHTML = `
       <span class="toast-icon">${this.getToastIcon(type)}</span>
-      <span class="toast-message">${message}</span>
-      <button class="toast-close">×</button>
+      <span class="toast-message">${safeMsg}</span>
+      <button class="toast-close" aria-label="关闭提示">×</button>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     // 关闭按钮
     toast.querySelector('.toast-close').addEventListener('click', () => {
       this.removeToast(toast);
     });
-    
-    // 自动关闭
+
+    // 自动关闭：成功/信息 3s；错误/警告 6s（失败原因需要时间阅读）
+    const duration = (type === 'error' || type === 'warning') ? 6000 : 3000;
     setTimeout(() => {
       this.removeToast(toast);
-    }, 3000);
+    }, duration);
   }
 
   createToastContainer() {
@@ -621,6 +625,37 @@ class App {
     container.className = 'toast-container';
     document.body.appendChild(container);
     return container;
+  }
+
+  // 全局全屏 loading 遮罩：用于长耗时操作（克隆/删除等），持续可见 + 阻断重复点击
+  // 教训（BUG-015/016）：瞬时 toast 3s 消失，长操作必须用持续遮罩，否则用户"以为没反应"
+  showLoading(message = '处理中…') {
+    let overlay = document.getElementById('app-loading');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'app-loading';
+      // z-index 998：低于 toast-container(9999)，保证完成/失败提示可见
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:var(--sp-4);background:rgba(10,12,20,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)';
+      overlay.innerHTML = `
+        <div class="spinner" style="width:40px;height:40px;border:3px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+        <p style="color:#fff;font-size:14px;margin:0">${String(message ?? '').replace(/[&<>"']/g, c =>
+          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))}</p>`;
+      document.body.appendChild(overlay);
+    } else {
+      overlay.style.display = 'flex';
+      overlay.querySelector('p').textContent = message;
+    }
+    if (!document.querySelector('#app-loading style.spin-rule')) {
+      const style = document.createElement('style');
+      style.className = 'spin-rule';
+      style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+      document.head.appendChild(style);
+    }
+  }
+
+  hideLoading() {
+    const overlay = document.getElementById('app-loading');
+    if (overlay) overlay.remove();
   }
 
   removeToast(toast) {
@@ -640,6 +675,16 @@ class App {
   }
 }
 
+/** 按钮加载态工具：禁用按钮 + 保存原文案，返回恢复函数 */
+function btnLoading(btn, loadingText = '处理中…') {
+  if (!btn) return () => {};
+  const orig = btn.textContent;
+  const origDisabled = btn.disabled;
+  btn.disabled = true;
+  btn.textContent = loadingText;
+  return () => { btn.disabled = origDisabled; btn.textContent = orig; };
+}
+
 // 当DOM加载完成后初始化应用
 document.addEventListener('DOMContentLoaded', function() {
   // 先暴露API（必须在 init() 之前，否则异步 navigate 时 API 尚未挂载）
@@ -655,6 +700,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 初始化应用
   window.App = new App();
+window.btnLoading = btnLoading;
   // 调用init方法
   window.App.init();
 });
