@@ -155,32 +155,49 @@ class ElasticsearchClient:
             return False
     
     def search(self, query, user_id, size=20, filters=None):
-        """关键词搜索"""
+        """关键词搜索。
+
+        过滤语义（与 BM25/Milvus 对齐）：
+          - 显式 KB 过滤（knowledge_base_id / knowledge_base_ids）时不叠加
+            user_id 过滤——KB 过滤即权限边界，调用方负责校验可见范围；
+            否则被分享者永远匹配不到库主的数据
+          - 无 KB 过滤时按 user_id 隔离（默认行为）
+        """
         try:
+            filter_terms = []
+            kb_scoped = False
+            if filters:
+                for key, value in filters.items():
+                    if key == "knowledge_base_id":
+                        filter_terms.append(
+                            {"term": {"knowledge_base_id": value}}
+                        )
+                        kb_scoped = True
+                    elif key == "knowledge_base_ids" and value:
+                        filter_terms.append(
+                            {"terms": {"knowledge_base_id": list(value)}}
+                        )
+                        kb_scoped = True
+                    else:
+                        filter_terms.append(
+                            {"term": {f"metadata.{key}": value}}
+                        )
+
+            if not kb_scoped:
+                filter_terms.append({"term": {"user_id": user_id}})
+
             search_body = {
                 "query": {
                     "bool": {
                         "must": [
-                            { "match": { "content": query } }
+                            {"match": {"content": query}}
                         ],
-                        "filter": [
-                            { "term": { "user_id": user_id } }
-                        ]
+                        "filter": filter_terms
                     }
                 },
-                "sort": [ { "_score": "desc" } ],
+                "sort": [{"_score": "desc"}],
                 "size": size
             }
-            if filters:
-                for key, value in filters.items():
-                    if key == "knowledge_base_id":
-                        search_body['query']['bool']['filter'].append(
-                            { "term": { "knowledge_base_id": value } }
-                        )
-                    else:
-                        search_body['query']['bool']['filter'].append(
-                            { "term": { f"metadata.{key}": value } }
-                        )
             response = self.es.search(index="chunk_keyword", body=search_body)
             results = []
             for hit in response['hits']['hits']:

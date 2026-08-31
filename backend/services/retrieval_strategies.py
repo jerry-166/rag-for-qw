@@ -67,6 +67,24 @@ class SearchContext:
 #  通用工具函数
 # ═══════════════════════════════════════════════════════════
 
+import time as _time
+
+# Milvus 服务端瞬态错误（Zilliz Cloud serverless 冷启动/网关抖动时常见）：
+#  - code=502 网关 Bad Gateway；code=14 gRPC UNAVAILABLE；code=2 连接失败
+#  - 消息含 timeout / unavailable / temporarily 等关键字
+_TRANSIENT_HINTS = ("timeout", "unavailable", "temporarily", "try again",
+                    "retry", "error code: 502", "bad gateway", "connection reset")
+
+
+def _is_transient_milvus_error(e: Exception) -> bool:
+    """判断是否为可重试的 Milvus 瞬态错误（冷启动/网关/超时）。"""
+    code = getattr(e, "code", None)
+    if isinstance(code, int) and code in (502, 14, 2, 1):
+        return True
+    msg = str(e).lower()
+    return any(hint in msg for hint in _TRANSIENT_HINTS)
+
+
 def milvus_search(
     collection,
     query_embedding: List[float],
@@ -78,6 +96,8 @@ def milvus_search(
     result_type: str,
     chunk_id_field: str = "chunk_id",
     content_field: Optional[str] = None,
+    timeout: Optional[float] = None,
+    retries: int = 2,
 ) -> List[Dict[str, Any]]:
     """
     通用 Milvus ANN search，消除重复代码。
@@ -93,23 +113,41 @@ def milvus_search(
         result_type: 结果类型标识 ("native" / "summary" / "subquestion")
         chunk_id_field: chunk_id 在 Milvus 中的字段名（native 用 pg_chunk_id）
         content_field: content 字段在 Milvus 中的字段名（None 则取 chunk_text）
+        timeout: 单次 search 超时秒数（默认取 MILVUS_TIMEOUT；Zilliz serverless
+                 冷启动可能远超 pymilvus 默认 10s，必须显式给足）
+        retries: 瞬态错误（502/UNAVAILABLE/超时）自动重试次数，默认 2
 
     Returns:
         统一格式: [{type, chunk_id, chunk_text, content, distance, created_at, metadata}, ...]
     """
     if collection is None:
         return []
-    try:
-        hits_list = collection.search(
-            data=query_embedding,
-            anns_field=anns_field,
-            param=search_params,
-            limit=limit,
-            expr=expr,
-            output_fields=output_fields,
-        )
-    except Exception as e:
-        logger.warning(f"Milvus search 失败 (anns_field={anns_field}): {e}")
+    timeout = timeout or float(get_runtime("MILVUS_TIMEOUT", settings.MILVUS_TIMEOUT))
+    last_error: Optional[Exception] = None
+    for attempt in range(retries + 1):
+        try:
+            hits_list = collection.search(
+                data=query_embedding,
+                anns_field=anns_field,
+                param=search_params,
+                limit=limit,
+                expr=expr,
+                output_fields=output_fields,
+                timeout=timeout,
+            )
+            break
+        except Exception as e:
+            last_error = e
+            if attempt < retries and _is_transient_milvus_error(e):
+                _time.sleep(1.5 * (attempt + 1))
+                logger.warning(f"Milvus search 瞬态失败 (anns_field={anns_field}, "
+                               f"第 {attempt + 1} 次, 共 {retries} 次重试): {e}")
+                continue
+            logger.warning(f"Milvus search 失败 (anns_field={anns_field}): {e}")
+            return []
+    else:
+        # for 循环未被 break（重试次数耗尽仍未成功）时记录最终错误
+        logger.warning(f"Milvus search 重试 {retries} 次仍失败 (anns_field={anns_field}): {last_error}")
         return []
 
     results = []
@@ -325,20 +363,39 @@ class GraphStrategy(RetrievalStrategy):
 
         try:
             self.ctx.entities_collection.load()
-            vec_hits = self.ctx.entities_collection.search(
-                data=[self.ctx.query_embedding],
-                anns_field="description_vector",
-                param=self.ctx.search_params,
-                limit=5,
-                expr=f"kb_id == {int(self.ctx.kb_id)}",
-                output_fields=["pg_entity_id"],
-            )
+        except Exception as e:
+            logger.warning(f"[GraphStrategy] 实体集合 load 失败: {e}")
+
+        # 实体向量匹配：显式 timeout + 瞬态错误重试（同 milvus_search）
+        timeout = float(get_runtime("MILVUS_TIMEOUT", settings.MILVUS_TIMEOUT))
+        vec_hits = None
+        for attempt in range(3):
+            try:
+                vec_hits = self.ctx.entities_collection.search(
+                    data=[self.ctx.query_embedding],
+                    anns_field="description_vector",
+                    param=self.ctx.search_params,
+                    limit=5,
+                    expr=f"kb_id == {int(self.ctx.kb_id)}",
+                    output_fields=["pg_entity_id"],
+                    timeout=timeout,
+                )
+                break
+            except Exception as e:
+                if attempt < 2 and _is_transient_milvus_error(e):
+                    _time.sleep(1.5 * (attempt + 1))
+                    logger.warning(f"[GraphStrategy] 实体向量匹配瞬态失败，"
+                                   f"第 {attempt + 1} 次重试: {e}")
+                    continue
+                logger.warning(f"[GraphStrategy] 实体向量匹配失败: {e}")
+                break
+        if vec_hits is not None:
             for hit in vec_hits[0]:
                 eid = hit.entity.get("pg_entity_id")
                 if eid is not None:
                     anchor_ids.append(eid)
-        except Exception as e:
-            logger.warning(f"[GraphStrategy] 实体向量匹配失败: {e}")
+        else:
+            logger.warning("[GraphStrategy] 实体向量匹配不可用，仅用按名直查锚点")
 
         anchor_ids = list(dict.fromkeys(anchor_ids))  # 去重保序
         if not anchor_ids:

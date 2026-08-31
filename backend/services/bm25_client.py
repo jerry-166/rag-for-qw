@@ -216,9 +216,13 @@ class BM25Client:
 
         Args:
             query: 搜索查询文本
-            user_id: 用户 ID（必须匹配）
+            user_id: 用户 ID（桶定位维度；显式 KB 过滤时回退跨用户找属主桶）
             size: 返回条数上限
-            filters: 过滤条件，支持 knowledge_base_id 等
+            filters: 过滤条件：
+                - knowledge_base_id: 单 KB。先查 {user}:{kb} 桶，不存在则回退
+                  该 KB 的属主桶（共享 KB 检索者非属主的场景）
+                - knowledge_base_ids: KB 列表。跨用户按 KB 定位桶并合并检索
+                  （调用方负责按可见范围收窄，如自有+被分享的 KB）
 
         Returns:
             结果列表，每项包含 id/score/content/document_id/chunk_index
@@ -227,62 +231,115 @@ class BM25Client:
             return []
 
         try:
-            kb_id = filters.get("knowledge_base_id") if filters else None
-            key = self._bucket_key(user_id, kb_id or 0)
-
-            # 如果指定了 kb_id 但该桶为空，尝试从所有该用户的桶中搜索
-            corpus_bucket = dict(self._corpus[key])
-            if not corpus_bucket and kb_id is None:
-                # 聚合该用户所有知识库的数据
-                corpus_bucket = {}
-                for k, docs in self._corpus.items():
-                    parsed_user, _ = k.split(":", 1)
-                    if str(parsed_user) == str(user_id):
-                        corpus_bucket.update(docs)
-
-            if not corpus_bucket:
-                return []
-
-            # 获取或构建 BM25 模型
-            bm25, doc_ids = self._get_or_build_model(key, corpus_bucket)
-            if bm25 is None:
+            candidate_keys = self._candidate_bucket_keys(user_id, filters)
+            if not candidate_keys:
                 return []
 
             # 对查询分词并打分（与缓存编码一致：空白 token → 哨兵，保持打分等价）
             jieba = _get_jieba()
             tokenized_query = _encode_tokens(jieba.cut_for_search(query))
-            scores = bm25.get_scores(tokenized_query)
 
-            # 按 BM25 分数降序排列，取 top size
-            scored = sorted(
-                zip(doc_ids, scores),
-                key=lambda x: x[1],
-                reverse=True,
-            )
+            # 多桶检索：每桶打分 → 桶内截断 top size → 跨桶按 doc_id 去重 → 全局 top size。
+            # 注：各桶 BM25 独立拟合 IDF，跨桶分数不完全可比，上层 RRF/rerank 会重排；
+            # 不构建跨桶聚合模型——聚合缓存无法随增量写入正确失效（旧 _all 缓存 bug），
+            # 且各桶独立模型可被单 KB 检索复用。
+            merged: Dict[int, tuple] = {}
+            searched = 0
+            for key in candidate_keys:
+                corpus_bucket = self._corpus.get(key)
+                if not corpus_bucket:
+                    continue
+                bm25, doc_ids = self._get_or_build_model(key, corpus_bucket)
+                if bm25 is None:
+                    continue
+                searched += 1
+                scores = bm25.get_scores(tokenized_query)
+                top = sorted(
+                    zip(doc_ids, scores), key=lambda x: x[1], reverse=True
+                )[:size]
+                for doc_id, score in top:
+                    if score <= 0:
+                        continue  # BM25 分数为 0 表示完全不相关，跳过
+                    doc = corpus_bucket.get(doc_id)
+                    if not doc:
+                        continue
+                    prev = merged.get(doc_id)
+                    if prev is None or score > prev[0]:
+                        merged[doc_id] = (float(score), doc)
 
-            results = []
-            for doc_id, score in scored[:size]:
-                if score <= 0:
-                    continue  # BM25 分数为 0 表示完全不相关，跳过
-                doc = corpus_bucket.get(doc_id)
-                if doc:
-                    results.append({
-                        "id": doc["id"],
-                        "score": float(score),
-                        "content": doc["content"],
-                        "document_id": doc["document_id"],
-                        "chunk_index": doc["chunk_index"],
-                    })
+            results = [
+                {
+                    "id": doc["id"],
+                    "score": score,
+                    "content": doc["content"],
+                    "document_id": doc["document_id"],
+                    "chunk_index": doc["chunk_index"],
+                }
+                for doc_id, (score, doc) in sorted(
+                    merged.items(), key=lambda x: x[1][0], reverse=True
+                )[:size]
+            ]
 
-            logger.debug(
-                f"BM25 搜索完成: query='{query[:30]}', "
-                f"user={user_id}, kb={kb_id}, 返回{len(results)}条"
-            )
+            if len(candidate_keys) > 1:
+                logger.info(
+                    f"BM25 多桶搜索: query='{query[:30]}', user={user_id}, "
+                    f"候选桶={len(candidate_keys)}, 命中桶={searched}, "
+                    f"返回{len(results)}条"
+                )
+            else:
+                logger.debug(
+                    f"BM25 搜索完成: query='{query[:30]}', "
+                    f"user={user_id}, 返回{len(results)}条"
+                )
             return results
 
         except Exception as e:
             logger.error(f"BM25 搜索失败: {e}")
             return []
+
+    def _candidate_bucket_keys(
+        self, user_id, filters: Optional[dict]
+    ) -> List[str]:
+        """按过滤条件定位候选桶。
+
+        三种路径：
+          1. knowledge_base_ids 列表 → 跨用户按 KB 定位（调用方已收窄可见范围）
+          2. knowledge_base_id 单值 → 用户桶优先，不存在则回退该 KB 的属主桶
+          3. 无 KB 过滤 → 该用户自己的所有桶（含 user:_all 桶）
+        """
+        kb_id = filters.get("knowledge_base_id") if filters else None
+        kb_ids = filters.get("knowledge_base_ids") if filters else None
+
+        if kb_ids:
+            kb_set = {int(k) for k in kb_ids if k is not None}
+            return self._buckets_for_kbs(kb_set)
+
+        if kb_id is not None and kb_id != 0:
+            key = self._bucket_key(user_id, kb_id)
+            if self._corpus.get(key):
+                return [key]
+            # 回退：该 KB 的桶按属主（或增量写入者）分桶，检索者非属主（共享 KB）
+            return self._buckets_for_kbs({int(kb_id)})
+
+        # 无 KB 过滤：该用户自己的所有桶。逐桶检索（模型各自缓存复用），
+        # 不再构建 user:_all 聚合模型（其缓存不随增量写入失效，曾导致新内容检索不到）
+        return [
+            k for k in self._corpus if k.split(":", 1)[0] == str(user_id)
+        ]
+
+    def _buckets_for_kbs(self, kb_set) -> List[str]:
+        """按 KB id 集合在所有桶中定位（覆盖属主桶与增量写入桶，跳过 _all 桶）。"""
+        keys = []
+        for k in self._corpus:
+            kb_part = k.split(":", 1)[1] if ":" in k else ""
+            if kb_part == "_all":
+                continue
+            try:
+                if int(kb_part) in kb_set:
+                    keys.append(k)
+            except ValueError:
+                continue
+        return keys
 
     def delete_chunk(self, chunk_id: int, user_id: int) -> bool:
         """删除单个 chunk 索引。需要在所有桶中查找。"""

@@ -277,6 +277,8 @@ def create_rag_workflow(memory_manager=None, session_store=None):
                         "use_rerank": True,
                         "rerank_top_k": 5,
                         "retrieval_mode": retrieval_mode,
+                        # 检索可见范围/权限校验依据（BM25 桶定位 + KB 权限）
+                        "user_id": user_id,
                     }
                 )
                 data = json.loads(result_json)

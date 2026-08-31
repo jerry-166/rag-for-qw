@@ -103,7 +103,7 @@ class Settings(BaseSettings):
     
     # Reranker 配置
     RERANKER_TYPE: str = os.getenv("RERANKER_TYPE", "cross_encoder")  # llm / cross_encoder / none
-    RERANKER_MODEL: str = os.getenv("RERANKER_MODEL", r"C:\Users\ASUS\.cache\huggingface\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70")
+    RERANKER_MODEL: str = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-base")
 
     # RAG 检索配置
     RETRIEVAL_MIN_SCORE: float = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.3"))  # 检索结果最低相关度阈值（0-1），低于此分数的结果将被丢弃
@@ -123,6 +123,7 @@ class Settings(BaseSettings):
     MILVUS_NPROBE: int = int(os.getenv("MILVUS_NPROBE", "10"))  # IVF 搜索探针数
     MILVUS_NLIST: int = int(os.getenv("MILVUS_NLIST", "128"))  # IVF_FLAT 聚类中心数（仅建索引时生效）
     MILVUS_METRIC_TYPE: str = os.getenv("MILVUS_METRIC_TYPE", "COSINE")  # 距离度量
+    MILVUS_TIMEOUT: float = float(os.getenv("MILVUS_TIMEOUT", "30"))  # 单次向量检索超时秒数（Zilliz serverless 冷启动可能远超 pymilvus 默认 10s）
     EMBEDDING_DIM: int = int(os.getenv("EMBEDDING_DIM", "1536"))  # 向量维度（换模型需同步）
     RRF_K: int = int(os.getenv("RRF_K", "60"))  # 倒数排名融合平滑常数
     DEFAULT_RETRIEVAL_MODE: str = os.getenv("DEFAULT_RETRIEVAL_MODE", "advanced")  # 默认检索模式: native|advanced|hybrid

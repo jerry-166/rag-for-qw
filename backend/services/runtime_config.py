@@ -122,6 +122,12 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
         "label": "IVF 聚类中心数",
         "description": "IVF_FLAT 索引的 nlist 参数。仅建索引时生效，已有索引需重建",
     },
+    "MILVUS_TIMEOUT": {
+        "group": "retrieval",
+        "type": "float", "min": 5, "max": 300,
+        "label": "向量检索超时(秒)",
+        "description": "单次 Milvus 检索超时。Zilliz serverless 冷启动可能超过 pymilvus 默认 10s，失败会触发自动重试",
+    },
     "CHUNK_STRATEGY": {
         "group": "chunking",
         "type": "enum", "enum": ["auto", "markdown", "recursive"],

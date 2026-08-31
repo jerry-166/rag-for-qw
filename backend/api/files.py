@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form, Response, Request
 from typing import Optional
+import asyncio
 import uuid
 import time
 import hashlib
@@ -85,7 +86,9 @@ async def upload_pdf(file: UploadFile = File(...), kb_id: int = Form(None), requ
         with open(temp_file_path, "wb") as f:
             f.write(file_content)
 
-        result = parser.parse_pdf(temp_file_path)
+        # 方案 A：MinerU 解析（网络上传+轮询+下载解压）是阻塞型 IO，
+        # 用 asyncio.to_thread 抛到线程池执行，避免阻塞事件循环拖垮其它并发请求。
+        result = await asyncio.to_thread(parser.parse_pdf, temp_file_path)
         logger.debug(f"PDF解析成功")
 
         # 读取生成的Markdown内容

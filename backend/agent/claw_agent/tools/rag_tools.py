@@ -37,20 +37,22 @@ def rag_hybrid_search(
     use_rerank: bool = True,
     rerank_top_k: Optional[int] = None,
     retrieval_mode: Optional[str] = None,
+    user_id: Optional[int] = None,
 ) -> str:
     """
-    混合检索工具：同时执行向量语义检索（Milvus）和关键词检索（Elasticsearch），
+    混合检索工具：同时执行向量语义检索（Milvus）和关键词检索（BM25/Elasticsearch），
     融合结果并去重后返回最相关的文档片段列表。
 
     Args:
         query: 用户查询文本
-        knowledge_base_id: 知识库 ID，不传则搜索所有知识库
+        knowledge_base_id: 知识库 ID，不传则搜索用户可见的所有知识库
         top_k: 返回结果数量（每路各取 top_k/2）
         use_vector: 是否启用向量检索
         use_keyword: 是否启用关键词检索
         use_rerank: 是否启用精排
         rerank_top_k: 精排后保留的结果数量
         retrieval_mode: 向量检索模式：native(原文) | advanced(摘要+子问题) | hybrid(三路融合)
+        user_id: 当前用户 ID（由调用方注入，用于检索可见范围与权限校验；LLM 不应填写该参数）
 
     Returns:
         JSON 字符串，包含 results 列表和 total_count
@@ -64,17 +66,52 @@ def rag_hybrid_search(
 
     per_k = max(top_k // 2, 3)
 
+    # ── 可见范围解析（一次完成，两路共用）────────────────────
+    # 说明：本工具是 LLM 可调用工具，knowledge_base_id 参数来自 LLM 生成，不可信，
+    # 必须按 user_id 校验；无显式 KB 时按可见 KB 列表收窄（自有 + 被分享）。
+    # （替代旧 user_id=0 的伪"系统级"检索——BM25 按 (user, kb) 分桶，
+    #  user_id=0 的桶不存在，关键词路永远空结果）
+    kb_filter = {}
+    if knowledge_base_id is not None:
+        if user_id is not None:
+            from services.database import db
+            if not db.check_kb_permission(user_id, knowledge_base_id):
+                logger.warning(
+                    f"[rag_tools] 用户 {user_id} 无权访问 KB {knowledge_base_id}，拒绝检索"
+                )
+                return json.dumps({
+                    "results": [],
+                    "total_count": 0,
+                    "error": f"无权限访问知识库 {knowledge_base_id}",
+                }, ensure_ascii=False)
+        kb_filter["knowledge_base_id"] = knowledge_base_id
+    elif user_id is not None:
+        try:
+            from services.database import db
+            kbs = db.get_user_knowledge_bases(user_id)
+            kb_ids = [k["id"] for k in kbs]
+            if kb_ids:
+                kb_filter["knowledge_base_ids"] = kb_ids
+                logger.info(f"[rag_tools] 用户 {user_id} 可见 KB 数: {len(kb_ids)}")
+        except Exception as e:
+            logger.warning(f"[rag_tools] 获取用户 {user_id} 可见 KB 失败: {e}")
+
+    if not kb_filter and user_id is None:
+        # 调用链残留场景（registry 正常都传 user_id）：关键词路无法界定范围将返回空
+        logger.warning(
+            "[rag_tools] 无 user_id 且未指定 KB，关键词检索无法界定可见范围（返回空）；"
+            "请检查调用链是否遗漏 user_id"
+        )
+
     # ── 向量检索（Milvus）────────────────────────────────────
     if use_vector:
         try:
             from services.milvus_client import MilvusClient
             milvus = MilvusClient()
 
-            metadata_filter = {}
-            if knowledge_base_id is not None:
-                metadata_filter["knowledge_base_id"] = knowledge_base_id
+            metadata_filter = dict(kb_filter)
 
-            logger.info(f"[rag_tools] 向量检索开始，query={query[:50]}, retrieval_mode={retrieval_mode}, knowledge_base_id={knowledge_base_id}")
+            logger.info(f"[rag_tools] 向量检索开始，query={query[:50]}, retrieval_mode={retrieval_mode}, knowledge_base_id={knowledge_base_id}, 可见KB过滤={'knowledge_base_ids' in kb_filter}")
 
             raw = milvus.query(
                 query_text=query,
@@ -104,16 +141,11 @@ def rag_hybrid_search(
             from services.bm25_client import get_search_client
             search_client = get_search_client()
 
-            filters = {}
-            if knowledge_base_id is not None:
-                filters["knowledge_base_id"] = knowledge_base_id
-
-            # user_id 传 0 会在 BM25 里聚合全部用户数据（系统级检索）
             raw = search_client.search(
                 query=query,
-                user_id=0,
+                user_id=user_id or 0,
                 size=per_k,
-                filters=filters if filters else None,
+                filters=dict(kb_filter) if kb_filter else None,
             )
 
             for item in raw:

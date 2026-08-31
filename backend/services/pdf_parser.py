@@ -6,7 +6,9 @@ import io
 import uuid
 from pathlib import Path
 
-from config import settings, get_runtime
+from config import settings, get_runtime, init_logger
+
+logger = init_logger(__name__)
 
 class PDFParser:
     def __init__(self):
@@ -34,7 +36,7 @@ class PDFParser:
         md_output_path = md_output_dir / "extracted.md"
         
         # 1. 获取上传URL
-        print("正在获取上传URL...")
+        logger.info("正在获取上传URL...")
         headers = {
             "Authorization": f"Bearer {self.MINERU_API_KEY}",
             "Content-Type": "application/json"
@@ -54,19 +56,19 @@ class PDFParser:
         batch_id = data["batch_id"]
         file_urls = data["file_urls"]
         
-        print(f"获取上传URL成功，batch_id: {batch_id}")
+        logger.info(f"获取上传URL成功，batch_id: {batch_id}")
         
         # 2. 上传PDF文件
-        print("正在上传PDF文件到MinerU的URL中...")
+        logger.info("正在上传PDF文件到MinerU的URL中...")
         with open(pdf_path, "rb") as f:
             file_data = f.read()
             upload_response = requests.put(file_urls[0], data=file_data)
             upload_response.raise_for_status()
         
-        print("PDF文件上传成功！")
+        logger.info("PDF文件上传成功！")
         
         # 3. 轮询检查处理状态
-        print("正在轮询检查处理状态...")
+        logger.info("正在轮询检查处理状态...")
         
         max_wait = get_runtime("MAX_WAIT_TIME", settings.MAX_WAIT_TIME)  # 最长等待时间（秒）
         poll_interval = get_runtime("POLL_INTERVAL", settings.POLL_INTERVAL)  # 轮询间隔（秒）
@@ -83,28 +85,28 @@ class PDFParser:
             state = result["state"]
             if state == "done":
                 full_zip_url = result["full_zip_url"]
-                print(f"解析完成，下载链接：{full_zip_url}")
+                logger.info(f"解析完成，下载链接：{full_zip_url}")
                 break
             elif state == "failed":
                 error_message = result.get("err_msg", "未知错误")
-                print(f"解析失败：{error_message}")
+                logger.error(f"解析失败：{error_message}")
                 raise Exception(f"PDF解析失败: {error_message}")
             elif state == "running":
                 progress = result.get("extract_progress", {})
                 extracted = progress.get("extracted_pages", 0)
                 total = progress.get("total_pages", "?")
-                print(f"   {extracted}/{total} 页 (已等待 {elapsed}秒)", end="\r")
+                logger.debug(f"{extracted}/{total} 页 (已等待 {elapsed}秒)")
             
             time.sleep(poll_interval)
             elapsed += poll_interval
         
         if elapsed >= max_wait:
-            print("等待超时，未能完成解析")
+            logger.info("等待超时，未能完成解析")
             raise Exception("PDF解析超时")
         
         # 4. 下载解析结果的zip文件，并解压
         if full_zip_url:
-            print("正在下载解析结果的zip文件，并解压...")
+            logger.info("正在下载解析结果的zip文件，并解压...")
             zip_response = self._download_with_retry(full_zip_url)
             
             with zipfile.ZipFile(io.BytesIO(zip_response.content)) as zf:
@@ -115,16 +117,15 @@ class PDFParser:
                     md_file = next((f for f in md_files if "full" in f.lower()), md_files[0])
                     with zf.open(md_file) as f:
                         md_content = f.read().decode("utf-8")
-                        print(f"成功读取Markdown文件: {md_file}, 大小: {len(md_content) / 1024:.2f} KB")
+                        logger.info(f"成功读取Markdown文件: {md_file}, 大小: {len(md_content) / 1024:.2f} KB")
                     if md_content:
                         with open(md_output_path, "w", encoding="utf-8") as f:
                             f.write(md_content)
                         
-                        print(f"Markdown内容已保存到: {md_output_dir.resolve()}")
-                        print(f"内容预览：{md_content[:500]}...")
-                        print("-" * 100)
+                        logger.info(f"Markdown内容已保存到: {md_output_dir.resolve()}")
+                        logger.debug(f"内容预览：{md_content[:500]}...")
                 else:
-                    print("未找到Markdown文件")
+                    logger.info("未找到Markdown文件")
                     raise Exception("未找到Markdown文件")
                 
                 # 读取 & 下载图片
@@ -141,12 +142,12 @@ class PDFParser:
                             with open(image_output_dir / f"{str(uuid.uuid4())}.jpg", "wb") as img_f:
                                 img_f.write(img_data)
                         else:
-                            print(f"警告：未能读取图片数据: {img}")
-                    print(f"成功下载并保存 {len(images)} 张图片到: {image_output_dir.resolve()}")
+                            logger.warning(f"警告：未能读取图片数据: {img}")
+                    logger.info(f"成功下载并保存 {len(images)} 张图片到: {image_output_dir.resolve()}")
                 else:
-                    print("未找到图片文件")
+                    logger.info("未找到图片文件")
         else:
-            print("未获取到解析结果的下载链接，无法继续")
+            logger.info("未获取到解析结果的下载链接，无法继续")
             raise Exception("未获取到解析结果的下载链接")
         
         return {
@@ -164,7 +165,7 @@ class PDFParser:
         last_exc = None
         for attempt in range(1, max_retries + 1):
             try:
-                print(f"正在下载结果 zip（第 {attempt}/{max_retries} 次尝试）...")
+                logger.info(f"正在下载结果 zip（第 {attempt}/{max_retries} 次尝试）...")
                 resp = requests.get(url, timeout=timeout)
                 resp.raise_for_status()
                 return resp
@@ -172,6 +173,6 @@ class PDFParser:
                 last_exc = e
                 if attempt < max_retries:
                     wait = min(2 ** (attempt - 1), 10)  # 1, 2, 4, 8, 10 秒
-                    print(f"下载失败（{e}），{wait} 秒后重试...")
+                    logger.info(f"下载失败（{e}），{wait} 秒后重试...")
                     time.sleep(wait)
         raise Exception(f"下载解析结果失败（已重试 {max_retries} 次）: {last_exc}")

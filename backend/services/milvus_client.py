@@ -711,6 +711,15 @@ class MilvusClient:
         if "knowledge_base_id" in filter_copy:
             knowledge_base_id = filter_copy.pop("knowledge_base_id")
             conditions.append(f"knowledge_base_id == {knowledge_base_id}")
+        if "knowledge_base_ids" in filter_copy:
+            # KB 列表过滤（可见范围收窄，调用方负责权限）；多 KB 时
+            # 增强启用集不按单一 KB 短路（保守检索全集合）
+            kb_ids_list = filter_copy.pop("knowledge_base_ids")
+            if kb_ids_list:
+                conditions.append(
+                    f"knowledge_base_id in "
+                    f"[{','.join(str(int(k)) for k in kb_ids_list)}]"
+                )
         for key, value in filter_copy.items():
             if isinstance(value, str):
                 conditions.append(f"metadata['{key}'] == '{value}'")
@@ -765,7 +774,13 @@ class MilvusClient:
             logger.warning(f"[MilvusClient] 未知检索模式 '{retrieval_mode}'，fallback 到 advanced")
             strategy = get_strategy("advanced", ctx)
 
-        results = strategy.execute(limit)
+        # 兜底：策略执行期任何未预期异常（含 Milvus 服务端错误）都不向上抛 500，
+        # 记录后返回空结果，由上层走空结果/降级展示
+        try:
+            results = strategy.execute(limit)
+        except Exception as e:
+            logger.error(f"[MilvusClient] {retrieval_mode} 检索执行异常，返回空结果: {e}")
+            return []
         logger.info(f"[MilvusClient] {retrieval_mode} 模式检索完成，返回 {len(results)} 条结果")
         return results
     

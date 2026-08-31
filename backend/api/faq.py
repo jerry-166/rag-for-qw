@@ -6,6 +6,7 @@
 - FAQ PR：提交 / 列表 / 库主审核（merge / reject）
 """
 
+import asyncio
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional, List
@@ -188,8 +189,12 @@ async def clone_kb(kb_id: int, req: CloneRequest = None,
     """克隆（fork）KB 为我的私有副本——可读即可克隆"""
     if not db.check_kb_permission(current_user["id"], kb_id):
         raise HTTPException(status_code=403, detail="无权限访问该知识库")
-    result = faq_service.clone_kb(kb_id, current_user["id"],
-                                  req.new_name if req else None)
+    # 克隆 = PG 全量复制 + Milvus 向量搬运 + BM25 重建，大库可能耗时数十秒：
+    # 放线程池执行，避免阻塞事件循环导致其他请求排队（参考 reranker.py run_in_executor 先例）
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(
+        None, faq_service.clone_kb, kb_id, current_user["id"],
+        req.new_name if req else None)
     if result.get("action") == "error":
         raise HTTPException(status_code=500, detail=result.get("message"))
     return result

@@ -35,26 +35,35 @@ async def get_pending_documents(current_user=Depends(get_current_user)):
 
 
 @router.get("")
-async def get_documents(kb_id: Optional[int] = None, current_user=Depends(get_current_user)):
-    """获取文档列表，可选择按知识库ID过滤"""
-    logger.info(f"开始获取文档列表，知识库ID: {kb_id}")
+async def get_documents(kb_id: Optional[int] = None, page: int = 1, page_size: int = 20, current_user=Depends(get_current_user)):
+    """获取文档列表，可选择按知识库ID过滤，支持分页"""
+    logger.info(f"开始获取文档列表，知识库ID: {kb_id}, page={page}, page_size={page_size}")
     try:
         # 获取用户有权限的知识库
         user_kbs = db.get_user_knowledge_bases(current_user["id"])
         user_kb_ids = [kb["id"] for kb in user_kbs]
-        
+
         # 如果指定了kb_id，检查用户是否有权限
         if kb_id:
             if kb_id not in user_kb_ids:
                 logger.warning(f"用户无权限访问知识库，用户: {current_user['username']}, 知识库ID: {kb_id}")
                 raise HTTPException(status_code=403, detail="无权限访问该知识库")
-            # 只查询指定知识库的文档
-            query = "SELECT * FROM document WHERE knowledge_base_id = %s"
-            docs = db.fetchall(query, (kb_id,))
+            where = "WHERE knowledge_base_id = %s"
+            where_params = (kb_id,)
         else:
-            # 查询所有用户有权限的知识库的文档
-            query = "SELECT * FROM document WHERE knowledge_base_id = ANY(%s)"
-            docs = db.fetchall(query, (user_kb_ids,))
+            where = "WHERE knowledge_base_id = ANY(%s)"
+            where_params = (user_kb_ids,)
+
+        # 计算总数
+        count_row = db.fetchone(f"SELECT COUNT(*) as cnt FROM document {where}", where_params)
+        total = count_row["cnt"] if count_row else 0
+
+        # 分页查询
+        offset = (page - 1) * page_size
+        docs = db.fetchall(
+            f"SELECT * FROM document {where} ORDER BY created_at DESC LIMIT %s OFFSET %s",
+            (*where_params, page_size, offset)
+        )
 
         # 构建文档列表
         document_list = []
@@ -63,23 +72,26 @@ async def get_documents(kb_id: Optional[int] = None, current_user=Depends(get_cu
             file_size = None
             if doc.get("file_path"):
                 try:
-                    # 从存储中获取文件大小
                     file_size = storage.get_file_size(doc["file_path"])
                 except Exception as e:
                     logger.warning(f"获取文件大小失败，路径: {doc['file_path']}, 错误: {str(e)}")
-            
+
             document_list.append({
                 "file_id": doc["id"],
                 "filename": doc["filename"],
                 "file_size": file_size,
                 "status": doc["status"],
+                "knowledge_base_id": doc["knowledge_base_id"],
                 "created_at": doc["created_at"]
             })
 
-        logger.info(f"获取文档列表成功，共 {len(document_list)} 个文档")
+        logger.info(f"获取文档列表成功，共 {total} 个文档，当前页 {len(document_list)} 条")
         return {
             "status": "success",
-            "documents": document_list
+            "documents": document_list,
+            "total": total,
+            "page": page,
+            "page_size": page_size
         }
     except HTTPException:
         raise

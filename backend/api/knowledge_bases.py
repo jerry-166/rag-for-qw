@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from typing import Optional
@@ -104,6 +105,8 @@ async def get_knowledge_bases(current_user=Depends(get_current_user)):
                 # Stage 5 圈 2：KB 卡片策略徽章（跟随全局/自定义语义）所需字段
                 "chunk_strategy": kb.get("chunk_strategy"),
                 "enhancers": kb.get("enhancers"),
+                # 前端据此区分"我的库"与"共享给我的库"，按权限渲染管理按钮（否则共享库也显示编辑/删除，点击必 403）
+                "is_owner": kb["user_id"] == current_user["id"],
             })
 
         logger.info(f"获取知识库列表成功，共 {len(kb_list)} 个知识库")
@@ -116,83 +119,95 @@ async def get_knowledge_bases(current_user=Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"获取知识库列表失败: {str(e)}")
 
 
+def _delete_kb_blocking(kb_id: int, current_user: dict, req: Request):
+    """删除知识库的全部阻塞逻辑（Milvus + ES + 文件存储 + temp/output + PG 级联删除）。
+
+    大库删除可能耗时数十秒，必须在线程池中执行，避免阻塞事件循环。
+    audit.log_from_request 只读取 request 的 state/client/headers 属性（不读 body），线程安全。
+    """
+    # 获取知识库信息
+    kb = db.get_knowledge_base(kb_id)
+    if not kb:
+        logger.warning(f"知识库未找到，知识库ID: {kb_id}")
+        raise HTTPException(status_code=404, detail="知识库未找到")
+
+    # 验证用户权限（只有知识库创建者可以删除）
+    if kb["user_id"] != current_user["id"] and current_user["role"] != "admin":
+        logger.warning(
+            f"用户无权限删除知识库，用户: {current_user['username']}, 知识库ID: {kb_id}")
+        raise HTTPException(status_code=403, detail="无权限删除该知识库")
+
+    # ---------- 1. 获取知识库下所有文档 ----------
+    docs_query = "SELECT id, file_path, enhanced_md_path, user_id FROM document WHERE knowledge_base_id = %s"
+    docs = db.fetchall(docs_query, (kb_id,))
+
+    # ---------- 2. 删除 Milvus 向量数据 ----------
+    milvus_client = req.app.state.get('milvus_client')
+    if milvus_client:
+        milvus_client.delete_data_by_knowledge_base(kb_id)
+        logger.info(f"Milvus 数据删除完成，知识库ID: {kb_id}")
+
+    # ---------- 3. 删除搜索索引 ----------
+    search_client = req.app.state['search_client']
+    for doc in docs:
+        try:
+            search_client.delete_document_chunks(doc["id"], doc["user_id"])
+        except Exception as e:
+            logger.warning(f"搜索索引删除失败（非致命），文档ID: {doc['id']}: {e}")
+    logger.info(f"搜索索引删除完成，知识库ID: {kb_id}")
+
+    # ---------- 4. 删除文件存储 ----------
+    storage = get_storage()
+    if storage:
+        # 知识库的文件存储路径模式: "{user_id}/{kb_id}/{uuid}/..."
+        # 可以直接删除整个 "{user_id}/{kb_id}/" 目录
+        kb_storage_dir = f"{kb['user_id']}/{kb_id}"
+        storage.delete_dir(kb_storage_dir)
+        logger.info(f"文件存储删除完成: {kb_storage_dir}")
+
+    # ---------- 5. 清理 temp 和 output 目录 ----------
+    for doc in docs:
+        if doc.get("file_path"):
+            parts = doc["file_path"].split("/")
+            if len(parts) >= 3:
+                uuid_part = parts[2]
+                # temp
+                temp_file = settings.TEMP_DIR / f"{uuid_part}.pdf"
+                if temp_file.exists():
+                    temp_file.unlink()
+                # output
+                output_dir = settings.OUTPUT_DIR / uuid_part
+                if output_dir.exists():
+                    shutil.rmtree(output_dir)
+
+    # ---------- 6. 删除数据库记录 ----------
+    result = db.delete_knowledge_base(kb_id)
+    if result:
+        logger.info(f"知识库删除成功，知识库ID: {kb_id}")
+        try:
+            from services.audit import audit
+            audit.log_from_request(req, "kb.delete", user_id=current_user["id"],
+                                   resource_type="knowledge_base", resource_id=kb_id, kb_id=kb_id,
+                                   detail={"kb_name": kb.get("kb_name"), "documents": len(docs)})
+        except Exception:
+            pass
+        return {
+            "status": "success",
+            "message": "知识库删除成功"
+        }
+    else:
+        raise HTTPException(status_code=500, detail="删除知识库失败")
+
+
 @router.delete("/{kb_id}")
 async def delete_knowledge_base(kb_id: int, req: Request, current_user=Depends(get_current_user)):
     """删除知识库（统一调度：Milvus + ES + 文件存储 + temp/output + 数据库）"""
     logger.info(f"开始删除知识库，知识库ID: {kb_id}")
     try:
-        # 获取知识库信息
-        kb = db.get_knowledge_base(kb_id)
-        if not kb:
-            logger.warning(f"知识库未找到，知识库ID: {kb_id}")
-            raise HTTPException(status_code=404, detail="知识库未找到")
-
-        # 验证用户权限（只有知识库创建者可以删除）
-        if kb["user_id"] != current_user["id"] and current_user["role"] != "admin":
-            logger.warning(
-                f"用户无权限删除知识库，用户: {current_user['username']}, 知识库ID: {kb_id}")
-            raise HTTPException(status_code=403, detail="无权限删除该知识库")
-
-        # ---------- 1. 获取知识库下所有文档 ----------
-        docs_query = "SELECT id, file_path, enhanced_md_path, user_id FROM document WHERE knowledge_base_id = %s"
-        docs = db.fetchall(docs_query, (kb_id,))
-
-        # ---------- 2. 删除 Milvus 向量数据 ----------
-        milvus_client = req.app.state.get('milvus_client')
-        if milvus_client:
-            milvus_client.delete_data_by_knowledge_base(kb_id)
-            logger.info(f"Milvus 数据删除完成，知识库ID: {kb_id}")
-
-        # ---------- 3. 删除搜索索引 ----------
-        search_client = req.app.state['search_client']
-        for doc in docs:
-            try:
-                search_client.delete_document_chunks(doc["id"], doc["user_id"])
-            except Exception as e:
-                logger.warning(f"搜索索引删除失败（非致命），文档ID: {doc['id']}: {e}")
-        logger.info(f"搜索索引删除完成，知识库ID: {kb_id}")
-
-        # ---------- 4. 删除文件存储 ----------
-        storage = get_storage()
-        if storage:
-            # 知识库的文件存储路径模式: "{user_id}/{kb_id}/{uuid}/..."
-            # 可以直接删除整个 "{user_id}/{kb_id}/" 目录
-            kb_storage_dir = f"{kb['user_id']}/{kb_id}"
-            storage.delete_dir(kb_storage_dir)
-            logger.info(f"文件存储删除完成: {kb_storage_dir}")
-
-        # ---------- 5. 清理 temp 和 output 目录 ----------
-        for doc in docs:
-            if doc.get("file_path"):
-                parts = doc["file_path"].split("/")
-                if len(parts) >= 3:
-                    uuid_part = parts[2]
-                    # temp
-                    temp_file = settings.TEMP_DIR / f"{uuid_part}.pdf"
-                    if temp_file.exists():
-                        temp_file.unlink()
-                    # output
-                    output_dir = settings.OUTPUT_DIR / uuid_part
-                    if output_dir.exists():
-                        shutil.rmtree(output_dir)
-
-        # ---------- 6. 删除数据库记录 ----------
-        result = db.delete_knowledge_base(kb_id)
-        if result:
-            logger.info(f"知识库删除成功，知识库ID: {kb_id}")
-            try:
-                from services.audit import audit
-                audit.log_from_request(req, "kb.delete", user_id=current_user["id"],
-                                       resource_type="knowledge_base", resource_id=kb_id, kb_id=kb_id,
-                                       detail={"kb_name": kb.get("kb_name"), "documents": len(docs)})
-            except Exception:
-                pass
-            return {
-                "status": "success",
-                "message": "知识库删除成功"
-            }
-        else:
-            raise HTTPException(status_code=500, detail="删除知识库失败")
+        # 大库删除（PG 级联 + Milvus + ES）可能耗时数十秒：放线程池避免阻塞事件循环（参考 reranker.py 先例）
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(
+            None, _delete_kb_blocking, kb_id, current_user, req)
     except HTTPException:
         raise
     except Exception as e:
