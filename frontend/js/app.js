@@ -171,6 +171,17 @@ class App {
           this.navigate('auth');
         }
         break;
+      case 'evaluation':
+        if (this.isAuthenticated) {
+          await this.renderAppLayout('测试集管理', async () => {
+            if (window.EvaluationPage) {
+              await window.EvaluationPage.render();
+            }
+          });
+        } else {
+          this.navigate('auth');
+        }
+        break;
       case 'cache':
         // 缓存中心（文档 08）— 仅管理员可见
         if (this.isAuthenticated) {
@@ -715,6 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.AgentAPI = AgentAPI;
   window.SettingsAPI = SettingsAPI;
   window.AuditAPI = AuditAPI;
+  window.EvaluationAPI = EvaluationAPI;
   window.CacheAPI = CacheAPI;
 
   // 初始化应用

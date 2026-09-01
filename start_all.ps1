@@ -135,8 +135,8 @@ function Start-Frontend {
         Write-Host "[frontend] 端口 $FrontendPort 已被 PID $owner 占用，跳过启动" -ForegroundColor Yellow
         return
     }
-    if (-not (Test-Path (Join-Path $FrontendDir "index.html"))) {
-        Write-Host "[frontend] 未找到 frontend\index.html" -ForegroundColor Red
+    if (-not (Test-Path (Join-Path $FrontendDir "design\index.html"))) {
+        Write-Host "[frontend] 未找到 frontend\design\index.html（新前端入口）" -ForegroundColor Red
         return
     }
     Write-Host "[frontend] 启动 http.server (端口 $FrontendPort)..." -ForegroundColor Cyan
@@ -190,7 +190,7 @@ switch ($Action) {
         Start-Backend
         Start-Frontend
         Write-Host ""
-        Write-Host "访问地址: http://localhost:$FrontendPort" -ForegroundColor Green
+        Write-Host "访问地址: http://localhost:$FrontendPort/design/index.html（新前端 design）" -ForegroundColor Green
         Write-Host "API 文档: http://localhost:$BackendPort/docs" -ForegroundColor Green
         Write-Host "日志目录: $LogDir" -ForegroundColor Cyan
     }

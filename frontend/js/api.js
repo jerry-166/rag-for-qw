@@ -463,6 +463,104 @@ const AuditAPI = {
   },
 };
 
+// ===== 评估测试集 API（测试集管理页面） =====
+const EvaluationAPI = {
+  /** 测试集列表 */
+  async listDatasets() {
+    return request('/api/evaluation/dataset/list');
+  },
+
+  /** 从 session 提取测试集 */
+  async fromSessions({ session_id = null, name = null, min_sources_count = 1, max_samples = 50 } = {}) {
+    const body = { min_sources_count, max_samples };
+    if (session_id) body.session_id = session_id;
+    if (name) body.name = name;
+    return request('/api/evaluation/dataset/from-sessions', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** 分页样本 + stats */
+  async samples(name, { status = 'all', page = 1, page_size = 20, source = 'all' } = {}) {
+    const q = new URLSearchParams();
+    q.set('status', status);
+    q.set('page', page);
+    q.set('page_size', page_size);
+    q.set('source', source);
+    return request(`/api/evaluation/dataset/${encodeURIComponent(name)}/samples?${q.toString()}`);
+  },
+
+  /** 单条详情 */
+  async sampleDetail(name, idx) {
+    return request(`/api/evaluation/dataset/${encodeURIComponent(name)}/sample/${idx}`);
+  },
+
+  /** 更新样本 */
+  async updateSample(name, idx, body) {
+    return request(`/api/evaluation/dataset/${encodeURIComponent(name)}/sample/${idx}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** 通过 */
+  async approve(name, idx) {
+    return request(`/api/evaluation/dataset/${encodeURIComponent(name)}/sample/${idx}/approve`, {
+      method: 'POST',
+    });
+  },
+
+  /** 驳回 */
+  async reject(name, idx) {
+    return request(`/api/evaluation/dataset/${encodeURIComponent(name)}/sample/${idx}/reject`, {
+      method: 'POST',
+    });
+  },
+
+  /** LLM 生成 ground_truth 草稿 */
+  async generateGt(name, idx) {
+    return request(`/api/evaluation/dataset/${encodeURIComponent(name)}/sample/${idx}/generate-gt`, {
+      method: 'POST',
+    });
+  },
+
+  /** 多格式导入 */
+  async importFile(file, format = 'auto') {
+    const form = new FormData();
+    form.append('file', file);
+    return request(`/api/evaluation/dataset/import?format=${encodeURIComponent(format)}`, {
+      method: 'POST',
+      body: form,
+    });
+  },
+
+  /** 删除测试集 */
+  async deleteDataset(name) {
+    return request(`/api/evaluation/dataset/${encodeURIComponent(name)}`, {
+      method: 'DELETE',
+    });
+  },
+
+  /** 导出 URL（需要鉴权头，用 fetch 下载） */
+  exportUrl(name, format = 'ours') {
+    return `${API_BASE}/api/evaluation/dataset/${encodeURIComponent(name)}/export?format=${encodeURIComponent(format)}`;
+  },
+
+  /** 跑评估 */
+  async runEval(body) {
+    return request('/api/evaluation/run', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** 历史报告列表 */
+  async reports() {
+    return request('/api/evaluation/reports');
+  },
+};
+
 // ===== 缓存中心 API（文档 08） =====
 const CacheAPI = {
   async stats() {

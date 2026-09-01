@@ -1,0 +1,34 @@
+{
+  "from_sessions": {
+    "ok": true,
+    "detail": "dataset=all_sessions_20260901, total=20, stats={\"total\": 20, \"complete\": 20, \"with_ground_truth\": 0, \"evaluable\": 0, \"incomplete\": 0, \"sources\": {\"session\": 20}, \"status\": {\"pending\": 20, \"approved\": 0, \"rejected\": 0}}"
+  },
+  "get_pending": {
+    "ok": true,
+    "detail": "pending samples=20"
+  },
+  "approve": {
+    "ok": true,
+    "detail": "sample[0].status=approved"
+  },
+  "approve_persist": {
+    "ok": true,
+    "detail": "reloaded sample[0].status=approved"
+  },
+  "generate_gt": {
+    "ok": true,
+    "detail": "ground_truth length=47, preview=BM25关键词检索的打分原理是基于词频与逆文档频率，对查询词在文档中的频率与文档长度联合打分。..."
+  },
+  "import_ours": {
+    "ok": true,
+    "detail": "format=ours, count=3, name=verify_ours_import"
+  },
+  "import_ragas": {
+    "ok": true,
+    "detail": "format=ragas, count=3, name=verify_ragas_import"
+  },
+  "run_gating": {
+    "ok": true,
+    "detail": "HTTP 400: 审核通过的完整样本不足 30（当前 0），无法保证评估统计显著性"
+  }
+}
