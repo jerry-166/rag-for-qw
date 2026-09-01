@@ -67,9 +67,14 @@ def _effective_limit(request: QueryRequest) -> int:
 
 
 def _check_kb_access(request: QueryRequest, current_user: dict):
-    """显式指定 KB 时校验访问权（属主或被分享），替代旧的 user_id 向量过滤。"""
-    if request.knowledge_base_id and not db.check_kb_permission(
-            current_user["id"], request.knowledge_base_id):
+    """显式指定 KB 时校验访问权（属主或被分享），替代旧的 user_id 向量过滤。
+
+    admin 角色豁免（全局权限，可查任何 KB 用于管理/调试）——既有 bug 修复：
+    原实现未豁免 admin，导致 admin 查非属主 KB 被误拒（BUG-020）。
+    """
+    if (current_user.get("role") != "admin"
+            and request.knowledge_base_id
+            and not db.check_kb_permission(current_user["id"], request.knowledge_base_id)):
         raise HTTPException(403, "无权限访问该知识库")
 
 
