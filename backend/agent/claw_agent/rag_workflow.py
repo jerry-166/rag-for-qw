@@ -130,7 +130,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
             # 获取会话历史作为上下文
             chat_history = []
             if session_store:
-                chat_history = session_store.get_messages(state["session_id"], limit=6)
+                chat_history = session_store.get_messages(state["session_id"], user_id=state.get("user_id"), limit=6)
 
             # 先做快速规则分类
             quick_intent = classifier.quick_classify(state["query"])
@@ -418,7 +418,7 @@ def create_rag_workflow(memory_manager=None, session_store=None):
         if memory_manager:
             session_context = ""
             if session_store:
-                session_context = session_store.get_recent_context(state["session_id"], window=get_runtime("SESSION_CONTEXT_WINDOW", settings.SESSION_CONTEXT_WINDOW))
+                session_context = session_store.get_recent_context(state["session_id"], user_id=state.get("user_id"), window=get_runtime("SESSION_CONTEXT_WINDOW", settings.SESSION_CONTEXT_WINDOW))
             system_prompt = memory_manager.get_system_prompt(extra_context=session_context)
 
         context_text = state.get("context_text", "")
@@ -480,12 +480,14 @@ def create_rag_workflow(memory_manager=None, session_store=None):
                 ]
 
                 session_store.append_message(
-                    state["session_id"], "user", query
+                    state["session_id"], "user", query,
+                    user_id=state.get("user_id"),
                 )
                 session_store.append_message(
                     state["session_id"],
                     "assistant",
                     answer,
+                    user_id=state.get("user_id"),
                     metadata={
                         "intent": state["intent"].type.value if state["intent"] else None,
                         "sources_count": state["metadata"].get("sources_count", 0),
@@ -539,8 +541,8 @@ def create_rag_workflow(memory_manager=None, session_store=None):
             if session_store:
                 logger.info(f"[rag_workflow] 写入会话存储，会话ID: {state['session_id']}")
                 
-                session_store.append_message(state["session_id"], "user", state["query"])
-                session_store.append_message(state["session_id"], "assistant", answer)
+                session_store.append_message(state["session_id"], "user", state["query"], user_id=state.get("user_id"))
+                session_store.append_message(state["session_id"], "assistant", answer, user_id=state.get("user_id"))
 
         except Exception as e:
             logger.error(f"[rag_workflow] 生成问候回答失败: {e}, 返回默认回答")
