@@ -103,6 +103,27 @@ def rag_hybrid_search(
             "请检查调用链是否遗漏 user_id"
         )
 
+    # ── 文档 08 L2：检索结果缓存（可见范围解析之后、真实检索之前）──
+    # key 过滤材料 = kb_filter（生效范围：指定 KB / 可见 KB 列表 / 空=全局）；
+    # extra 携带影响结果的工具参数（vv/kw/rk/rk_k），任一变化 key 即不同。
+    cache_key = None
+    cm = None
+    try:
+        from services.cache import get_cache_manager
+        cm = get_cache_manager()
+        cache_key = cm.build_search_key(
+            query=query, filt=kb_filter,
+            mode=retrieval_mode, limit=per_k, use_rerank=use_rerank,
+            extra={"vv": use_vector, "kw": use_keyword, "rk_k": rerank_top_k})
+        cached = cm.get(cache_key)
+        if cached is not None:
+            logger.info(f"[rag_tools] L2 缓存命中，跳过检索（{len(cached)} 条）")
+            return json.dumps({"results": cached, "total_count": len(cached),
+                               "cached": True}, ensure_ascii=False)
+    except Exception as e:
+        logger.warning(f"[rag_tools] L2 缓存读取失败（fail-open 直查）: {e}")
+        cache_key = None
+
     # ── 向量检索（Milvus）────────────────────────────────────
     if use_vector:
         try:
@@ -235,6 +256,15 @@ def rag_hybrid_search(
             logger.error(f"精排失败，使用原始结果: {e}")
     
     logger.info(f"混合检索最终返回 {len(final)} 条结果")
+
+    # ── 文档 08 L2：写回缓存（失败不影响结果）──
+    if cm is not None and cache_key is not None:
+        try:
+            cm.set(cache_key, final, meta={
+                "kb_id": knowledge_base_id, "mode": retrieval_mode,
+                "limit": top_k, "rerank": use_rerank})
+        except Exception as e:
+            logger.warning(f"[rag_tools] L2 缓存写回失败（不影响结果）: {e}")
 
     return json.dumps({
         "results": final,
