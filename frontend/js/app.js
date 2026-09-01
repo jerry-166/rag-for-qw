@@ -171,6 +171,24 @@ class App {
           this.navigate('auth');
         }
         break;
+      case 'cache':
+        // 缓存中心（文档 08）— 仅管理员可见
+        if (this.isAuthenticated) {
+          const isAdmin = (window.UserManager && UserManager.get() && UserManager.get().role === 'admin');
+          await this.renderAppLayout('缓存中心', async () => {
+            if (!isAdmin) {
+              const c = document.getElementById('page-container');
+              c.innerHTML = '<div class="glass"><div class="state"><div class="glyph" style="color:var(--danger)">✕</div><div class="title">无权限</div><p class="desc">缓存中心仅管理员可访问</p></div></div>';
+              return;
+            }
+            if (window.CachePage) {
+              await window.CachePage.render();
+            }
+          });
+        } else {
+          this.navigate('auth');
+        }
+        break;
       default:
         this.navigate('knowledge-bases');
     }
@@ -697,6 +715,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.AgentAPI = AgentAPI;
   window.SettingsAPI = SettingsAPI;
   window.AuditAPI = AuditAPI;
+  window.CacheAPI = CacheAPI;
 
   // 初始化应用
   window.App = new App();

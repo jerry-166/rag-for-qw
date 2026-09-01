@@ -462,3 +462,32 @@ const AuditAPI = {
     return `${API_BASE}/api/audit/export?${q.toString()}`;
   },
 };
+
+// ===== 缓存中心 API（文档 08） =====
+const CacheAPI = {
+  async stats() {
+    return request('/api/cache/stats');
+  },
+
+  async entries(layer = 'mem', limit = 50) {
+    return request(`/api/cache/entries?layer=${encodeURIComponent(layer)}&limit=${limit}`);
+  },
+
+  async entryDetail(keyHash) {
+    return request(`/api/cache/entries/${encodeURIComponent(keyHash)}`);
+  },
+
+  async invalidate(kbId) {
+    return request('/api/cache/invalidate', {
+      method: 'POST',
+      body: JSON.stringify({ kb_id: parseInt(kbId, 10) }),
+    });
+  },
+
+  async clear(layer) {
+    return request('/api/cache/clear', {
+      method: 'POST',
+      body: JSON.stringify({ layer }),
+    });
+  },
+};
