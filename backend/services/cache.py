@@ -370,3 +370,23 @@ def get_cache_manager() -> CacheManager:
     if _manager is None:
         _manager = CacheManager()
     return _manager
+
+
+def bump_kb_cache(kb_id, reason: str, user_id=None):
+    """写路径统一 bump 入口（文档 08 §2.5）：版本 +1 + 计数 + 审计。
+
+    任何 KB 内容变更（split/import/delete/FAQ 写入）后调用；
+    失败只记日志不影响主流程（旧缓存最多多活一个 TTL，有兜底）。
+    """
+    if kb_id is None:
+        return
+    try:
+        from services.database import db
+        from services.audit import audit
+        new_v = db.bump_kb_cache_version(kb_id)
+        if new_v >= 0:
+            get_cache_manager().record_version_bump()
+            audit.log("cache.version_bump", user_id=user_id, kb_id=kb_id,
+                      detail={"reason": reason, "new_version": new_v})
+    except Exception as e:
+        logger.warning(f"[Cache] bump 失败(kb={kb_id}, reason={reason}): {e}")
