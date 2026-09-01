@@ -16,7 +16,8 @@
   说明:
     - milvus 默认不拉本地容器：检索实际走 Zilliz Cloud（MILVUS_URI），本地 milvus 容器组
       占 4GB+ 内存在 15.6GB RAM 机器上是纯负担（Stage 4 复验实测），需要时加 -StartMilvus
-    - redis 默认拉起（rag-redis 容器，--maxmemory 128mb 硬顶）：缓存层依赖，加 -NoRedis 跳过
+    - redis 只检测本地 6379（用户约定：用本地已有 Redis，不用 docker 启动）；
+      未运行时缓存自动降级内存模式，如需 Redis 层请先手动启动本地 Redis
   Git Bash 里直接: bash start_all.sh [start|stop|status] [--milvus] [--no-redis]
 #>
 
@@ -94,19 +95,14 @@ function Ensure-Milvus {
 }
 
 function Ensure-Redis {
-    Write-Host "[redis] 检查 rag-redis 容器..." -ForegroundColor Cyan
-    try {
-        $running = docker ps --filter "name=rag-redis" --format "{{.Names}}" 2>$null
-        if ($running) { Write-Host "[redis] rag-redis 运行中" -ForegroundColor Green; return }
-        $existing = docker ps -a --filter "name=rag-redis" --format "{{.Names}}" 2>$null
-        if ($existing) {
-            docker start rag-redis | Out-Null
-        } else {
-            docker run -d --name rag-redis -p 6379:6379 redis:7-alpine --maxmemory 128mb --maxmemory-policy allkeys-lru | Out-Null
-        }
-        Write-Host "[redis] rag-redis 已启动（128MB 硬顶）" -ForegroundColor Green
-    } catch {
-        Write-Host "[redis] 启动失败（Docker 未运行？缓存将降级内存模式）: $($_.Exception.Message)" -ForegroundColor Red
+    # 用户约定：Redis 用本地已有服务（可能 WSL/独立安装），不用 docker 启动。
+    # 此处只做检测提示；未运行时缓存自动降级内存模式（CACHE_BACKEND 容错）。
+    Write-Host "[redis] 检查本地 Redis (6379)..." -ForegroundColor Cyan
+    if (Test-Port 6379) {
+        Write-Host "[redis] 本地 Redis 运行中 (127.0.0.1:6379)" -ForegroundColor Green
+    } else {
+        Write-Host "[redis] 本地 Redis 未运行（127.0.0.1:6379 无监听）——缓存将降级内存模式" -ForegroundColor Yellow
+        Write-Host "       如需启用 Redis 层，请手动启动本地 Redis 后重启后端" -ForegroundColor DarkGray
     }
 }
 
@@ -182,13 +178,9 @@ function Show-Status {
         if ($running) { Write-Host "[milvus] 运行中: $($running -join ', ')" -ForegroundColor Green }
         else { Write-Host "[milvus] 无容器运行" -ForegroundColor Yellow }
     } catch { Write-Host "[milvus] Docker 不可用" -ForegroundColor Yellow }
-    try {
-        $redis = docker ps --filter "name=rag-redis" --format "{{.Names}}" 2>$null
-        if ($redis) { Write-Host "[redis] rag-redis 运行中" -ForegroundColor Green }
-        else { Write-Host "[redis] rag-redis 未运行（缓存降级内存模式）" -ForegroundColor Yellow }
-    } catch { Write-Host "[redis] Docker 不可用" -ForegroundColor Yellow }
+    if (Test-Port 6379) { Write-Host "[redis] 本地 Redis 运行中 (127.0.0.1:6379)" -ForegroundColor Green }
+    else { Write-Host "[redis] 本地 Redis 未运行（缓存降级内存模式）" -ForegroundColor Yellow }
 }
-
 switch ($Action) {
     "start" {
         Write-Host "===== RAGFlow 一键启动 =====" -ForegroundColor Cyan

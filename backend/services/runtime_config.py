@@ -364,6 +364,44 @@ WRITABLE_CONFIGS: Dict[str, dict] = {
         "description": "自己分享出去的共享 KB 中 candidate 升格阈值（污染面更大，默认 3）",
     },
 
+    # ── 缓存配置（文档 08，立即生效） ──
+    "CACHE_BACKEND": {
+        "group": "cache",
+        "type": "enum", "enum": ["off", "memory", "redis"],
+        "label": "缓存后端",
+        "description": "off=关闭 / memory=仅进程内存 / redis=内存+Redis 两级（故障自动降级 memory）",
+    },
+    "CACHE_TTL_SECONDS": {
+        "group": "cache",
+        "type": "int", "min": 30, "max": 86400,
+        "label": "缓存 TTL（秒）",
+        "description": "检索结果缓存基础过期时间（自动叠加 0-120s 随机抖动防雪崩）",
+    },
+    "CACHE_MEM_MAX_ENTRIES": {
+        "group": "cache",
+        "type": "int", "min": 1, "max": 10000,
+        "label": "内存缓存条目上限",
+        "description": "进程内存 LRU 条目数上限（立即生效）",
+    },
+    "CACHE_MEM_MAX_MB": {
+        "group": "cache",
+        "type": "int", "min": 1, "max": 512,
+        "label": "内存缓存字节上限（MB）",
+        "description": "进程内存 LRU 总字节上限（立即生效）",
+    },
+    "CACHE_EMPTY_TTL_SECONDS": {
+        "group": "cache",
+        "type": "int", "min": 0, "max": 3600,
+        "label": "空结果 TTL（秒）",
+        "description": "空结果短过期（防穿透），0=不缓存空结果",
+    },
+    "REDIS_URL": {
+        "group": "cache",
+        "type": "str",
+        "label": "Redis 地址",
+        "description": "redis://host:port/db，切换后自动重置缓存 Redis 连接",
+    },
+
     # ── API Keys / 密钥 ──
     "LITELLM_API_KEY": {
         "group": "api_keys",
@@ -560,7 +598,17 @@ _APPLY_HANDLERS: Dict[str, Callable[[Dict[str, Any]], None]] = {
     "LOG_FILE_LEVEL": lambda st: _apply_log_levels(),
     "POSTGRES_PASSWORD": lambda st: _reconnect_db(),
     "ELASTICSEARCH_PASSWORD": lambda st: _reset_es_client(),
+    "REDIS_URL": lambda st: _reset_cache_redis(),
 }
+
+
+def _reset_cache_redis() -> None:
+    """热改 REDIS_URL 后重置缓存 Redis 连接。"""
+    from services.cache import get_cache_manager
+    cm = get_cache_manager()
+    cm._redis = None
+    cm._redis_ok = None
+    logger.info("[RuntimeConfig] 缓存 Redis 连接已重置")
 
 
 def _reset_es_client() -> None:
