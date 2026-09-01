@@ -214,6 +214,10 @@ async def split_document(file_id: str, req: Request, current_user=Depends(get_cu
             split_time=split_time
         )
 
+        # ── 文档 08：split 阶段 chunks 已写 PG + BM25 索引 → bump KB 缓存版本 ──
+        from services.cache import bump_kb_cache
+        bump_kb_cache(doc["knowledge_base_id"], "split", current_user["id"])
+
         # 记录工作流日志
         processing_time = time.time() - start_time
         db.add_workflow_log(
@@ -699,6 +703,10 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
                     status="completed",
                     import_time=import_time
                 )
+                # ── 文档 08：向量导入完成 → bump KB 缓存版本
+                # （上/下两个幂等早退分支内容未变，不 bump）──
+                from services.cache import bump_kb_cache
+                bump_kb_cache(doc["knowledge_base_id"], "import", current_user["id"])
             except Exception as inner_err:
                 # 导入失败时回滚状态到 generated，允许重试
                 logger.error(f"嵌入导入失败，回滚文档状态: {str(inner_err)}")

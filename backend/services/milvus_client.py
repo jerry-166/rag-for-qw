@@ -1,4 +1,5 @@
 from typing import Optional
+import asyncio
 import time
 
 from config import settings, init_logger, get_runtime
@@ -693,14 +694,17 @@ class MilvusClient:
                 logger.error("集合创建失败")
                 return []
 
-        # 生成查询嵌入
+        # 生成查询嵌入（文档 08 L1：PG 缓存命中免远程 embedding HTTP 往返）
         from langchain_openai import OpenAIEmbeddings
         embedding_model = OpenAIEmbeddings(
             model=get_runtime("EMBEDDING_MODEL", settings.EMBEDDING_MODEL),
             api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
             base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
         )
-        query_embedding = [embedding_model.embed_query(query_text)]
+        from services.cache import get_cache_manager
+        model_name = get_runtime("EMBEDDING_MODEL", settings.EMBEDDING_MODEL)
+        query_embedding = [get_cache_manager().embed_cached(
+            query_text, model_name, embedding_model.embed_query)]
 
         search_params = {"metric_type": get_runtime("MILVUS_METRIC_TYPE", settings.MILVUS_METRIC_TYPE), "params": {"nprobe": get_runtime("MILVUS_NPROBE", settings.MILVUS_NPROBE)}}
 
@@ -783,7 +787,21 @@ class MilvusClient:
             return []
         logger.info(f"[MilvusClient] {retrieval_mode} 模式检索完成，返回 {len(results)} 条结果")
         return results
-    
+
+    async def aquery(self, query_text, limit=5, metadata_filter=None, retrieval_mode="advanced"):
+        """query() 的异步包装：整体移出事件循环（含同步 embed_query HTTP +
+        同步 pymilvus search，每请求 ~5-8s 同步段——Stage 4 复验 §9.2）。"""
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: self.query(
+                query_text=query_text,
+                limit=limit,
+                metadata_filter=metadata_filter,
+                retrieval_mode=retrieval_mode,
+            ),
+        )
+
     def get_collection_info(self):
         """获取集合信息"""
         try:

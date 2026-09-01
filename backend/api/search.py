@@ -124,7 +124,7 @@ async def _milvus_search(request: QueryRequest, req: Request, current_user: dict
     milvus_client = req.app.state['milvus_client']
     metadata_filter = _build_metadata_filter(request, current_user)
     multiplier = 2 if request.use_rerank else 1
-    return milvus_client.query(
+    return await milvus_client.aquery(
         query_text=request.query,
         limit=_effective_limit(request) * multiplier,
         metadata_filter=metadata_filter,
@@ -185,7 +185,21 @@ async def query_milvus(
         # 召回：use_rerank 时多取几条供精排使用
         multiplier = 3 if request.use_rerank else 1
         effective_limit = _effective_limit(request)
-        raw_results = milvus_client.query(
+
+        # ── 文档 08 L2：检索结果缓存（权限闸门之后、真实检索之前；
+        # key 材料 = 生效过滤条件，版本失效由写路径 bump 保证）──
+        from services.cache import get_cache_manager
+        cm = get_cache_manager()
+        cache_key = cm.build_search_key(
+            query=request.query, filt=metadata_filter,
+            mode=request.retrieval_mode, limit=effective_limit,
+            use_rerank=request.use_rerank)
+        cached = cm.get(cache_key)
+        if cached is not None:
+            return {"status": "success", "query": request.query,
+                    "results": cached, "cached": True}
+
+        raw_results = await milvus_client.aquery(
             query_text=request.query,
             limit=effective_limit * multiplier,
             metadata_filter=metadata_filter,
@@ -199,6 +213,10 @@ async def query_milvus(
 
         logger.debug(f"Milvus 检索完成, 返回 {len(results)} 条结果")
         logger.info("Milvus 向量检索成功")
+
+        cm.set(cache_key, results, meta={
+            "kb_id": request.knowledge_base_id, "mode": request.retrieval_mode,
+            "limit": effective_limit, "rerank": request.use_rerank})
 
         return {
             "status": "success",
@@ -246,6 +264,24 @@ async def search_elasticsearch(
         # 召回
         multiplier = 3 if request.use_rerank else 1
         effective_limit = _effective_limit(request)
+
+        # ── 文档 08 L2：检索结果缓存 ──
+        # key 过滤材料 = ES 路实际生效范围：KB 过滤（共享 KB 权限已由闸门把关）
+        # 或 user_id（无 KB 时 BM25 按用户桶隔离）——与检索语义严格一致
+        from services.cache import get_cache_manager
+        cm = get_cache_manager()
+        key_filt = dict(filters)
+        if current_user["role"] != "admin" and not request.knowledge_base_id:
+            key_filt["user_id"] = current_user["id"]
+        cache_key = cm.build_search_key(
+            query=request.query, filt=key_filt,
+            mode="keyword", limit=effective_limit,
+            use_rerank=request.use_rerank)
+        cached = cm.get(cache_key)
+        if cached is not None:
+            return {"status": "success", "query": request.query,
+                    "results": cached, "cached": True}
+
         raw_results = search_client.search(
             query=request.query,
             user_id=current_user["id"],
@@ -260,6 +296,10 @@ async def search_elasticsearch(
 
         logger.debug(f"ES 检索完成, 返回 {len(results)} 条结果")
         logger.info("Elasticsearch 关键词检索成功")
+
+        cm.set(cache_key, results, meta={
+            "kb_id": request.knowledge_base_id, "mode": "keyword",
+            "limit": effective_limit, "rerank": request.use_rerank})
 
         return {
             "status": "success",
@@ -295,6 +335,22 @@ async def hybrid_search(
 
     try:
         _check_kb_access(request, current_user)
+
+        # ── 文档 08 L2：混合检索结果缓存（两路融合+rerank 的最终结果；
+        # key 过滤材料 = milvus 路 metadata_filter，含 user_id/kb_id 生效范围）──
+        from services.cache import get_cache_manager
+        cm = get_cache_manager()
+        hybrid_key_filt = _build_metadata_filter(request, current_user)
+        hybrid_limit = _effective_limit(request)
+        cache_key = cm.build_search_key(
+            query=request.query, filt=hybrid_key_filt,
+            mode=request.retrieval_mode, limit=hybrid_limit,
+            use_rerank=request.use_rerank)
+        cached = cm.get(cache_key)
+        if cached is not None:
+            return {"status": "success", "query": request.query,
+                    "results": cached, "cached": True}
+
         # ---- Step 1: 并行召回 ----
         es_results, milvus_results = await asyncio.gather(
             _es_search(request, req, current_user),
@@ -309,6 +365,9 @@ async def hybrid_search(
             rankings.append(milvus_results)
 
         if not rankings:
+            cm.set(cache_key, [], meta={
+                "kb_id": request.knowledge_base_id, "mode": "hybrid",
+                "limit": hybrid_limit, "rerank": request.use_rerank})  # 空结果短 TTL 防穿透
             return {
                 "status": "success",
                 "query": request.query,
@@ -331,6 +390,10 @@ async def hybrid_search(
 
         logger.debug(f"混合检索完成, 返回 {len(reranked)} 条结果")
         logger.info("混合检索成功")
+
+        cm.set(cache_key, reranked, meta={
+            "kb_id": request.knowledge_base_id, "mode": "hybrid",
+            "limit": hybrid_limit, "rerank": request.use_rerank})
 
         return {
             "status": "success",

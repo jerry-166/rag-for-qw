@@ -51,6 +51,7 @@ class EvaluationSample:
     answer: str = ""                # Agent 实际回答（可为空，运行时填充）
     contexts: List[str] = field(default_factory=list)  # 检索到的上下文（可为空，运行时填充）
     metadata: Dict[str, Any] = field(default_factory=dict)
+    status: str = "pending"         # pending | approved | rejected
 
     def to_dict(self) -> Dict:
         return asdict(self)
@@ -63,11 +64,16 @@ class EvaluationSample:
             answer=d.get("answer", ""),
             contexts=d.get("contexts", []),
             metadata=d.get("metadata", {}),
+            status=d.get("status", "pending"),  # 兼容旧 JSON（无 status 字段时默认 pending）
         )
 
     def is_complete(self) -> bool:
         """检查是否有足够数据进行评估（至少需要 question + answer + contexts）"""
         return bool(self.question and self.answer and self.contexts)
+
+    def is_evaluable(self) -> bool:
+        """检查样本是否可参与评估（完整 + 已审核通过 + 有 ground_truth）"""
+        return self.is_complete() and self.status == "approved" and bool(self.ground_truth)
 
 
 class EvaluationDataset:
@@ -106,6 +112,7 @@ class EvaluationDataset:
                 "source": "manual",
                 "tags": tags or [],
             },
+            status="approved",  # 手动标注直接可用
         )
         self.samples.append(sample)
         return sample
@@ -258,17 +265,101 @@ class EvaluationDataset:
         total = len(self.samples)
         complete = sum(1 for s in self.samples if s.is_complete())
         with_gt = sum(1 for s in self.samples if s.ground_truth)
+        evaluable = sum(1 for s in self.samples if s.is_evaluable())
         sources = {}
+        status_counts = {"pending": 0, "approved": 0, "rejected": 0}
         for s in self.samples:
             src = s.metadata.get("source", "unknown")
             sources[src] = sources.get(src, 0) + 1
+            status_counts[s.status] = status_counts.get(s.status, 0) + 1
 
         return {
             "total": total,
             "complete": complete,    # answer + contexts 都有
             "with_ground_truth": with_gt,
+            "evaluable": evaluable,  # 完整 + approved + 有 ground_truth
             "incomplete": total - complete,
             "sources": sources,
+            "status": status_counts,
+        }
+
+    def update_sample(self, idx: int, **fields) -> EvaluationSample:
+        """
+        更新单条样本的字段
+
+        Args:
+            idx: 样本索引（0-based）
+            fields: 可更新的字段——answer / contexts / ground_truth / status
+
+        Returns:
+            更新后的 EvaluationSample
+
+        Raises:
+            IndexError: 索引越界
+        """
+        if idx < 0 or idx >= len(self.samples):
+            raise IndexError(f"样本索引越界: {idx}（共 {len(self.samples)} 条）")
+
+        sample = self.samples[idx]
+        allowed = {"answer", "contexts", "ground_truth", "status"}
+        for key, value in fields.items():
+            if key in allowed:
+                setattr(sample, key, value)
+            else:
+                logger.warning(f"[EvaluationDataset] 忽略不可更新字段: {key}")
+
+        return sample
+
+    @staticmethod
+    def delete(name: str) -> bool:
+        """
+        删除测试集文件
+
+        Args:
+            name: 测试集名称（不含扩展名）
+
+        Returns:
+            是否删除成功
+
+        Raises:
+            FileNotFoundError: 文件不存在
+        """
+        path = TESTSET_DIR / f"{name}.json"
+        if not path.exists():
+            raise FileNotFoundError(f"测试集文件不存在: {path}")
+
+        os.remove(path)
+        logger.info(f"[EvaluationDataset] 已删除测试集: {path}")
+        return True
+
+    def export(self, fmt: str = "ours") -> Dict:
+        """
+        导出测试集为指定格式
+
+        Args:
+            fmt: "ours"（本项目格式）或 "ragas"（RAGAS 标准 flat list）
+
+        Returns:
+            格式化后的 dict / list
+        """
+        if fmt == "ragas":
+            # RAGAS datasets 格式：flat list of {question, answer, contexts, ground_truth}
+            return [
+                {
+                    "question": s.question,
+                    "answer": s.answer,
+                    "contexts": s.contexts,
+                    "ground_truth": s.ground_truth,
+                }
+                for s in self.samples
+            ]
+        # ours：完整本项目格式
+        return {
+            "name": self.name,
+            "created_at": self.created_at,
+            "updated_at": datetime.now().isoformat(),
+            "count": len(self.samples),
+            "samples": [s.to_dict() for s in self.samples],
         }
 
     def __len__(self):

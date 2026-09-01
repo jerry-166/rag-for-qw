@@ -570,11 +570,19 @@ async def get_session_history(
     获取会话历史
 
     支持 ClawAgent 的会话历史查询。
+    校验会话属主：非 admin 用户只能查看自己的会话，否则返回 404。
     """
     try:
         from agent.claw_agent.memory.session_store import SessionStore
         store = SessionStore()
-        messages = store.get_messages(session_id, limit=limit)
+        is_admin = current_user.get("role") == "admin"
+        # admin 传 None 走全量分支；普通用户传 id 做属主校验
+        effective_user_id = None if is_admin else current_user["id"]
+        messages = store.get_messages(session_id, user_id=effective_user_id, limit=limit)
+
+        if not messages:
+            # 不存在或不属于该用户 → 404（不泄露存在性）
+            raise HTTPException(status_code=404, detail=f"会话 {session_id} 不存在")
 
         return {
             "status": "success",
@@ -583,6 +591,8 @@ async def get_session_history(
             "count": len(messages),
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"[Agent API] 获取会话历史失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取会话历史失败: {str(e)}")
@@ -597,11 +607,14 @@ async def list_all_sessions(
     列出所有历史会话（按更新时间降序）
 
     返回 sessions/ 目录下所有 .json 会话文件的摘要信息。
+    普通用户只能看到自己的会话；admin 可见全部（含 ownerless）。
     """
     try:
         from agent.claw_agent.memory.session_store import SessionStore
         store = SessionStore()
-        sessions = store.list_sessions(limit=limit)
+        is_admin = current_user.get("role") == "admin"
+        effective_user_id = None if is_admin else current_user["id"]
+        sessions = store.list_sessions(user_id=effective_user_id, limit=limit)
 
         return {
             "status": "success",
@@ -625,14 +638,18 @@ async def delete_or_clear_session(
 
     - 无 action 参数（或 action=clear）：清空会话的所有历史消息，保留会话文件
     - action=delete：彻底删除会话文件（不可恢复）
+
+    校验会话属主：非 admin 用户只能操作自己的会话，否则返回 404。
     """
     try:
         from agent.claw_agent.memory.session_store import SessionStore
         store = SessionStore()
+        is_admin = current_user.get("role") == "admin"
+        effective_user_id = None if is_admin else current_user["id"]
 
         if action == "delete":
             # 真正删除会话文件
-            success = store.delete_session(session_id)
+            success = store.delete_session(session_id, user_id=effective_user_id)
             if not success:
                 raise HTTPException(status_code=404, detail=f"会话 {session_id} 不存在")
             return {
@@ -642,7 +659,9 @@ async def delete_or_clear_session(
             }
         else:
             # 只清空消息（保留会话）
-            store.clear_session(session_id)
+            success = store.clear_session(session_id, user_id=effective_user_id)
+            if not success:
+                raise HTTPException(status_code=404, detail=f"会话 {session_id} 不存在")
             return {
                 "status": "success",
                 "message": f"会话 {session_id} 已清空",
