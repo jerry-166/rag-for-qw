@@ -218,6 +218,9 @@ async def delete_document(file_id: str, request: Request, current_user=Depends(g
         result = db.delete_document(file_id)
         if result:
             logger.info(f"文档删除成功，文件ID: {file_id}")
+            # ── 文档 08：文档删除 → bump KB 缓存版本 ──
+            from services.cache import bump_kb_cache
+            bump_kb_cache(doc.get("knowledge_base_id"), "doc_delete", current_user["id"])
             try:
                 from services.audit import audit
                 audit.log_from_request(request, "doc.delete", user_id=current_user["id"],

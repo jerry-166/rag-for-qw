@@ -91,6 +91,9 @@ async def promote_faq(faq_id: int, current_user=Depends(get_current_user)):
     from services.audit import audit
     audit.log("faq.promote", user_id=current_user["id"], resource_type="faq",
               resource_id=faq_id, kb_id=faq["kb_id"], detail={"via": "manual"})
+    # ── 文档 08：FAQ 手动升格 → bump KB 缓存版本 ──
+    from services.cache import bump_kb_cache
+    bump_kb_cache(faq["kb_id"], "faq_promote", current_user["id"])
     return {"status": "success"}
 
 
@@ -105,6 +108,9 @@ async def demote_faq(faq_id: int, current_user=Depends(get_current_user)):
     from services.audit import audit
     audit.log("faq.demote", user_id=current_user["id"], resource_type="faq",
               resource_id=faq_id, kb_id=faq["kb_id"])
+    # ── 文档 08：FAQ 降级 → bump KB 缓存版本 ──
+    from services.cache import bump_kb_cache
+    bump_kb_cache(faq["kb_id"], "faq_demote", current_user["id"])
     return {"status": "success"}
 
 
@@ -125,6 +131,9 @@ async def delete_faq(faq_id: int, current_user=Depends(get_current_user)):
     audit.log("faq.delete", user_id=current_user["id"], resource_type="faq",
               resource_id=faq_id, kb_id=faq["kb_id"],
               detail={"question": faq["question"][:200]})
+    # ── 文档 08：FAQ 删除 → bump KB 缓存版本 ──
+    from services.cache import bump_kb_cache
+    bump_kb_cache(faq["kb_id"], "faq_delete", current_user["id"])
     return {"status": "success"}
 
 
