@@ -1,17 +1,26 @@
-"""Task 13 A/B 验收脚本：缓存开/关的延迟与命中率对比（文档 08 §4.1）
+"""Task 13 A/B 验收（双账号版）：admin 切 CACHE_BACKEND，loadtester 跑 KB17 检索
 
-用法（在 backend 目录下，venv 已激活）：
-  python ..\work\stage-cache\verify_task13_ab.py --user admin --pass <密码> --kb-id <KB> --query "查询文本" --rounds 8
+用法（backend 目录下，venv 已激活，服务在 127.0.0.1:8003）：
+  .\.venv\Scripts\python.exe ..\work\stage-cache\verify_task13_ab.py \
+    --admin-user admin --admin-pass admin \
+    --user loadtester --pass "Loadtest#123" \
+    --kb-id 17 --query "RAG 检索增强" --rounds 6
 
 流程：
-  1. 登录拿 token
-  2. CACHE_BACKEND=off 基线：跑 N 次同 query 检索（限速避免 429），记延迟 + cached 标志
-  3. CACHE_BACKEND=memory（或 redis）：前 2 次预热，后 N 次测命中与延迟
-  4. 输出对比表 + 落 JSON
-
-注：完整 5 个权限安全用例需多用户+分享操作，见 stage-cache-report.md 手动用例清单。
+  1. admin 登录，loadtester 登录
+  2. CACHE_BACKEND=off 基线：loadtester 跑 N 次同 query 检索（限速防 429）
+  3. CACHE_BACKEND=memory：预热 2 次 + 跑 N 次
+  4. CACHE_BACKEND=redis：预热 2 次 + 跑 N 次
+  5. 对比三种 backend 的 p50/p95/命中率
 """
-import argparse, json, time, sys, urllib.request, urllib.error
+import argparse, json, time, sys, urllib.request, urllib.error, urllib.parse
+
+# Windows 控制台默认 GBK 会因 emoji/中文崩溃，强制 UTF-8
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
 
 BASE = "http://127.0.0.1:8003"
 
@@ -24,14 +33,12 @@ def api(path, method="GET", token=None, body=None):
     req = urllib.request.Request(f"{BASE}{path}", data=data, method=method, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=300) as r:
-            return json.loads(r.read())
+            return r.status, json.loads(r.read())
     except urllib.error.HTTPError as e:
-        return {"_http_error": e.code, "_body": e.read().decode(errors="replace")}
+        return e.code, {"_err": e.read().decode(errors="replace")}
 
 
 def login(user, pwd):
-    # OAuth2PasswordRequestForm：form-data
-    import urllib.parse
     data = urllib.parse.urlencode({"username": user, "password": pwd}).encode()
     req = urllib.request.Request(f"{BASE}/api/auth/login", data=data, method="POST",
                                 headers={"Content-Type": "application/x-www-form-urlencoded"})
@@ -39,74 +46,90 @@ def login(user, pwd):
         return json.loads(r.read())["access_token"]
 
 
-def set_backend(token, mode):
-    return api("/api/settings", "PUT", token, {"key": "CACHE_BACKEND", "value": mode})
+def set_backend(admin_token, mode):
+    # /api/settings PUT 批量格式：{"configs": [{"key":..,"value":..}]}
+    code, resp = api("/api/settings", "PUT", admin_token,
+                     {"configs": [{"key": "CACHE_BACKEND", "value": mode}]})
+    return code == 200, resp
 
 
 def search(token, query, kb_id, use_rerank=False):
     body = {"query": query, "knowledge_base_id": kb_id, "use_rerank": use_rerank}
     t0 = time.time()
-    r = api("/api/search/milvus/query", "POST", token, body)
+    code, resp = api("/api/milvus/query", "POST", token, body)
     dt = time.time() - t0
-    return dt, r.get("cached", False), r.get("_http_error"), r.get("results")
+    cached = resp.get("cached", False) if isinstance(resp, dict) else False
+    n_results = len(resp.get("results", [])) if isinstance(resp, dict) else 0
+    return dt, cached, code, n_results
 
 
-def run_round(token, query, kb_id, n, label, rerank=False):
+def run_round(user_token, query, kb_id, n, label, rerank=False):
     print(f"\n=== {label}（{n} 次）===")
     latencies, hits = [], 0
     for i in range(n):
-        dt, cached, err, _ = search(token, query, kb_id, rerank)
-        if err:
-            print(f"  #{i+1} ERROR {err}")
+        dt, cached, code, nr = search(user_token, query, kb_id, rerank)
+        if code != 200:
+            print(f"  #{i+1} HTTP {code} (nr={nr})")
             time.sleep(2)
             continue
         latencies.append(dt)
         if cached:
             hits += 1
-        print(f"  #{i+1} {dt:.2f}s {'cached' if cached else 'miss'}")
-        time.sleep(0.5)  # 限速防 429
+        print(f"  #{i+1} {dt:.3f}s {'cached' if cached else 'miss'} ({nr} results)")
+        time.sleep(0.6)  # 限速防 429
+    if not latencies:
+        return {"label": label, "n": n, "p50": None, "p95": None, "hit_rate": 0, "hits": 0}
     latencies.sort()
-    p50 = latencies[len(latencies)//2] if latencies else None
-    p95 = latencies[int(len(latencies)*0.95)] if len(latencies) > 1 else (latencies[0] if latencies else None)
-    hit_rate = hits / n if n else 0
-    print(f"  → p50={p50:.2f}s p95={p95:.2f}s 命中率={hit_rate*100:.0f}% ({hits}/{n})")
-    return {"label": label, "n": n, "p50": p50, "p95": p95, "hit_rate": hit_rate, "hits": hits, "latencies": latencies}
+    p50 = latencies[len(latencies)//2]
+    p95 = latencies[min(len(latencies)-1, int(len(latencies)*0.95))]
+    hr = hits / n if n else 0
+    print(f"  → p50={p50:.3f}s p95={p95:.3f}s 命中率={hr*100:.0f}% ({hits}/{n})")
+    return {"label": label, "n": n, "p50": p50, "p95": p95, "hit_rate": hr, "hits": hits, "latencies": latencies}
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--user", required=True)
-    ap.add_argument("--pass", dest="password", required=True)
+    ap.add_argument("--admin-user", required=True)
+    ap.add_argument("--admin-pass", required=True)
+    ap.add_argument("--user", required=True, help="普通用户（跑检索）")
+    ap.add_argument("--pass", dest="user_pass", required=True)
     ap.add_argument("--kb-id", type=int, required=True)
     ap.add_argument("--query", required=True)
-    ap.add_argument("--rounds", type=int, default=8)
+    ap.add_argument("--rounds", type=int, default=6)
     ap.add_argument("--rerank", action="store_true")
     args = ap.parse_args()
 
-    token = login(args.user, args.password)
-    print(f"登录成功，token len={len(token)}")
+    admin_token = login(args.admin_user, args.admin_pass)
+    user_token = login(args.user, args.user_pass)
+    print(f"登录成功：admin token={len(admin_token)}, {args.user} token={len(user_token)}")
 
     results = []
-    # 基线：off
-    set_backend(token, "off")
-    results.append(run_round(token, args.query, args.kb_id, args.rounds, "基线(CACHE_BACKEND=off)", args.rerank))
-
-    # 缓存：memory（Redis 未起时降级，先 memory）
-    set_backend(token, "memory")
-    # 预热 2 次
-    run_round(token, args.query, args.kb_id, 2, "预热(memory)", args.rerank)
-    results.append(run_round(token, args.query, args.kb_id, args.rounds, "测量(CACHE_BACKEND=memory)", args.rerank))
+    for mode in ["off", "memory", "redis"]:
+        ok, resp = set_backend(admin_token, mode)
+        if not ok:
+            print(f"[WARN] 切换 CACHE_BACKEND={mode} 失败: {str(resp)[:120]}")
+            continue
+        print(f"\n>>> 已切换 CACHE_BACKEND={mode}")
+        time.sleep(1)
+        # off 模式不预热
+        if mode != "off":
+            run_round(user_token, args.query, args.kb_id, 2, f"预热({mode})", args.rerank)
+        r = run_round(user_token, args.query, args.kb_id, args.rounds, f"测量({mode})", args.rerank)
+        results.append(r)
 
     # 汇总
-    print("\n========== A/B 对比 ==========")
+    print("\n" + "="*60)
+    print("A/B 对比汇总")
+    print("="*60)
+    print(f"{'backend':<12} {'p50':>10} {'p95':>10} {'命中率':>10}")
     for r in results:
-        print(f"{r['label']}: p50={r['p50']:.2f}s p95={r['p95']:.2f}s 命中率={r['hit_rate']*100:.0f}%")
+        p50 = f"{r['p50']:.3f}s" if r['p50'] else "—"
+        p95 = f"{r['p95']:.3f}s" if r['p95'] else "—"
+        print(f"{r['label']:<24} {p50:>10} {p95:>10} {r['hit_rate']*100:>9.0f}%")
 
-    if len(results) >= 2:
-        base, cached = results[0], results[1]
-        if base["p50"] and cached["p50"]:
-            speedup = base["p50"] / cached["p50"]
-            print(f"\n缓存命中 p50 加速: {speedup:.1f}x（{base['p50']:.2f}s → {cached['p50']:.2f}s）")
+    if len(results) >= 2 and results[0]['p50'] and results[-1]['p50']:
+        speedup = results[0]['p50'] / results[-1]['p50']
+        print(f"\n缓存命中加速（off→最终）: {speedup:.1f}x")
 
     out = {"args": vars(args), "results": results}
     with open("verify_task13_ab_result.json", "w", encoding="utf-8") as f:
