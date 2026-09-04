@@ -102,8 +102,11 @@ class Settings(BaseSettings):
     LOG_FILE_LEVEL: int = logging.DEBUG  # 文件日志级别
     
     # Reranker 配置
-    RERANKER_TYPE: str = os.getenv("RERANKER_TYPE", "cross_encoder")  # llm / cross_encoder / none
+    RERANKER_TYPE: str = os.getenv("RERANKER_TYPE", "cross_encoder")  # llm / cross_encoder / cohere / none
     RERANKER_MODEL: str = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-base")
+    # Cohere 云端 rerank（替换本地 BGE 避 torch 超订阅；RERANKER_TYPE=cohere 时生效）
+    COHERE_API_KEY: str = os.getenv("COHERE_API_KEY", "")
+    COHERE_MODEL: str = os.getenv("COHERE_MODEL", "rerank-v3.5")  # rerank-v3.5 多语言
 
     # RAG 检索配置
     RETRIEVAL_MIN_SCORE: float = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.3"))  # 检索结果最低相关度阈值（0-1），低于此分数的结果将被丢弃

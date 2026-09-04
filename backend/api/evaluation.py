@@ -751,3 +751,85 @@ async def export_dataset(
         raise HTTPException(status_code=400, detail=f"不支持的导出格式: {fmt}")
 
     return dataset.export(fmt=fmt)
+
+
+# ─────────────────────────────────────────────────────────────
+# 数据飞轮（文档 09，Step 2/3）— 调度器状态 + 手动触发 + 上次结果
+# ─────────────────────────────────────────────────────────────
+
+# 上次飞轮周期的结果摘要（内存级，重启丢失，仅用于查看最近一次）
+_last_flywheel_result: Optional[Dict[str, Any]] = None
+# 当前正在跑的飞轮周期 task_id（防止重复触发）
+_running_flywheel_task: Optional[asyncio.Task] = None
+
+
+@router.get("/flywheel/info")
+async def flywheel_info(
+    current_user=Depends(get_current_user),
+):
+    """
+    查询数据飞轮调度器状态
+
+    返回调度器是否在跑、cron 任务下次触发时间、上次周期结果摘要。
+    用于前端「数据飞轮」页面状态展示。
+    """
+    from services.data_flywheel import get_scheduler_info
+    return {
+        "scheduler": get_scheduler_info(),
+        "last_result": _last_flywheel_result,
+        "running": _running_flywheel_task is not None and not _running_flywheel_task.done(),
+    }
+
+
+@router.post("/flywheel/trigger")
+async def flywheel_trigger(
+    background_tasks: BackgroundTasks,
+    current_user=Depends(get_current_user),
+):
+    """
+    手动触发一次数据飞轮周期（测试用）
+
+    异步执行：from_sessions → generate_gt → 自评 approve → evaluate → 报告 + 策略建议。
+    不阻塞 HTTP 响应，返回 task_id 后客户端轮询 /flywheel/info 看 running 状态。
+
+    防重入：若上一个周期还在跑，返回 409。
+    """
+    global _running_flywheel_task
+
+    if _running_flywheel_task is not None and not _running_flywheel_task.done():
+        raise HTTPException(status_code=409, detail="上一个飞轮周期仍在运行，请等待完成")
+
+    from services.data_flywheel import run_flywheel_cycle
+
+    async def _bg_task():
+        global _last_flywheel_result
+        try:
+            summary = await run_flywheel_cycle(triggered_by=f"manual:{current_user.id}")
+            _last_flywheel_result = summary
+        except Exception as e:
+            _last_flywheel_result = {
+                "status": "failed",
+                "error": str(e),
+                "completed_at": datetime.now().isoformat(),
+            }
+            logger.error(f"[Flywheel API] 手动触发失败: {e}")
+
+    _running_flywheel_task = asyncio.create_task(_bg_task())
+
+    logger.info(f"[Flywheel API] 用户 {current_user.id} 手动触发飞轮周期")
+    return {
+        "status": "accepted",
+        "message": "飞轮周期已启动，通过 GET /api/evaluation/flywheel/info 查询进度",
+        "note": "周期含 from_sessions + generate_gt + evaluate，预计 5-15 分钟（取决于样本数）",
+    }
+
+
+@router.get("/flywheel/last-result")
+async def flywheel_last_result(
+    current_user=Depends(get_current_user),
+):
+    """查询上次飞轮周期的完整结果摘要（含策略建议）"""
+    if _last_flywheel_result is None:
+        return {"status": "never_run", "message": "飞轮从未跑过"}
+    return _last_flywheel_result
+

@@ -1,0 +1,28 @@
+{
+ "graph_ours": {
+  "tag": "graph_ours",
+  "n": 40,
+  "conc": 10,
+  "wall_s": 36.4,
+  "qps": 1.1,
+  "ok": 40,
+  "err": 0,
+  "p50_ms": 9901,
+  "p95_ms": 14010,
+  "p99_ms": 15940,
+  "max_ms": 17174
+ },
+ "hybrid_lightrag": {
+  "tag": "hybrid_lightrag",
+  "n": 40,
+  "conc": 10,
+  "wall_s": 208.8,
+  "qps": 0.19,
+  "ok": 40,
+  "err": 0,
+  "p50_ms": 42884,
+  "p95_ms": 61884,
+  "p99_ms": 62364,
+  "max_ms": 62375
+ }
+}

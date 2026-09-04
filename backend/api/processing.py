@@ -295,9 +295,10 @@ async def generate_sub_questions_and_summary(file_id: str, req: Request, current
         enabled = resolve_enabled_enhancers(doc["knowledge_base_id"])
         need_subq = "sub_question" in enabled
         need_summary = "summary" in enabled
+        need_entity = "entity" in enabled
 
         # 全关：跳过 LLM 生成，直接推进状态（纯原文 RAG，import 阶段只处理 chunk 向量）
-        if not (need_subq or need_summary):
+        if not (need_subq or need_summary or need_entity):
             if doc["status"] not in ["generated", "completed"]:
                 db.update_document(file_id, status="generated")
             logger.info(f"增强器已全部关闭，跳过生成并推进状态，文件ID: {file_id}")

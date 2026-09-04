@@ -145,9 +145,10 @@ class DocumentProcessor:
 
         need_subq = "sub_question" in enabled
         need_summary = "summary" in enabled
+        need_entity = "entity" in enabled
 
         # ==================== 全关：秒回（文档 03 §3.4） ====================
-        if not (need_subq or need_summary):
+        if not (need_subq or need_summary or need_entity):
             logger.info(f"增强器已全部关闭（KB={knowledge_base_id}），跳过 {total} 个块的 LLM 生成")
             audit.log("process.generate.done", resource_type="document", resource_id=document_id,
                       kb_id=knowledge_base_id,

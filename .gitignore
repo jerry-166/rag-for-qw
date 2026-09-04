@@ -69,3 +69,13 @@ backend/_diag_faq.py
 
 # accidental token dumps
 work/stage-5/token.txt
+
+zilliz-cloud-RAG_for_qw-username-password.txt
+node_modules/*
+设计风格/*
+.buglog/*
+!.buglog/bugs/*
+.agentMemory
+package-lock.json
+package.json
+.codebuddy/sessionLog
