@@ -1,0 +1,48 @@
+我要给本项目（RAG-for-QW）设计一套新的 UI。请基于以下上下文进行设计。
+
+【设计概览（必读）】
+work/stage-5/kimi-k3-design-brief.md
+- 含设计主导声明（§〇）、用户审美偏好（§〇.5）、现状（§一）、问题清单（§二）、整合清单（§三）、进度接口契约（§四）、关键流程上下文（§五，9 节业务流程）、硬性验收标准（§六）、产出要求与实现约束（§七）
+- 最高优先级：§〇 设计主导声明——以你的前端能力为主，brief 与专业判断冲突时以专业判断为准
+
+【原产品 UI 现状（基线）】
+work/stage-5/baseline/
+- report.md：15/15 旅程通过率、问题清单刷新（10 项 + 3 项新发现）
+- shots/：15 张现状截图（01 登录 ~ 10 审计 + pipeline 分步 + 三模式检索 + Agent 对话）
+- journey.spec.js：可重复执行的回归脚本（后续验收用）
+
+【前端源码（必读，设计落地依据）】
+frontend/
+- index.html：双模板骨架（tpl-auth + tpl-app）
+- css/main.css：约 84KB，现有暗色主题 + light-mode 变量（CSS custom properties）
+- js/api.js：唯一 API 层（不改契约）
+- js/app.js：App 类，路由 + 模板切换
+- js/pages/*.js：7 个业务页（knowledge-bases/documents/pipeline/search/agent/faq/settings/audit）
+- 截图与源码对应：01-登录→tpl-auth；02-03-知识库→knowledge-bases.js；04-05-文档→documents.js；06-pipeline→pipeline.js；07-检索→search.js；08-agent→agent.js；09-设置→settings.js；10-审计→audit.js
+
+【后端 API 参考（如需查字段细节）】
+backend/api/
+- processing.py：进度接口 / pipeline
+- faq.py：FAQ 三 Tab 操作 + KB 分享/克隆
+- audit.py：审计查询/导出
+- search.py：三模式检索
+
+【我喜欢的设计风格（方向性指引，非具体方案）】
+设计风格/glassmorphism-showcase/index.html
+- 首选 Glassmorphism（毛玻璃），次选 macOS 毛玻璃 + Notion 风
+- 期望"新感官体验"，不满足于现有布局的视觉优化
+- 具体设计手法由你自主决定
+
+【产出形式】
+- 阶段 A：先出设计稿（tokens + 各页线框 + 预览 HTML + DESIGN.md），放到 frontend/design/ 下
+- 我审稿通过后，再进入阶段 B 落地到 main.css 与 pages/*.js
+- 路径仅为建议，可按你的习惯调整
+
+【硬约束（不可破坏）】
+- 不改 frontend/js/api.js 的 API 契约（可加方法，不可改现有签名/行为）
+- SSE 流式消费逻辑与 pipeline 断点恢复逻辑不得破坏（幂等依赖状态机）
+- 保持无构建链：纯原生 HTML/CSS/JS，不引入 React/Vue/构建工具
+- 暗亮主题双套都要维护
+- 可访问性 WCAG AA
+
+请先浏览 brief 和 showcase，然后开始产出阶段 A。
