@@ -37,10 +37,13 @@ class Settings(BaseSettings):
 
     # LiteLLM配置
     LITELLM_BASE_URL: str = os.getenv("BASE_URL", "http://localhost:4000")
-    LITELLM_API_KEY: str = os.getenv("LITELLM_API_KEY", "")
+    LITELLM_API_KEY: str = os.getenv("DASHSCOPE_API_KEY", os.getenv("LITELLM_API_KEY", ""))
 
     # 模型配置
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "github_copilot/text-embedding-ada-002")
+    # 分离：embedding 用 DashScope text-embedding-v4（dim=1536），LLM 用智谱 GLM-4-Flash
+    EMBEDDING_BASE_URL: str = os.getenv("EMBEDDING_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+    EMBEDDING_API_KEY: str = os.getenv("DASHSCOPE_API_KEY", os.getenv("EMBEDDING_API_KEY", ""))
     DEFAULT_MODEL: str = os.getenv("DEFAULT_MODEL", "gpt-4o")
 
     # Milvus配置
@@ -169,6 +172,16 @@ _env_baseline: dict = {}
 
 def get_runtime(key: str, default=None):
     """优先返回运行时覆盖值，否则 fallback 到 settings 属性。"""
+    # LLM 智谱 GLM-4-Flash（系统环境变量 LITELLM_API_KEY 是旧 litellm key，绕过用 ZHIPU_API_KEY）
+    if key == "LITELLM_API_KEY" and key not in _runtime_overrides:
+        zhipu = os.getenv("ZHIPU_API_KEY")
+        if zhipu:
+            return zhipu
+    # embedding DashScope text-embedding-v4（分离：embedding 用 DASHSCOPE_API_KEY）
+    if key == "EMBEDDING_API_KEY" and key not in _runtime_overrides:
+        ds = os.getenv("DASHSCOPE_API_KEY")
+        if ds:
+            return ds
     if key in _runtime_overrides:
         return _runtime_overrides[key]
     return getattr(settings, key, default)

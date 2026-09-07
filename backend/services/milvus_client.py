@@ -696,11 +696,15 @@ class MilvusClient:
 
         # 生成查询嵌入（文档 08 L1：PG 缓存命中免远程 embedding HTTP 往返）
         from langchain_openai import OpenAIEmbeddings
-        embedding_model = OpenAIEmbeddings(
-            model=get_runtime("EMBEDDING_MODEL", settings.EMBEDDING_MODEL),
-            api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
-            base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+        _emb_model = get_runtime("EMBEDDING_MODEL", settings.EMBEDDING_MODEL)
+        _emb_kwargs = dict(
+            model=_emb_model,
+            api_key=get_runtime("EMBEDDING_API_KEY", settings.EMBEDDING_API_KEY),
+            base_url=get_runtime("EMBEDDING_BASE_URL", settings.EMBEDDING_BASE_URL),
         )
+        _emb_kwargs["dimensions"] = get_runtime("EMBEDDING_DIM", settings.EMBEDDING_DIM)
+        _emb_kwargs["check_embedding_ctx_length"] = False
+        embedding_model = OpenAIEmbeddings(**_emb_kwargs)
         from services.cache import get_cache_manager
         model_name = get_runtime("EMBEDDING_MODEL", settings.EMBEDDING_MODEL)
         query_embedding = [get_cache_manager().embed_cached(

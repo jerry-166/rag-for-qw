@@ -112,44 +112,80 @@ async def _await_ready(*names):
 
 
 async def _es_search(request: QueryRequest, req, current_user: dict) -> list:
-    """执行关键词检索（BM25 或 ES，由 SEARCH_BACKEND 配置决定）。"""
+    """执行关键词检索（BM25 或 ES，由 SEARCH_BACKEND 配置决定）。
+
+    对单路结果去重（按 content[:200]，对齐 rag_tools.py:178 既有模式）——
+    单端点不走 rrf_fusion，同 chunk 多次返回会原样进 Top-K。hybrid 端点由 rrf_fusion 内部去重。
+    """
     search_client = req.app.state['search_client']
     filters = _build_es_filters(request)
     multiplier = 2 if request.use_rerank else 1
-    return search_client.search(
+    raw = search_client.search(
         query=request.query,
         user_id=current_user["id"],
         size=_effective_limit(request) * multiplier,
         filters=filters,
     )
+    # 单路去重（对齐 rag_tools.py 模式）：按 content 前 200 字符哈希
+    # 保留首次出现的顺序（保证 Top-K 排序不变）
+    seen, deduped = set(), []
+    for item in raw or []:
+        content = (item.get("content") or item.get("chunk_text") or "")[:200]
+        if content not in seen:
+            seen.add(content)
+            deduped.append(item)
+    return deduped[: _effective_limit(request) * multiplier]
 
 
 async def _milvus_search(request: QueryRequest, req: Request, current_user: dict) -> list:
-    """执行 Milvus 向量检索。"""
+    """执行 Milvus 向量检索。
+
+    对单路结果去重（按 content[:200]，对齐 rag_tools.py:178 既有模式）——
+    单端点不走 rrf_fusion，同 chunk 多次返回会原样进 Top-K。hybrid 端点由 rrf_fusion 内部去重。
+    """
     milvus_client = req.app.state['milvus_client']
     metadata_filter = _build_metadata_filter(request, current_user)
     multiplier = 2 if request.use_rerank else 1
-    return await milvus_client.aquery(
+    raw = await milvus_client.aquery(
         query_text=request.query,
         limit=_effective_limit(request) * multiplier,
         metadata_filter=metadata_filter,
         retrieval_mode=request.retrieval_mode,
     )
+    # 单路去重（对齐 rag_tools.py 模式）：按 content 前 200 字符哈希，保留首次出现
+    seen, deduped = set(), []
+    for item in raw or []:
+        content = (item.get("content") or item.get("chunk_text") or "")[:200]
+        if content not in seen:
+            seen.add(content)
+            deduped.append(item)
+    return deduped[: _effective_limit(request) * multiplier]
 
 
 def _enrich_results(final_ids: list, rrf_scores: dict) -> list:
-    """从 PostgreSQL 补充完整 chunk 内容，并附加 RRF 分数。"""
+    """从 PostgreSQL 补充完整 chunk 内容，并附加 RRF 分数。
+
+    注：PG RealDictRow 返回的 chunk 可能含 created_at/updated_at 等
+    datetime 字段，FastAPI 直接 jsonable_encoder 会抛
+    "Object of type datetime is not JSON serializable"。
+    这里统一转成 isoformat 字符串，保持 hybrid/search 端点可序列化。
+    """
     if not final_ids:
         return []
 
     chunks = db.get_document_chunks_by_ids(final_ids)
     id_to_chunk = {chunk['id']: chunk for chunk in chunks}
 
+    from datetime import datetime as _dt
     results = []
     for cid in final_ids:
         if cid in id_to_chunk:
             chunk = id_to_chunk[cid]
             chunk['score'] = rrf_scores.get(cid, 0.0)
+            # datetime 字段转 isoformat 字符串，避免 JSON 序列化失败
+            for _k, _v in list(chunk.items()):
+                if isinstance(_v, _dt):
+                    chunk[_k] = _v.isoformat()
             results.append(chunk)
 
     return results
