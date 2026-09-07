@@ -30,7 +30,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 from evaluation.dataset import EvaluationDataset, EvaluationSample
 
 logger = init_logger(__name__)
@@ -211,7 +211,7 @@ class RagasEvaluator:
             llm_model:    评估用 LLM 模型名，默认使用项目默认模型
         """
         self.llm_base_url = llm_base_url or settings.LITELLM_BASE_URL
-        self.llm_api_key = llm_api_key or settings.LITELLM_API_KEY
+        self.llm_api_key = llm_api_key or get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY)
         self.llm_model = llm_model or settings.DEFAULT_MODEL
         self._ragas_llm = None
         self._ragas_embeddings = None
@@ -244,11 +244,14 @@ class RagasEvaluator:
                 from ragas.embeddings import LangchainEmbeddingsWrapper
                 from langchain_openai import OpenAIEmbeddings
 
-                embeddings = OpenAIEmbeddings(
+                _emb_kwargs = dict(
                     model=settings.EMBEDDING_MODEL,
-                    base_url=self.llm_base_url,
-                    api_key=self.llm_api_key,
+                    base_url=get_runtime("EMBEDDING_BASE_URL", settings.EMBEDDING_BASE_URL),
+                    api_key=get_runtime("EMBEDDING_API_KEY", settings.EMBEDDING_API_KEY),
                 )
+                _emb_kwargs["dimensions"] = settings.EMBEDDING_DIM
+                _emb_kwargs["check_embedding_ctx_length"] = False
+                embeddings = OpenAIEmbeddings(**_emb_kwargs)
                 self._ragas_embeddings = LangchainEmbeddingsWrapper(embeddings)
             except Exception as e:
                 logger.warning(f"[RagasEvaluator] Embeddings 初始化失败（answer_relevancy 将跳过）: {e}")

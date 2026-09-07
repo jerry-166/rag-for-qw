@@ -46,11 +46,16 @@ class DocumentProcessor:
             timeout=get_runtime("LLM_TIMEOUT", settings.LLM_TIMEOUT),
         )
         
-        self.EmbeddingModel = OpenAIEmbeddings(
+        # DashScope text-embedding-v4 默认 1536 维，litellm OpenAI provider 拒绝 dimensions 参数
+        # 仅对支持 dimensions 的旧模型（如 ada-002）显式传
+        _emb_kwargs = dict(
             model=self.EMBEDDING_MODEL,
-            api_key=self.LITELLM_API_KEY,
-            base_url=self.LITELLM_BASE_URL,
+            api_key=get_runtime("EMBEDDING_API_KEY", settings.EMBEDDING_API_KEY),
+            base_url=get_runtime("EMBEDDING_BASE_URL", settings.EMBEDDING_BASE_URL),
         )
+        _emb_kwargs["dimensions"] = get_runtime("EMBEDDING_DIM", settings.EMBEDDING_DIM)
+        _emb_kwargs["check_embedding_ctx_length"] = False
+        self.EmbeddingModel = OpenAIEmbeddings(**_emb_kwargs)
 
         # 增强器流水线缓存（文档 03）：{frozenset(enabled): EnhancerPipeline}
         # LLM 增强生成（prompt/解析/降级）已委托 services/enhancers/
