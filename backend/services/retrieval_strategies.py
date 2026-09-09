@@ -13,6 +13,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from pydantic import BaseModel
+
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -308,43 +310,186 @@ class AdvancedStrategy(RetrievalStrategy):
         return results[:limit]
 
 
+# ═══════════════════════════════════════════════════════════
+#  GraphStrategy 结构化输出模型与 prompt 模板
+# ═══════════════════════════════════════════════════════════
+
+class _RelationScore(BaseModel):
+    """LLM 关系重排单条打分"""
+    relation_id: int
+    score: float
+
+
+class _RelationRerankResult(BaseModel):
+    """LLM 关系重排批量打分结果"""
+    scores: list[_RelationScore] = []
+
+
+_ANCHOR_EXTRACT_TEMPLATE = (
+    "从下面问题中提取出作为检索锚点的实体（人物/组织/概念/技术/产品等）。\n"
+    "每个实体给一句话客观描述，不超过30字，不要发挥，只描述实体本身的客观属性。\n"
+    "实体数量控制在1~5个，宁缺毋滥；若问题无明确实体，返回空数组。\n"
+    "请严格按照以下JSON格式返回结果：\n"
+    '{{"entities":[{{"name":"实体名","type":"类型","description":"一句话描述"}}]}}\n'
+    "问题：{query}"
+)
+
+_RELATION_RERANK_TEMPLATE = (
+    "你是关系相关性评估助手。请对以下关系与用户问题的相关性打分（0到1，1=高度相关，0=无关）。\n"
+    "用户问题：{query}\n"
+    "关系列表：\n{relations_text}\n"
+    "请严格按照以下JSON格式返回结果：\n"
+    '{{"scores":[{{"relation_id":1,"score":0.8}}]}}\n'
+    "每条关系都必须给出一个分数。"
+)
+
+
 @register_strategy
 class GraphStrategy(RetrievalStrategy):
     """图谱检索（文档 06 Phase 2：GraphRAG-lite on Milvus）。
 
     路由逻辑：
-      1. LLM 从问题提取实体锚点 + 实体向量语义匹配（双路锚点发现）
-      2. PG 关系表一跳扩展邻居实体
-      3. 收集全部相关实体的 source_chunk_ids → PG 取 chunk 原文返回
-      4. 无锚点 / 查不到实体 / KB 未启用 entity 增强 → 降级 native 原文检索
+      1. LLM 结构化提取实体锚点（name + description）
+      2. 路A name 精确直查 PG + 路B entity description embedding 匹 Milvus
+      3. PG 关系表一跳扩展邻居实体 → LLM 关系重排（过滤噪声关系）
+      4. 主路径 B: relation.source_chunk_id 直接拉证据原文
+         兜底路径 A: source_chunk_id 为 null 时回退 entity.source_chunk_ids
+      5. 无锚点 / 无关联 chunk / KB 未启用 entity 增强 → 降级 native 原文检索
     """
     name = "graph"
     label = "实体图谱"
     description = "实体锚点匹配→关系扩展→关联 chunk 召回，适合多跳关联查询；KB 需启用 entity 增强"
 
-    def _extract_anchor_names(self) -> List[str]:
-        """LLM 从问题中提取实体锚点名（失败/无实体返回空列表）"""
+    def _extract_anchor_entities(self) -> List[dict]:
+        """LLM 从问题中提取实体锚点（name + description），失败返回空列表。
+
+        改造点 1：pydantic 结构化输出，复用 EntityItem 模型，
+        对齐导入侧 EntityEnhancer 的 description 风格（一句话客观描述 ≤30 字）。
+        """
         try:
             from langchain_openai import ChatOpenAI
-            from config import settings, get_runtime
+            from services.enhancers.base import build_chain
+            from services.enhancers.entity import EntityItem
+
+            class _AnchorEntities(BaseModel):
+                entities: list[EntityItem] = []
+
             llm = ChatOpenAI(
                 model=get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
                 api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
                 base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
-                temperature=0, max_tokens=200,
+                temperature=0, max_tokens=300,
             )
-            prompt = (
-                "从下面问题中提取出作为检索锚点的实体名称（人物/组织/概念/技术/产品等）。\n"
-                "只输出实体名，每行一个，最多 5 个；若没有明确实体，输出空。\n"
-                f"问题：{self.ctx.query}"
-            )
-            resp = llm.invoke(prompt)
-            text = resp.content if hasattr(resp, "content") else str(resp)
-            names = [n.strip().strip("。；;,") for n in text.strip().splitlines()]
-            return [n for n in names if n and len(n) <= 50][:5]
+            chain = build_chain(llm, _ANCHOR_EXTRACT_TEMPLATE, _AnchorEntities)
+            result = chain.invoke({"query": self.ctx.query})
+
+            # 归一化为 [{"name": ..., "description": ...}]
+            raw_entities = []
+            if isinstance(result, _AnchorEntities):
+                raw_entities = result.entities
+            elif isinstance(result, dict):
+                raw_entities = result.get("entities", [])
+            else:
+                raw_entities = getattr(result, "entities", [])
+
+            out: List[dict] = []
+            for e in raw_entities[:5]:
+                if hasattr(e, "name"):
+                    out.append({"name": e.name, "description": getattr(e, "description", "")})
+                elif isinstance(e, dict):
+                    out.append({"name": e.get("name", ""), "description": e.get("description", "")})
+            return out
         except Exception as e:
             logger.warning(f"[GraphStrategy] 实体锚点提取失败: {e}")
             return []
+
+    def _embed_entity_texts(self, texts: List[str]) -> Optional[List[List[float]]]:
+        """同步批量 embedding（复用 milvus_client 的 OpenAIEmbeddings 模式）。
+
+        改造点 2：对 entity "name：description" 文本做 embedding，
+        替代旧的 query_embedding 匹 description_vector。
+        """
+        if not texts:
+            return None
+        try:
+            from langchain_openai import OpenAIEmbeddings
+            emb_model = OpenAIEmbeddings(
+                model=get_runtime("EMBEDDING_MODEL", settings.EMBEDDING_MODEL),
+                api_key=get_runtime("EMBEDDING_API_KEY", settings.EMBEDDING_API_KEY),
+                base_url=get_runtime("EMBEDDING_BASE_URL", settings.EMBEDDING_BASE_URL),
+            )
+            return emb_model.embed_documents(texts)
+        except Exception as e:
+            logger.warning(f"[GraphStrategy] entity embedding 生成失败: {e}")
+            return None
+
+    def _rerank_relations(
+        self, relations: List[dict], neighbor_entities: List[dict], query: str
+    ) -> List[dict]:
+        """LLM 对关系与问题的相关性打分，过滤低分关系（fail-open 保留全部）。
+
+        改造点 3：graph 独有的 LLM 关系重排。一跳扩展出的关系可能含噪声，
+        用 LLM 判断 relation_type + evidence 与 query 的相关性，过滤 score < 阈值的关系。
+        """
+        if not relations:
+            return []
+
+        try:
+            from langchain_openai import ChatOpenAI
+            from services.enhancers.base import build_chain
+
+            # 构建实体 id → name 映射（LLM 看不懂 id，需要实体名）
+            entity_map = {e["id"]: e["name"] for e in neighbor_entities}
+
+            # 组装关系文本
+            lines = []
+            for r in relations:
+                head_name = entity_map.get(r["head_entity_id"], "?")
+                tail_name = entity_map.get(r["tail_entity_id"], "?")
+                evidence = (r.get("evidence") or "")[:100]
+                lines.append(
+                    f'{r["id"]}. {head_name} —[{r["relation_type"]}]→ {tail_name}'
+                    f" | 依据: {evidence}"
+                )
+            relations_text = "\n".join(lines)
+
+            llm = ChatOpenAI(
+                model=get_runtime("DEFAULT_MODEL", settings.DEFAULT_MODEL),
+                api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
+                base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
+                temperature=0, max_tokens=800,
+            )
+            chain = build_chain(llm, _RELATION_RERANK_TEMPLATE, _RelationRerankResult)
+            result = chain.invoke({"query": query, "relations_text": relations_text})
+
+            # 解析分数 → dict
+            score_map: Dict[int, float] = {}
+            raw_scores = []
+            if isinstance(result, _RelationRerankResult):
+                raw_scores = result.scores
+            elif isinstance(result, dict):
+                raw_scores = result.get("scores", [])
+            else:
+                raw_scores = getattr(result, "scores", [])
+            for s in raw_scores:
+                if hasattr(s, "relation_id"):
+                    score_map[s.relation_id] = s.score
+                elif isinstance(s, dict):
+                    score_map[s["relation_id"]] = s["score"]
+
+            min_score = get_runtime("GRAPH_RELATION_MIN_SCORE", settings.GRAPH_RELATION_MIN_SCORE)
+            kept = [r for r in relations if score_map.get(r["id"], 0.0) >= min_score]
+
+            if not kept:
+                logger.warning("[GraphStrategy] 关系重排后全部被过滤，fail-open 保留全部关系")
+                return relations
+
+            logger.info(f"[GraphStrategy] 关系重排: {len(relations)} → {len(kept)} 条 "
+                        f"(阈值={min_score})")
+            return kept
+        except Exception as e:
+            logger.warning(f"[GraphStrategy] 关系重排失败，fail-open 保留全部: {e}")
+            return relations
 
     def execute(self, limit: int) -> List[Dict[str, Any]]:
         # 前置不满足 → 降级 native
@@ -354,48 +499,57 @@ class GraphStrategy(RetrievalStrategy):
 
         from services.database import db
 
-        # 1. 双路锚点发现：按名直查 + 向量语义匹配
+        # 1. LLM 结构化锚点提取（改造点 1）
+        anchor_entities = self._extract_anchor_entities()  # [{name, description}]
+
+        # 路A: name 精确直查 PG
         anchor_ids: List[int] = []
-        names = self._extract_anchor_names()
+        names = [e["name"] for e in anchor_entities if e.get("name")]
         if names:
             for row in db.find_entities_by_names(self.ctx.kb_id, names):
                 anchor_ids.append(row["id"])
 
+        # 路B: entity description embedding → Milvus 语义匹配（改造点 2）
         try:
             self.ctx.entities_collection.load()
         except Exception as e:
             logger.warning(f"[GraphStrategy] 实体集合 load 失败: {e}")
 
-        # 实体向量匹配：显式 timeout + 瞬态错误重试（同 milvus_search）
         timeout = float(get_runtime("MILVUS_TIMEOUT", settings.MILVUS_TIMEOUT))
-        vec_hits = None
-        for attempt in range(3):
-            try:
-                vec_hits = self.ctx.entities_collection.search(
-                    data=[self.ctx.query_embedding],
-                    anns_field="description_vector",
-                    param=self.ctx.search_params,
-                    limit=5,
-                    expr=f"kb_id == {int(self.ctx.kb_id)}",
-                    output_fields=["pg_entity_id"],
-                    timeout=timeout,
-                )
-                break
-            except Exception as e:
-                if attempt < 2 and _is_transient_milvus_error(e):
-                    _time.sleep(1.5 * (attempt + 1))
-                    logger.warning(f"[GraphStrategy] 实体向量匹配瞬态失败，"
-                                   f"第 {attempt + 1} 次重试: {e}")
-                    continue
-                logger.warning(f"[GraphStrategy] 实体向量匹配失败: {e}")
-                break
-        if vec_hits is not None:
-            for hit in vec_hits[0]:
-                eid = hit.entity.get("pg_entity_id")
-                if eid is not None:
-                    anchor_ids.append(eid)
+        entity_texts = [
+            f'{e["name"]}：{e["description"]}'
+            for e in anchor_entities if e.get("name")
+        ]
+        entity_embeddings = self._embed_entity_texts(entity_texts)
+
+        if entity_embeddings:
+            for emb in entity_embeddings:
+                for attempt in range(3):
+                    try:
+                        hits = self.ctx.entities_collection.search(
+                            data=[emb],
+                            anns_field="description_vector",
+                            param=self.ctx.search_params,
+                            limit=5,
+                            expr=f"kb_id == {int(self.ctx.kb_id)}",
+                            output_fields=["pg_entity_id"],
+                            timeout=timeout,
+                        )
+                        for hit in hits[0]:
+                            eid = hit.entity.get("pg_entity_id")
+                            if eid is not None:
+                                anchor_ids.append(eid)
+                        break
+                    except Exception as e:
+                        if attempt < 2 and _is_transient_milvus_error(e):
+                            _time.sleep(1.5 * (attempt + 1))
+                            logger.warning(f"[GraphStrategy] 实体向量匹配瞬态失败，"
+                                           f"第 {attempt + 1} 次重试: {e}")
+                            continue
+                        logger.warning(f"[GraphStrategy] 实体向量匹配失败: {e}")
+                        break
         else:
-            logger.warning("[GraphStrategy] 实体向量匹配不可用，仅用按名直查锚点")
+            logger.warning("[GraphStrategy] entity embedding 不可用，仅用路A name 直查锚点")
 
         anchor_ids = list(dict.fromkeys(anchor_ids))  # 去重保序
         if not anchor_ids:
@@ -407,9 +561,13 @@ class GraphStrategy(RetrievalStrategy):
         logger.info(f"[GraphStrategy] 锚点 {len(anchor_ids)} 个，扩展后实体 {len(neighbor_ids)} 个，"
                     f"关系 {len(relations)} 条")
 
-        # 3. 收集关联 chunk
+        # 3. 拿邻居实体 name → LLM 关系重排（改造点 3）
         entities = db.get_entities_by_ids(list(neighbor_ids))
+        reranked_relations = self._rerank_relations(relations, entities, self.ctx.query)
 
+        # 4. 收集关联 chunk（改造点 4）
+        # 主路径 B: relations.source_chunk_id → 直接证据原文
+        # 兜底路径 A: source_chunk_id 为 null 的关系 → 两端实体 source_chunk_ids
         def _src_ids(entity):
             src = entity.get("source_chunk_ids") or []
             if isinstance(src, str):
@@ -420,26 +578,44 @@ class GraphStrategy(RetrievalStrategy):
                     src = []
             return src
 
+        entity_map = {e["id"]: e for e in entities}
         chunk_ids: List[int] = []
-        for e in entities:
-            chunk_ids.extend(_src_ids(e))
+        path_b_ids: set = set()  # 路径 B 来源（高分 0.9）
+
+        for r in reranked_relations:
+            scid = r.get("source_chunk_id")
+            if scid is not None:
+                chunk_ids.append(scid)
+                path_b_ids.add(scid)
+            else:
+                # 兜底路径 A: 取两端实体 source_chunk_ids
+                for eid in (r["head_entity_id"], r["tail_entity_id"]):
+                    e = entity_map.get(eid)
+                    if e:
+                        chunk_ids.extend(_src_ids(e))
+
+        # 无关系时的最终兜底：直接从所有实体取 source_chunk_ids
+        if not reranked_relations:
+            for e in entities:
+                chunk_ids.extend(_src_ids(e))
+
         chunk_ids = list(dict.fromkeys(chunk_ids))[: limit * 2]
 
         if not chunk_ids:
-            logger.info("[GraphStrategy] 实体无关联 chunk，降级 native")
+            logger.info("[GraphStrategy] 关系无关联 chunk，降级 native")
             return _REGISTRY["native"](self.ctx).execute(limit)
 
-        # 4. 取 chunk 原文，锚点实体关联的 chunk 给更高分
+        # 5. 取 chunk 原文，路径 B + 锚点实体来源给高分
         anchor_chunk_ids: List[int] = []
         for e in entities:
             if e["id"] in anchor_ids:
                 anchor_chunk_ids.extend(_src_ids(e))
-        anchor_set = set(anchor_chunk_ids)
+        high_confidence_set = set(anchor_chunk_ids) | path_b_ids
 
         chunks = db.get_chunks_by_ids(chunk_ids)
         results = []
         for ch in chunks:
-            base = 0.9 if ch["id"] in anchor_set else 0.75
+            base = 0.9 if ch["id"] in high_confidence_set else 0.75
             results.append({
                 "chunk_text": ch["content"],
                 # P1-4：下游 rag_tools 统一按 Milvus distance（1-distance=相似度）过滤，

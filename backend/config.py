@@ -134,6 +134,8 @@ class Settings(BaseSettings):
     RRF_K: int = int(os.getenv("RRF_K", "60"))  # 倒数排名融合平滑常数
     DEFAULT_RETRIEVAL_MODE: str = os.getenv("DEFAULT_RETRIEVAL_MODE", "advanced")  # 默认检索模式: native|advanced|hybrid
     NUM_SUBQUESTIONS: int = int(os.getenv("NUM_SUBQUESTIONS", "3"))  # 查询扩展子问题数
+    GRAPH_RELATION_MIN_SCORE: float = float(os.getenv("GRAPH_RELATION_MIN_SCORE", "0.5"))  # LLM 关系重排保留阈值
+    GRAPH_HOP: int = int(os.getenv("GRAPH_HOP", "1"))  # 图谱检索跳数（默认1，后续可开2）
 
     # LLM 温度配置（散布在 agent / rag_workflow / reranker）
     LLM_TEMPERATURE_DEFAULT: float = float(os.getenv("LLM_TEMPERATURE_DEFAULT", "0.7"))  # 默认温度
