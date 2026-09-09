@@ -1,0 +1,45 @@
+[list] KB17 docs: 140
+[generate] 开始对 140 docs 抽实体...
+[generate] 10/140 ok=10 fail=0
+[generate] 20/140 ok=20 fail=0
+[generate] 30/140 ok=30 fail=0
+[generate] 40/140 ok=40 fail=0
+[generate] 50/140 ok=50 fail=0
+[generate] 60/140 ok=60 fail=0
+  [gen] 105 fail: 401 {"detail":"Could not validate credentials"}
+  [gen] 104 fail: 401 {"detail":"Could not validate credentials"}
+  [gen] 103 fail: 401 {"detail":"Could not validate credentials"}
+  [gen] 102 fail: 401 {"detail":"Could not validate credentials"}
+  [gen] 101 fail: 401 {"detail":"Could not validate credentials"}
+[generate] 70/140 ok=60 fail=10
+[generate] 80/140 ok=60 fail=20
+[generate] 90/140 ok=60 fail=30
+[generate] 100/140 ok=60 fail=40
+[generate] 110/140 ok=60 fail=50
+[generate] 120/140 ok=60 fail=60
+[generate] 130/140 ok=60 fail=70
+[generate] 140/140 ok=60 fail=80
+[generate] DONE: ok=60 fail=80
+[import] 开始对 140 docs 同步 entity_vectors...
+  [imp] 213 fail: 401 {"detail":"Could not validate credentials"}
+  [imp] 212 fail: 401 {"detail":"Could not validate credentials"}
+  [imp] 211 fail: 401 {"detail":"Could not validate credentials"}
+  [imp] 210 fail: 401 {"detail":"Could not validate credentials"}
+  [imp] 209 fail: 401 {"detail":"Could not validate credentials"}
+[import] 10/140 ok=0 fail=10
+[import] 20/140 ok=0 fail=20
+[import] 30/140 ok=0 fail=30
+[import] 40/140 ok=0 fail=40
+[import] 50/140 ok=0 fail=50
+[import] 60/140 ok=0 fail=60
+[import] 70/140 ok=0 fail=70
+[import] 80/140 ok=0 fail=80
+[import] 90/140 ok=0 fail=90
+[import] 100/140 ok=0 fail=100
+[import] 110/140 ok=0 fail=110
+[import] 120/140 ok=0 fail=120
+[import] 130/140 ok=0 fail=130
+[import] 140/140 ok=0 fail=140
+[import] DONE: ok=0 fail=140
+[final] KB17 PG entities=77 entity_relations=1108
+[ALL DONE]

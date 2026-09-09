@@ -1,0 +1,3912 @@
+{
+  "doc-eecca5b6365d9607ee5a9d336962c534": {
+    "status": "processed",
+    "content_summary": "# 向量数据库 技术详解（复验文档 000）\n\n本文介绍向量数据库的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 向量数据库 第1节：原理与实现\n\n向量数据库在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827954+00:00",
+    "updated_at": "2026-09-01T09:51:18.258376+00:00",
+    "file_path": "185",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "960a044cf05f3a1125c69ec14b76e098",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256145,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256249,
+      "process_end_time": 1788256278,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-eecca5b6365d9607ee5a9d336962c534-chunk-000"
+    ]
+  },
+  "doc-17e62166fc8586dfa4d1bc0e1742c08b": {
+    "status": "processed",
+    "content_summary": "# 文档切片策略 技术详解（测试文档 022）\n\n本文介绍文档切片策略的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文档切片策略 第1节：原理与实现\n\n文档切片策略在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828409+00:00",
+    "updated_at": "2026-09-01T10:03:44.172580+00:00",
+    "file_path": "43",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "39db131dbe9844537985e7e080779e5c",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255999,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256898,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256991,
+      "process_end_time": 1788257024,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-17e62166fc8586dfa4d1bc0e1742c08b-chunk-000"
+    ]
+  },
+  "doc-093f65e080a295f8076b1c5722a46aa2": {
+    "status": "processed",
+    "content_summary": "# 查询改写 技术详解（测试文档 028）\n\n本文介绍查询改写的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828328+00:00",
+    "updated_at": "2026-09-01T10:01:06.783276+00:00",
+    "file_path": "59",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "a216d0c08210e24a4859c6f51fe3f279",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256770,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256838,
+      "process_end_time": 1788256866,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-093f65e080a295f8076b1c5722a46aa2-chunk-000"
+    ]
+  },
+  "doc-58a2fc6ed39fd083f55d4182bf88826d": {
+    "status": "processed",
+    "content_summary": "# 知识图谱 技术详解（复验文档 005）\n\n本文介绍知识图谱的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 知识图谱 第1节：原理与实现\n\n知识图谱在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827921+00:00",
+    "updated_at": "2026-09-01T09:50:03.260790+00:00",
+    "file_path": "192",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "81efdfb5f365e5a8335177c295551a03",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256041,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256168,
+      "process_end_time": 1788256203,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-58a2fc6ed39fd083f55d4182bf88826d-chunk-000"
+    ]
+  },
+  "doc-4c56ff4ce4aaf9573aa5dff913df997a": {
+    "status": "processed",
+    "content_summary": "# 数据脱敏 技术详解（测试文档 095）\n\n本文介绍数据脱敏的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 数据脱敏 第1节：原理与实现\n\n数据脱敏在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828028+00:00",
+    "updated_at": "2026-09-01T09:53:45.315616+00:00",
+    "file_path": "121",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "007fcb57f7b27550ba42a6f6cfe559a2",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256308,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256397,
+      "process_end_time": 1788256425,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-4c56ff4ce4aaf9573aa5dff913df997a-chunk-000"
+    ]
+  },
+  "doc-6364d3f0f495b6ab9dcf8d3b5c6e0b01": {
+    "status": "failed",
+    "content_summary": "# 分布式索引 技术详解（测试文档 010）\n\n本文介绍分布式索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分布式索引 第1节：原理与实现\n\n分布式索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828463+00:00",
+    "updated_at": "2026-09-01T10:04:59.629173+00:00",
+    "file_path": "32",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "50b2e3fa49de651c47e2183929b3b40a",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256145,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256997,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257079,
+      "process_end_time": 1788257099
+    },
+    "error_msg": "RetryError[C[1/1]: doc-6364d3f0f495b6ab9dcf8d3b5c6e0b01-chunk-000: <Future at 0x1e0028bc6d0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-6364d3f0f495b6ab9dcf8d3b5c6e0b01-chunk-000"
+    ]
+  },
+  "doc-d09bf41544a3365a46c9077ebb5e35c3": {
+    "status": "processed",
+    "content_summary": "# 评估基准 技术详解（测试文档 049）\n\n本文介绍评估基准的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 评估基准 第1节：原理与实现\n\n评估基准在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828254+00:00",
+    "updated_at": "2026-09-01T09:58:51.883759+00:00",
+    "file_path": "75",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "2f1605a78edd2622d594126b5edf122c",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256659,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256714,
+      "process_end_time": 1788256731,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-d09bf41544a3365a46c9077ebb5e35c3-chunk-000"
+    ]
+  },
+  "doc-1534b76d325a8f591b52d302e7181331": {
+    "status": "processed",
+    "content_summary": "# 重排序 技术详解（复验文档 024）\n\n本文介绍重排序的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 重排序 第1节：原理与实现\n\n重排序在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连接池...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827812+00:00",
+    "updated_at": "2026-09-01T09:45:49.477750+00:00",
+    "file_path": "212",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "2e3f327c3e043468cf5b8d7d50593cf6",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255894,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255895,
+      "process_end_time": 1788255949,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-1534b76d325a8f591b52d302e7181331-chunk-000"
+    ]
+  },
+  "doc-a97da629b098b75c294dffdc3e463904": {
+    "status": "processed",
+    "content_summary": "# 检索增强生成 技术详解（测试文档 081）\n\n本文介绍检索增强生成的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 检索增强生成 第1节：原理与实现\n\n检索增强生成在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828094+00:00",
+    "updated_at": "2026-09-01T09:55:11.034833+00:00",
+    "file_path": "107",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "2a76b4f06c814759f8bb89918683194b",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256433,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256497,
+      "process_end_time": 1788256511,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a97da629b098b75c294dffdc3e463904-chunk-000"
+    ]
+  },
+  "doc-084b6fbb10729ed4da8c3d3f5a3ae7c9": {
+    "status": "processed",
+    "content_summary": "# 联邦学习 技术详解（复验文档 014）\n\n本文介绍联邦学习的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 联邦学习 第1节：原理与实现\n\n联邦学习在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827902+00:00",
+    "updated_at": "2026-09-01T09:49:05.451714+00:00",
+    "file_path": "196",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "e7cb3635b9cbdc489e4f80086bf50eb5",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255999,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256114,
+      "process_end_time": 1788256145,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-084b6fbb10729ed4da8c3d3f5a3ae7c9-chunk-000"
+    ]
+  },
+  "doc-35f4a8d465e6e1edc05f3d8ab658c551": {
+    "status": "processed",
+    "content_summary": "# 分词算法 技术详解（测试文档 052）\n\n本文介绍分词算法的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分词算法 第1节：原理与实现\n\n分词算法在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828238+00:00",
+    "updated_at": "2026-09-01T09:58:34.588475+00:00",
+    "file_path": "78",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "121bd7b8760c65db11d07c793240671a",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256635,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256691,
+      "process_end_time": 1788256714,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-35f4a8d465e6e1edc05f3d8ab658c551-chunk-000"
+    ]
+  },
+  "doc-54229abfcfa5649e7003b83dd4755294": {
+    "status": "processed",
+    "content_summary": "# 语义缓存 技术详解（测试文档 066）\n\n本文介绍语义缓存的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 语义缓存 第1节：原理与实现\n\n语义缓存在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828169+00:00",
+    "updated_at": "2026-09-01T09:57:08.600466+00:00",
+    "file_path": "91",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "5e56d6a8e597cbcbb68f280fdfaa5cf2",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256548,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256610,
+      "process_end_time": 1788256628,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-54229abfcfa5649e7003b83dd4755294-chunk-000"
+    ]
+  },
+  "doc-66f041e16a60928b05a7e228a89c3799": {
+    "status": "processed",
+    "content_summary": "# 数据脱敏 技术详解（测试文档 035）\n\n本文介绍数据脱敏的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 数据脱敏 第1节：原理与实现\n\n数据脱敏在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828332+00:00",
+    "updated_at": "2026-09-01T10:01:01.413442+00:00",
+    "file_path": "58",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "721a738839c2b15898822317704f9d3d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256774,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256844,
+      "process_end_time": 1788256861,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-66f041e16a60928b05a7e228a89c3799-chunk-000"
+    ]
+  },
+  "doc-9f61408e3afb633e50cdf1b20de6f466": {
+    "status": "processed",
+    "content_summary": "# 分词算法 技术详解（测试文档 032）\n\n本文介绍分词算法的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分词算法 第1节：原理与实现\n\n分词算法在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828341+00:00",
+    "updated_at": "2026-09-01T10:01:36.123298+00:00",
+    "file_path": "56",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "520f0ce132a0ba4680108aca67d84dc8",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256793,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256861,
+      "process_end_time": 1788256896,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-9f61408e3afb633e50cdf1b20de6f466-chunk-000"
+    ]
+  },
+  "doc-1c383cd30b7c298ab50293adfecb7b18": {
+    "status": "failed",
+    "content_summary": "# 文本压缩 技术详解（测试文档 013）\n\n本文介绍文本压缩的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文本压缩 第1节：原理与实现\n\n文本压缩在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828447+00:00",
+    "updated_at": "2026-09-01T10:04:39.447190+00:00",
+    "file_path": "35",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "7835bfbf56177bc61ec911d8e8f54784",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256104,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256974,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257056,
+      "process_end_time": 1788257079
+    },
+    "error_msg": "RetryError[C[1/1]: doc-1c383cd30b7c298ab50293adfecb7b18-chunk-000: <Future at 0x1e001febed0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-1c383cd30b7c298ab50293adfecb7b18-chunk-000"
+    ]
+  },
+  "doc-85d8ce590ad8981ca2c8286f79f59954": {
+    "status": "processed",
+    "content_summary": "# 文档切片策略 技术详解（复验文档 002）\n\n本文介绍文档切片策略的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 文档切片策略 第1节：原理与实现\n\n文档切片策略在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827897+00:00",
+    "updated_at": "2026-09-01T09:49:05.451915+00:00",
+    "file_path": "197",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "6711878edecb529327a49c5cd6e79055",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255984,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256104,
+      "process_end_time": 1788256145,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-85d8ce590ad8981ca2c8286f79f59954-chunk-000"
+    ]
+  },
+  "doc-7647966b7343c29048673252e490f736": {
+    "status": "processed",
+    "content_summary": "# 向量数据库 技术详解（测试文档 060）\n\n本文介绍向量数据库的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 向量数据库 第1节：原理与实现\n\n向量数据库在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828180+00:00",
+    "updated_at": "2026-09-01T09:57:15.420719+00:00",
+    "file_path": "89",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "d2c8308026c5a4fb01e145bbf4c652db",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256553,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256612,
+      "process_end_time": 1788256635,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-7647966b7343c29048673252e490f736-chunk-000"
+    ]
+  },
+  "doc-ea5d2f1c4608232e07d3aa3d998e5135": {
+    "status": "processed",
+    "content_summary": "# 向量数据库 技术详解（测试文档 040）\n\n本文介绍向量数据库的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 向量数据库 第1节：原理与实现\n\n向量数据库在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828306+00:00",
+    "updated_at": "2026-09-01T10:00:23.556912+00:00",
+    "file_path": "64",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "07ba53ad9e5d7ed0c4d141a460689d0f",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256731,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256804,
+      "process_end_time": 1788256823,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-ea5d2f1c4608232e07d3aa3d998e5135-chunk-000"
+    ]
+  },
+  "doc-69adc1e107f7f7d035d7baf04342e1ca": {
+    "status": "processed",
+    "content_summary": "# 向量数据库 技术详解（复验文档 020）\n\n本文介绍向量数据库的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 向量数据库 第1节：原理与实现\n\n向量数据库在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827843+00:00",
+    "updated_at": "2026-09-01T09:46:39.738768+00:00",
+    "file_path": "207",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "f5d4b82e43e278f49b1d330fd135d404",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255895,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255956,
+      "process_end_time": 1788255999,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-69adc1e107f7f7d035d7baf04342e1ca-chunk-000"
+    ]
+  },
+  "doc-19ca14e7ea6328a42e0eb13d585e4c22": {
+    "status": "failed",
+    "content_summary": "# 联邦学习 技术详解（测试文档 014）\n\n本文介绍联邦学习的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 联邦学习 第1节：原理与实现\n\n联邦学习在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828442+00:00",
+    "updated_at": "2026-09-01T10:04:35.494222+00:00",
+    "file_path": "36",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "b1bb65c063b051c64b9eb3d62b356f7f",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256092,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256965,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257053,
+      "process_end_time": 1788257075
+    },
+    "error_msg": "RetryError[C[1/1]: doc-19ca14e7ea6328a42e0eb13d585e4c22-chunk-000: <Future at 0x1e0020dfed0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-19ca14e7ea6328a42e0eb13d585e4c22-chunk-000"
+    ]
+  },
+  "doc-7cbbc409ec990f19c78c75bd1e06f215": {
+    "status": "processed",
+    "content_summary": "# 重排序 技术详解（测试文档 044）\n\n本文介绍重排序的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 重排序 第1节：原理与实现\n\n重排序在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828278+00:00",
+    "updated_at": "2026-09-01T09:59:34.402303+00:00",
+    "file_path": "70",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "d098b0e9fbdfecf963dd7d912be9761f",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256690,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256757,
+      "process_end_time": 1788256774,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-7cbbc409ec990f19c78c75bd1e06f215-chunk-000"
+    ]
+  },
+  "doc-6f3ef77ac0e3619e98159e9b6febf557": {
+    "status": "processed",
+    "content_summary": "# 多路召回 技术详解（复验文档 027）\n\n本文介绍多路召回的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 多路召回 第1节：原理与实现\n\n多路召回在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827828+00:00",
+    "updated_at": "2026-09-01T09:45:56.833528+00:00",
+    "file_path": "210",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "572e1d3b45d9873296c354eb2c8de2dd",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255894,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255931,
+      "process_end_time": 1788255956,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-6f3ef77ac0e3619e98159e9b6febf557-chunk-000"
+    ]
+  },
+  "doc-9a1158154dfa42caddbd0694a4e9bdc8": {
+    "status": "processed",
+    "content_summary": "# 多路召回 技术详解（测试文档 027）\n\n本文介绍多路召回的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 多路召回 第1节：原理与实现\n\n多路召回在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828362+00:00",
+    "updated_at": "2026-09-01T10:02:24.189380+00:00",
+    "file_path": "52",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "1659ff5d11e6c8b8a7e9ac24aa2920e4",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256823,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256898,
+      "process_end_time": 1788256944,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-9a1158154dfa42caddbd0694a4e9bdc8-chunk-000"
+    ]
+  },
+  "doc-9778d5d219c5080b9a6a17bef029331c": {
+    "status": "processed",
+    "content_summary": "# 消息队列 技术详解（测试文档 057）\n\n本文介绍消息队列的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 消息队列 第1节：原理与实现\n\n消息队列在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828216+00:00",
+    "updated_at": "2026-09-01T09:58:10.010552+00:00",
+    "file_path": "82",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "0591553d910b64a177c0319ccb720814",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256610,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256673,
+      "process_end_time": 1788256690,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-9778d5d219c5080b9a6a17bef029331c-chunk-000"
+    ]
+  },
+  "doc-ac627ab1ccbdb62ec96e702f07f6425b": {
+    "status": "processed",
+    "content_summary": "# 倒排索引 技术详解（测试文档 071）\n\n本文介绍倒排索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 倒排索引 第1节：原理与实现\n\n倒排索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828133+00:00",
+    "updated_at": "2026-09-01T09:56:17.521239+00:00",
+    "file_path": "99",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "b039b7f188903f6b3bf38ab6426417b1",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256485,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256550,
+      "process_end_time": 1788256577,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-ac627ab1ccbdb62ec96e702f07f6425b-chunk-000"
+    ]
+  },
+  "doc-31fefc0e570cb3860f2a6d4b38c6490d": {
+    "status": "processed",
+    "content_summary": "# 语义缓存 技术详解（复验文档 006）\n\n本文介绍语义缓存的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 语义缓存 第1节：原理与实现\n\n语义缓存在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827946+00:00",
+    "updated_at": "2026-09-01T09:51:05.356387+00:00",
+    "file_path": "187",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "0454281dd7c7fc7e8a478649febda265",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256114,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256232,
+      "process_end_time": 1788256265,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-31fefc0e570cb3860f2a6d4b38c6490d-chunk-000"
+    ]
+  },
+  "doc-a597e50502f5ff68e3e25b9114205d4a": {
+    "status": "processed",
+    "content_summary": "# 嵌入模型 技术详解（复验文档 003）\n\n本文介绍嵌入模型的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 嵌入模型 第1节：原理与实现\n\n嵌入模型在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827910+00:00",
+    "updated_at": "2026-09-01T09:49:53.881092+00:00",
+    "file_path": "194",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "a7e5f191016536d54fe4529f50905bac",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256027,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256145,
+      "process_end_time": 1788256193,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a597e50502f5ff68e3e25b9114205d4a-chunk-000"
+    ]
+  },
+  "doc-072b030ba126b2f4b2374f342be9ed44": {
+    "status": "processed",
+    "content_summary": "# 分布式索引 技术详解（测试文档 030）\n\n本文介绍分布式索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分布式索引 第1节：原理与实现\n\n分布式索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828324+00:00",
+    "updated_at": "2026-09-01T10:00:49.777001+00:00",
+    "file_path": "60",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "d4087d3a733571c02cbc4bec6a02f786",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256768,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256830,
+      "process_end_time": 1788256849,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-072b030ba126b2f4b2374f342be9ed44-chunk-000"
+    ]
+  },
+  "doc-6ea9ab1baa0efb9e19094440c317e21b": {
+    "status": "failed",
+    "content_summary": "# 语义缓存 技术详解（测试文档 006）\n\n本文介绍语义缓存的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 语义缓存 第1节：原理与实现\n\n语义缓存在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828477+00:00",
+    "updated_at": "2026-09-01T10:05:20.785548+00:00",
+    "file_path": "29",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "077bbcd10fb7f5c4ffd1ac243f076f11",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256187,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788257024,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257099,
+      "process_end_time": 1788257120
+    },
+    "error_msg": "RetryError[C[1/1]: doc-6ea9ab1baa0efb9e19094440c317e21b-chunk-000: <Future at 0x1e0028bc3d0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-6ea9ab1baa0efb9e19094440c317e21b-chunk-000"
+    ]
+  },
+  "doc-a1d0c6e83f027327d8461063f4ac58a6": {
+    "status": "processed",
+    "content_summary": "# 检索增强生成 技术详解（测试文档 021）\n\n本文介绍检索增强生成的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 检索增强生成 第1节：原理与实现\n\n检索增强生成在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828413+00:00",
+    "updated_at": "2026-09-01T10:03:38.766556+00:00",
+    "file_path": "42",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "601076c923d000db1ed8bbd355f12469",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256000,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256907,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256994,
+      "process_end_time": 1788257018,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a1d0c6e83f027327d8461063f4ac58a6-chunk-000"
+    ]
+  },
+  "doc-e2ef524fbf3d9fe611d5a8e90fefdc9c": {
+    "status": "processed",
+    "content_summary": "# 文本压缩 技术详解（测试文档 073）\n\n本文介绍文本压缩的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文本压缩 第1节：原理与实现\n\n文本压缩在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828142+00:00",
+    "updated_at": "2026-09-01T09:56:31.795489+00:00",
+    "file_path": "97",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "6b16d4a17cd23811b157c01914f8fd96",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256504,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256575,
+      "process_end_time": 1788256591,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-e2ef524fbf3d9fe611d5a8e90fefdc9c-chunk-000"
+    ]
+  },
+  "doc-7f39f8317fbdb1988ef4c628eba02591": {
+    "status": "processed",
+    "content_summary": "# 文本压缩 技术详解（测试文档 033）\n\n本文介绍文本压缩的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文本压缩 第1节：原理与实现\n\n文本压缩在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828319+00:00",
+    "updated_at": "2026-09-01T10:00:44.529052+00:00",
+    "file_path": "61",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "dc0440617de6402205c77e2c182abe55",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256757,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256823,
+      "process_end_time": 1788256844,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-7f39f8317fbdb1988ef4c628eba02591-chunk-000"
+    ]
+  },
+  "doc-38b3eff8baf56627478ec76a704e9b52": {
+    "status": "processed",
+    "content_summary": "# 分词算法 技术详解（测试文档 072）\n\n本文介绍分词算法的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分词算法 第1节：原理与实现\n\n分词算法在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828124+00:00",
+    "updated_at": "2026-09-01T09:55:53.033285+00:00",
+    "file_path": "101",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "e0667c15d01a1a16310c4479f7449259",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256478,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256534,
+      "process_end_time": 1788256553,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-38b3eff8baf56627478ec76a704e9b52-chunk-000"
+    ]
+  },
+  "doc-e369853df766fa44e1ed0ff613f563bd": {
+    "status": "failed",
+    "content_summary": "# 分词算法 技术详解（测试文档 012）\n\n本文介绍分词算法的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分词算法 第1节：原理与实现\n\n分词算法在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828452+00:00",
+    "updated_at": "2026-09-01T10:04:55.659992+00:00",
+    "file_path": "34",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "8b4cd2bfdb1a4bc2d95f749db007d88f",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256114,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256991,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257075,
+      "process_end_time": 1788257095
+    },
+    "error_msg": "RetryError[C[1/1]: doc-e369853df766fa44e1ed0ff613f563bd-chunk-000: <Future at 0x1e0028be4d0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-e369853df766fa44e1ed0ff613f563bd-chunk-000"
+    ]
+  },
+  "doc-03afdbd66e7929b125f8597834fa83a4": {
+    "status": "processed",
+    "content_summary": "# 熔断降级 技术详解（测试文档 039）\n\n本文介绍熔断降级的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 熔断降级 第1节：原理与实现\n\n熔断降级在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828310+00:00",
+    "updated_at": "2026-09-01T10:00:30.829200+00:00",
+    "file_path": "63",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "b010938e13ccc55c9eeda67b21fa8529",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256736,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256809,
+      "process_end_time": 1788256830,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-03afdbd66e7929b125f8597834fa83a4-chunk-000"
+    ]
+  },
+  "doc-f4b9ec30ad9f68f89b29639786cb62ef": {
+    "status": "processed",
+    "content_summary": "# 查询改写 技术详解（测试文档 068）\n\n本文介绍查询改写的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828156+00:00",
+    "updated_at": "2026-09-01T09:56:51.720705+00:00",
+    "file_path": "94",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "3226173d79f50a565c38c53be9389210",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256530,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256591,
+      "process_end_time": 1788256611,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-f4b9ec30ad9f68f89b29639786cb62ef-chunk-000"
+    ]
+  },
+  "doc-eb163727917cbba1eea208541a643e74": {
+    "status": "processed",
+    "content_summary": "# 评估基准 技术详解（复验文档 029）\n\n本文介绍评估基准的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 评估基准 第1节：原理与实现\n\n评估基准在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827823+00:00",
+    "updated_at": "2026-09-01T09:45:49.477847+00:00",
+    "file_path": "211",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "cc2eb35d4bf8fe52817444e1266f27f1",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255894,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255895,
+      "process_end_time": 1788255949,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-eb163727917cbba1eea208541a643e74-chunk-000"
+    ]
+  },
+  "doc-d82c8d1619ad8176d665453cfb2e55f0": {
+    "status": "processed",
+    "content_summary": "# 检索增强生成 技术详解（测试文档 001）\n\n本文介绍检索增强生成的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 检索增强生成 第1节：原理与实现\n\n检索增强生成在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828355+00:00",
+    "updated_at": "2026-09-01T10:01:50.287734+00:00",
+    "file_path": "53",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "b439bba0eb6e1cae03a66f46c8160b38",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256817,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256896,
+      "process_end_time": 1788256910,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-d82c8d1619ad8176d665453cfb2e55f0-chunk-000"
+    ]
+  },
+  "doc-73278a4a86960eeb576a8fd4c9ec6997": {
+    "status": "processed",
+    "content_summary": "# 查询改写 技术详解（测试文档 088）\n\n本文介绍查询改写的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828063+00:00",
+    "updated_at": "2026-09-01T09:54:38.692386+00:00",
+    "file_path": "113",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "4c540720ce11aeddee6814aab1ce3ed5",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256390,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256453,
+      "process_end_time": 1788256478,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-73278a4a86960eeb576a8fd4c9ec6997-chunk-000"
+    ]
+  },
+  "doc-3416a75f4cea9109507cacd8e2f2aefc": {
+    "status": "processed",
+    "content_summary": "# 一致性哈希 技术详解（测试文档 018）\n\n本文介绍一致性哈希的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 一致性哈希 第1节：原理与实现\n\n一致性哈希在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828418+00:00",
+    "updated_at": "2026-09-01T10:03:39.990422+00:00",
+    "file_path": "41",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "d37380fbb1978a148b0cb917ff012b5d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256027,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256910,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256997,
+      "process_end_time": 1788257019,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-3416a75f4cea9109507cacd8e2f2aefc-chunk-000"
+    ]
+  },
+  "doc-4e732ced3463d06de0ca9a15b6153677": {
+    "status": "failed",
+    "content_summary": "# 文档切片策略 技术详解（测试文档 002）\n\n本文介绍文档切片策略的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文档切片策略 第1节：原理与实现\n\n文档切片策略在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828495+00:00",
+    "updated_at": "2026-09-01T10:05:41.155003+00:00",
+    "file_path": "26",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "42cb264426b51ef60bfd87732b86f017",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256217,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788257056,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257120,
+      "process_end_time": 1788257141
+    },
+    "error_msg": "RetryError[C[1/1]: doc-4e732ced3463d06de0ca9a15b6153677-chunk-000: <Future at 0x1e0028a8350 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-4e732ced3463d06de0ca9a15b6153677-chunk-000"
+    ]
+  },
+  "doc-a5bfc9e07964f8dddeb95fc584cd965d": {
+    "status": "failed",
+    "content_summary": "# 数据脱敏 技术详解（测试文档 015）\n\n本文介绍数据脱敏的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 数据脱敏 第1节：原理与实现\n\n数据脱敏在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828438+00:00",
+    "updated_at": "2026-09-01T10:04:38.654178+00:00",
+    "file_path": "37",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "6f135530166d6eba19320baebf4a02db",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256074,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256957,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788257049,
+      "process_end_time": 1788257078,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "error_msg": "RetryError[`主流程`: <Future at 0x1e00277bad0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a5bfc9e07964f8dddeb95fc584cd965d-chunk-000"
+    ]
+  },
+  "doc-5fd0b37cd7dbbb00f97ba6ce92bf5add": {
+    "status": "processed",
+    "content_summary": "# 评估基准 技术详解（测试文档 089）\n\n本文介绍评估基准的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 评估基准 第1节：原理与实现\n\n评估基准在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828059+00:00",
+    "updated_at": "2026-09-01T09:54:22.462564+00:00",
+    "file_path": "114",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "6cc183569b55e5960193d89e486c5952",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256387,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256437,
+      "process_end_time": 1788256462,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-5fd0b37cd7dbbb00f97ba6ce92bf5add-chunk-000"
+    ]
+  },
+  "doc-34173cb38f07f89ddbebc2ac9128303f": {
+    "status": "failed",
+    "content_summary": "# 查询改写 技术详解（测试文档 008）\n\n本文介绍查询改写的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828472+00:00",
+    "updated_at": "2026-09-01T10:05:20.919814+00:00",
+    "file_path": "30",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "e475faf61e5536255306e06ef2c1425f",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256168,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788257020,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257098,
+      "process_end_time": 1788257120
+    },
+    "error_msg": "RetryError[C[1/1]: doc-34173cb38f07f89ddbebc2ac9128303f-chunk-000: <Future at 0x1e0028a10d0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-34173cb38f07f89ddbebc2ac9128303f-chunk-000"
+    ]
+  },
+  "doc-7eabe3a1649ffa2b3ff8c02ebfd5659f": {
+    "status": "processed",
+    "content_summary": "# 一致性哈希 技术详解（复验文档 018）\n\n本文介绍一致性哈希的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 一致性哈希 第1节：原理与实现\n\n一致性哈希在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827849+00:00",
+    "updated_at": "2026-09-01T09:47:07.228687+00:00",
+    "file_path": "206",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "de521033a1b75b71cb7758c48ca8b51f",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255895,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255984,
+      "process_end_time": 1788256027,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-7eabe3a1649ffa2b3ff8c02ebfd5659f-chunk-000"
+    ]
+  },
+  "doc-b53b3a3d6ab90ce0268229151c9bde11": {
+    "status": "processed",
+    "content_summary": "# 倒排索引 技术详解（测试文档 031）\n\n本文介绍倒排索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 倒排索引 第1节：原理与实现\n\n倒排索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828345+00:00",
+    "updated_at": "2026-09-01T10:01:37.986227+00:00",
+    "file_path": "55",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "9c6d06c79dd62f469cfaa79ed3365dbc",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256803,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256866,
+      "process_end_time": 1788256897,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-b53b3a3d6ab90ce0268229151c9bde11-chunk-000"
+    ]
+  },
+  "doc-a0a080f42e6f13b3a2df133f073095dd": {
+    "status": "processed",
+    "content_summary": "# 消息队列 技术详解（测试文档 097）\n\n本文介绍消息队列的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 消息队列 第1节：原理与实现\n\n消息队列在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828023+00:00",
+    "updated_at": "2026-09-01T09:53:21.563234+00:00",
+    "file_path": "122",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "a9cacfa806da1f3f88fbd5f209922414",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256306,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256390,
+      "process_end_time": 1788256401,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a0a080f42e6f13b3a2df133f073095dd-chunk-000"
+    ]
+  },
+  "doc-93db85ed909c13838ff95ccfa94cebd9": {
+    "status": "processed",
+    "content_summary": "# 检索增强生成 技术详解（测试文档 061）\n\n本文介绍检索增强生成的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 检索增强生成 第1节：原理与实现\n\n检索增强生成在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828193+00:00",
+    "updated_at": "2026-09-01T09:57:39.482249+00:00",
+    "file_path": "86",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "6ce4e26dd3615db48cbcc6470a6438ca",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256577,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256635,
+      "process_end_time": 1788256659,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-93db85ed909c13838ff95ccfa94cebd9-chunk-000"
+    ]
+  },
+  "doc-091d584fced301b442654dd8c23b3fc9": {
+    "status": "processed",
+    "content_summary": "# 知识图谱 技术详解（复验文档 025）\n\n本文介绍知识图谱的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 知识图谱 第1节：原理与实现\n\n知识图谱在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827838+00:00",
+    "updated_at": "2026-09-01T09:46:24.726843+00:00",
+    "file_path": "208",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "c1ad53d937a03fbab6b6186df8caa6ac",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255895,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255949,
+      "process_end_time": 1788255984,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-091d584fced301b442654dd8c23b3fc9-chunk-000"
+    ]
+  },
+  "doc-9872ed9fc22fc182d371c3e9ed316094": {
+    "status": "processed",
+    "content_summary": "# 多路召回 技术详解（复验文档 007）\n\n本文介绍多路召回的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 多路召回 第1节：原理与实现\n\n多路召回在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827950+00:00",
+    "updated_at": "2026-09-01T09:50:52.108501+00:00",
+    "file_path": "186",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "28530827ecba85db53d4bd98bdc5bbce",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256132,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256235,
+      "process_end_time": 1788256252,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-9872ed9fc22fc182d371c3e9ed316094-chunk-000"
+    ]
+  },
+  "doc-979d472a84804b9f647bc185a877a8b5": {
+    "status": "processed",
+    "content_summary": "# 查询改写 技术详解（复验文档 028）\n\n本文介绍查询改写的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827786+00:00",
+    "updated_at": "2026-09-01T09:45:31.166128+00:00",
+    "file_path": "213",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "e863b6edd28a75604f07fa7fc5c65c3c",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255894,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255895,
+      "process_end_time": 1788255931,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-979d472a84804b9f647bc185a877a8b5-chunk-000"
+    ]
+  },
+  "doc-f457c545a9ded88f18ecee47145a72c0": {
+    "status": "processed",
+    "content_summary": "# 嵌入模型 技术详解（测试文档 003）\n\n本文介绍嵌入模型的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 嵌入模型 第1节：原理与实现\n\n嵌入模型在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828378+00:00",
+    "updated_at": "2026-09-01T10:02:37.013031+00:00",
+    "file_path": "49",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "9236d16861c5d0d57cbdd38d266b33f5",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256844,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256924,
+      "process_end_time": 1788256957,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-f457c545a9ded88f18ecee47145a72c0-chunk-000"
+    ]
+  },
+  "doc-d9d4f495e875a2e075a1a4a6e1b9770f": {
+    "status": "processed",
+    "content_summary": "# 知识图谱 技术详解（测试文档 005）\n\n本文介绍知识图谱的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 知识图谱 第1节：原理与实现\n\n知识图谱在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828395+00:00",
+    "updated_at": "2026-09-01T10:03:11.673521+00:00",
+    "file_path": "46",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "8a09e274afe14b6845d4c05b54264855",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255949,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256866,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256957,
+      "process_end_time": 1788256991,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-d9d4f495e875a2e075a1a4a6e1b9770f-chunk-000"
+    ]
+  },
+  "doc-d1f491a404d6854880943e5c3cd9ca25": {
+    "status": "processed",
+    "content_summary": "# 熔断降级 技术详解（测试文档 099）\n\n本文介绍熔断降级的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 熔断降级 第1节：原理与实现\n\n熔断降级在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827989+00:00",
+    "updated_at": "2026-09-01T09:52:48.857513+00:00",
+    "file_path": "129",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "3e99f7cf78bf7206d7084f743dacd2d2",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256235,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256335,
+      "process_end_time": 1788256368,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-d1f491a404d6854880943e5c3cd9ca25-chunk-000"
+    ]
+  },
+  "doc-da4fb5c6e93e74d3df8527599fa62642": {
+    "status": "processed",
+    "content_summary": "# 联邦学习 技术详解（测试文档 094）\n\n本文介绍联邦学习的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 联邦学习 第1节：原理与实现\n\n联邦学习在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828032+00:00",
+    "updated_at": "2026-09-01T09:53:47.115158+00:00",
+    "file_path": "120",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "f5f840aee288f84f370c9521c1ee5b39",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256335,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256401,
+      "process_end_time": 1788256427,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-da4fb5c6e93e74d3df8527599fa62642-chunk-000"
+    ]
+  },
+  "doc-ad61ab143223efbc24c7d2583be69251": {
+    "status": "processed",
+    "content_summary": "# 查询改写 技术详解（测试文档 048）\n\n本文介绍查询改写的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828258+00:00",
+    "updated_at": "2026-09-01T09:59:03.146636+00:00",
+    "file_path": "74",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "6a464995567fa887fa108233b054b9a1",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256659,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256720,
+      "process_end_time": 1788256743,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-ad61ab143223efbc24c7d2583be69251-chunk-000"
+    ]
+  },
+  "doc-202cb962ac59075b964b07152d234b70": {
+    "status": "processed",
+    "content_summary": "# 流式计算 技术详解（测试文档 096）\n\n本文介绍流式计算的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 流式计算 第1节：原理与实现\n\n流式计算在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828019+00:00",
+    "updated_at": "2026-09-01T09:53:31.872970+00:00",
+    "file_path": "123",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "4e396593a9671db1002591d710626a70",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256299,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256387,
+      "process_end_time": 1788256411,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-202cb962ac59075b964b07152d234b70-chunk-000"
+    ]
+  },
+  "doc-e2c420d928d4bf8ce0ff2ec19b371514": {
+    "status": "processed",
+    "content_summary": "# 知识图谱 技术详解（测试文档 045）\n\n本文介绍知识图谱的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 知识图谱 第1节：原理与实现\n\n知识图谱在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828273+00:00",
+    "updated_at": "2026-09-01T09:59:30.894545+00:00",
+    "file_path": "71",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "a2caca2ddf246039142bd863ac620622",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256680,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256743,
+      "process_end_time": 1788256770,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-e2c420d928d4bf8ce0ff2ec19b371514-chunk-000"
+    ]
+  },
+  "doc-32bb90e8976aab5298d5da10fe66f21d": {
+    "status": "processed",
+    "content_summary": "# 语义缓存 技术详解（测试文档 046）\n\n本文介绍语义缓存的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 语义缓存 第1节：原理与实现\n\n语义缓存在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828269+00:00",
+    "updated_at": "2026-09-01T09:59:28.399616+00:00",
+    "file_path": "72",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "d512b39290cfa2363d1cf1dfe5a84646",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256677,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256736,
+      "process_end_time": 1788256768,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-32bb90e8976aab5298d5da10fe66f21d-chunk-000"
+    ]
+  },
+  "doc-3def184ad8f4755ff269862ea77393dd": {
+    "status": "processed",
+    "content_summary": "# 向量数据库 技术详解（测试文档 100）\n\n本文介绍向量数据库的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 向量数据库 第1节：原理与实现\n\n向量数据库在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828009+00:00",
+    "updated_at": "2026-09-01T09:53:10.930966+00:00",
+    "file_path": "125",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "3b121ddaccfab1add3994163c9ed2daa",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256275,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256368,
+      "process_end_time": 1788256390,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-3def184ad8f4755ff269862ea77393dd-chunk-000"
+    ]
+  },
+  "doc-f7177163c833dff4b38fc8d2872f1ec6": {
+    "status": "processed",
+    "content_summary": "# 向量数据库 技术详解（测试文档 020）\n\n本文介绍向量数据库的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 向量数据库 第1节：原理与实现\n\n向量数据库在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828404+00:00",
+    "updated_at": "2026-09-01T10:03:17.256339+00:00",
+    "file_path": "44",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "7c0a1e3fe5fb033cef56ce306e5c1ade",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255984,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256896,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256974,
+      "process_end_time": 1788256997,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-f7177163c833dff4b38fc8d2872f1ec6-chunk-000"
+    ]
+  },
+  "doc-84d9ee44e457ddef7f2c4f25dc8fa865": {
+    "status": "processed",
+    "content_summary": "# 检索增强生成 技术详解（复验文档 001）\n\n本文介绍检索增强生成的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 检索增强生成 第1节：原理与实现\n\n检索增强生成在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827888+00:00",
+    "updated_at": "2026-09-01T09:48:34.158616+00:00",
+    "file_path": "199",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "77b116690a15586d2afe58dea55eb6a6",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255895,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255949,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256074,
+      "process_end_time": 1788256114,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-84d9ee44e457ddef7f2c4f25dc8fa865-chunk-000"
+    ]
+  },
+  "doc-c9e1074f5b3f9fc8ea15d152add07294": {
+    "status": "processed",
+    "content_summary": "# 熔断降级 技术详解（测试文档 079）\n\n本文介绍熔断降级的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 熔断降级 第1节：原理与实现\n\n熔断降级在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828108+00:00",
+    "updated_at": "2026-09-01T09:55:34.363925+00:00",
+    "file_path": "104",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "8ebbcde11e1f372764a6b337d7610e4c",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256453,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256511,
+      "process_end_time": 1788256534,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-c9e1074f5b3f9fc8ea15d152add07294-chunk-000"
+    ]
+  },
+  "doc-ec8956637a99787bd197eacd77acce5e": {
+    "status": "processed",
+    "content_summary": "# 消息队列 技术详解（测试文档 077）\n\n本文介绍消息队列的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 消息队列 第1节：原理与实现\n\n消息队列在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828119+00:00",
+    "updated_at": "2026-09-01T09:55:50.422355+00:00",
+    "file_path": "102",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "fc31ab70bbb887b2af10d7d088da050a",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256463,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256530,
+      "process_end_time": 1788256550,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-ec8956637a99787bd197eacd77acce5e-chunk-000"
+    ]
+  },
+  "doc-698d51a19d8a121ce581499d7b701668": {
+    "status": "processed",
+    "content_summary": "# 知识图谱 技术详解（测试文档 085）\n\n本文介绍知识图谱的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 知识图谱 第1节：原理与实现\n\n知识图谱在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828072+00:00",
+    "updated_at": "2026-09-01T09:54:45.950905+00:00",
+    "file_path": "111",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "f5a33a666a07865dbb2327152fe5e3e1",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256401,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256463,
+      "process_end_time": 1788256485,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-698d51a19d8a121ce581499d7b701668-chunk-000"
+    ]
+  },
+  "doc-c0c7c76d30bd3dcaefc96f40275bdc0a": {
+    "status": "processed",
+    "content_summary": "# 语义缓存 技术详解（测试文档 026）\n\n本文介绍语义缓存的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 语义缓存 第1节：原理与实现\n\n语义缓存在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828373+00:00",
+    "updated_at": "2026-09-01T10:02:25.620294+00:00",
+    "file_path": "50",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "1837a2beee933ec45b7bee28ca8b91f0",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256838,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256910,
+      "process_end_time": 1788256945,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-c0c7c76d30bd3dcaefc96f40275bdc0a-chunk-000"
+    ]
+  },
+  "doc-33e75ff09dd601bbe69f351039152189": {
+    "status": "failed",
+    "content_summary": "# 多路召回 技术详解（测试文档 007）\n\n本文介绍多路召回的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 多路召回 第1节：原理与实现\n\n多路召回在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828482+00:00",
+    "updated_at": "2026-09-01T10:05:35.985729+00:00",
+    "file_path": "28",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "7b103ff5c979d9917984e2e72e2018fd",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256193,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788257049,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257116,
+      "process_end_time": 1788257135
+    },
+    "error_msg": "RetryError[C[1/1]: doc-33e75ff09dd601bbe69f351039152189-chunk-000: <Future at 0x1e002886ed0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-33e75ff09dd601bbe69f351039152189-chunk-000"
+    ]
+  },
+  "doc-0e65972dce68dad4d52d063967f0a705": {
+    "status": "processed",
+    "content_summary": "# 数据脱敏 技术详解（复验文档 015）\n\n本文介绍数据脱敏的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 数据脱敏 第1节：原理与实现\n\n数据脱敏在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827892+00:00",
+    "updated_at": "2026-09-01T09:48:52.909735+00:00",
+    "file_path": "198",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "9222f2fa4bf99a1de04c7d7e97be4a41",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255956,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256092,
+      "process_end_time": 1788256132,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-0e65972dce68dad4d52d063967f0a705-chunk-000"
+    ]
+  },
+  "doc-3295c76acbf4caaed33c36b1b5fc2cb1": {
+    "status": "processed",
+    "content_summary": "# 检索增强生成 技术详解（测试文档 041）\n\n本文介绍检索增强生成的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 检索增强生成 第1节：原理与实现\n\n检索增强生成在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828297+00:00",
+    "updated_at": "2026-09-01T10:00:09.856547+00:00",
+    "file_path": "66",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "427e19628e2e6d991430cfe2a16ca6c7",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256714,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256782,
+      "process_end_time": 1788256809,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-3295c76acbf4caaed33c36b1b5fc2cb1-chunk-000"
+    ]
+  },
+  "doc-854d6fae5ee42911677c739ee1734486": {
+    "status": "processed",
+    "content_summary": "# 熔断降级 技术详解（复验文档 019）\n\n本文介绍熔断降级的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 熔断降级 第1节：原理与实现\n\n熔断降级在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827867+00:00",
+    "updated_at": "2026-09-01T09:48:24.202012+00:00",
+    "file_path": "202",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "3bf28b964bc835c4d6b0c209f2436fbe",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255895,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255896,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256041,
+      "process_end_time": 1788256104,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-854d6fae5ee42911677c739ee1734486-chunk-000"
+    ]
+  },
+  "doc-6cdd60ea0045eb7a6ec44c54d29ed402": {
+    "status": "processed",
+    "content_summary": "# 重排序 技术详解（复验文档 004）\n\n本文介绍重排序的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 重排序 第1节：原理与实现\n\n重排序在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连接池...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827958+00:00",
+    "updated_at": "2026-09-01T09:51:15.661757+00:00",
+    "file_path": "184",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "4d9e056216044443a24e440e16c56b84",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256145,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256252,
+      "process_end_time": 1788256275,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-6cdd60ea0045eb7a6ec44c54d29ed402-chunk-000"
+    ]
+  },
+  "doc-c7e1249ffc03eb9ded908c236bd1996d": {
+    "status": "processed",
+    "content_summary": "# 文档切片策略 技术详解（测试文档 062）\n\n本文介绍文档切片策略的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文档切片策略 第1节：原理与实现\n\n文档切片策略在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828189+00:00",
+    "updated_at": "2026-09-01T09:57:39.027281+00:00",
+    "file_path": "87",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "c9de90fc2635dc480066cabcef2cf6e1",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256576,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256635,
+      "process_end_time": 1788256659,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-c7e1249ffc03eb9ded908c236bd1996d-chunk-000"
+    ]
+  },
+  "doc-76dc611d6ebaafc66cc0879c71b5db5c": {
+    "status": "processed",
+    "content_summary": "# 嵌入模型 技术详解（测试文档 103）\n\n本文介绍嵌入模型的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 嵌入模型 第1节：原理与实现\n\n嵌入模型在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827994+00:00",
+    "updated_at": "2026-09-01T09:52:47.847258+00:00",
+    "file_path": "128",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "135ee655c29dd693d68eb0e632a3fe72",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256249,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256335,
+      "process_end_time": 1788256367,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-76dc611d6ebaafc66cc0879c71b5db5c-chunk-000"
+    ]
+  },
+  "doc-f0935e4cd5920aa6c7c996a5ee53a70f": {
+    "status": "processed",
+    "content_summary": "# 向量数据库 技术详解（测试文档 080）\n\n本文介绍向量数据库的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 向量数据库 第1节：原理与实现\n\n向量数据库在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828098+00:00",
+    "updated_at": "2026-09-01T09:55:30.706752+00:00",
+    "file_path": "106",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "ccb9a973b4f8e551e9e3c357d30865c4",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256436,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256504,
+      "process_end_time": 1788256530,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-f0935e4cd5920aa6c7c996a5ee53a70f-chunk-000"
+    ]
+  },
+  "doc-2723d092b63885e0d7c260cc007e8b9d": {
+    "status": "processed",
+    "content_summary": "# 嵌入模型 技术详解（测试文档 083）\n\n本文介绍嵌入模型的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 嵌入模型 第1节：原理与实现\n\n嵌入模型在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828084+00:00",
+    "updated_at": "2026-09-01T09:55:04.907706+00:00",
+    "file_path": "109",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "e38a810c6b261b86742aa13585196a0c",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256425,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256479,
+      "process_end_time": 1788256504,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-2723d092b63885e0d7c260cc007e8b9d-chunk-000"
+    ]
+  },
+  "doc-28dd2c7955ce926456240b2ff0100bde": {
+    "status": "processed",
+    "content_summary": "# 倒排索引 技术详解（测试文档 051）\n\n本文介绍倒排索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 倒排索引 第1节：原理与实现\n\n倒排索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828244+00:00",
+    "updated_at": "2026-09-01T09:58:40.414654+00:00",
+    "file_path": "77",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "01d6d61772c07ad98c5b483c842904b3",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256635,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256706,
+      "process_end_time": 1788256720,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-28dd2c7955ce926456240b2ff0100bde-chunk-000"
+    ]
+  },
+  "doc-bd686fd640be98efaae0091fa301e613": {
+    "status": "processed",
+    "content_summary": "# 分词算法 技术详解（复验文档 012）\n\n本文介绍分词算法的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 分词算法 第1节：原理与实现\n\n分词算法在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827915+00:00",
+    "updated_at": "2026-09-01T09:49:47.065831+00:00",
+    "file_path": "193",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "3aaf6a1b8abc2e9caf68784c10859b5b",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256041,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256145,
+      "process_end_time": 1788256187,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-bd686fd640be98efaae0091fa301e613-chunk-000"
+    ]
+  },
+  "doc-1afa34a7f984eeabdbb0a7d494132ee5": {
+    "status": "processed",
+    "content_summary": "# 知识图谱 技术详解（测试文档 105）\n\n本文介绍知识图谱的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 知识图谱 第1节：原理与实现\n\n知识图谱在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827980+00:00",
+    "updated_at": "2026-09-01T09:52:25.398499+00:00",
+    "file_path": "131",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "1e2b0711e3a8fbde955bbb4768dbf100",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256217,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256306,
+      "process_end_time": 1788256345,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-1afa34a7f984eeabdbb0a7d494132ee5-chunk-000"
+    ]
+  },
+  "doc-b1d10e7bafa4421218a51b1e1f1b0ba2": {
+    "status": "processed",
+    "content_summary": "# 语义缓存 技术详解（复验文档 026）\n\n本文介绍语义缓存的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 语义缓存 第1节：原理与实现\n\n语义缓存在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827833+00:00",
+    "updated_at": "2026-09-01T09:46:40.519318+00:00",
+    "file_path": "209",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "2ff9712210940165f7641d284c9a6f7d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255894,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255949,
+      "process_end_time": 1788256000,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-b1d10e7bafa4421218a51b1e1f1b0ba2-chunk-000"
+    ]
+  },
+  "doc-65ded5353c5ee48d0b7d48c591b8f430": {
+    "status": "processed",
+    "content_summary": "# 语义缓存 技术详解（测试文档 106）\n\n本文介绍语义缓存的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 语义缓存 第1节：原理与实现\n\n语义缓存在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827976+00:00",
+    "updated_at": "2026-09-01T09:52:15.004477+00:00",
+    "file_path": "132",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "1121e20fa96e23fd37428eb6e642d13d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256203,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256299,
+      "process_end_time": 1788256335,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-65ded5353c5ee48d0b7d48c591b8f430-chunk-000"
+    ]
+  },
+  "doc-14bfa6bb14875e45bba028a21ed38046": {
+    "status": "processed",
+    "content_summary": "# 嵌入模型 技术详解（测试文档 043）\n\n本文介绍嵌入模型的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 嵌入模型 第1节：原理与实现\n\n嵌入模型在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828282+00:00",
+    "updated_at": "2026-09-01T09:59:42.380463+00:00",
+    "file_path": "69",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "1f4e97c7f9c439f59be40bd0c372fc49",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256691,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256768,
+      "process_end_time": 1788256782,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-14bfa6bb14875e45bba028a21ed38046-chunk-000"
+    ]
+  },
+  "doc-0aa1883c6411f7873cb83dacb17b0afc": {
+    "status": "processed",
+    "content_summary": "# 倒排索引 技术详解（复验文档 011）\n\n本文介绍倒排索引的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 倒排索引 第1节：原理与实现\n\n倒排索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827925+00:00",
+    "updated_at": "2026-09-01T09:50:17.828672+00:00",
+    "file_path": "191",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "de928a16c49617e5c2de6e2dae3a2a67",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256043,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256187,
+      "process_end_time": 1788256217,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-0aa1883c6411f7873cb83dacb17b0afc-chunk-000"
+    ]
+  },
+  "doc-44f683a84163b3523afe57c2e008bc8c": {
+    "status": "processed",
+    "content_summary": "# 消息队列 技术详解（测试文档 037）\n\n本文介绍消息队列的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 消息队列 第1节：原理与实现\n\n消息队列在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828314+00:00",
+    "updated_at": "2026-09-01T10:00:38.939000+00:00",
+    "file_path": "62",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "9cba3a43d856778ac40bf6f83f67c930",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256743,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256817,
+      "process_end_time": 1788256838,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-44f683a84163b3523afe57c2e008bc8c-chunk-000"
+    ]
+  },
+  "doc-07e1cd7dca89a1678042477183b7ac3f": {
+    "status": "processed",
+    "content_summary": "# 文本压缩 技术详解（测试文档 093）\n\n本文介绍文本压缩的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文本压缩 第1节：原理与实现\n\n文本压缩在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828036+00:00",
+    "updated_at": "2026-09-01T09:53:53.247154+00:00",
+    "file_path": "119",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "a25c4f52e68a65b45cfd7cef2985efd6",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256335,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256411,
+      "process_end_time": 1788256433,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-07e1cd7dca89a1678042477183b7ac3f-chunk-000"
+    ]
+  },
+  "doc-6974ce5ac660610b44d9b9fed0ff9548": {
+    "status": "processed",
+    "content_summary": "# 一致性哈希 技术详解（测试文档 078）\n\n本文介绍一致性哈希的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 一致性哈希 第1节：原理与实现\n\n一致性哈希在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828113+00:00",
+    "updated_at": "2026-09-01T09:55:48.903848+00:00",
+    "file_path": "103",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "6b3b2a0c97bbb53cdd915243d3173dc2",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256462,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256530,
+      "process_end_time": 1788256548,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-6974ce5ac660610b44d9b9fed0ff9548-chunk-000"
+    ]
+  },
+  "doc-98dce83da57b0395e163467c9dae521b": {
+    "status": "processed",
+    "content_summary": "# 重排序 技术详解（测试文档 064）\n\n本文介绍重排序的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 重排序 第1节：原理与实现\n\n重排序在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828160+00:00",
+    "updated_at": "2026-09-01T09:56:52.736385+00:00",
+    "file_path": "93",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "7173394adfad00ed9c121d7cf87d3fa6",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256530,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256594,
+      "process_end_time": 1788256612,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-98dce83da57b0395e163467c9dae521b-chunk-000"
+    ]
+  },
+  "doc-a3c65c2974270fd093ee8a9bf8ae7d0b": {
+    "status": "processed",
+    "content_summary": "# 文档切片策略 技术详解（测试文档 082）\n\n本文介绍文档切片策略的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文档切片策略 第1节：原理与实现\n\n文档切片策略在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828089+00:00",
+    "updated_at": "2026-09-01T09:55:04.907828+00:00",
+    "file_path": "108",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "561d2153638ff0acfcff83008ea443a0",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256427,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256485,
+      "process_end_time": 1788256504,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a3c65c2974270fd093ee8a9bf8ae7d0b-chunk-000"
+    ]
+  },
+  "doc-a684eceee76fc522773286a895bc8436": {
+    "status": "processed",
+    "content_summary": "# 评估基准 技术详解（测试文档 029）\n\n本文介绍评估基准的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 评估基准 第1节：原理与实现\n\n评估基准在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828350+00:00",
+    "updated_at": "2026-09-01T10:01:47.514646+00:00",
+    "file_path": "54",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "2c0804c1bedb778e91f57cb0357ff471",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256809,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256871,
+      "process_end_time": 1788256907,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a684eceee76fc522773286a895bc8436-chunk-000"
+    ]
+  },
+  "doc-5ef059938ba799aaa845e1c2e8a762bd": {
+    "status": "processed",
+    "content_summary": "# 分词算法 技术详解（测试文档 092）\n\n本文介绍分词算法的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分词算法 第1节：原理与实现\n\n分词算法在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828040+00:00",
+    "updated_at": "2026-09-01T09:53:56.584481+00:00",
+    "file_path": "118",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "517620a42fa04b48a098d62c4a72b2ce",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256345,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256425,
+      "process_end_time": 1788256436,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-5ef059938ba799aaa845e1c2e8a762bd-chunk-000"
+    ]
+  },
+  "doc-735b90b4568125ed6c3f678819b6e058": {
+    "status": "processed",
+    "content_summary": "# 文档切片策略 技术详解（测试文档 042）\n\n本文介绍文档切片策略的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文档切片策略 第1节：原理与实现\n\n文档切片策略在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828291+00:00",
+    "updated_at": "2026-09-01T09:59:53.507991+00:00",
+    "file_path": "67",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "c77a6a08cecec6eff76f16225d91bf66",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256714,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256774,
+      "process_end_time": 1788256793,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-735b90b4568125ed6c3f678819b6e058-chunk-000"
+    ]
+  },
+  "doc-eb160de1de89d9058fcb0b968dbbbd68": {
+    "status": "processed",
+    "content_summary": "# 倒排索引 技术详解（测试文档 091）\n\n本文介绍倒排索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 倒排索引 第1节：原理与实现\n\n倒排索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828044+00:00",
+    "updated_at": "2026-09-01T09:54:13.422253+00:00",
+    "file_path": "117",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "aacc54c841c1a8399cc768c66be67c97",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256367,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256427,
+      "process_end_time": 1788256453,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-eb160de1de89d9058fcb0b968dbbbd68-chunk-000"
+    ]
+  },
+  "doc-812b4ba287f5ee0bc9d43bbf5bbe87fb": {
+    "status": "processed",
+    "content_summary": "# 评估基准 技术详解（测试文档 069）\n\n本文介绍评估基准的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 评估基准 第1节：原理与实现\n\n评估基准在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828151+00:00",
+    "updated_at": "2026-09-01T09:56:37.151870+00:00",
+    "file_path": "95",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "a6b7f68c85f767d4f1522ec75fb3ac30",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256511,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256577,
+      "process_end_time": 1788256597,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-812b4ba287f5ee0bc9d43bbf5bbe87fb-chunk-000"
+    ]
+  },
+  "doc-069059b7ef840f0c74a814ec9237b6ec": {
+    "status": "processed",
+    "content_summary": "# 检索增强生成 技术详解（测试文档 101）\n\n本文介绍检索增强生成的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 检索增强生成 第1节：原理与实现\n\n检索增强生成在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828003+00:00",
+    "updated_at": "2026-09-01T09:53:07.354229+00:00",
+    "file_path": "126",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "e309080cdd0671c96449845de06fde2d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256265,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256367,
+      "process_end_time": 1788256387,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-069059b7ef840f0c74a814ec9237b6ec-chunk-000"
+    ]
+  },
+  "doc-3644a684f98ea8fe223c713b77189a77": {
+    "status": "processed",
+    "content_summary": "# 流式计算 技术详解（复验文档 016）\n\n本文介绍流式计算的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 流式计算 第1节：原理与实现\n\n流式计算在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827879+00:00",
+    "updated_at": "2026-09-01T09:47:54.263323+00:00",
+    "file_path": "200",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "58e72857e1176e2b7917873ec427c5d0",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255895,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255949,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256043,
+      "process_end_time": 1788256074,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-3644a684f98ea8fe223c713b77189a77-chunk-000"
+    ]
+  },
+  "doc-68d30a9594728bc39aa24be94b319d21": {
+    "status": "processed",
+    "content_summary": "# 熔断降级 技术详解（测试文档 059）\n\n本文介绍熔断降级的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 熔断降级 第1节：原理与实现\n\n熔断降级在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828204+00:00",
+    "updated_at": "2026-09-01T09:58:00.837226+00:00",
+    "file_path": "84",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "fb6bdcc67ca9d104ab6b2e478329e608",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256594,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256659,
+      "process_end_time": 1788256680,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-68d30a9594728bc39aa24be94b319d21-chunk-000"
+    ]
+  },
+  "doc-e2c0be24560d78c5e599c2a9c9d0bbd2": {
+    "status": "processed",
+    "content_summary": "# 检索增强生成 技术详解（复验文档 021）\n\n本文介绍检索增强生成的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 检索增强生成 第1节：原理与实现\n\n检索增强生成在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827863+00:00",
+    "updated_at": "2026-09-01T09:47:23.336729+00:00",
+    "file_path": "203",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "4e243f0350c8f749440ac5d0d72a58c7",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255895,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255896,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256027,
+      "process_end_time": 1788256043,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-e2c0be24560d78c5e599c2a9c9d0bbd2-chunk-000"
+    ]
+  },
+  "doc-eae27d77ca20db309e056e3d2dcd7d69": {
+    "status": "processed",
+    "content_summary": "# 嵌入模型 技术详解（复验文档 023）\n\n本文介绍嵌入模型的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 嵌入模型 第1节：原理与实现\n\n嵌入模型在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827854+00:00",
+    "updated_at": "2026-09-01T09:47:21.844023+00:00",
+    "file_path": "205",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "ff94c13b17cee7ebde599ca53499fbd8",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255895,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788255999,
+      "process_end_time": 1788256041,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-eae27d77ca20db309e056e3d2dcd7d69-chunk-000"
+    ]
+  },
+  "doc-0336dcbab05b9d5ad24f4333c7658a0e": {
+    "status": "processed",
+    "content_summary": "# 文本压缩 技术详解（复验文档 013）\n\n本文介绍文本压缩的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 文本压缩 第1节：原理与实现\n\n文本压缩在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827906+00:00",
+    "updated_at": "2026-09-01T09:49:28.192363+00:00",
+    "file_path": "195",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "4f87eb190810945e889ef48aa356f9eb",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256000,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256132,
+      "process_end_time": 1788256168,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-0336dcbab05b9d5ad24f4333c7658a0e-chunk-000"
+    ]
+  },
+  "doc-f899139df5e1059396431415e770c6dd": {
+    "status": "processed",
+    "content_summary": "# 数据脱敏 技术详解（测试文档 075）\n\n本文介绍数据脱敏的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 数据脱敏 第1节：原理与实现\n\n数据脱敏在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828129+00:00",
+    "updated_at": "2026-09-01T09:56:15.474593+00:00",
+    "file_path": "100",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "61cf3d97201c697ee6f7dceb33c80785",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256479,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256548,
+      "process_end_time": 1788256575,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-f899139df5e1059396431415e770c6dd-chunk-000"
+    ]
+  },
+  "doc-3ef815416f775098fe977004015c6193": {
+    "status": "processed",
+    "content_summary": "# 文本压缩 技术详解（测试文档 053）\n\n本文介绍文本压缩的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文本压缩 第1节：原理与实现\n\n文本压缩在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828200+00:00",
+    "updated_at": "2026-09-01T09:57:53.593456+00:00",
+    "file_path": "85",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "bb0a0d2611cbc051749ebdde3524b813",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256591,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256647,
+      "process_end_time": 1788256673,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-3ef815416f775098fe977004015c6193-chunk-000"
+    ]
+  },
+  "doc-26657d5ff9020d2abefe558796b99584": {
+    "status": "processed",
+    "content_summary": "# 分布式索引 技术详解（测试文档 070）\n\n本文介绍分布式索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分布式索引 第1节：原理与实现\n\n分布式索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828147+00:00",
+    "updated_at": "2026-09-01T09:56:34.394285+00:00",
+    "file_path": "96",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "5a829f342702d80bc0abfadfdde02936",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256504,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256576,
+      "process_end_time": 1788256594,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-26657d5ff9020d2abefe558796b99584-chunk-000"
+    ]
+  },
+  "doc-9fc3d7152ba9336a670e36d0ed79bc43": {
+    "status": "processed",
+    "content_summary": "# 多路召回 技术详解（测试文档 107）\n\n本文介绍多路召回的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 多路召回 第1节：原理与实现\n\n多路召回在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827972+00:00",
+    "updated_at": "2026-09-01T09:51:46.572243+00:00",
+    "file_path": "133",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "f66bc700aedcd30c19878f431b966e6e",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256193,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256278,
+      "process_end_time": 1788256306,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-9fc3d7152ba9336a670e36d0ed79bc43-chunk-000"
+    ]
+  },
+  "doc-fbd7939d674997cdb4692d34de8633c4": {
+    "status": "processed",
+    "content_summary": "# 分布式索引 技术详解（测试文档 050）\n\n本文介绍分布式索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分布式索引 第1节：原理与实现\n\n分布式索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828249+00:00",
+    "updated_at": "2026-09-01T09:58:56.347159+00:00",
+    "file_path": "76",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "285a8c986747872d9e358031ed85467d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256647,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256714,
+      "process_end_time": 1788256736,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-fbd7939d674997cdb4692d34de8633c4-chunk-000"
+    ]
+  },
+  "doc-7f1de29e6da19d22b51c68001e7e0e54": {
+    "status": "processed",
+    "content_summary": "# 评估基准 技术详解（测试文档 109）\n\n本文介绍评估基准的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 评估基准 第1节：原理与实现\n\n评估基准在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827963+00:00",
+    "updated_at": "2026-09-01T09:51:48.000790+00:00",
+    "file_path": "135",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "f6f56d25417a572d2352e00b6875adb7",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256168,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256265,
+      "process_end_time": 1788256308,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-7f1de29e6da19d22b51c68001e7e0e54-chunk-000"
+    ]
+  },
+  "doc-8613985ec49eb8f757ae6439e879bb2a": {
+    "status": "processed",
+    "content_summary": "# 知识图谱 技术详解（测试文档 065）\n\n本文介绍知识图谱的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 知识图谱 第1节：原理与实现\n\n知识图谱在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828176+00:00",
+    "updated_at": "2026-09-01T09:57:15.715898+00:00",
+    "file_path": "90",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "b8f6ca1c94beee6b19e167689e1a96fa",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256550,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256611,
+      "process_end_time": 1788256635,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-8613985ec49eb8f757ae6439e879bb2a-chunk-000"
+    ]
+  },
+  "doc-d67d8ab4f4c10bf22aa353e27879133c": {
+    "status": "processed",
+    "content_summary": "# 消息队列 技术详解（测试文档 017）\n\n本文介绍消息队列的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 消息队列 第1节：原理与实现\n\n消息队列在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828427+00:00",
+    "updated_at": "2026-09-01T10:04:16.760467+00:00",
+    "file_path": "39",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "d3a456ee69d2a98459c47eb71bf2d10d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256041,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256944,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788257020,
+      "process_end_time": 1788257056,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-d67d8ab4f4c10bf22aa353e27879133c-chunk-000"
+    ]
+  },
+  "doc-d645920e395fedad7bbbed0eca3fe2e0": {
+    "status": "processed",
+    "content_summary": "# 熔断降级 技术详解（测试文档 019）\n\n本文介绍熔断降级的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 熔断降级 第1节：原理与实现\n\n熔断降级在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828422+00:00",
+    "updated_at": "2026-09-01T10:04:09.663805+00:00",
+    "file_path": "40",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "339b7e58c696a21cb8f02b759936e764",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256041,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256924,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788257019,
+      "process_end_time": 1788257049,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-d645920e395fedad7bbbed0eca3fe2e0-chunk-000"
+    ]
+  },
+  "doc-fe9fc289c3ff0af142b6d3bead98a923": {
+    "status": "processed",
+    "content_summary": "# 一致性哈希 技术详解（测试文档 058）\n\n本文介绍一致性哈希的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 一致性哈希 第1节：原理与实现\n\n一致性哈希在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828209+00:00",
+    "updated_at": "2026-09-01T09:57:57.739753+00:00",
+    "file_path": "83",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "0ac01db91d33badc491391f8c0ff23d5",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256597,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256659,
+      "process_end_time": 1788256677,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-fe9fc289c3ff0af142b6d3bead98a923-chunk-000"
+    ]
+  },
+  "doc-ec5decca5ed3d6b8079e2e7e7bacc9f2": {
+    "status": "processed",
+    "content_summary": "# 文档切片策略 技术详解（测试文档 102）\n\n本文介绍文档切片策略的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 文档切片策略 第1节：原理与实现\n\n文档切片策略在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827999+00:00",
+    "updated_at": "2026-09-01T09:52:55.638624+00:00",
+    "file_path": "127",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "b57b0005463123a12210a1bf3e360d93",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256252,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256345,
+      "process_end_time": 1788256375,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-ec5decca5ed3d6b8079e2e7e7bacc9f2-chunk-000"
+    ]
+  },
+  "doc-cfecdb276f634854f3ef915e2e980c31": {
+    "status": "processed",
+    "content_summary": "# 分布式索引 技术详解（复验文档 010）\n\n本文介绍分布式索引的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 分布式索引 第1节：原理与实现\n\n分布式索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827931+00:00",
+    "updated_at": "2026-09-01T09:50:32.840155+00:00",
+    "file_path": "190",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "fd65d740f43850e7bc07aba32deaa4f1",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256074,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256193,
+      "process_end_time": 1788256232,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-cfecdb276f634854f3ef915e2e980c31-chunk-000"
+    ]
+  },
+  "doc-c16a5320fa475530d9583c34fd356ef5": {
+    "status": "failed",
+    "content_summary": "# 评估基准 技术详解（测试文档 009）\n\n本文介绍评估基准的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 评估基准 第1节：原理与实现\n\n评估基准在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828468+00:00",
+    "updated_at": "2026-09-01T10:05:16.160643+00:00",
+    "file_path": "31",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "2b346dafde6237c846d69636eec3818e",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256145,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788257019,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257095,
+      "process_end_time": 1788257116
+    },
+    "error_msg": "RetryError[C[1/1]: doc-c16a5320fa475530d9583c34fd356ef5-chunk-000: <Future at 0x1e0028abf50 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-c16a5320fa475530d9583c34fd356ef5-chunk-000"
+    ]
+  },
+  "doc-c45147dee729311ef5b5c3003946c48f": {
+    "status": "processed",
+    "content_summary": "# 语义缓存 技术详解（测试文档 086）\n\n本文介绍语义缓存的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 语义缓存 第1节：原理与实现\n\n语义缓存在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828048+00:00",
+    "updated_at": "2026-09-01T09:53:57.780026+00:00",
+    "file_path": "116",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "fc591393c60f2b25cdb7d719189d3ff0",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256368,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256433,
+      "process_end_time": 1788256437,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-c45147dee729311ef5b5c3003946c48f-chunk-000"
+    ]
+  },
+  "doc-182be0c5cdcd5072bb1864cdee4d3d6e": {
+    "status": "failed",
+    "content_summary": "# 倒排索引 技术详解（测试文档 011）\n\n本文介绍倒排索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 倒排索引 第1节：原理与实现\n\n倒排索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828456+00:00",
+    "updated_at": "2026-09-01T10:04:58.658519+00:00",
+    "file_path": "33",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "de9a97af69e2f4515161e982eef30844",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256132,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256994,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257078,
+      "process_end_time": 1788257098
+    },
+    "error_msg": "RetryError[C[1/1]: doc-182be0c5cdcd5072bb1864cdee4d3d6e-chunk-000: <Future at 0x1e0023901d0 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-182be0c5cdcd5072bb1864cdee4d3d6e-chunk-000"
+    ]
+  },
+  "doc-43ec517d68b6edd3015b3edc9a11367b": {
+    "status": "processed",
+    "content_summary": "# 流式计算 技术详解（测试文档 056）\n\n本文介绍流式计算的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 流式计算 第1节：原理与实现\n\n流式计算在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828220+00:00",
+    "updated_at": "2026-09-01T09:58:11.535755+00:00",
+    "file_path": "81",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "ccee8845d8aefcc7a23a50547e91a504",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256611,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256677,
+      "process_end_time": 1788256691,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-43ec517d68b6edd3015b3edc9a11367b-chunk-000"
+    ]
+  },
+  "doc-d1fe173d08e959397adf34b1d77e88d7": {
+    "status": "processed",
+    "content_summary": "# 联邦学习 技术详解（测试文档 054）\n\n本文介绍联邦学习的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 联邦学习 第1节：原理与实现\n\n联邦学习在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828232+00:00",
+    "updated_at": "2026-09-01T09:58:34.563462+00:00",
+    "file_path": "79",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "265f0f5ab50499017d85e2d5ee3da861",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256628,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256690,
+      "process_end_time": 1788256714,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-d1fe173d08e959397adf34b1d77e88d7-chunk-000"
+    ]
+  },
+  "doc-02e74f10e0327ad868d138f2b4fdd6f0": {
+    "status": "failed",
+    "content_summary": "# 向量数据库 技术详解（测试文档 000）\n\n本文介绍向量数据库的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 向量数据库 第1节：原理与实现\n\n向量数据库在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828487+00:00",
+    "updated_at": "2026-09-01T10:05:40.422257+00:00",
+    "file_path": "27",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "bf6c86b4a375977d4609e6292ea2fc02",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256203,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788257053,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "pre_graph",
+      "process_start_time": 1788257120,
+      "process_end_time": 1788257140
+    },
+    "error_msg": "RetryError[C[1/1]: doc-02e74f10e0327ad868d138f2b4fdd6f0-chunk-000: <Future at 0x1e002909e50 state=finished raised RateLimitError>]",
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-02e74f10e0327ad868d138f2b4fdd6f0-chunk-000"
+    ]
+  },
+  "doc-92cc227532d17e56e07902b254dfad10": {
+    "status": "processed",
+    "content_summary": "# 多路召回 技术详解（测试文档 067）\n\n本文介绍多路召回的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 多路召回 第1节：原理与实现\n\n多路召回在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828165+00:00",
+    "updated_at": "2026-09-01T09:56:50.579945+00:00",
+    "file_path": "92",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "d9db62206dad295769eaeca99c1a3db7",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256534,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256597,
+      "process_end_time": 1788256610,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-92cc227532d17e56e07902b254dfad10-chunk-000"
+    ]
+  },
+  "doc-2b44928ae11fb9384c4cf38708677c48": {
+    "status": "processed",
+    "content_summary": "# 分布式索引 技术详解（测试文档 090）\n\n本文介绍分布式索引的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 分布式索引 第1节：原理与实现\n\n分布式索引在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828054+00:00",
+    "updated_at": "2026-09-01T09:54:23.473001+00:00",
+    "file_path": "115",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "1bac3745b50438e88aaaa748b6dbd13d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256375,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256436,
+      "process_end_time": 1788256463,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-2b44928ae11fb9384c4cf38708677c48-chunk-000"
+    ]
+  },
+  "doc-d2ddea18f00665ce8623e36bd4e3c7c5": {
+    "status": "processed",
+    "content_summary": "# 多路召回 技术详解（测试文档 047）\n\n本文介绍多路召回的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 多路召回 第1节：原理与实现\n\n多路召回在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828262+00:00",
+    "updated_at": "2026-09-01T09:59:17.678044+00:00",
+    "file_path": "73",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "d7f8eaa685d8c3b020d179270d8a2e3b",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256673,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256731,
+      "process_end_time": 1788256757,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-d2ddea18f00665ce8623e36bd4e3c7c5-chunk-000"
+    ]
+  },
+  "doc-9dcb88e0137649590b755372b040afad": {
+    "status": "processed",
+    "content_summary": "# 查询改写 技术详解（复验文档 008）\n\n本文介绍查询改写的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827941+00:00",
+    "updated_at": "2026-09-01T09:50:49.285320+00:00",
+    "file_path": "188",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "41199dc648d2f4bd64e118ea9adb3e62",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256104,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256217,
+      "process_end_time": 1788256249,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-9dcb88e0137649590b755372b040afad-chunk-000"
+    ]
+  },
+  "doc-65b9eea6e1cc6bb9f0cd2a47751a186f": {
+    "status": "processed",
+    "content_summary": "# 流式计算 技术详解（测试文档 076）\n\n本文介绍流式计算的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 流式计算 第1节：原理与实现\n\n流式计算在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828104+00:00",
+    "updated_at": "2026-09-01T09:55:30.706447+00:00",
+    "file_path": "105",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "46baceee1ec4e543c042e0a466344deb",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256437,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256504,
+      "process_end_time": 1788256530,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-65b9eea6e1cc6bb9f0cd2a47751a186f-chunk-000"
+    ]
+  },
+  "doc-ed3d2c21991e3bef5e069713af9fa6ca": {
+    "status": "processed",
+    "content_summary": "# 联邦学习 技术详解（测试文档 074）\n\n本文介绍联邦学习的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 联邦学习 第1节：原理与实现\n\n联邦学习在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828138+00:00",
+    "updated_at": "2026-09-01T09:56:16.729921+00:00",
+    "file_path": "98",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "6248665cdf58a66eb9763b5d2c2063e9",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256497,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256553,
+      "process_end_time": 1788256576,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-ed3d2c21991e3bef5e069713af9fa6ca-chunk-000"
+    ]
+  },
+  "doc-67c6a1e7ce56d3d6fa748ab6d9af3fd7": {
+    "status": "processed",
+    "content_summary": "# 知识图谱 技术详解（测试文档 025）\n\n本文介绍知识图谱的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 知识图谱 第1节：原理与实现\n\n知识图谱在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828387+00:00",
+    "updated_at": "2026-09-01T10:02:54.857010+00:00",
+    "file_path": "47",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "ef3b5a2d068f55e85afb808e49a0ddaa",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255949,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256861,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256945,
+      "process_end_time": 1788256974,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-67c6a1e7ce56d3d6fa748ab6d9af3fd7-chunk-000"
+    ]
+  },
+  "doc-757b505cfd34c64c85ca5b5690ee5293": {
+    "status": "processed",
+    "content_summary": "# 消息队列 技术详解（复验文档 017）\n\n本文介绍消息队列的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 消息队列 第1节：原理与实现\n\n消息队列在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827873+00:00",
+    "updated_at": "2026-09-01T09:48:12.114648+00:00",
+    "file_path": "201",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "1a767261a1af8d7186b48b6186bec2cc",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255895,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255931,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256041,
+      "process_end_time": 1788256092,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-757b505cfd34c64c85ca5b5690ee5293-chunk-000"
+    ]
+  },
+  "doc-72b32a1f754ba1c09b3695e0cb6cde7f": {
+    "status": "processed",
+    "content_summary": "# 联邦学习 技术详解（测试文档 034）\n\n本文介绍联邦学习的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 联邦学习 第1节：原理与实现\n\n联邦学习在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828337+00:00",
+    "updated_at": "2026-09-01T10:01:11.807634+00:00",
+    "file_path": "57",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "eb0c763af3e3c88a81592dd071f8132e",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256782,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256849,
+      "process_end_time": 1788256871,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-72b32a1f754ba1c09b3695e0cb6cde7f-chunk-000"
+    ]
+  },
+  "doc-5f93f983524def3dca464469d2cf9f3e": {
+    "status": "processed",
+    "content_summary": "# 重排序 技术详解（测试文档 084）\n\n本文介绍重排序的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 重排序 第1节：原理与实现\n\n重排序在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828078+00:00",
+    "updated_at": "2026-09-01T09:54:57.853634+00:00",
+    "file_path": "110",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "7a203cde4f95844b7acd70771f324800",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256411,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256478,
+      "process_end_time": 1788256497,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-5f93f983524def3dca464469d2cf9f3e-chunk-000"
+    ]
+  },
+  "doc-6c8349cc7260ae62e3b1396831a8398f": {
+    "status": "processed",
+    "content_summary": "# 嵌入模型 技术详解（测试文档 023）\n\n本文介绍嵌入模型的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 嵌入模型 第1节：原理与实现\n\n嵌入模型在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828399+00:00",
+    "updated_at": "2026-09-01T10:03:13.996728+00:00",
+    "file_path": "45",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "993f3c1cb241f7ecc182d41ed30c044f",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255956,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256871,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256965,
+      "process_end_time": 1788256993,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-6c8349cc7260ae62e3b1396831a8398f-chunk-000"
+    ]
+  },
+  "doc-a5771bce93e200c36f7cd9dfd0e5deaa": {
+    "status": "processed",
+    "content_summary": "# 流式计算 技术详解（测试文档 016）\n\n本文介绍流式计算的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 流式计算 第1节：原理与实现\n\n流式计算在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828433+00:00",
+    "updated_at": "2026-09-01T10:04:12.982835+00:00",
+    "file_path": "38",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "0e7580ed1b44a6e9c6ef928ae41408fc",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788256043,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256945,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788257024,
+      "process_end_time": 1788257052,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a5771bce93e200c36f7cd9dfd0e5deaa-chunk-000"
+    ]
+  },
+  "doc-9b8619251a19057cff70779273e95aa6": {
+    "status": "processed",
+    "content_summary": "# 重排序 技术详解（测试文档 104）\n\n本文介绍重排序的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 重排序 第1节：原理与实现\n\n重排序在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827984+00:00",
+    "updated_at": "2026-09-01T09:52:15.004607+00:00",
+    "file_path": "130",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "1f5640377c4a1c5b6175047c1ce5cdea",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256232,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256308,
+      "process_end_time": 1788256335,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-9b8619251a19057cff70779273e95aa6-chunk-000"
+    ]
+  },
+  "doc-a2557a7b2e94197ff767970b67041697": {
+    "status": "processed",
+    "content_summary": "# 评估基准 技术详解（复验文档 009）\n\n本文介绍评估基准的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 评估基准 第1节：原理与实现\n\n评估基准在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827937+00:00",
+    "updated_at": "2026-09-01T09:50:35.483376+00:00",
+    "file_path": "189",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "19a7ba69d1996d55d68d22011eb1d5e6",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256092,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256203,
+      "process_end_time": 1788256235,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a2557a7b2e94197ff767970b67041697-chunk-000"
+    ]
+  },
+  "doc-2a38a4a9316c49e5a833517c45d31070": {
+    "status": "processed",
+    "content_summary": "# 嵌入模型 技术详解（测试文档 063）\n\n本文介绍嵌入模型的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 嵌入模型 第1节：原理与实现\n\n嵌入模型在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828184+00:00",
+    "updated_at": "2026-09-01T09:57:27.451567+00:00",
+    "file_path": "88",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "38f1fc9e372e6ab22ab2542592ce1fd5",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256575,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256628,
+      "process_end_time": 1788256647,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-2a38a4a9316c49e5a833517c45d31070-chunk-000"
+    ]
+  },
+  "doc-f033ab37c30201f73f142449d037028d": {
+    "status": "processed",
+    "content_summary": "# 数据脱敏 技术详解（测试文档 055）\n\n本文介绍数据脱敏的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 数据脱敏 第1节：原理与实现\n\n数据脱敏在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828225+00:00",
+    "updated_at": "2026-09-01T09:58:26.093948+00:00",
+    "file_path": "80",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "a52e3082f752a13b490ff75fc52ada36",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256612,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256680,
+      "process_end_time": 1788256706,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-f033ab37c30201f73f142449d037028d-chunk-000"
+    ]
+  },
+  "doc-642e92efb79421734881b53e1e1b18b6": {
+    "status": "processed",
+    "content_summary": "# 重排序 技术详解（测试文档 024）\n\n本文介绍重排序的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 重排序 第1节：原理与实现\n\n重排序在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828382+00:00",
+    "updated_at": "2026-09-01T10:02:45.352722+00:00",
+    "file_path": "48",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "0b88ff142a42755851cef64a347ca108",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255931,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256849,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256944,
+      "process_end_time": 1788256965,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-642e92efb79421734881b53e1e1b18b6-chunk-000"
+    ]
+  },
+  "doc-7f6ffaa6bb0b408017b62254211691b5": {
+    "status": "processed",
+    "content_summary": "# 多路召回 技术详解（测试文档 087）\n\n本文介绍多路召回的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 多路召回 第1节：原理与实现\n\n多路召回在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828067+00:00",
+    "updated_at": "2026-09-01T09:54:39.652777+00:00",
+    "file_path": "112",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "e19584d279d0e28f4483aa8168250891",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256397,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256462,
+      "process_end_time": 1788256479,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-7f6ffaa6bb0b408017b62254211691b5-chunk-000"
+    ]
+  },
+  "doc-02522a2b2726fb0a03bb19f2d8d9524d": {
+    "status": "processed",
+    "content_summary": "# 查询改写 技术详解（测试文档 108）\n\n本文介绍查询改写的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827967+00:00",
+    "updated_at": "2026-09-01T09:51:39.144496+00:00",
+    "file_path": "134",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "187c7914b53876dfa28ec8223f755569",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256187,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256275,
+      "process_end_time": 1788256299,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-02522a2b2726fb0a03bb19f2d8d9524d-chunk-000"
+    ]
+  },
+  "doc-274ad4786c3abca69fa097b85867d9a4": {
+    "status": "processed",
+    "content_summary": "# 文档切片策略 技术详解（复验文档 022）\n\n本文介绍文档切片策略的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 文档切片策略 第1节：原理与实现\n\n文档切片策略在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.827858+00:00",
+    "updated_at": "2026-09-01T09:47:21.859929+00:00",
+    "file_path": "204",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "9d9c97e22c6917ce102e549fff28ed39",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255894,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788255895,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256000,
+      "process_end_time": 1788256041,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-274ad4786c3abca69fa097b85867d9a4-chunk-000"
+    ]
+  },
+  "doc-c8ffe9a587b126f152ed3d89a146b445": {
+    "status": "processed",
+    "content_summary": "# 一致性哈希 技术详解（测试文档 098）\n\n本文介绍一致性哈希的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 一致性哈希 第1节：原理与实现\n\n一致性哈希在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828014+00:00",
+    "updated_at": "2026-09-01T09:53:17.495142+00:00",
+    "file_path": "124",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "bfa7189a917de698cf4ec394c3194408",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255896,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256278,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256375,
+      "process_end_time": 1788256397,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-c8ffe9a587b126f152ed3d89a146b445-chunk-000"
+    ]
+  },
+  "doc-a3f390d88e4c41f2747bfa2f1b5f87db": {
+    "status": "processed",
+    "content_summary": "# 一致性哈希 技术详解（测试文档 038）\n\n本文介绍一致性哈希的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 一致性哈希 第1节：原理与实现\n\n一致性哈希在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828287+00:00",
+    "updated_at": "2026-09-01T10:00:03.874750+00:00",
+    "file_path": "68",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "db6c4160522f9bd49a52a4d7c45f16af",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256706,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256770,
+      "process_end_time": 1788256803,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-a3f390d88e4c41f2747bfa2f1b5f87db-chunk-000"
+    ]
+  },
+  "doc-fc490ca45c00b1249bbe3554a4fdf6fb": {
+    "status": "processed",
+    "content_summary": "# 流式计算 技术详解（测试文档 036）\n\n本文介绍流式计算的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 流式计算 第1节：原理与实现\n\n流式计算在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828301+00:00",
+    "updated_at": "2026-09-01T10:00:17.444730+00:00",
+    "file_path": "65",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "dd447f36b5fdf157d9c7e26f823e777d",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256720,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256793,
+      "process_end_time": 1788256817,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-fc490ca45c00b1249bbe3554a4fdf6fb-chunk-000"
+    ]
+  },
+  "doc-2838023a778dfaecdc212708f721b788": {
+    "status": "processed",
+    "content_summary": "# 重排序 技术详解（测试文档 004）\n\n本文介绍重排序的核心概念、架构与工程实践。压测生成文档，用于 Stage 4 批量导入性能测试。\n\n## 重排序 第1节：原理与实现\n\n重排序在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连...",
+    "content_length": 503,
+    "created_at": "2026-09-01T09:44:54.828368+00:00",
+    "updated_at": "2026-09-01T10:02:04.757466+00:00",
+    "file_path": "51",
+    "track_id": "insert_20260901_174454_20147b62",
+    "content_hash": "4a4788f669c3a5ff1bf52aa748122b58",
+    "metadata": {
+      "process_options": "F",
+      "parse_start_time": 1788255897,
+      "parse_stage_skipped": true,
+      "parse_format": "raw",
+      "parse_engine": "legacy",
+      "analyzing_start_time": 1788256830,
+      "analyzing_stage_skipped": true,
+      "kg_write_state": "graph_mutation_started",
+      "process_start_time": 1788256907,
+      "process_end_time": 1788256924,
+      "chunk_method": "fixed_token",
+      "chunk_opts": "size=1200, split_only=False, overlap=100"
+    },
+    "chunks_count": 1,
+    "chunks_list": [
+      "doc-2838023a778dfaecdc212708f721b788-chunk-000"
+    ]
+  }
+}

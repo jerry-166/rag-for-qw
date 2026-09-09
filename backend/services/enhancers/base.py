@@ -62,20 +62,47 @@ def parse_llm_raw(raw, batch_label: str = "") -> dict:
 
 
 async def call_llm_batch(chain, inputs: List[dict], batch_label: str = "") -> List:
-    """abatch 并发调用 LLM；整体失败降级为逐条调用（与迁移前一致）。"""
-    try:
-        return await chain.abatch(inputs)
-    except Exception as e:
-        logger.error(f"{batch_label} abatch 调用失败: {e}")
-        raw_results = []
-        for inp in inputs:
+    """abatch 并发调用 LLM；整体失败降级为逐条调用（与迁移前一致）。
+
+    429 限流退避：智谱 GLM-4-Flash 256/window，撞限流时 sleep 60s 后重试（最多 3 次）。
+    """
+    import asyncio
+    import time
+
+    def _is_rate_limited(e):
+        """检查异常是否是 429 限流"""
+        err_str = str(e).lower()
+        return '429' in err_str or 'rate' in err_str or '1302' in err_str
+
+    # abatch + 429 退避重试
+    for attempt in range(3):
+        try:
+            return await chain.abatch(inputs)
+        except Exception as e:
+            if _is_rate_limited(e) and attempt < 2:
+                logger.warning(f"{batch_label} abatch 429 限流，sleep 60s 后重试 (attempt {attempt+1}/3): {str(e)[:100]}")
+                await asyncio.sleep(60)
+                continue
+            logger.error(f"{batch_label} abatch 调用失败: {e}")
+            break
+
+    # 降级为逐条调用 + 429 退避重试
+    raw_results = []
+    for inp in inputs:
+        for attempt in range(3):
             try:
                 result = await chain.ainvoke(inp)
                 raw_results.append(result)
+                break
             except Exception as inner_e:
+                if _is_rate_limited(inner_e) and attempt < 2:
+                    logger.warning(f"{batch_label} 单条 429 限流，sleep 60s 后重试 (attempt {attempt+1}/3): {str(inner_e)[:100]}")
+                    await asyncio.sleep(60)
+                    continue
                 logger.warning(f"{batch_label} 单条调用失败: {inner_e}")
                 raw_results.append(None)
-        return raw_results
+                break
+    return raw_results
 
 
 class Enhancer(ABC):

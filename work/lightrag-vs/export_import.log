@@ -1,0 +1,5 @@
+[login] OK
+[list] page=1 got=0 cumulative=0 total_field=0 keys=['detail']
+[list] KB17 docs total: 0
+[preview] texts with content: 0, fail: 0
+[FATAL] no content extracted, abort

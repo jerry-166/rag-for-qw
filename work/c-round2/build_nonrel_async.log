@@ -1,0 +1,13 @@
+login ok, token=eyJhbGciOiJIUzI1NiIs...
+concurrency=3, doc_count=400
+non-rel docs to process: 400
+  [20/400] ok=20 fail=0 elapsed=8s rate=2.51/s eta=151s
+  [40/400] ok=40 fail=0 elapsed=748s rate=0.05/s eta=6729s
+  [60/400] ok=60 fail=0 elapsed=1732s rate=0.03/s eta=9816s
+  [80/400] ok=80 fail=0 elapsed=2686s rate=0.03/s eta=10744s
+  [100/400] ok=100 fail=0 elapsed=3591s rate=0.03/s eta=10773s
+  [120/400] ok=120 fail=0 elapsed=4575s rate=0.03/s eta=10676s
+  [140/400] ok=140 fail=0 elapsed=5528s rate=0.03/s eta=10266s
+  [160/400] ok=160 fail=0 elapsed=6541s rate=0.02/s eta=9812s
+  [180/400] ok=180 fail=0 elapsed=7490s rate=0.02/s eta=9155s
+  [200/400] ok=200 fail=0 elapsed=8483s rate=0.02/s eta=8483s

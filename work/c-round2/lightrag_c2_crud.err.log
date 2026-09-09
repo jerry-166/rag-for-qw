@@ -1,0 +1,1259 @@
+WARNING: Failed to parse ENTITY_TYPES as JSON list: Illegal trailing comma before end of array: line 1 column 66 (char 65), using default
+WARNING: TOKEN_SECRET not set and AUTH_ACCOUNTS is not configured. Falling back to the default guest-mode JWT secret. 
+INFO: Frontend build is up-to-date
+INFO: OpenAI LLM Options: {'extra_body': {'reasoning': {'enabled': False}}}
+INFO: Embedding config: binding=openai model=text-embedding-v4 embedding_dim=1536 max_token_size=8192
+INFO: Send embedding dimension: True by env var (dimensions=1536, has_param=True, binding=openai)
+INFO: Embedding max_token_size: 8192 (from openai provider default)
+INFO: Reranking is disabled
+INFO: [] Loaded graph from D:\workspace\LightRAG\rag_storage\graph_chunk_entity_relation.graphml with 241 nodes, 702 edges
+INFO: PostgreSQL table: LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d
+INFO: PostgreSQL table: LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d
+INFO: PostgreSQL table: LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d
+INFO: WebUI assets mounted at /webui
+INFO: Started server process [22412]
+INFO: Waiting for application startup.
+INFO: PostgreSQL, Retry config: attempts=10, backoff=3.0s, backoff_max=30.0s, pool_close_timeout=5.0s
+INFO: PostgreSQL, VECTOR extension enabled
+INFO: PostgreSQL, Connected to database at localhost:5432/rag without SSL
+INFO: chunk_id column already exists in LIGHTRAG_LLM_CACHE table
+INFO: cache_type column already exists in LIGHTRAG_LLM_CACHE table
+INFO: queryparam column already exists in LIGHTRAG_LLM_CACHE table
+INFO: mode column does not exist in LIGHTRAG_LLM_CACHE table
+INFO: chunks_list column already exists in LIGHTRAG_DOC_STATUS table
+INFO: llm_cache_list column already exists in LIGHTRAG_DOC_CHUNKS table
+INFO: track_id column already exists in LIGHTRAG_DOC_STATUS table
+INFO: Index on track_id column already exists for LIGHTRAG_DOC_STATUS table
+INFO: metadata column already exists in LIGHTRAG_DOC_STATUS table
+INFO: error_msg column already exists in LIGHTRAG_DOC_STATUS table
+INFO: HNSW vector index idx_lightrag_vdb_entity_text_embedding_v4_1536d_hnsw_cosine already exists on table LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d
+WARNING: PostgreSQL: workspace data in table 'LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d' is empty. Ensure it is caused by new workspace setup and not an unexpected embedding model change.
+INFO: HNSW vector index idx_lightrag_vdb_relation_text_embedding_v4_1536d_hnsw_cosine already exists on table LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d
+WARNING: PostgreSQL: workspace data in table 'LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d' is empty. Ensure it is caused by new workspace setup and not an unexpected embedding model change.
+INFO: HNSW vector index idx_lightrag_vdb_chunks_text_embedding_v4_1536d_hnsw_cosine already exists on table LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d
+WARNING: PostgreSQL: workspace data in table 'LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d' is empty. Ensure it is caused by new workspace setup and not an unexpected embedding model change.
+INFO: Starting chunk_tracking data migration: 241 nodes
+INFO: Processed entity batch 1/1: 241 records (total: 241/241)
+INFO: Entity chunk_tracking migration completed: 241 records persisted
+INFO: Starting chunk_tracking data migration: 702 edges
+INFO: Processed relation batch 1/2: 500 records (total: 500/702)
+INFO: Processed relation batch 2/2: 202 records (total: 702/702)
+INFO: Relation chunk_tracking migration completed: 702 records persisted
+INFO: Application startup complete.
+INFO: Uvicorn running on http://0.0.0.0:9621 (Press CTRL+C to quit)
+INFO: 127.0.0.1:64987 - "POST /documents/texts HTTP/1.1" 200
+INFO: Processing 5 document(s)
+INFO: Extracting stage 1/5: crud_000
+INFO: Processing d-id: doc-c9263cc8a6d536dbb0055d8c4fe237a2
+INFO: Embedding func: 2 new workers initialized (Timeouts: Func: 30s, Worker: 60s, Health Check: 75s)
+INFO: Extracting stage 2/5: crud_001
+INFO: Processing d-id: doc-bb8d9d76b7df2c7d5938fe555e9758ad
+INFO: Extracting stage 3/5: crud_003
+INFO: Processing d-id: doc-e3df245a34107b47e68bad68a465e9be
+INFO: Extracting stage 4/5: crud_002
+INFO: Processing d-id: doc-92fa1357a15a757ae96a3a0a1cdd6a85
+INFO: 127.0.0.1:64988 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: LLM func: 8 new workers initialized (Timeouts: Func: 180s, Worker: 360s, Health Check: 375s)
+INFO: 127.0.0.1:65008 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65018 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65023 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65024 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65025 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65026 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65027 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65029 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65030 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65031 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65032 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65033 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65034 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65035 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65036 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65037 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65038 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65039 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:65040 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57075 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57076 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57077 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57078 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57079 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57080 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57081 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57082 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57083 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57084 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57085 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57086 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57087 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57088 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57089 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57090 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57091 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57092 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57093 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57094 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57095 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57096 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57097 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57098 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57099 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57100 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57101 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57102 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57103 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57104 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57105 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57116 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57117 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57118 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57119 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57120 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57121 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57122 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:57123 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO:  == LLM cache == saving: default:extract:a66ce42976f3dbe3368d46cc80eb56e3
+INFO:  == LLM cache == saving: default:extract:0f3e8e798ef4090ef07636735ae707e3
+INFO: Chunk 1 of 1 extracted 5 Ent + 4 Rel chunk-e3df245a34107b47e68bad68a465e9be
+INFO: Merging stage 3/5: crud_003
+INFO: Phase 1: Processing 5 entities from doc-e3df245a34107b47e68bad68a465e9be (async: 16)
+INFO: Phase 2: Processing 4 relations from doc-e3df245a34107b47e68bad68a465e9be (async: 16)
+INFO: Phase 3: Updating final 5(5+0) entities and  4 relations from doc-e3df245a34107b47e68bad68a465e9be
+INFO: Completed merging: 5 entities, 0 extra entities, 4 relations
+INFO: [] Writing graph with 246 nodes, 706 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 3/5: crud_003
+INFO: Extracting stage 5/5: crud_004
+INFO: Processing d-id: doc-cdd13e8ffb3702732f47c06f9eda1701
+INFO:  == LLM cache == saving: default:extract:09a65e60365eb0b39a4231d387b0a14c
+WARNING: chunk-bb8d9d76b7df2c7d5938fe555e9758ad: LLM output format error; found 4/5 fields on RELATION `氧化低密度脂蛋白`~`lipid metabolism`
+WARNING: chunk-bb8d9d76b7df2c7d5938fe555e9758ad: LLM output format error; found 4/5 fields on RELATION `AMD`~`vision loss`
+INFO:  == LLM cache == saving: default:extract:d10449576c19f82a402d07f02f236f11
+INFO: Chunk 1 of 1 extracted 14 Ent + 6 Rel chunk-bb8d9d76b7df2c7d5938fe555e9758ad
+INFO: Merging stage 2/5: crud_001
+INFO: Phase 1: Processing 14 entities from doc-bb8d9d76b7df2c7d5938fe555e9758ad (async: 16)
+INFO: Phase 2: Processing 6 relations from doc-bb8d9d76b7df2c7d5938fe555e9758ad (async: 16)
+INFO: Phase 3: Updating final 14(14+0) entities and  6 relations from doc-bb8d9d76b7df2c7d5938fe555e9758ad
+INFO: Completed merging: 14 entities, 0 extra entities, 6 relations
+INFO: [] Writing graph with 260 nodes, 712 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 2/5: crud_001
+INFO:  == LLM cache == saving: default:extract:63bb8e7f65137efa853e35a5b0f90119
+WARNING: chunk-cdd13e8ffb3702732f47c06f9eda1701: LLM output format error; found 4/5 fields on RELATION `张睿`~`对手行为,犯规`
+WARNING: chunk-cdd13e8ffb3702732f47c06f9eda1701: LLM output format error; found 4/5 fields on RELATION `张琳艳`~`比赛行为,拼抢`
+WARNING: chunk-cdd13e8ffb3702732f47c06f9eda1701: LLM output format error; found 4/5 fields on RELATION `新华社`~`比赛报道,报道机构`
+INFO:  == LLM cache == saving: default:extract:50ee83f5432accefa62699a12fd5cce0
+INFO:  == LLM cache == saving: default:extract:db41377858409cc398df4e5911877c71
+INFO: Chunk 1 of 1 extracted 17 Ent + 22 Rel chunk-cdd13e8ffb3702732f47c06f9eda1701
+INFO: Merging stage 5/5: crud_004
+INFO: Phase 1: Processing 17 entities from doc-cdd13e8ffb3702732f47c06f9eda1701 (async: 16)
+INFO: Phase 2: Processing 22 relations from doc-cdd13e8ffb3702732f47c06f9eda1701 (async: 16)
+INFO:  == LLM cache == saving: default:extract:854f5b093cc6ee1faff00599bad25606
+INFO: Chunk 1 of 1 extracted 33 Ent + 47 Rel chunk-92fa1357a15a757ae96a3a0a1cdd6a85
+INFO: Merging stage 4/5: crud_002
+INFO: Phase 1: Processing 33 entities from doc-92fa1357a15a757ae96a3a0a1cdd6a85 (async: 16)
+INFO:  == LLM cache == saving: default:extract:b175e3db60052f0eb89004e7a226b7cc
+WARNING: chunk-c9263cc8a6d536dbb0055d8c4fe237a2: Complete delimiter can not be found in extraction result
+INFO: Phase 2: Processing 47 relations from doc-92fa1357a15a757ae96a3a0a1cdd6a85 (async: 16)
+INFO:  == LLM cache == saving: default:extract:2a639e4faae67a23db6c2898aec99628
+WARNING: chunk-c9263cc8a6d536dbb0055d8c4fe237a2: LLM output format error; found 4/5 fields on RELATION `三伏贴`~`冬病夏治,治疗方法`
+WARNING: chunk-c9263cc8a6d536dbb0055d8c4fe237a2: LLM output format error; found 4/5 fields on RELATION `自然之阳气`~`冬病夏治,治疗原理`
+WARNING: chunk-c9263cc8a6d536dbb0055d8c4fe237a2: LLM output format error; found 4/5 fields on RELATION `散寒祛邪`~`三伏贴,治疗作用`
+WARNING: chunk-c9263cc8a6d536dbb0055d8c4fe237a2: LLM output format error; found 4/5 fields on RELATION `增补阳气`~`三伏贴,治疗作用`
+WARNING: chunk-c9263cc8a6d536dbb0055d8c4fe237a2: LLM output format error; found 4/5 fields on RELATION `活血通经`~`三伏贴,治疗作用`
+WARNING: chunk-c9263cc8a6d536dbb0055d8c4fe237a2: LLM output format error; found 4/5 fields on RELATION `冬季疾病`~`冬病夏治,治疗对象`
+WARNING: chunk-c9263cc8a6d536dbb0055d8c4fe237a2: LLM output format error; found 4/5 fields on RELATION `预防疾病`~`冬病夏治,治疗目的`
+INFO: Chunk 1 of 1 extracted 54 Ent + 58 Rel chunk-c9263cc8a6d536dbb0055d8c4fe237a2
+INFO: Merging stage 1/5: crud_000
+INFO: Phase 1: Processing 54 entities from doc-c9263cc8a6d536dbb0055d8c4fe237a2 (async: 16)
+INFO: Phase 2: Processing 58 relations from doc-c9263cc8a6d536dbb0055d8c4fe237a2 (async: 16)
+INFO: Phase 3: Updating final 17(17+0) entities and  22 relations from doc-cdd13e8ffb3702732f47c06f9eda1701
+INFO: Completed merging: 17 entities, 0 extra entities, 22 relations
+INFO: [] Writing graph with 369 nodes, 757 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 5/5: crud_004
+INFO: Phase 3: Updating final 34(33+1) entities and  47 relations from doc-92fa1357a15a757ae96a3a0a1cdd6a85
+INFO: Completed merging: 33 entities, 1 extra entities, 47 relations
+INFO: [] Writing graph with 378 nodes, 835 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 4/5: crud_002
+INFO: Phase 3: Updating final 70(54+16) entities and  58 relations from doc-c9263cc8a6d536dbb0055d8c4fe237a2
+INFO: Completed merging: 54 entities, 16 extra entities, 58 relations
+INFO: [] Writing graph with 381 nodes, 839 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 1/5: crud_000
+INFO: Processing additional documents due to pending request
+INFO: Processing 295 document(s)
+INFO: Extracting stage 1/295: crud_010
+INFO: Processing d-id: doc-cbf6be643aedc5426c745f7e890ec148
+INFO: Extracting stage 2/295: crud_011
+INFO: Processing d-id: doc-ed4813dabd38112820d17ccba055d7ae
+INFO: Extracting stage 3/295: crud_018
+INFO: Processing d-id: doc-668fc17ef25a772104237481413e82a0
+INFO: Extracting stage 4/295: crud_019
+INFO: Processing d-id: doc-b78dcc6042dede6e81d6d900fb2c08ea
+INFO:  == LLM cache == saving: default:extract:a4bf020d02ec552f73c6c7cdd4449432
+INFO:  == LLM cache == saving: default:extract:f8aef8d0fd8018dbf217b1014e4bd31a
+INFO: Chunk 1 of 1 extracted 6 Ent + 5 Rel chunk-ed4813dabd38112820d17ccba055d7ae
+INFO: Merging stage 2/295: crud_011
+INFO: Phase 1: Processing 6 entities from doc-ed4813dabd38112820d17ccba055d7ae (async: 16)
+INFO:  == LLM cache == saving: default:extract:bcda58afc8d3c64bd8e86f86c6a7e2aa
+INFO:  == LLM cache == saving: default:extract:e1262c579d7d8cca151465be8e495886
+INFO: Chunk 1 of 1 extracted 5 Ent + 9 Rel chunk-cbf6be643aedc5426c745f7e890ec148
+INFO: Merging stage 1/295: crud_010
+INFO: Phase 1: Processing 5 entities from doc-cbf6be643aedc5426c745f7e890ec148 (async: 16)
+INFO: Phase 2: Processing 5 relations from doc-ed4813dabd38112820d17ccba055d7ae (async: 16)
+INFO: Phase 2: Processing 9 relations from doc-cbf6be643aedc5426c745f7e890ec148 (async: 16)
+INFO: Chunks appended from relation: `关注`
+INFO:  == LLM cache == saving: default:extract:2b1fc58d0ad039f79972983213299e79
+INFO:  == LLM cache == saving: default:extract:1d58638805fa5e3cb68011a4f42752c4
+INFO: Chunk 1 of 1 extracted 18 Ent + 14 Rel chunk-b78dcc6042dede6e81d6d900fb2c08ea
+INFO: Merging stage 4/295: crud_019
+INFO: Phase 1: Processing 18 entities from doc-b78dcc6042dede6e81d6d900fb2c08ea (async: 16)
+INFO:  == LLM cache == saving: default:extract:eb522c2a3ec99872f78c06d71c62d512
+INFO:  == LLM cache == saving: default:extract:0105c7b5dddf38ec1bffcfae1a698271
+INFO: Chunk 1 of 1 extracted 27 Ent + 25 Rel chunk-668fc17ef25a772104237481413e82a0
+INFO: Merging stage 3/295: crud_018
+INFO: Phase 1: Processing 27 entities from doc-668fc17ef25a772104237481413e82a0 (async: 16)
+INFO: Phase 3: Updating final 6(6+0) entities and  5 relations from doc-ed4813dabd38112820d17ccba055d7ae
+INFO: Completed merging: 6 entities, 0 extra entities, 5 relations
+INFO: [] Writing graph with 434 nodes, 853 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 2/295: crud_011
+INFO: Extracting stage 5/295: crud_017
+INFO: Processing d-id: doc-e0cfdb1ee2d556e0371167ab63c64f21
+INFO: Phase 3: Updating final 13(5+8) entities and  9 relations from doc-cbf6be643aedc5426c745f7e890ec148
+INFO: Completed merging: 5 entities, 8 extra entities, 9 relations
+INFO: [] Writing graph with 434 nodes, 853 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 1/295: crud_010
+INFO: Extracting stage 6/295: crud_008
+INFO: Processing d-id: doc-5b3aeaa842eaccd5469fd1b792f0ffd5
+INFO: Phase 2: Processing 14 relations from doc-b78dcc6042dede6e81d6d900fb2c08ea (async: 16)
+INFO: Phase 2: Processing 25 relations from doc-668fc17ef25a772104237481413e82a0 (async: 16)
+INFO:  == LLM cache == saving: default:extract:94f041059edc83d10a159c5562964384
+INFO: Chunks appended from relation: `报道`
+INFO:  == LLM cache == saving: default:extract:e20e18125ca67c4973fcedddb97681dc
+INFO: Chunk 1 of 1 extracted 16 Ent + 11 Rel chunk-5b3aeaa842eaccd5469fd1b792f0ffd5
+INFO: Merging stage 6/295: crud_008
+INFO: Phase 1: Processing 16 entities from doc-5b3aeaa842eaccd5469fd1b792f0ffd5 (async: 16)
+INFO: Phase 3: Updating final 23(18+5) entities and  14 relations from doc-b78dcc6042dede6e81d6d900fb2c08ea
+INFO: Completed merging: 18 entities, 5 extra entities, 14 relations
+INFO: [] Writing graph with 469 nodes, 880 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 4/295: crud_019
+INFO: Extracting stage 7/295: crud_005
+INFO: Processing d-id: doc-0b85cb695e724e7d6bd62393d59f1ecb
+INFO:  == LLM cache == saving: default:extract:323c6302eee2af40dde11aceb05a5bb6
+INFO: Phase 2: Processing 11 relations from doc-5b3aeaa842eaccd5469fd1b792f0ffd5 (async: 16)
+INFO:  == LLM cache == saving: default:extract:67031f55a3235b9d9db5094d55604a5d
+INFO: Chunk 1 of 1 extracted 35 Ent + 32 Rel chunk-e0cfdb1ee2d556e0371167ab63c64f21
+INFO: Merging stage 5/295: crud_017
+INFO: Phase 1: Processing 35 entities from doc-e0cfdb1ee2d556e0371167ab63c64f21 (async: 16)
+INFO:  == LLM cache == saving: default:extract:e468d5bdcf87d1d410a40dae6e21b268
+INFO:  == LLM cache == saving: default:extract:61e5a472a38537d222d894b88597c579
+INFO: Phase 2: Processing 32 relations from doc-e0cfdb1ee2d556e0371167ab63c64f21 (async: 16)
+INFO: Chunk 1 of 1 extracted 32 Ent + 20 Rel chunk-0b85cb695e724e7d6bd62393d59f1ecb
+INFO: Merging stage 7/295: crud_005
+INFO: Phase 1: Processing 32 entities from doc-0b85cb695e724e7d6bd62393d59f1ecb (async: 16)
+INFO: Merged: `新华社` | 1+1
+INFO: Phase 2: Processing 20 relations from doc-0b85cb695e724e7d6bd62393d59f1ecb (async: 16)
+INFO: Phase 3: Updating final 33(27+6) entities and  25 relations from doc-668fc17ef25a772104237481413e82a0
+INFO: Completed merging: 27 entities, 6 extra entities, 25 relations
+INFO: [] Writing graph with 545 nodes, 935 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 3/295: crud_018
+INFO: Extracting stage 8/295: crud_009
+INFO: Processing d-id: doc-8022921c284696b141cdbd3e88ec9538
+INFO: Phase 3: Updating final 16(16+0) entities and  11 relations from doc-5b3aeaa842eaccd5469fd1b792f0ffd5
+INFO: Completed merging: 16 entities, 0 extra entities, 11 relations
+INFO: [] Writing graph with 545 nodes, 940 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 6/295: crud_008
+INFO: Extracting stage 9/295: crud_007
+INFO: Processing d-id: doc-5c0a4f2f2b0cc29ed6396e2f98c9e838
+INFO: Phase 3: Updating final 39(32+7) entities and  20 relations from doc-0b85cb695e724e7d6bd62393d59f1ecb
+INFO: Completed merging: 32 entities, 7 extra entities, 20 relations
+INFO: [] Writing graph with 545 nodes, 940 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 7/295: crud_005
+INFO: Extracting stage 10/295: crud_006
+INFO: Processing d-id: doc-3943dfd62f6ba33d2827799a380fea2b
+ERROR: OpenAI API Call Failed,
+Model: glm-4-flash,
+Params: {'extra_body': {'reasoning': {'enabled': False}}, 'timeout': 180}, Got: Error code: 400 - {'contentFilter': [{'level': 1, 'role': 'assistant'}], 'error': {'code': '1301', 'message': '系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。'}}
+Response body: {'code': '1301', 'message': '系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。'}
+Request URL: https://open.bigmodel.cn/api/paas/v4/chat/completions
+ERROR: LLM func: Error in decorated function for task 2236417086176_125408.9461087: Error code: 400 - {'contentFilter': [{'level': 1, 'role': 'assistant'}], 'error': {'code': '1301', 'message': '系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。'}}
+ERROR: Failed to extract entities and relationships: C[1/1]: chunk-8022921c284696b141cdbd3e88ec9538: BadRequestError: Error code: 400 - {'contentFilter': [{'level': 1, 'role': 'assistant'}], 'error': {'code': '1301', 'message': '系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。'}}
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\operate.py", line 3107, in _process_with_semaphore
+    result = await _process_single_content(chunk)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\operate.py", line 2962, in _process_single_content
+    final_result, timestamp = await use_llm_func_with_cache(
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 2077, in use_llm_func_with_cache
+    res: str = await use_llm_func(
+               ^^^^^^^^^^^^^^^^^^^
+        safe_user_prompt, system_prompt=safe_system_prompt, **kwargs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 1043, in wait_func
+    return await future
+           ^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 747, in worker
+    result = await asyncio.wait_for(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+        func(*args, **kwargs), timeout=max_execution_timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\ASUS\software\Anaconda3\Lib\asyncio\tasks.py", line 507, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\api\lightrag_server.py", line 516, in optimized_openai_alike_model_complete
+    return await openai_complete_if_cache(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\tenacity\asyncio\__init__.py", line 193, in async_wrapped
+    return await copy(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\tenacity\asyncio\__init__.py", line 112, in __call__
+    do = await self.iter(retry_state=retry_state)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\tenacity\asyncio\__init__.py", line 157, in iter
+    result = await action(retry_state)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\tenacity\_utils.py", line 111, in inner
+    return call(*args, **kwargs)
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\tenacity\__init__.py", line 393, in <lambda>
+    self._add_action_func(lambda rs: rs.outcome.result())
+                                     ~~~~~~~~~~~~~~~~~^^
+  File "D:\ASUS\software\Anaconda3\Lib\concurrent\futures\_base.py", line 449, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "D:\ASUS\software\Anaconda3\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\tenacity\asyncio\__init__.py", line 116, in __call__
+    result = await fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\llm\openai.py", line 343, in openai_complete_if_cache
+    response = await openai_async_client.chat.completions.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        model=api_model, messages=messages, **kwargs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\openai\resources\chat\completions\completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\openai\_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\.venv\Lib\site-packages\openai\_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'contentFilter': [{'level': 1, 'role': 'assistant'}], 'error': {'code': '1301', 'message': '系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。'}}
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\operate.py", line 3115, in _process_with_semaphore
+    raise prefixed_exception from e
+RuntimeError: chunk-8022921c284696b141cdbd3e88ec9538: BadRequestError: Error code: 400 - {'contentFilter': [{'level': 1, 'role': 'assistant'}], 'error': {'code': '1301', 'message': '系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。'}}
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2048, in process_document
+    chunk_results = await entity_relation_task
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2337, in _process_extract_entities
+    raise e
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2322, in _process_extract_entities
+    chunk_results = await extract_entities(
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "D:\workspace\LightRAG\lightrag\operate.py", line 3157, in extract_entities
+    raise prefixed_exception from first_exception
+RuntimeError: C[1/1]: chunk-8022921c284696b141cdbd3e88ec9538: BadRequestError: Error code: 400 - {'contentFilter': [{'level': 1, 'role': 'assistant'}], 'error': {'code': '1301', 'message': '系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。'}}
+
+ERROR: Failed to extract document 8/295: crud_009
+INFO: Chunks appended from relation: `报道`
+INFO: Extracting stage 11/295: crud_014
+INFO: Processing d-id: doc-4c90d2478e9c69aa8e5c757ec58070c7
+INFO: Phase 3: Updating final 35(35+0) entities and  32 relations from doc-e0cfdb1ee2d556e0371167ab63c64f21
+INFO: Completed merging: 35 entities, 0 extra entities, 32 relations
+INFO: [] Writing graph with 545 nodes, 955 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 5/295: crud_017
+INFO: Extracting stage 12/295: crud_013
+INFO: Processing d-id: doc-bc80869970cd8981a921e51883665e20
+INFO:  == LLM cache == saving: default:extract:5b32ecd239936b6bc540dfab1f71ef13
+INFO:  == LLM cache == saving: default:extract:0e3e96b86272bb0f90901e4511234911
+INFO: Chunk 1 of 1 extracted 9 Ent + 7 Rel chunk-3943dfd62f6ba33d2827799a380fea2b
+INFO: Merging stage 10/295: crud_006
+INFO: Phase 1: Processing 9 entities from doc-3943dfd62f6ba33d2827799a380fea2b (async: 16)
+INFO: Phase 2: Processing 7 relations from doc-3943dfd62f6ba33d2827799a380fea2b (async: 16)
+INFO: Phase 3: Updating final 9(9+0) entities and  7 relations from doc-3943dfd62f6ba33d2827799a380fea2b
+INFO: Completed merging: 9 entities, 0 extra entities, 7 relations
+INFO: [] Writing graph with 554 nodes, 962 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 10/295: crud_006
+INFO: Extracting stage 13/295: crud_012
+INFO: Processing d-id: doc-03466bccac0ba9d976ed3a795497eca9
+INFO:  == LLM cache == saving: default:extract:7a070d3b965ded8d51304470be6610d5
+INFO:  == LLM cache == saving: default:extract:0acac1a12910c37149c0562074408adb
+WARNING: chunk-4c90d2478e9c69aa8e5c757ec58070c7: LLM output format error; found 4/5 fields on RELATION `襄璟`~`体验`
+WARNING: chunk-4c90d2478e9c69aa8e5c757ec58070c7: LLM output format error; found 4/5 fields on RELATION `李文珺`~`感受`
+WARNING: chunk-4c90d2478e9c69aa8e5c757ec58070c7: LLM output format error; found 4/5 fields on RELATION `张乃元`~`建立`
+WARNING: chunk-4c90d2478e9c69aa8e5c757ec58070c7: LLM output format error; found 4/5 fields on RELATION `白宏宽`~`回顾`
+INFO:  == LLM cache == saving: default:extract:b04fab0d69bf547b4826876931dfa7d3
+INFO:  == LLM cache == saving: default:extract:847a0f6bb550068749758408d16440bc
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: Complete delimiter can not be found in extraction result
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `韦布空间望远镜`~`观测`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `碳尘埃`~`存在于`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `银河系`~`存在`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `星际尘埃`~`产生于`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `天文学论文`~`发表在`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `碳元素`~`比`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `氢元素`~`是`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `氦元素`~`是`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `紫外光`~`吸收`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `芳香烃`~`是`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `沃尔夫-拉叶星`~`形成`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `超新星喷出物`~`产生`
+INFO:  == LLM cache == saving: default:extract:7515d9266ef0becea679f85179e8fb10
+INFO: Chunk 1 of 1 extracted 23 Ent + 19 Rel chunk-4c90d2478e9c69aa8e5c757ec58070c7
+INFO: Merging stage 11/295: crud_014
+INFO: Phase 1: Processing 23 entities from doc-4c90d2478e9c69aa8e5c757ec58070c7 (async: 16)
+INFO:  == LLM cache == saving: default:extract:cce3f235f4f52f3e4eb0aa56ee37faee
+INFO: Chunk 1 of 1 extracted 28 Ent + 21 Rel chunk-5c0a4f2f2b0cc29ed6396e2f98c9e838
+INFO: Merging stage 9/295: crud_007
+INFO: Phase 1: Processing 28 entities from doc-5c0a4f2f2b0cc29ed6396e2f98c9e838 (async: 16)
+INFO: Merged: `统防统治` | 1+1
+INFO:  == LLM cache == saving: default:extract:30226168f48fad65d6a3022ede0af9dc
+INFO: Chunk 1 of 1 extracted 27 Ent + 23 Rel chunk-bc80869970cd8981a921e51883665e20
+INFO: Merging stage 12/295: crud_013
+INFO: Phase 1: Processing 27 entities from doc-bc80869970cd8981a921e51883665e20 (async: 16)
+INFO: Merged: `中国侨网` | 1+1
+INFO:  == LLM cache == saving: default:extract:e9f8632fe84d3fc0b4b3a8c566bc9bfa
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `研究人员`~`观测`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `研究人员`~`发现`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `星系`~`存在`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `碳尘埃`~`形成`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `快速形成的恒星`~`形成`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `超新星喷出物`~`产生`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `碳尘埃`~`挑战`
+WARNING: chunk-03466bccac0ba9d976ed3a795497eca9: LLM output format error; found 4/5 fields on RELATION `现有假说`~`挑战`
+INFO: Chunk 1 of 1 extracted 15 Ent + 0 Rel chunk-03466bccac0ba9d976ed3a795497eca9
+INFO: Merging stage 13/295: crud_012
+INFO: Phase 1: Processing 15 entities from doc-03466bccac0ba9d976ed3a795497eca9 (async: 16)
+INFO: Phase 2: Processing 19 relations from doc-4c90d2478e9c69aa8e5c757ec58070c7 (async: 16)
+INFO: Phase 2: Processing 0 relations from doc-03466bccac0ba9d976ed3a795497eca9 (async: 16)
+INFO: Phase 3: Updating final 15(15+0) entities and  0 relations from doc-03466bccac0ba9d976ed3a795497eca9
+INFO: Completed merging: 15 entities, 0 extra entities, 0 relations
+INFO: [] Writing graph with 647 nodes, 963 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 13/295: crud_012
+INFO: Extracting stage 14/295: crud_016
+INFO: Processing d-id: doc-6939ccb4c12d976f01975755b0f8041e
+INFO: Phase 2: Processing 21 relations from doc-5c0a4f2f2b0cc29ed6396e2f98c9e838 (async: 16)
+INFO: Phase 2: Processing 23 relations from doc-bc80869970cd8981a921e51883665e20 (async: 16)
+INFO: Merged: `中国侨网`~`报道` | 1+1
+INFO: Chunks appended from relation: `报道`
+INFO:  == LLM cache == saving: default:extract:80018468feb8924ac8e22c434f76f077
+INFO:  == LLM cache == saving: default:extract:d338a8e7987d21e57f9f3eae14e5d88c
+INFO: Chunk 1 of 1 extracted 14 Ent + 14 Rel chunk-6939ccb4c12d976f01975755b0f8041e
+INFO: Merging stage 14/295: crud_016
+INFO: Phase 1: Processing 14 entities from doc-6939ccb4c12d976f01975755b0f8041e (async: 16)
+INFO: Phase 2: Processing 14 relations from doc-6939ccb4c12d976f01975755b0f8041e (async: 16)
+INFO: Phase 3: Updating final 47(27+20) entities and  23 relations from doc-bc80869970cd8981a921e51883665e20
+INFO: Completed merging: 27 entities, 20 extra entities, 23 relations
+INFO: [] Writing graph with 704 nodes, 1028 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 12/295: crud_013
+INFO: Extracting stage 15/295: crud_015
+INFO: Processing d-id: doc-bfe1a6253d3b58221dbc272ccdf841a6
+INFO: Phase 3: Updating final 39(28+11) entities and  21 relations from doc-5c0a4f2f2b0cc29ed6396e2f98c9e838
+INFO: Completed merging: 28 entities, 11 extra entities, 21 relations
+INFO: [] Writing graph with 705 nodes, 1037 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 9/295: crud_007
+INFO: Extracting stage 16/295: crud_043
+INFO: Processing d-id: doc-9b22f0064100dd13e0f2e98a387fa13d
+INFO: Phase 3: Updating final 25(23+2) entities and  19 relations from doc-4c90d2478e9c69aa8e5c757ec58070c7
+INFO: Completed merging: 23 entities, 2 extra entities, 19 relations
+INFO: [] Writing graph with 705 nodes, 1037 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 11/295: crud_014
+INFO: Extracting stage 17/295: crud_040
+INFO: Processing d-id: doc-5cba7fbbcd95401522b37a318bb8cf32
+INFO: Phase 3: Updating final 28(14+14) entities and  14 relations from doc-6939ccb4c12d976f01975755b0f8041e
+INFO: Completed merging: 14 entities, 14 extra entities, 14 relations
+INFO: [] Writing graph with 706 nodes, 1038 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 14/295: crud_016
+INFO: Extracting stage 18/295: crud_041
+INFO: Processing d-id: doc-71776780702d888e9d2fddcf6aac5b1c
+INFO:  == LLM cache == saving: default:extract:c77e880c75cb8cdd1f060d6685477a17
+INFO:  == LLM cache == saving: default:extract:8333f27e9458a64a7b7730a27a28bfd1
+INFO: Chunk 1 of 1 extracted 6 Ent + 6 Rel chunk-bfe1a6253d3b58221dbc272ccdf841a6
+INFO: Merging stage 15/295: crud_015
+INFO: Phase 1: Processing 6 entities from doc-bfe1a6253d3b58221dbc272ccdf841a6 (async: 16)
+INFO: Phase 2: Processing 6 relations from doc-bfe1a6253d3b58221dbc272ccdf841a6 (async: 16)
+INFO: Phase 3: Updating final 7(6+1) entities and  6 relations from doc-bfe1a6253d3b58221dbc272ccdf841a6
+INFO: Completed merging: 6 entities, 1 extra entities, 6 relations
+INFO: [] Writing graph with 713 nodes, 1044 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 15/295: crud_015
+INFO: Extracting stage 19/295: crud_042
+INFO: Processing d-id: doc-8f4a05d132b8db7cf664a32328126a41
+INFO:  == LLM cache == saving: default:extract:25d661c17f8617f1d0f5e236d894505c
+INFO:  == LLM cache == saving: default:extract:d27311ee3f65484ee7580eebdb39a91f
+INFO: Chunk 1 of 1 extracted 19 Ent + 17 Rel chunk-71776780702d888e9d2fddcf6aac5b1c
+INFO: Merging stage 18/295: crud_041
+INFO: Phase 1: Processing 19 entities from doc-71776780702d888e9d2fddcf6aac5b1c (async: 16)
+INFO:  == LLM cache == saving: default:extract:fe5e9f41e3125ec7fba0bbc6a51f6c55
+INFO: Empty target entity found after sanitization. Original: '91'
+INFO: Empty target entity found after sanitization. Original: '6'
+INFO: Empty target entity found after sanitization. Original: '6'
+INFO: Empty target entity found after sanitization. Original: '1'
+WARNING: chunk-5cba7fbbcd95401522b37a318bb8cf32: LLM output format error; found 4/5 fields on RELATION `作品内容`~`content`
+WARNING: chunk-5cba7fbbcd95401522b37a318bb8cf32: LLM output format error; found 4/5 fields on RELATION `版权问题`~`concept`
+WARNING: chunk-5cba7fbbcd95401522b37a318bb8cf32: LLM output format error; found 4/5 fields on RELATION `30日内`~`time frame, contact period`
+WARNING: chunk-5cba7fbbcd95401522b37a318bb8cf32: LLM output format error; found 4/5 fields on RELATION `010-85202353`~`contact information, copyright infringement hotline`
+INFO: Phase 2: Processing 17 relations from doc-71776780702d888e9d2fddcf6aac5b1c (async: 16)
+INFO:  == LLM cache == saving: default:extract:8bcb1683abf75acd1bde76207e764bb9
+INFO: Chunk 1 of 1 extracted 5 Ent + 26 Rel chunk-5cba7fbbcd95401522b37a318bb8cf32
+INFO: Merging stage 17/295: crud_040
+INFO: Phase 1: Processing 5 entities from doc-5cba7fbbcd95401522b37a318bb8cf32 (async: 16)
+INFO: Phase 2: Processing 26 relations from doc-5cba7fbbcd95401522b37a318bb8cf32 (async: 16)
+INFO:  == LLM cache == saving: default:extract:8bb4fadd2f9ee33c1206d9653d0c5043
+INFO:  == LLM cache == saving: default:extract:120ac7328189a99fc681603be469d7c3
+INFO:  == LLM cache == saving: default:extract:83fa3f631f45d33a0998a30fff6154ca
+INFO: Chunks appended from relation: `北京`
+INFO: Chunk 1 of 1 extracted 30 Ent + 28 Rel chunk-9b22f0064100dd13e0f2e98a387fa13d
+INFO: Merging stage 16/295: crud_043
+INFO: Phase 1: Processing 30 entities from doc-9b22f0064100dd13e0f2e98a387fa13d (async: 16)
+INFO:  == LLM cache == saving: default:extract:f6b9c66699ba01959b69a9da2205436e
+INFO: Chunk 1 of 1 extracted 17 Ent + 26 Rel chunk-8f4a05d132b8db7cf664a32328126a41
+INFO: Merging stage 19/295: crud_042
+INFO: Phase 1: Processing 17 entities from doc-8f4a05d132b8db7cf664a32328126a41 (async: 16)
+INFO: Merged: `资本市场` | 1+1
+INFO: Phase 2: Processing 28 relations from doc-9b22f0064100dd13e0f2e98a387fa13d (async: 16)
+INFO: Phase 2: Processing 26 relations from doc-8f4a05d132b8db7cf664a32328126a41 (async: 16)
+INFO: Chunks appended from relation: `承办`
+INFO: Chunks appended from relation: `分享`
+INFO: Chunks appended from relation: `主办`
+INFO: Chunks appended from relation: `参加`
+INFO: Phase 3: Updating final 20(19+1) entities and  17 relations from doc-71776780702d888e9d2fddcf6aac5b1c
+INFO: Completed merging: 19 entities, 1 extra entities, 17 relations
+INFO: [] Writing graph with 795 nodes, 1077 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 18/295: crud_041
+INFO: Extracting stage 20/295: crud_044
+INFO: Processing d-id: doc-c7cbda999608470fdc605d573c092b53
+INFO: Chunks appended from relation: `介绍`
+INFO: Phase 3: Updating final 43(30+13) entities and  28 relations from doc-9b22f0064100dd13e0f2e98a387fa13d
+INFO: Completed merging: 30 entities, 13 extra entities, 28 relations
+INFO: [] Writing graph with 808 nodes, 1104 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 16/295: crud_043
+INFO: Extracting stage 21/295: crud_047
+INFO: Processing d-id: doc-7f2e9023bb21467b172d6b15501d85e4
+INFO:  == LLM cache == saving: default:extract:d5042ecadecbc288f472c0ca5d5ce1f5
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `马国仁`~`person`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `酒店`~`artifact`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `高端民宿`~`artifact`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `杨家濠`~`person`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `澳门青年创新创业协会`~`organization`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `李东宪`~`person`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `台湾中华青年发展联合会`~`organization`
+INFO:  == LLM cache == saving: default:extract:90e8e1642096b2ff670d598d8c07e2d1
+INFO:  == LLM cache == saving: default:extract:67f77ab44aa241b5da08902b8d728808
+INFO: Chunk 1 of 1 extracted 11 Ent + 12 Rel chunk-7f2e9023bb21467b172d6b15501d85e4
+INFO: Merging stage 21/295: crud_047
+INFO: Phase 1: Processing 11 entities from doc-7f2e9023bb21467b172d6b15501d85e4 (async: 16)
+INFO:  == LLM cache == saving: default:extract:ca4c763d39a6864e4241226203eec55e
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `马国仁`~`person`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `酒店`~`artifact`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `高端民宿`~`artifact`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `杨家濠`~`person`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `澳门青年创新创业协会`~`organization`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `李东宪`~`person`
+WARNING: chunk-c7cbda999608470fdc605d573c092b53: LLM output format error; found 4/5 fields on RELATION `台湾中华青年发展联合会`~`organization`
+INFO: Chunk 1 of 1 extracted 5 Ent + 11 Rel chunk-c7cbda999608470fdc605d573c092b53
+INFO: Merging stage 20/295: crud_044
+INFO: Phase 1: Processing 5 entities from doc-c7cbda999608470fdc605d573c092b53 (async: 16)
+INFO: Phase 2: Processing 12 relations from doc-7f2e9023bb21467b172d6b15501d85e4 (async: 16)
+INFO: Phase 2: Processing 11 relations from doc-c7cbda999608470fdc605d573c092b53 (async: 16)
+INFO: Chunks appended from relation: `服务`
+INFO: Phase 3: Updating final 27(5+22) entities and  26 relations from doc-5cba7fbbcd95401522b37a318bb8cf32
+INFO: Completed merging: 5 entities, 22 extra entities, 26 relations
+INFO: [] Writing graph with 868 nodes, 1155 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 17/295: crud_040
+INFO: Extracting stage 22/295: crud_049
+INFO: Processing d-id: doc-3edfa5b7f6937fffd92147589feef5b0
+INFO: Phase 3: Updating final 16(5+11) entities and  11 relations from doc-c7cbda999608470fdc605d573c092b53
+INFO: Completed merging: 5 entities, 11 extra entities, 11 relations
+INFO: [] Writing graph with 869 nodes, 1158 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 20/295: crud_044
+INFO: Extracting stage 23/295: crud_021
+INFO: Processing d-id: doc-0d7d9e487ac23fe2c0f045c4e0811900
+INFO: Phase 3: Updating final 40(17+23) entities and  26 relations from doc-8f4a05d132b8db7cf664a32328126a41
+INFO: Completed merging: 17 entities, 23 extra entities, 26 relations
+INFO: [] Writing graph with 870 nodes, 1161 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 19/295: crud_042
+INFO: Extracting stage 24/295: crud_022
+INFO: Processing d-id: doc-31d54194e8c342e1b86351bdceeffedd
+INFO: Phase 3: Updating final 12(11+1) entities and  12 relations from doc-7f2e9023bb21467b172d6b15501d85e4
+INFO: Completed merging: 11 entities, 1 extra entities, 12 relations
+INFO: [] Writing graph with 870 nodes, 1164 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 21/295: crud_047
+INFO: Extracting stage 25/295: crud_024
+INFO: Processing d-id: doc-33ae41ec642a6a8ad501a7458fc3b848
+INFO:  == LLM cache == saving: default:extract:bdeefc386c0ede869ffbfed33b44de3d
+WARNING: chunk-0d7d9e487ac23fe2c0f045c4e0811900: LLM output format error; found 4/5 fields on RELATION `习近平`~`全军党的建设会议`
+WARNING: chunk-0d7d9e487ac23fe2c0f045c4e0811900: LLM output format error; found 4/5 fields on RELATION `习近平`~`党的十八大`
+WARNING: chunk-0d7d9e487ac23fe2c0f045c4e0811900: LLM output format error; found 4/5 fields on RELATION `习近平`~`古田全军政治工作会议`
+WARNING: chunk-0d7d9e487ac23fe2c0f045c4e0811900: LLM output format error; found 4/5 fields on RELATION `全军党的建设会议`~`建军一百年奋斗目标`
+INFO:  == LLM cache == saving: default:extract:328ee192857529340dfb243873ec05cf
+WARNING: chunk-0d7d9e487ac23fe2c0f045c4e0811900: LLM output format error; found 4/5 fields on RELATION `梅常伟`~`新华社`
+WARNING: chunk-0d7d9e487ac23fe2c0f045c4e0811900: LLM output format error; found 4/5 fields on RELATION `习近平`~`全国组织工作会议`
+WARNING: chunk-0d7d9e487ac23fe2c0f045c4e0811900: LLM output format error; found 4/5 fields on RELATION `全军党的建设会议`~`全国组织工作会议`
+INFO: Chunk 1 of 1 extracted 7 Ent + 0 Rel chunk-0d7d9e487ac23fe2c0f045c4e0811900
+INFO: Merging stage 23/295: crud_021
+INFO: Phase 1: Processing 7 entities from doc-0d7d9e487ac23fe2c0f045c4e0811900 (async: 16)
+INFO: Merged: `新华社` | 2+1
+INFO: Phase 2: Processing 0 relations from doc-0d7d9e487ac23fe2c0f045c4e0811900 (async: 16)
+INFO: Phase 3: Updating final 7(7+0) entities and  0 relations from doc-0d7d9e487ac23fe2c0f045c4e0811900
+INFO: Completed merging: 7 entities, 0 extra entities, 0 relations
+INFO: [] Writing graph with 876 nodes, 1164 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 23/295: crud_021
+INFO: Extracting stage 26/295: crud_023
+INFO: Processing d-id: doc-c20e03a8cd9e8f1123a6bf9417a12bd2
+INFO:  == LLM cache == saving: default:extract:d3c23d471412fe68504bc5b0def90684
+INFO:  == LLM cache == saving: default:extract:e57df6f186749586ed7123a18c3e5eb5
+INFO: Chunk 1 of 1 extracted 22 Ent + 19 Rel chunk-31d54194e8c342e1b86351bdceeffedd
+INFO: Merging stage 24/295: crud_022
+INFO: Phase 1: Processing 22 entities from doc-31d54194e8c342e1b86351bdceeffedd (async: 16)
+INFO: Merged: `新华社` | 3+1
+INFO:  == LLM cache == saving: default:extract:cb998831d1ccb17f6d6eda718950287a
+INFO:  == LLM cache == saving: default:extract:d27c8b501e2f44f2dd98d76286339151
+INFO:  == LLM cache == saving: default:extract:fdd1e8f8d59748d11041b7c0a17fec83
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `中国气象局`~`启动应急响应`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `中央气象台`~`发布预警`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `国家防总`~`提升应急响应级别`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `国家防总`~`增派工作组`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `应急管理部`~`调派应急力量`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `国家减灾委`~`启动救灾应急响应`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `交通运输部`~`提升防御响应级别`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `水利部`~`提升洪水防御应急响应级别`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `福建省防指`~`提升防台风应急响应级别`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `厦门市`~`实行“三停一休”`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `漳州市`~`实行“三停一休”`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `泉州市`~`实行“三停一休”`
+WARNING: chunk-33ae41ec642a6a8ad501a7458fc3b848: LLM output format error; found 4/5 fields on RELATION `消防救援队伍`~`保持临战状态`
+INFO:  == LLM cache == saving: default:extract:8aff68fbd004043f3963ebb96e706863
+INFO: Chunk 1 of 1 extracted 21 Ent + 0 Rel chunk-33ae41ec642a6a8ad501a7458fc3b848
+INFO: Merging stage 25/295: crud_024
+INFO: Phase 1: Processing 21 entities from doc-33ae41ec642a6a8ad501a7458fc3b848 (async: 16)
+INFO: Merged: `安徽` | 1+1
+INFO: Merged: `河北` | 1+1
+INFO:  == LLM cache == saving: default:extract:d0ea450b33237dace86788fed0fc55bf
+INFO: Chunk 1 of 1 extracted 24 Ent + 21 Rel chunk-3edfa5b7f6937fffd92147589feef5b0
+INFO: Merging stage 22/295: crud_049
+INFO: Phase 1: Processing 24 entities from doc-3edfa5b7f6937fffd92147589feef5b0 (async: 16)
+INFO: Phase 2: Processing 19 relations from doc-31d54194e8c342e1b86351bdceeffedd (async: 16)
+INFO:  == LLM cache == saving: default:extract:eee2575a52ba68b6c5cce178045b8cdd
+INFO: Chunk 1 of 1 extracted 19 Ent + 11 Rel chunk-c20e03a8cd9e8f1123a6bf9417a12bd2
+INFO: Merging stage 26/295: crud_023
+INFO: Phase 1: Processing 19 entities from doc-c20e03a8cd9e8f1123a6bf9417a12bd2 (async: 16)
+INFO: Phase 2: Processing 0 relations from doc-33ae41ec642a6a8ad501a7458fc3b848 (async: 16)
+INFO: Phase 3: Updating final 21(21+0) entities and  0 relations from doc-33ae41ec642a6a8ad501a7458fc3b848
+INFO: Completed merging: 21 entities, 0 extra entities, 0 relations
+INFO: [] Writing graph with 958 nodes, 1167 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 25/295: crud_024
+INFO: Extracting stage 27/295: crud_020
+INFO: Processing d-id: doc-52a23f37e0c3c67f5b9d35e6bd389d54
+INFO: Phase 2: Processing 21 relations from doc-3edfa5b7f6937fffd92147589feef5b0 (async: 16)
+INFO: Phase 2: Processing 11 relations from doc-c20e03a8cd9e8f1123a6bf9417a12bd2 (async: 16)
+INFO: Phase 3: Updating final 20(19+1) entities and  11 relations from doc-c20e03a8cd9e8f1123a6bf9417a12bd2
+INFO: Completed merging: 19 entities, 1 extra entities, 11 relations
+INFO: [] Writing graph with 965 nodes, 1198 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 26/295: crud_023
+INFO:  == LLM cache == saving: default:extract:3a4109ff7900d6d67fa313dbb20501c2
+INFO: Extracting stage 28/295: crud_029
+INFO: Processing d-id: doc-4f60eccdd653510c5ba3dbe6ad75b7e8
+INFO:  == LLM cache == saving: default:extract:e7c4da572c844712f5ab29d64b68f1dd
+INFO: Chunk 1 of 1 extracted 10 Ent + 8 Rel chunk-52a23f37e0c3c67f5b9d35e6bd389d54
+INFO: Merging stage 27/295: crud_020
+INFO: Phase 1: Processing 10 entities from doc-52a23f37e0c3c67f5b9d35e6bd389d54 (async: 16)
+INFO: Merged: `习近平` | 1+1
+INFO: Phase 2: Processing 8 relations from doc-52a23f37e0c3c67f5b9d35e6bd389d54 (async: 16)
+INFO: Phase 3: Updating final 27(24+3) entities and  21 relations from doc-3edfa5b7f6937fffd92147589feef5b0
+INFO: Completed merging: 24 entities, 3 extra entities, 21 relations
+INFO: [] Writing graph with 974 nodes, 1220 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 22/295: crud_049
+INFO: Extracting stage 29/295: crud_026
+INFO: Processing d-id: doc-916a5ed7ad4b1db233fa72488b3dd1fa
+INFO: Phase 3: Updating final 10(10+0) entities and  8 relations from doc-52a23f37e0c3c67f5b9d35e6bd389d54
+INFO: Completed merging: 10 entities, 0 extra entities, 8 relations
+INFO: [] Writing graph with 974 nodes, 1222 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 27/295: crud_020
+INFO: Extracting stage 30/295: crud_025
+INFO: Processing d-id: doc-1f4cc1bf5e4383ddf92d1aaf049bd395
+INFO: Phase 3: Updating final 24(22+2) entities and  19 relations from doc-31d54194e8c342e1b86351bdceeffedd
+INFO: Completed merging: 22 entities, 2 extra entities, 19 relations
+INFO: [] Writing graph with 974 nodes, 1223 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 24/295: crud_022
+INFO: Extracting stage 31/295: crud_027
+INFO: Processing d-id: doc-882222e5002a01e81ae94d80b22e17a7
+INFO:  == LLM cache == saving: default:extract:e943b461aa1cfce7e307d3e303f598ef
+INFO:  == LLM cache == saving: default:extract:c61ba0ba513ab2836ac9e2acd2c526a8
+INFO:  == LLM cache == saving: default:extract:a36f9acaf945fe8f1e27687608f50b71
+INFO: Chunk 1 of 1 extracted 19 Ent + 15 Rel chunk-4f60eccdd653510c5ba3dbe6ad75b7e8
+INFO: Merging stage 28/295: crud_029
+INFO: Phase 1: Processing 19 entities from doc-4f60eccdd653510c5ba3dbe6ad75b7e8 (async: 16)
+INFO:  == LLM cache == saving: default:extract:6fb5b25d976d6e93a906aa2530483bd2
+INFO: Chunk 1 of 1 extracted 11 Ent + 8 Rel chunk-916a5ed7ad4b1db233fa72488b3dd1fa
+INFO: Merging stage 29/295: crud_026
+INFO: Phase 1: Processing 11 entities from doc-916a5ed7ad4b1db233fa72488b3dd1fa (async: 16)
+INFO:  == LLM cache == saving: default:extract:359be4f6456cff177da8d3c12809719b
+INFO:  == LLM cache == saving: default:extract:6de9051397b28339bd6702b8ca000946
+INFO: Chunk 1 of 1 extracted 16 Ent + 18 Rel chunk-1f4cc1bf5e4383ddf92d1aaf049bd395
+INFO: Merging stage 30/295: crud_025
+INFO: Phase 1: Processing 16 entities from doc-1f4cc1bf5e4383ddf92d1aaf049bd395 (async: 16)
+INFO:  == LLM cache == saving: default:extract:73154b99fbd294b35db252aabc2a2c4a
+INFO:  == LLM cache == saving: default:extract:5fd6948a027319b06f2b4f130bc907f2
+INFO: Chunk 1 of 1 extracted 22 Ent + 21 Rel chunk-882222e5002a01e81ae94d80b22e17a7
+INFO: Merging stage 31/295: crud_027
+INFO: Phase 1: Processing 22 entities from doc-882222e5002a01e81ae94d80b22e17a7 (async: 16)
+INFO: Phase 2: Processing 8 relations from doc-916a5ed7ad4b1db233fa72488b3dd1fa (async: 16)
+INFO: Phase 2: Processing 15 relations from doc-4f60eccdd653510c5ba3dbe6ad75b7e8 (async: 16)
+INFO: Phase 2: Processing 18 relations from doc-1f4cc1bf5e4383ddf92d1aaf049bd395 (async: 16)
+INFO: Chunks appended from relation: `报道`
+INFO: Phase 2: Processing 21 relations from doc-882222e5002a01e81ae94d80b22e17a7 (async: 16)
+INFO: Phase 3: Updating final 13(11+2) entities and  8 relations from doc-916a5ed7ad4b1db233fa72488b3dd1fa
+INFO: Completed merging: 11 entities, 2 extra entities, 8 relations
+INFO: [] Writing graph with 1059 nodes, 1260 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 29/295: crud_026
+INFO: Extracting stage 32/295: crud_028
+INFO: Processing d-id: doc-164db64530dc21611e3ebb1a36c29958
+INFO: Phase 3: Updating final 31(16+15) entities and  18 relations from doc-1f4cc1bf5e4383ddf92d1aaf049bd395
+INFO: Completed merging: 16 entities, 15 extra entities, 18 relations
+INFO: [] Writing graph with 1059 nodes, 1260 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 30/295: crud_025
+INFO: Extracting stage 33/295: crud_031
+INFO: Processing d-id: doc-3d45a1df9596dc959da2fac788eccf7a
+INFO: Phase 3: Updating final 19(19+0) entities and  15 relations from doc-4f60eccdd653510c5ba3dbe6ad75b7e8
+INFO: Completed merging: 19 entities, 0 extra entities, 15 relations
+INFO: [] Writing graph with 1059 nodes, 1280 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 28/295: crud_029
+INFO: Extracting stage 34/295: crud_033
+INFO: Processing d-id: doc-fb7d2a5c580ee67b4ab9e6f3a119d0a8
+INFO: Phase 3: Updating final 22(22+0) entities and  21 relations from doc-882222e5002a01e81ae94d80b22e17a7
+INFO: Completed merging: 22 entities, 0 extra entities, 21 relations
+INFO: [] Writing graph with 1059 nodes, 1285 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 31/295: crud_027
+INFO: Extracting stage 35/295: crud_034
+INFO: Processing d-id: doc-5e4ee6f58c09593e27b93ebebff1b3a8
+INFO:  == LLM cache == saving: default:extract:2d240f7429df28636d647342108f41d7
+INFO:  == LLM cache == saving: default:extract:547f17c2b8c4c43a83c8ef0173aa769a
+INFO: Chunk 1 of 1 extracted 9 Ent + 5 Rel chunk-164db64530dc21611e3ebb1a36c29958
+INFO: Merging stage 32/295: crud_028
+INFO: Phase 1: Processing 9 entities from doc-164db64530dc21611e3ebb1a36c29958 (async: 16)
+INFO: Phase 2: Processing 5 relations from doc-164db64530dc21611e3ebb1a36c29958 (async: 16)
+INFO: Phase 3: Updating final 9(9+0) entities and  5 relations from doc-164db64530dc21611e3ebb1a36c29958
+INFO: Completed merging: 9 entities, 0 extra entities, 5 relations
+INFO: [] Writing graph with 1068 nodes, 1290 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 32/295: crud_028
+INFO: Extracting stage 36/295: crud_030
+INFO: Processing d-id: doc-0bcb6c70f1ed774d9a5b5556f181d7d8
+INFO:  == LLM cache == saving: default:extract:445333e653b80b13ce008d012789e2dc
+WARNING: chunk-5e4ee6f58c09593e27b93ebebff1b3a8: LLM output format error; found 4/5 fields on RELATION `中国音数协游戏工委官微`~`发布消息`
+INFO:  == LLM cache == saving: default:extract:c2d625a50459d429327e49da3a9af928
+INFO:  == LLM cache == saving: default:extract:c1004b697584b725a7b5359b40b6e814
+INFO: Chunk 1 of 1 extracted 19 Ent + 18 Rel chunk-fb7d2a5c580ee67b4ab9e6f3a119d0a8
+INFO: Merging stage 34/295: crud_033
+INFO: Phase 1: Processing 19 entities from doc-fb7d2a5c580ee67b4ab9e6f3a119d0a8 (async: 16)
+INFO: Merged: `武术` | 1+1
+INFO:  == LLM cache == saving: default:extract:e2fb1df76ada4048acb6e6192447195d
+INFO: Chunk 1 of 1 extracted 21 Ent + 23 Rel chunk-5e4ee6f58c09593e27b93ebebff1b3a8
+INFO: Merging stage 35/295: crud_034
+INFO: Phase 1: Processing 21 entities from doc-5e4ee6f58c09593e27b93ebebff1b3a8 (async: 16)
+INFO:  == LLM cache == saving: default:extract:6dab74612e325b67a5198d39bbd6c7dc
+INFO: Phase 2: Processing 18 relations from doc-fb7d2a5c580ee67b4ab9e6f3a119d0a8 (async: 16)
+INFO:  == LLM cache == saving: default:extract:1a35c487c433def309c5b00090b2c176
+INFO:  == LLM cache == saving: default:extract:e2183508f6d4ab7b63fe446b5035ce4d
+INFO: Chunk 1 of 1 extracted 28 Ent + 25 Rel chunk-3d45a1df9596dc959da2fac788eccf7a
+INFO: Merging stage 33/295: crud_031
+INFO: Phase 1: Processing 28 entities from doc-3d45a1df9596dc959da2fac788eccf7a (async: 16)
+INFO:  == LLM cache == saving: default:extract:660d3fd657f01d34034360e396663ccd
+INFO: Chunk 1 of 1 extracted 31 Ent + 29 Rel chunk-0bcb6c70f1ed774d9a5b5556f181d7d8
+INFO: Merging stage 36/295: crud_030
+INFO: Phase 1: Processing 31 entities from doc-0bcb6c70f1ed774d9a5b5556f181d7d8 (async: 16)
+INFO: Merged: `就业渠道` | 1+1
+INFO: Merged: `民营企业` | 1+1
+INFO: Phase 2: Processing 23 relations from doc-5e4ee6f58c09593e27b93ebebff1b3a8 (async: 16)
+INFO: Phase 2: Processing 24 relations from doc-3d45a1df9596dc959da2fac788eccf7a (async: 16)
+INFO: Phase 2: Processing 28 relations from doc-0bcb6c70f1ed774d9a5b5556f181d7d8 (async: 16)
+INFO: Chunks appended from relation: `开展`
+INFO: Chunks appended from relation: `报道`
+INFO: Phase 3: Updating final 43(31+12) entities and  28 relations from doc-0bcb6c70f1ed774d9a5b5556f181d7d8
+INFO: Completed merging: 31 entities, 12 extra entities, 28 relations
+INFO: [] Writing graph with 1195 nodes, 1366 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 36/295: crud_030
+INFO: Extracting stage 37/295: crud_032
+INFO: Processing d-id: doc-e2daef21cf94870e240afe086a9aec43
+INFO: Phase 3: Updating final 39(21+18) entities and  23 relations from doc-5e4ee6f58c09593e27b93ebebff1b3a8
+INFO: Completed merging: 21 entities, 18 extra entities, 23 relations
+INFO: [] Writing graph with 1195 nodes, 1367 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 35/295: crud_034
+INFO: Extracting stage 38/295: crud_035
+INFO: Processing d-id: doc-7f8a10eedf24c5398fd095801743a57a
+INFO: Phase 3: Updating final 29(28+1) entities and  24 relations from doc-3d45a1df9596dc959da2fac788eccf7a
+INFO: Completed merging: 28 entities, 1 extra entities, 24 relations
+INFO: [] Writing graph with 1195 nodes, 1383 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 33/295: crud_031
+INFO: Extracting stage 39/295: crud_037
+INFO: Processing d-id: doc-0e4b926a3a9bcba0680497f11c8361f3
+INFO: Phase 3: Updating final 19(19+0) entities and  18 relations from doc-fb7d2a5c580ee67b4ab9e6f3a119d0a8
+INFO: Completed merging: 19 entities, 0 extra entities, 18 relations
+INFO: [] Writing graph with 1195 nodes, 1383 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 34/295: crud_033
+INFO: Extracting stage 40/295: crud_036
+INFO: Processing d-id: doc-a1650ef351d94010cae076edd15e0eae
+INFO:  == LLM cache == saving: default:extract:bcf467ae04481e607359e411a81e8202
+INFO:  == LLM cache == saving: default:extract:5198e8b464ee3074778cda0eba402efc
+INFO: Chunk 1 of 1 extracted 14 Ent + 12 Rel chunk-e2daef21cf94870e240afe086a9aec43
+INFO: Merging stage 37/295: crud_032
+INFO: Phase 1: Processing 14 entities from doc-e2daef21cf94870e240afe086a9aec43 (async: 16)
+INFO: Merged: `民营企业` | 2+1
+INFO:  == LLM cache == saving: default:extract:5272303fa6b264c1e32508d04c4da1d4
+INFO:  == LLM cache == saving: default:extract:ffef74f4d5ad99f5a9917412dc431679
+INFO:  == LLM cache == saving: default:extract:7c07f667ae5e0c4e87c80e2c1d78824c
+INFO: Chunk 1 of 1 extracted 16 Ent + 14 Rel chunk-7f8a10eedf24c5398fd095801743a57a
+INFO: Merging stage 38/295: crud_035
+INFO: Phase 1: Processing 16 entities from doc-7f8a10eedf24c5398fd095801743a57a (async: 16)
+INFO: Merged: `版权侵权联系电话` | 1+1
+INFO: Phase 2: Processing 12 relations from doc-e2daef21cf94870e240afe086a9aec43 (async: 16)
+INFO:  == LLM cache == saving: default:extract:4893849561b8e03ee5fbb819c8565f44
+INFO: Chunk 1 of 1 extracted 10 Ent + 8 Rel chunk-0e4b926a3a9bcba0680497f11c8361f3
+INFO: Merging stage 39/295: crud_037
+INFO: Phase 1: Processing 10 entities from doc-0e4b926a3a9bcba0680497f11c8361f3 (async: 16)
+INFO: Phase 2: Processing 14 relations from doc-7f8a10eedf24c5398fd095801743a57a (async: 16)
+INFO: Merged: `版权侵权联系电话` | 2+1
+INFO: Chunks appended from relation: `举办`
+INFO: Chunks appended from relation: `报道`
+INFO: Chunks appended from relation: `发表讲话`
+INFO: Phase 2: Processing 8 relations from doc-0e4b926a3a9bcba0680497f11c8361f3 (async: 16)
+INFO:  == LLM cache == saving: default:extract:e37c47a45412cd54522fc88daeba95ae
+WARNING: chunk-a1650ef351d94010cae076edd15e0eae: LLM output format error; found 4/5 fields on RELATION `版权侵权联系电话`~`contact information, copyright infringement`
+INFO:  == LLM cache == saving: default:extract:1ac44ba9099af96135ffd8152b005ffe
+INFO: Chunk 1 of 1 extracted 5 Ent + 24 Rel chunk-a1650ef351d94010cae076edd15e0eae
+INFO: Merging stage 40/295: crud_036
+INFO: Phase 1: Processing 5 entities from doc-a1650ef351d94010cae076edd15e0eae (async: 16)
+INFO: Phase 2: Processing 22 relations from doc-a1650ef351d94010cae076edd15e0eae (async: 16)
+INFO: Phase 3: Updating final 17(10+7) entities and  8 relations from doc-0e4b926a3a9bcba0680497f11c8361f3
+INFO: Completed merging: 10 entities, 7 extra entities, 8 relations
+INFO: [] Writing graph with 1253 nodes, 1412 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 39/295: crud_037
+INFO: Extracting stage 41/295: crud_038
+INFO: Processing d-id: doc-8c0927df2f9cbf77d15af2e6fa2614fb
+INFO: Phase 3: Updating final 20(14+6) entities and  12 relations from doc-e2daef21cf94870e240afe086a9aec43
+INFO: Completed merging: 14 entities, 6 extra entities, 12 relations
+INFO: [] Writing graph with 1254 nodes, 1412 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 37/295: crud_032
+INFO: Extracting stage 42/295: crud_039
+INFO: Processing d-id: doc-952e931e7551cb8b546f26c7e0fd371e
+INFO: Chunks appended from relation: `作品内容`
+INFO: Phase 3: Updating final 16(16+0) entities and  14 relations from doc-7f8a10eedf24c5398fd095801743a57a
+INFO: Completed merging: 16 entities, 0 extra entities, 14 relations
+INFO: [] Writing graph with 1266 nodes, 1434 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 38/295: crud_035
+INFO: Extracting stage 43/295: crud_069
+INFO: Processing d-id: doc-a8adf82e03af0d4b815dcdea204dbc4b
+INFO: Phase 3: Updating final 22(5+17) entities and  22 relations from doc-a1650ef351d94010cae076edd15e0eae
+INFO: Completed merging: 5 entities, 17 extra entities, 22 relations
+INFO: [] Writing graph with 1267 nodes, 1439 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 40/295: crud_036
+INFO: Extracting stage 44/295: crud_067
+INFO: Processing d-id: doc-1c9880472c3a2308d293eb6de706d9df
+INFO:  == LLM cache == saving: default:extract:22354aa603cf35cadc16ee07136ce6ce
+INFO:  == LLM cache == saving: default:extract:2bedf6a8d591726f6dcfe513fb6780a2
+WARNING: chunk-8c0927df2f9cbf77d15af2e6fa2614fb: LLM output format error; found 4/5 fields on RELATION `互联网信息服务管理办法`~`regulation, implementation`
+INFO:  == LLM cache == saving: default:extract:c24825d7feb033d1f056a539fe2ac1f7
+INFO: Chunk 1 of 1 extracted 13 Ent + 8 Rel chunk-952e931e7551cb8b546f26c7e0fd371e
+INFO: Merging stage 42/295: crud_039
+INFO: Phase 1: Processing 13 entities from doc-952e931e7551cb8b546f26c7e0fd371e (async: 16)
+INFO:  == LLM cache == saving: default:extract:686c1b579723c888231913576b688971
+INFO: Chunk 1 of 1 extracted 16 Ent + 13 Rel chunk-8c0927df2f9cbf77d15af2e6fa2614fb
+INFO: Merging stage 41/295: crud_038
+INFO: Phase 1: Processing 16 entities from doc-8c0927df2f9cbf77d15af2e6fa2614fb (async: 16)
+INFO: Merged: `夏骅` | 1+1
+INFO: Phase 2: Processing 8 relations from doc-952e931e7551cb8b546f26c7e0fd371e (async: 16)
+INFO:  == LLM cache == saving: default:extract:a931a0d438c52fd75326fa83e7e8e01e
+INFO: Phase 2: Processing 13 relations from doc-8c0927df2f9cbf77d15af2e6fa2614fb (async: 16)
+INFO:  == LLM cache == saving: default:extract:1d97c6ed3db60343e6e3653a34542a49
+INFO: Chunk 1 of 1 extracted 13 Ent + 10 Rel chunk-a8adf82e03af0d4b815dcdea204dbc4b
+INFO: Merging stage 43/295: crud_069
+INFO: Phase 1: Processing 13 entities from doc-a8adf82e03af0d4b815dcdea204dbc4b (async: 16)
+INFO: Merged: `中国科学院` | 1+1
+INFO: Chunks appended from relation: `报道`
+INFO:  == LLM cache == saving: default:extract:f8da74cab4cdc45fc0d5f1f2fc6b52a6
+INFO: Merged: `报道` | 1+1
+INFO: Phase 3: Updating final 16(16+0) entities and  13 relations from doc-8c0927df2f9cbf77d15af2e6fa2614fb
+INFO: Phase 2: Processing 10 relations from doc-a8adf82e03af0d4b815dcdea204dbc4b (async: 16)
+INFO: Completed merging: 16 entities, 0 extra entities, 13 relations
+INFO: [] Writing graph with 1311 nodes, 1457 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 41/295: crud_038
+INFO: Extracting stage 45/295: crud_068
+INFO: Processing d-id: doc-245c9923400fd7f59a7d74aa3c0e2ff3
+INFO:  == LLM cache == saving: default:extract:00a3837759cacd2a01b56177537f2b43
+WARNING: chunk-1c9880472c3a2308d293eb6de706d9df: LLM output format error; found 4/5 fields on RELATION `西子情`~`co-authors,white gold authors`
+INFO: Chunk 1 of 1 extracted 23 Ent + 17 Rel chunk-1c9880472c3a2308d293eb6de706d9df
+INFO: Merging stage 44/295: crud_067
+INFO: Phase 1: Processing 23 entities from doc-1c9880472c3a2308d293eb6de706d9df (async: 16)
+INFO: Phase 3: Updating final 16(13+3) entities and  10 relations from doc-a8adf82e03af0d4b815dcdea204dbc4b
+INFO: Completed merging: 13 entities, 3 extra entities, 10 relations
+INFO: [] Writing graph with 1330 nodes, 1470 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 43/295: crud_069
+INFO: Extracting stage 46/295: crud_065
+INFO: Processing d-id: doc-f9987a2cfb6f3aa03f6077d8c51dc04b
+INFO: Phase 3: Updating final 18(13+5) entities and  8 relations from doc-952e931e7551cb8b546f26c7e0fd371e
+INFO: Completed merging: 13 entities, 5 extra entities, 8 relations
+INFO: [] Writing graph with 1331 nodes, 1470 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 42/295: crud_039
+INFO: Extracting stage 47/295: crud_066
+INFO: Processing d-id: doc-a92ebe047fa9c8f40d6d4ac2914f5729
+INFO: Phase 2: Processing 17 relations from doc-1c9880472c3a2308d293eb6de706d9df (async: 16)
+INFO: Phase 3: Updating final 33(23+10) entities and  17 relations from doc-1c9880472c3a2308d293eb6de706d9df
+INFO: Completed merging: 23 entities, 10 extra entities, 17 relations
+INFO: [] Writing graph with 1347 nodes, 1487 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 44/295: crud_067
+INFO: Extracting stage 48/295: crud_074
+INFO: Processing d-id: doc-7849dea5c7a8cfb8c3c457bc44eb1104
+INFO:  == LLM cache == saving: default:extract:c337357d628c5a51297044b9e4546d67
+INFO:  == LLM cache == saving: default:extract:3a65289d07ea13aaf2a31c1ecae5ab6f
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `武汉市武昌区退役军人长江卫士志愿服务队`~`organized by, founded by`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `周峰`~`commanded by, led by`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `冲锋舟`~`used by, utilized by`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `救生衣`~`used by, utilized by`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `无人机`~`used by, utilized by`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `长江武昌大堤口水域`~`site of, location of`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `一字队形`~`formation of, shape of`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `三角队形`~`formation of, shape of`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `S队形`~`formation of, shape of`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `交叉队形`~`formation of, shape of`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `马达轰鸣`~`sound of, noise of`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `浪花飞溅`~`phenomenon of, occurrence of`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `救援技能培训`~`event of, activity of`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `涿州救援行动`~`participation in, involvement in`
+WARNING: chunk-245c9923400fd7f59a7d74aa3c0e2ff3: LLM output format error; found 4/5 fields on RELATION `张晓星`~`is the leader of, leads`
+INFO:  == LLM cache == saving: default:extract:bfc41b79ec952d4604e304484ce851d6
+INFO: Chunk 1 of 1 extracted 18 Ent + 1 Rel chunk-245c9923400fd7f59a7d74aa3c0e2ff3
+INFO: Merging stage 45/295: crud_068
+INFO: Phase 1: Processing 18 entities from doc-245c9923400fd7f59a7d74aa3c0e2ff3 (async: 16)
+INFO:  == LLM cache == saving: default:extract:8b01ec2db9cd9a21304781ffba85a29a
+INFO:  == LLM cache == saving: default:extract:6b630bae7a5e2504145e47624161cc96
+INFO: Chunk 1 of 1 extracted 4 Ent + 4 Rel chunk-7849dea5c7a8cfb8c3c457bc44eb1104
+INFO: Merging stage 48/295: crud_074
+INFO: Phase 1: Processing 4 entities from doc-7849dea5c7a8cfb8c3c457bc44eb1104 (async: 16)
+INFO: Phase 2: Processing 1 relations from doc-245c9923400fd7f59a7d74aa3c0e2ff3 (async: 16)
+INFO: Phase 2: Processing 4 relations from doc-7849dea5c7a8cfb8c3c457bc44eb1104 (async: 16)
+INFO:  == LLM cache == saving: default:extract:53af60f39fb7aaaa41d2688750622a05
+WARNING: chunk-f9987a2cfb6f3aa03f6077d8c51dc04b: LLM output format error; found 4/5 fields on RELATION `钟祥市`~`Location, city`
+WARNING: chunk-f9987a2cfb6f3aa03f6077d8c51dc04b: LLM output format error; found 4/5 fields on RELATION `石碑镇`~`Location, town`
+WARNING: chunk-f9987a2cfb6f3aa03f6077d8c51dc04b: LLM output format error; found 4/5 fields on RELATION `张家台`~`Location, village`
+WARNING: chunk-f9987a2cfb6f3aa03f6077d8c51dc04b: LLM output format error; found 4/5 fields on RELATION `汉江航道`~`natural object, river`
+WARNING: chunk-f9987a2cfb6f3aa03f6077d8c51dc04b: LLM output format error; found 4/5 fields on RELATION `牵索挂篮悬臂浇筑法`~`method, construction technique`
+WARNING: chunk-f9987a2cfb6f3aa03f6077d8c51dc04b: LLM output format error; found 4/5 fields on RELATION `柱梁支架现浇施工`~`method, construction technique`
+INFO: Chunk 1 of 1 extracted 9 Ent + 7 Rel chunk-f9987a2cfb6f3aa03f6077d8c51dc04b
+INFO: Merging stage 46/295: crud_065
+INFO: Phase 1: Processing 9 entities from doc-f9987a2cfb6f3aa03f6077d8c51dc04b (async: 16)
+INFO: Merged: `楚天都市报` | 1+1
+INFO: Merged: `极目新闻` | 1+1
+INFO: Phase 3: Updating final 18(18+0) entities and  1 relations from doc-245c9923400fd7f59a7d74aa3c0e2ff3
+INFO: Completed merging: 18 entities, 0 extra entities, 1 relations
+INFO: [] Writing graph with 1376 nodes, 1490 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 45/295: crud_068
+INFO: Extracting stage 49/295: crud_073
+INFO: Processing d-id: doc-f582a48ea251d48293f2e56d0e93ce35
+INFO:  == LLM cache == saving: default:extract:c26e6b11418cd03b937a0bc2f7f6bb19
+INFO:  == LLM cache == saving: default:extract:dec6155e03ddbbdd247126582c3c7648
+INFO: Chunk 1 of 1 extracted 20 Ent + 18 Rel chunk-a92ebe047fa9c8f40d6d4ac2914f5729
+INFO: Merging stage 47/295: crud_066
+INFO: Phase 1: Processing 20 entities from doc-a92ebe047fa9c8f40d6d4ac2914f5729 (async: 16)
+INFO: Merged: `全民健身日` | 1+1
+INFO: Phase 2: Processing 7 relations from doc-f9987a2cfb6f3aa03f6077d8c51dc04b (async: 16)
+INFO: Merged: `极目新闻`~`楚天都市报` | 1+1
+INFO: Merged: `体育宣传周` | 1+1
+INFO: Phase 2: Processing 18 relations from doc-a92ebe047fa9c8f40d6d4ac2914f5729 (async: 16)
+INFO: Phase 3: Updating final 5(4+1) entities and  4 relations from doc-7849dea5c7a8cfb8c3c457bc44eb1104
+INFO: Completed merging: 4 entities, 1 extra entities, 4 relations
+INFO: [] Writing graph with 1400 nodes, 1500 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 48/295: crud_074
+INFO: Extracting stage 50/295: crud_045
+INFO: Processing d-id: doc-605a34bcee1b35baaca5690d3f462a29
+INFO: Phase 3: Updating final 9(9+0) entities and  7 relations from doc-f9987a2cfb6f3aa03f6077d8c51dc04b
+INFO: Completed merging: 9 entities, 0 extra entities, 7 relations
+INFO: [] Writing graph with 1400 nodes, 1507 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 46/295: crud_065
+INFO: Extracting stage 51/295: crud_048
+INFO: Processing d-id: doc-5110dbf589769d8fb13f9fcb6026f8ad
+INFO:  == LLM cache == saving: default:extract:a7367bc826aa001ad0fea26e5f3b8c19
+INFO: Phase 3: Updating final 25(20+5) entities and  18 relations from doc-a92ebe047fa9c8f40d6d4ac2914f5729
+INFO: Completed merging: 20 entities, 5 extra entities, 18 relations
+INFO: [] Writing graph with 1400 nodes, 1516 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 47/295: crud_066
+INFO: Extracting stage 52/295: crud_046
+INFO: Processing d-id: doc-03205514c439d2efa83831a0776b8bae
+INFO:  == LLM cache == saving: default:extract:43a736a6c46c7727172310578e1019b0
+INFO:  == LLM cache == saving: default:extract:2232cf673e67c0ee24d2d30baac9cb3b
+INFO: Chunk 1 of 1 extracted 8 Ent + 7 Rel chunk-605a34bcee1b35baaca5690d3f462a29
+INFO: Merging stage 50/295: crud_045
+INFO: Phase 1: Processing 8 entities from doc-605a34bcee1b35baaca5690d3f462a29 (async: 16)
+INFO: Merged: `浙江` | 1+1
+INFO:  == LLM cache == saving: default:extract:44d42f7979b91cc49df51f48ae440293
+INFO: Chunk 1 of 1 extracted 21 Ent + 14 Rel chunk-f582a48ea251d48293f2e56d0e93ce35
+INFO: Merging stage 49/295: crud_073
+INFO: Phase 1: Processing 21 entities from doc-f582a48ea251d48293f2e56d0e93ce35 (async: 16)
+INFO: Phase 2: Processing 6 relations from doc-605a34bcee1b35baaca5690d3f462a29 (async: 16)
+INFO:  == LLM cache == saving: default:extract:b361c442dbcba2c55e12eebda01bd171
+INFO:  == LLM cache == saving: default:extract:3cc546c0d9979388cbbce35f3aef2a3e
+INFO: Chunk 1 of 1 extracted 12 Ent + 8 Rel chunk-5110dbf589769d8fb13f9fcb6026f8ad
+INFO: Merging stage 51/295: crud_048
+INFO: Phase 1: Processing 12 entities from doc-5110dbf589769d8fb13f9fcb6026f8ad (async: 16)
+INFO: Merged: `纽约邮报` | 1+1
+INFO: Phase 2: Processing 14 relations from doc-f582a48ea251d48293f2e56d0e93ce35 (async: 16)
+INFO: Phase 2: Processing 8 relations from doc-5110dbf589769d8fb13f9fcb6026f8ad (async: 16)
+INFO: Chunks appended from relation: `报道`
+INFO: Chunks appended from relation: `调查`
+INFO:  == LLM cache == saving: default:extract:356d1bd0a61ff8e969414fe036f27c0e
+WARNING: chunk-03205514c439d2efa83831a0776b8bae: LLM output format error; found 4/5 fields on RELATION `江门日报`~`报道`
+INFO: Phase 3: Updating final 9(8+1) entities and  6 relations from doc-605a34bcee1b35baaca5690d3f462a29
+INFO: Completed merging: 8 entities, 1 extra entities, 6 relations
+INFO: [] Writing graph with 1446 nodes, 1534 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 50/295: crud_045
+INFO: Extracting stage 53/295: crud_053
+INFO: Processing d-id: doc-b26b902b6ddc8d1a7ca517b30d83d690
+INFO:  == LLM cache == saving: default:extract:610a1c0135f31d8488ab05baf88433a7
+INFO: Chunk 1 of 1 extracted 27 Ent + 20 Rel chunk-03205514c439d2efa83831a0776b8bae
+INFO: Merging stage 52/295: crud_046
+INFO: Phase 1: Processing 27 entities from doc-03205514c439d2efa83831a0776b8bae (async: 16)
+INFO: Merged: `美国` | 1+1
+INFO:  == LLM cache == saving: default:extract:652838c67870fa12b53ae3a05f42ecd6
+WARNING: chunk-b26b902b6ddc8d1a7ca517b30d83d690: LLM output format error; found 4/5 fields on RELATION `第5号台风“杜苏芮”`~`登陆地点, affected region`
+INFO: Phase 2: Processing 20 relations from doc-03205514c439d2efa83831a0776b8bae (async: 16)
+INFO:  == LLM cache == saving: default:extract:919fb58897bfecf9d7c4661f6280fa9e
+WARNING: chunk-b26b902b6ddc8d1a7ca517b30d83d690: LLM output format error; found 4/5 fields on RELATION `第5号台风“杜苏芮”`~`登陆地点, affected province`
+INFO: Chunk 1 of 1 extracted 7 Ent + 3 Rel chunk-b26b902b6ddc8d1a7ca517b30d83d690
+INFO: Merging stage 53/295: crud_053
+INFO: Phase 1: Processing 7 entities from doc-b26b902b6ddc8d1a7ca517b30d83d690 (async: 16)
+INFO: Phase 3: Updating final 12(12+0) entities and  8 relations from doc-5110dbf589769d8fb13f9fcb6026f8ad
+INFO: Completed merging: 12 entities, 0 extra entities, 8 relations
+INFO: [] Writing graph with 1482 nodes, 1545 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 51/295: crud_048
+INFO: Extracting stage 54/295: crud_050
+INFO: Processing d-id: doc-e91c7c92b3dfba9b0e0c230dc6408268
+INFO: Phase 2: Processing 3 relations from doc-b26b902b6ddc8d1a7ca517b30d83d690 (async: 16)
+INFO: Chunks appended from relation: `泉州市`
+INFO: Phase 3: Updating final 31(21+10) entities and  14 relations from doc-f582a48ea251d48293f2e56d0e93ce35
+INFO: Phase 3: Updating final 9(7+2) entities and  3 relations from doc-b26b902b6ddc8d1a7ca517b30d83d690
+INFO: Completed merging: 21 entities, 10 extra entities, 14 relations
+INFO: Completed merging: 7 entities, 2 extra entities, 3 relations
+INFO: [] Writing graph with 1485 nodes, 1553 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 49/295: crud_073
+INFO: [] Writing graph with 1485 nodes, 1553 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 53/295: crud_053
+INFO: Extracting stage 55/295: crud_054
+INFO: Processing d-id: doc-99e65d8419054672b8aa1099ffd20ba1
+INFO: Extracting stage 56/295: crud_052
+INFO: Processing d-id: doc-93c478f08839ba677cb368d2edb033b3
+INFO:  == LLM cache == saving: default:extract:72ace2e1187dbd574602c5ba8575b5dd
+INFO:  == LLM cache == saving: default:extract:2026ef1ab0d74cc0481204f90f34b3e6
+INFO:  == LLM cache == saving: default:extract:84eb19c16ad686d1a217336da2c3786b
+INFO: Chunk 1 of 1 extracted 9 Ent + 10 Rel chunk-e91c7c92b3dfba9b0e0c230dc6408268
+INFO: Merging stage 54/295: crud_050
+INFO: Phase 1: Processing 9 entities from doc-e91c7c92b3dfba9b0e0c230dc6408268 (async: 16)
+INFO: Phase 2: Processing 10 relations from doc-e91c7c92b3dfba9b0e0c230dc6408268 (async: 16)
+INFO:  == LLM cache == saving: default:extract:5dbe0f05cdea7c9854a0cbc89ea044be
+INFO: Chunk 1 of 1 extracted 12 Ent + 11 Rel chunk-93c478f08839ba677cb368d2edb033b3
+INFO: Merging stage 56/295: crud_052
+INFO: Phase 1: Processing 12 entities from doc-93c478f08839ba677cb368d2edb033b3 (async: 16)
+INFO: Chunks appended from relation: `企业`
+INFO: Phase 3: Updating final 27(27+0) entities and  20 relations from doc-03205514c439d2efa83831a0776b8bae
+INFO: Completed merging: 27 entities, 0 extra entities, 20 relations
+INFO: [] Writing graph with 1510 nodes, 1570 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 52/295: crud_046
+INFO: Extracting stage 57/295: crud_051
+INFO: Processing d-id: doc-b7a4454181636fbdf97c72b7ee6ba669
+INFO: Phase 2: Processing 11 relations from doc-93c478f08839ba677cb368d2edb033b3 (async: 16)
+INFO: Phase 3: Updating final 13(9+4) entities and  10 relations from doc-e91c7c92b3dfba9b0e0c230dc6408268
+INFO: Completed merging: 9 entities, 4 extra entities, 10 relations
+INFO: [] Writing graph with 1520 nodes, 1586 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 54/295: crud_050
+INFO: Extracting stage 58/295: crud_055
+INFO: Processing d-id: doc-15ec78494be59ae159c0c39a1cc5e16d
+INFO: Phase 3: Updating final 23(12+11) entities and  11 relations from doc-93c478f08839ba677cb368d2edb033b3
+INFO: Completed merging: 12 entities, 11 extra entities, 11 relations
+INFO: [] Writing graph with 1521 nodes, 1588 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 56/295: crud_052
+INFO: Extracting stage 59/295: crud_181
+INFO: Processing d-id: doc-21719c34565e2589affbbb25bc58d02c
+INFO:  == LLM cache == saving: default:extract:fa7a75015621adcf0fe015d5dd63c151
+INFO:  == LLM cache == saving: default:extract:58f0b274faf72a564bc48d0fe1f73fc3
+INFO: Chunk 1 of 1 extracted 7 Ent + 6 Rel chunk-15ec78494be59ae159c0c39a1cc5e16d
+INFO: Merging stage 58/295: crud_055
+INFO: Phase 1: Processing 7 entities from doc-15ec78494be59ae159c0c39a1cc5e16d (async: 16)
+INFO:  == LLM cache == saving: default:extract:07d7e641f596886c58e0e68da6ad3537
+INFO:  == LLM cache == saving: default:extract:d9a6edf61d3add5741996e76598cb1d5
+WARNING: chunk-b7a4454181636fbdf97c72b7ee6ba669: LLM output format error; found 4/5 fields on RELATION `展会`~`trade platform, economic cooperation`
+WARNING: chunk-b7a4454181636fbdf97c72b7ee6ba669: LLM output format error; found 4/5 fields on RELATION `跨境电商`~`trade channel, economic cooperation`
+WARNING: chunk-b7a4454181636fbdf97c72b7ee6ba669: LLM output format error; found 4/5 fields on RELATION `中巴自贸协定第二阶段降税安排`~`trade agreement, economic cooperation`
+WARNING: chunk-b7a4454181636fbdf97c72b7ee6ba669: LLM output format error; found 4/5 fields on RELATION `亚太贸易协定第二修正案`~`trade agreement, economic cooperation`
+WARNING: chunk-b7a4454181636fbdf97c72b7ee6ba669: LLM output format error; found 4/5 fields on RELATION `零关税待遇`~`tariff policy, trade facilitation`
+INFO:  == LLM cache == saving: default:extract:efcc6777ddb544c99b3b4e07541081d3
+INFO: Chunk 1 of 1 extracted 9 Ent + 6 Rel chunk-21719c34565e2589affbbb25bc58d02c
+INFO: Merging stage 59/295: crud_181
+INFO: Phase 1: Processing 9 entities from doc-21719c34565e2589affbbb25bc58d02c (async: 16)
+INFO: Phase 2: Processing 6 relations from doc-15ec78494be59ae159c0c39a1cc5e16d (async: 16)
+INFO: Phase 2: Processing 6 relations from doc-21719c34565e2589affbbb25bc58d02c (async: 16)
+INFO:  == LLM cache == saving: default:extract:83c8aad9d4cd1ba5a190360888a98671
+INFO: Chunk 1 of 1 extracted 24 Ent + 18 Rel chunk-b7a4454181636fbdf97c72b7ee6ba669
+INFO: Merging stage 57/295: crud_051
+INFO: Phase 1: Processing 24 entities from doc-b7a4454181636fbdf97c72b7ee6ba669 (async: 16)
+INFO: Phase 3: Updating final 7(7+0) entities and  6 relations from doc-15ec78494be59ae159c0c39a1cc5e16d
+INFO: Completed merging: 7 entities, 0 extra entities, 6 relations
+INFO: [] Writing graph with 1553 nodes, 1600 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 58/295: crud_055
+INFO: Extracting stage 60/295: crud_056
+INFO: Processing d-id: doc-326ecc1d69d44499dd9a575da059d226
+INFO: Merged: `中国` | 1+1
+INFO: Phase 3: Updating final 9(9+0) entities and  6 relations from doc-21719c34565e2589affbbb25bc58d02c
+INFO: Completed merging: 9 entities, 0 extra entities, 6 relations
+INFO: [] Writing graph with 1560 nodes, 1600 edges
+INFO: In memory DB persist to disk
+INFO: Completed processing file 59/295: crud_181
+INFO: Extracting stage 61/295: crud_059
+INFO: Processing d-id: doc-7ae57d1a1f9327476a97ec91034eff38
+INFO:  == LLM cache == saving: default:extract:5f3d6ce36e69b504797307adb5a7e2ae
+INFO: Phase 2: Processing 18 relations from doc-b7a4454181636fbdf97c72b7ee6ba669 (async: 16)
+INFO:  == LLM cache == saving: default:extract:00a1876a9ed329ad569a08430d8cf46f
+INFO: Chunk 1 of 1 extracted 50 Ent + 51 Rel chunk-99e65d8419054672b8aa1099ffd20ba1
+INFO: Merging stage 55/295: crud_054
+INFO: Phase 1: Processing 50 entities from doc-99e65d8419054672b8aa1099ffd20ba1 (async: 16)
+INFO: Merged: `湖北日报` | 1+1
+INFO: Merged: `工信部` | 1+1
+INFO:  == LLM cache == saving: default:extract:2313d6fb46d1e549b0f3d76a46f5fec2

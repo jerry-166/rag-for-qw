@@ -1,0 +1,9 @@
+[wait] 等 import 进程 9180 结束...
+[0s] gen log: [login] OK (fresh token) | [list] KB17 docs: 140
+[60s] gen log: [login] OK (fresh token) | [list] KB17 docs: 140
+[120s] gen log: [login] OK (fresh token) | [list] KB17 docs: 140 | [imp] 213 err: HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=300)
+[180s] gen log: [login] OK (fresh token) | [list] KB17 docs: 140 | [imp] 213 err: HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=300)
+[240s] gen log: [login] OK (fresh token) | [list] KB17 docs: 140 | [imp] 213 err: HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=300)
+[300s] gen log: [login] OK (fresh token) | [list] KB17 docs: 140 | [imp] 213 err: HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=300)
+[360s] gen log: [list] KB17 docs: 140 | [imp] 213 err: HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=300) | [imp] 212 err: HTTPConnec
+[420s] gen log: [list] KB17 docs: 140 | [imp] 213 err: HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=300) | [imp] 212 err: HTTPConnec

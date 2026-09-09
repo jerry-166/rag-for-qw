@@ -1,0 +1,80 @@
+
+LightRAG log file: D:\workspace\LightRAG\lightrag.log
+
+[36m
+    ╔══════════════════════════════════════════════════════════════╗
+    ║                 LightRAG Server v1.4.16/0289                 ║
+    ║         Fast, Lightweight RAG Server Implementation          ║
+    ╚══════════════════════════════════════════════════════════════╝
+    [0m
+[35m
+📡 Server Configuration:[0m
+[37m    ├─ Host: [0m[33m0.0.0.0[0m
+[37m    ├─ Port: [0m[33m9621[0m
+[37m    ├─ Workers: [0m[33m1[0m
+[37m    ├─ Timeout: [0m[33m300[0m
+[37m    ├─ CORS Origins: [0m[33m*[0m
+[37m    ├─ SSL Enabled: [0m[33mFalse[0m
+[37m    ├─ Ollama Emulating Model: [0m[33mlightrag:latest[0m
+[37m    ├─ Log Level: [0m[33mINFO[0m
+[37m    ├─ Verbose Debug: [0m[33mFalse[0m
+[37m    ├─ API Key: [0m[33mNot Set[0m
+[37m    └─ JWT Auth: [0m[33mDisabled[0m
+[35m
+📂 Directory Configuration:[0m
+[37m    ├─ Working Directory: [0m[33mD:\workspace\LightRAG\rag_storage[0m
+[37m    └─ Input Directory: [0m[33mD:\workspace\LightRAG\inputs[0m
+[35m
+🤖 LLM Configuration:[0m
+[37m    ├─ Binding: [0m[33mopenai[0m
+[37m    ├─ Host: [0m[33mhttps://open.bigmodel.cn/api/paas/v4/[0m
+[37m    ├─ Model: [0m[33mglm-4-flash[0m
+[37m    ├─ Max Async for LLM: [0m[33m8[0m
+[37m    ├─ Summary Context Size: [0m[33m12000[0m
+[37m    ├─ LLM Cache Enabled: [0m[33mTrue[0m
+[37m    └─ LLM Cache for Extraction Enabled: [0m[33mTrue[0m
+[35m
+📊 Embedding Configuration:[0m
+[37m    ├─ Binding: [0m[33mopenai[0m
+[37m    ├─ Host: [0m[33mhttps://dashscope.aliyuncs.com/compatible-mode/v1[0m
+[37m    ├─ Model: [0m[33mtext-embedding-v4[0m
+[37m    └─ Dimensions: [0m[33m1536[0m
+[35m
+⚙️ RAG Configuration:[0m
+[37m    ├─ Summary Language: [0m[33mChinese[0m
+[37m    ├─ Entity Types: [0m[33m['Person', 'Creature', 'Organization', 'Location', 'Event', 'Concept', 'Method', 'Content', 'Data', 'Artifact', 'NaturalObject'][0m
+[37m    ├─ Max Parallel Insert: [0m[33m4[0m
+[37m    ├─ Chunk Size: [0m[33m1200[0m
+[37m    ├─ Chunk Overlap Size: [0m[33m100[0m
+[37m    ├─ Cosine Threshold: [0m[33m0.2[0m
+[37m    ├─ Top-K: [0m[33m40[0m
+[37m    └─ Force LLM Summary on Merge: [0m[33m8[0m
+[35m
+💾 Storage Configuration:[0m
+[37m    ├─ KV Storage: [0m[33mPGKVStorage[0m
+[37m    ├─ Vector Storage: [0m[33mPGVectorStorage[0m
+[37m    ├─ Graph Storage: [0m[33mNetworkXStorage[0m
+[37m    ├─ Document Status Storage: [0m[33mPGDocStatusStorage[0m
+[37m    └─ Workspace: [0m[33m-[0m
+[32m
+✨ Server starting up...
+[0m
+[35m
+🌐 Server Access Information:[0m
+[37m    ├─ WebUI (local): [0m[33mhttp://localhost:9621[0m
+[37m    ├─ Remote Access: [0m[33mhttp://<your-ip-address>:9621[0m
+[37m    ├─ API Documentation (local): [0m[33mhttp://localhost:9621/docs[0m
+[37m    └─ Alternative Documentation (local): [0m[33mhttp://localhost:9621/redoc[0m
+[35m
+📝 Note:[0m
+[36m    Since the server is running on 0.0.0.0:
+    - Use 'localhost' or '127.0.0.1' for local access
+    - Use your machine's IP address for remote access
+    - To find your IP address:
+      • Windows: Run 'ipconfig' in terminal
+      • Linux/Mac: Run 'ifconfig' or 'ip addr' in terminal
+    [0m
+Starting Uvicorn server in single-process mode on 0.0.0.0:9621
+[32m
+Server is ready to accept connections! 🚀
+[0m

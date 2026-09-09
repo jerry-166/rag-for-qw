@@ -1,0 +1,23 @@
+[load] 140 texts, 140 file_sources, sample text[:60]='# 查询改写 技术详解（复验文档 028）\n\n本文介绍查询改写的核心概念、架构与工程实践。复验生成文档，用于 Stage', source[0]=213
+[import] posting to LightRAG /documents/texts...
+[import] HTTP 200, resp[:300]={"status":"success","message":"Texts successfully received. Processing will continue in background.","track_id":"insert_20260901_171446_da09f8dd"}
+[import] track_id=insert_20260901_171446_da09f8dd, resp keys=['status', 'message', 'track_id']
+[0s] status=None processed=0/140 busy=None
+[10s] status=None processed=0/140 busy=None
+[20s] status=None processed=0/140 busy=None
+[30s] status=None processed=0/140 busy=None
+[40s] status=None processed=0/140 busy=None
+[50s] status=None processed=0/140 busy=None
+[60s] status=None processed=0/140 busy=None
+[70s] status=None processed=0/140 busy=None
+[80s] status=None processed=0/140 busy=None
+[90s] status=None processed=0/140 busy=None
+[100s] status=None processed=0/140 busy=None
+[110s] status=None processed=0/140 busy=None
+[120s] status=None processed=0/140 busy=None
+[130s] status=None processed=0/140 busy=None
+[140s] status=None processed=0/140 busy=None
+[150s] status=None processed=0/140 busy=None
+[160s] status=None processed=0/140 busy=None
+[170s] status=None processed=0/140 busy=None
+[180s] status=None processed=0/140 busy=None

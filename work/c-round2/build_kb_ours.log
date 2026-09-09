@@ -1,0 +1,25 @@
+[token] refreshed at 20:30:31
+initial login ok, token=eyJhbGciOiJIUzI1NiIs...
+
+=== build KB: C2-CRUD-RAG-300 ===
+  reused existing KB: C2-CRUD-RAG-300 -> id=65
+  kb_id=65
+  docs to upload: 300
+  [50/300] ok=50 elapsed=3s rate=16.62/s
+  [100/300] ok=100 elapsed=6s rate=17.24/s
+  [150/300] ok=150 elapsed=9s rate=16.38/s
+  [200/300] ok=200 elapsed=12s rate=16.17/s
+  [250/300] ok=250 elapsed=399s rate=0.63/s
+  [300/300] ok=299 elapsed=1163s rate=0.26/s
+  done: ok=299 fail=1 elapsed=1163s
+  fail samples:
+    ('crud_274', None, 'exc', "HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=300)")
+  map saved: D:\workspace\rag-for-qw\work\c-round2\kb_map_crud.json
+
+=== build KB: C2-NFCorpus-3633 ===
+  KB created: C2-NFCorpus-3633 -> id=66
+  kb_id=66
+  docs to upload: 3633
+  [50/3633] ok=48 elapsed=803s rate=0.06/s
+  [100/3633] ok=97 elapsed=1561s rate=0.06/s
+[token] refreshed at 21:20:50

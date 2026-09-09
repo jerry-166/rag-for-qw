@@ -1,0 +1,72 @@
+model_list:
+  - model_name: github_copilot/text-embedding-ada-002
+    model_info:
+      mode: embedding
+    litellm_params:
+      model: github_copilot/text-embedding-ada-002
+  # ── 主模型 ──
+  - model_name: gpt-4o
+    litellm_params:
+      model: github_copilot/gpt-4o
+  - model_name: xiaomi/mimo-v2.5-pro
+    litellm_params:
+      model: openai/mimo-v2.5-pro
+      api_base: https://token-plan-cn.xiaomimimo.com/v1
+      api_key: tp-cpdislplsh6k731n0kxz9xpl22nkg4fn4nhvupe0tfatizk8
+      drop_params: true
+  - model_name: xiaomi/mimo-v2-pro
+    litellm_params:
+      model: openai/mimo-v2-pro
+      api_base: https://token-plan-cn.xiaomimimo.com/v1
+      api_key: tp-cpdislplsh6k731n0kxz9xpl22nkg4fn4nhvupe0tfatizk8
+      drop_params: true
+  - model_name: xiaomi/mimo-v2-flash
+    litellm_params:
+      model: openai/mimo-v2-flash
+      api_base: https://token-plan-cn.xiaomimimo.com/v1
+      api_key: tp-cpdislplsh6k731n0kxz9xpl22nkg4fn4nhvupe0tfatizk8
+      drop_params: true
+  - model_name: nvidia/deepseek-v4-pro
+    litellm_params:
+      model: nvidia_nim/deepseek-ai/deepseek-v4-pro
+      api_base: https://integrate.api.nvidia.com/v1
+      api_key: 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
+      drop_params: true
+  - model_name: Agnes-2.0-Flash
+    litellm_params:
+      model: openai/Agnes-2.0-Flash
+      api_base: https://apihub.agnes-ai.com/v1
+      api_key: sk-pgZS2pR1zIuz1NehBdwEC9XtAf2gOdNkL5IU3lrT9eXQvEKT
+  # ── 备用模型 ──
+  - model_name: deepseek-chat
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: sk-24be7e270c734437905247d50e9ca80a
+  - model_name: gpt-5.2
+    litellm_params:
+      model: github_copilot/gpt-5.2
+  # ── DashScope Qwen3.7（C 轮新增，替代 gpt-4o 全挂）──
+  - model_name: qwen3.7-flash
+    litellm_params:
+      model: openai/qwen3.7-flash
+      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api_key: sk-1d8cbea1922f4952b19c4394e9b3eceb
+  - model_name: text-embedding-v4
+    litellm_params:
+      model: openai/text-embedding-v4
+      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api_key: sk-1d8cbea1922f4952b19c4394e9b3eceb
+      mode: embedding
+
+allowed_openai_params:
+  - thinking
+  - context_management
+
+litellm_settings:
+  drop_params: true
+  additional_drop_params: ["output_config"]
+
+router_settings:
+  num_retries: 2
+  fallbacks:
+    - gpt-4o: ["deepseek-chat", "gpt-5.2", "qwen3.7-flash"]

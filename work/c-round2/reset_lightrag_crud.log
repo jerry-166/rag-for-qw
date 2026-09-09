@@ -1,0 +1,88 @@
+[1] 停 LightRAG
+  pids: [38356, 5656, 30620]
+�ɹ�: ����ֹ PID Ϊ 38356 �Ľ��̡�
+  killed 38356
+  killed 5656
+  killed 30620
+
+[2] 清 rag 库 LightRAG 表
+  tables: ['lightrag_doc_chunks', 'lightrag_doc_full', 'lightrag_doc_status', 'lightrag_entity_chunks', 'lightrag_full_entities', 'lightrag_full_relations', 'lightrag_llm_cache', 'lightrag_relation_chunks', 'lightrag_vdb_chunks_nomic_embed_text_v1_5_768d', 'lightrag_vdb_chunks_text_embedding_v4_1024d', 'lightrag_vdb_chunks_text_embedding_v4_1536d', 'lightrag_vdb_entity_nomic_embed_text_v1_5_768d', 'lightrag_vdb_entity_text_embedding_v4_1024d', 'lightrag_vdb_entity_text_embedding_v4_1536d', 'lightrag_vdb_relation_nomic_embed_text_v1_5_768d', 'lightrag_vdb_relation_text_embedding_v4_1024d', 'lightrag_vdb_relation_text_embedding_v4_1536d']
+  truncated: lightrag_doc_chunks
+  truncated: lightrag_doc_full
+  truncated: lightrag_doc_status
+  truncated: lightrag_entity_chunks
+  truncated: lightrag_full_entities
+  truncated: lightrag_full_relations
+  truncated: lightrag_llm_cache
+  truncated: lightrag_relation_chunks
+  truncated: lightrag_vdb_chunks_nomic_embed_text_v1_5_768d
+  truncated: lightrag_vdb_chunks_text_embedding_v4_1024d
+  truncated: lightrag_vdb_chunks_text_embedding_v4_1536d
+  truncated: lightrag_vdb_entity_nomic_embed_text_v1_5_768d
+  truncated: lightrag_vdb_entity_text_embedding_v4_1024d
+  truncated: lightrag_vdb_entity_text_embedding_v4_1536d
+  truncated: lightrag_vdb_relation_nomic_embed_text_v1_5_768d
+  truncated: lightrag_vdb_relation_text_embedding_v4_1024d
+  truncated: lightrag_vdb_relation_text_embedding_v4_1536d
+
+[3] 重启 LightRAG
+  started
+  waiting for /health ...
+  health OK after 9s
+  llm_model=glm-4-flash, embedding_model=text-embedding-v4
+  workspace='', max_async=8
+
+[4] 导入 CRUD-RAG 300 docs
+  docs: 300
+  [1-5/300] sent
+  [51-55/300] sent
+  [101-105/300] sent
+  [151-155/300] sent
+  [201-205/300] sent
+  [251-255/300] sent
+
+  导入请求完成 11.5s，等 pipeline 空闲 ...
+  [60s] busy=True active=None
+  [120s] busy=True active=None
+  [180s] busy=True active=None
+  [240s] busy=True active=None
+  [300s] busy=True active=None
+  [360s] busy=True active=None
+  [420s] busy=True active=None
+  [480s] busy=True active=None
+  [540s] busy=True active=None
+  [600s] busy=True active=None
+  [660s] busy=True active=None
+  [720s] busy=True active=None
+  [780s] busy=True active=None
+  [840s] busy=True active=None
+  [900s] busy=True active=None
+  [960s] busy=True active=None
+  [1020s] busy=True active=None
+  [1080s] busy=True active=None
+  [1140s] busy=True active=None
+  [1200s] busy=True active=None
+  [1260s] busy=True active=None
+  [1320s] busy=True active=None
+  [1380s] busy=True active=None
+  [1440s] busy=True active=None
+  [1500s] busy=True active=None
+  [1560s] busy=True active=None
+  [1620s] busy=True active=None
+  [1680s] busy=True active=None
+  [1740s] busy=True active=None
+  [1800s] busy=True active=None
+  [1860s] busy=True active=None
+  [1920s] busy=True active=None
+  [1980s] busy=True active=None
+  [2040s] busy=True active=None
+  [2100s] busy=True active=None
+  [2160s] busy=True active=None
+  [2220s] busy=True active=None
+  [2280s] busy=True active=None
+  [2340s] busy=True active=None
+  [2400s] busy=True active=None
+  [2460s] busy=True active=None
+  [2520s] busy=True active=None
+  [2580s] busy=True active=None
+  [2640s] busy=True active=None

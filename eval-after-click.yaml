@@ -1,0 +1,101 @@
+- generic [ref=e437]:
+  - complementary [ref=e438]:
+    - generic [ref=e439]:
+      - generic [ref=e440]: RAGFlow
+      - button "折叠侧边栏" [ref=e446] [cursor=pointer]
+    - navigation [ref=e449]:
+      - link "知识库" [ref=e450] [cursor=pointer]:
+        - /url: "#"
+      - link "文档管理" [ref=e457] [cursor=pointer]:
+        - /url: "#"
+      - link "知识检索" [ref=e464] [cursor=pointer]:
+        - /url: "#"
+      - link "AI Agent" [ref=e470] [cursor=pointer]:
+        - /url: "#"
+      - link "知识记忆" [ref=e476] [cursor=pointer]:
+        - /url: "#"
+      - link "设置" [ref=e482] [cursor=pointer]:
+        - /url: "#"
+      - link "审计中心" [ref=e488] [cursor=pointer]:
+        - /url: "#"
+      - link "测试集" [ref=e493] [cursor=pointer]:
+        - /url: "#"
+      - link "缓存中心" [ref=e500] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e506]:
+      - generic [ref=e507]: 统计概览
+      - generic [ref=e508]:
+        - generic [ref=e509]:
+          - generic [ref=e510]: "189"
+          - generic [ref=e511]: 文档
+        - generic [ref=e512]:
+          - generic [ref=e513]: "5433"
+          - generic [ref=e514]: Chunk
+        - generic [ref=e515]:
+          - generic [ref=e516]: "12637"
+          - generic [ref=e517]: 子问题
+        - generic [ref=e518]:
+          - generic [ref=e519]: "2786"
+          - generic [ref=e520]: 摘要
+        - generic [ref=e521]:
+          - generic [ref=e522]: "15"
+          - generic [ref=e523]: 用户
+    - button "用户菜单" [ref=e525] [cursor=pointer]:
+      - generic [ref=e526]: A
+      - generic [ref=e527]:
+        - generic [ref=e528]: admin
+        - generic [ref=e529]: 管理员
+  - main [ref=e532]:
+    - generic [ref=e533]:
+      - generic [ref=e534]: 测试集管理
+      - button "切换主题" [ref=e535] [cursor=pointer]
+      - button "用户菜单" [ref=e538] [cursor=pointer]:
+        - generic [ref=e539]: A
+    - generic [ref=e540]:
+      - generic [ref=e541]:
+        - generic [ref=e542]:
+          - heading "测试集管理" [level=1] [ref=e543]
+          - paragraph [ref=e544]: 从 session 提取 → 待审状态 → 人工审核（含 LLM 辅助补 ground_truth）→ approved 入评估
+        - generic [ref=e545]:
+          - button "从 Session 提取" [ref=e546] [cursor=pointer]
+          - button "导入" [ref=e547] [cursor=pointer]
+          - button "跑评估" [disabled] [ref=e548]
+      - generic [ref=e549]:
+        - generic [ref=e550]:
+          - generic [ref=e551]: 测试集数
+          - generic [ref=e552]: "5"
+        - generic [ref=e553]:
+          - generic [ref=e554]: 总样本
+          - generic [ref=e555]: "34"
+        - generic [ref=e556]:
+          - generic [ref=e557]: 待审
+          - generic [ref=e558]: —
+        - generic [ref=e559]:
+          - generic [ref=e560]: 已通过
+          - generic [ref=e561]: —
+        - generic [ref=e562]:
+          - generic [ref=e563]: 含 GT
+          - generic [ref=e564]: —
+      - generic [ref=e565]:
+        - generic [ref=e566]:
+          - generic [ref=e567]: 测试集
+          - generic [ref=e568]:
+            - generic [ref=e569] [cursor=pointer]:
+              - generic [ref=e570]: all_sessions_20260901
+              - generic [ref=e571]: 20 条
+            - generic [ref=e572] [cursor=pointer]:
+              - generic [ref=e573]: default
+              - generic [ref=e574]: 5 条
+            - generic [ref=e575] [cursor=pointer]:
+              - generic [ref=e576]: test_create
+              - generic [ref=e577]: 3 条
+            - generic [ref=e578] [cursor=pointer]:
+              - generic [ref=e579]: verify_ours_import
+              - generic [ref=e580]: 3 条
+            - generic [ref=e581] [cursor=pointer]:
+              - generic [ref=e582]: verify_ragas_import
+              - generic [ref=e583]: 3 条
+        - generic [ref=e586]:
+          - generic [ref=e587]: ≣
+          - generic [ref=e588]: 未选择测试集
+          - paragraph [ref=e589]: 从左侧选择一个测试集查看样本

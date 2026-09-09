@@ -1,0 +1,31 @@
+{
+  "name": "c-eval2",
+  "mainConversationId": "57cd619bdff84171ab3ed77f491fe5f1",
+  "workspacePath": "d:/workspace/rag-for-qw",
+  "createdAt": "2026-09-06T14:18:17.829Z",
+  "options": {
+    "workspacePath": "d:/workspace/rag-for-qw",
+    "isAutoTeam": false
+  },
+  "isAutoTeam": false,
+  "members": [
+    {
+      "memberId": "c-worker2@c-eval2",
+      "name": "c-worker2",
+      "role": "C轮RAGAS+DashScope",
+      "sessionId": "f8d9532bcaea4ff29d1e81d255502f86"
+    },
+    {
+      "memberId": "c-worker3@c-eval2",
+      "name": "c-worker3",
+      "role": "C轮重建索引+RAGAS",
+      "sessionId": "3b84168140e04e45b193c056a5520d7c"
+    },
+    {
+      "memberId": "c-worker4@c-eval2",
+      "name": "c-worker4",
+      "role": "C轮智谱+DashScope",
+      "sessionId": "8bdc7cdd70e748ac87da049b911ffa2c"
+    }
+  ]
+}

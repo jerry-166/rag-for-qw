@@ -1,0 +1,11 @@
+[
+  {
+    "id": "shutdown-1788748763768",
+    "from": "team-lead",
+    "to": "c-worker3",
+    "type": "shutdown_request",
+    "content": "{\"type\":\"shutdown_request\",\"request_id\":\"shutdown-1788748763768\",\"reason\":\"用户已停你。请关闭。改试 Cohere 模型（qwen 太慢）。\",\"from\":\"team-lead\",\"timestamp\":\"2026-09-07T02:39:23.769Z\"}",
+    "timestamp": "2026-09-07T02:39:23.769Z",
+    "read": true
+  }
+]

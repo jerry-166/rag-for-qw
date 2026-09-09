@@ -1,0 +1,11 @@
+[
+  {
+    "id": "shutdown-1788707076250",
+    "from": "team-lead",
+    "to": "c-worker2",
+    "type": "shutdown_request",
+    "content": "{\"type\":\"shutdown_request\",\"request_id\":\"shutdown-1788707076250\",\"reason\":\"用户已停你，请关闭。DashScope 对接已由主 agent 完成（config get_runtime DASHSCOPE_API_KEY + dimensions + check_embedding_ctx_length=False），后续由 c-worker3 接手。\",\"from\":\"team-lead\",\"timestamp\":\"2026-09-06T15:04:36.250Z\"}",
+    "timestamp": "2026-09-06T15:04:36.250Z",
+    "read": true
+  }
+]

@@ -1,0 +1,4 @@
+[load] 140 texts, sample[:80]='# 查询改写 技术详解（复验文档 028）\n\n本文介绍查询改写的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 查询改写 '
+[import] posting 140 strings to LightRAG /documents/texts...
+[import] HTTP 400, resp[:300]={"detail":"A valid file_source is required for each text"}
+[FATAL] import failed: {"detail":"A valid file_source is required for each text"}

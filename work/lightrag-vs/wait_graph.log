@@ -1,0 +1,11 @@
+[wait] 等 import 进程 24140 结束...
+[0s] gen log: [imp] 193 err: HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/process/import/193 (Caused by NewConnectionError("
+[60s] gen log: [import] 30/140 ok=17 fail=13 | [import] 40/140 ok=17 fail=23 | [import] 50/140 ok=17 fail=33
+[120s] gen log: [import] 40/140 ok=17 fail=23 | [import] 50/140 ok=17 fail=33 | [import] 60/140 ok=17 fail=43
+[180s] gen log: [import] 60/140 ok=17 fail=43 | [import] 70/140 ok=17 fail=53 | [import] 80/140 ok=17 fail=63
+[240s] gen log: [import] 80/140 ok=17 fail=63 | [import] 90/140 ok=17 fail=73 | [import] 100/140 ok=17 fail=83
+[300s] gen log: [import] 90/140 ok=17 fail=73 | [import] 100/140 ok=17 fail=83 | [import] 110/140 ok=17 fail=93
+[360s] gen log: [import] 110/140 ok=17 fail=93 | [import] 120/140 ok=17 fail=103 | [import] 130/140 ok=17 fail=113
+[wait] import 进程结束（410s）
+[entity] KB17 PG entities=0 entity_relations=0
+[FATAL] KB17 无 entity，graph 模式会降级 native，abort
