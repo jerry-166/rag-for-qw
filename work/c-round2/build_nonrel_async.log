@@ -1,13 +1,23 @@
 login ok, token=eyJhbGciOiJIUzI1NiIs...
-concurrency=3, doc_count=400
-non-rel docs to process: 400
-  [20/400] ok=20 fail=0 elapsed=8s rate=2.51/s eta=151s
-  [40/400] ok=40 fail=0 elapsed=748s rate=0.05/s eta=6729s
-  [60/400] ok=60 fail=0 elapsed=1732s rate=0.03/s eta=9816s
-  [80/400] ok=80 fail=0 elapsed=2686s rate=0.03/s eta=10744s
-  [100/400] ok=100 fail=0 elapsed=3591s rate=0.03/s eta=10773s
-  [120/400] ok=120 fail=0 elapsed=4575s rate=0.03/s eta=10676s
-  [140/400] ok=140 fail=0 elapsed=5528s rate=0.03/s eta=10266s
-  [160/400] ok=160 fail=0 elapsed=6541s rate=0.02/s eta=9812s
-  [180/400] ok=180 fail=0 elapsed=7490s rate=0.02/s eta=9155s
-  [200/400] ok=200 fail=0 elapsed=8483s rate=0.02/s eta=8483s
+concurrency=5, doc_count=700
+non-rel docs to process: 700
+  [20/700] ok=20 fail=0 elapsed=175s rate=0.11/s eta=5965s
+  [40/700] ok=40 fail=0 elapsed=179s rate=0.22/s eta=2956s
+  [60/700] ok=60 fail=0 elapsed=231s rate=0.26/s eta=2468s
+  [80/700] ok=80 fail=0 elapsed=273s rate=0.29/s eta=2115s
+  [100/700] ok=100 fail=0 elapsed=277s rate=0.36/s eta=1659s
+  [120/700] ok=120 fail=0 elapsed=281s rate=0.43/s eta=1359s
+  [140/700] ok=140 fail=0 elapsed=284s rate=0.49/s eta=1138s
+  [160/700] ok=160 fail=0 elapsed=288s rate=0.55/s eta=973s
+  [180/700] ok=180 fail=0 elapsed=292s rate=0.62/s eta=844s
+  [200/700] ok=200 fail=0 elapsed=296s rate=0.68/s eta=740s
+  [220/700] ok=220 fail=0 elapsed=301s rate=0.73/s eta=657s
+  [240/700] ok=240 fail=0 elapsed=306s rate=0.79/s eta=586s
+  [260/700] ok=260 fail=0 elapsed=310s rate=0.84/s eta=524s
+  [280/700] ok=280 fail=0 elapsed=313s rate=0.89/s eta=470s
+  [300/700] ok=300 fail=0 elapsed=319s rate=0.94/s eta=425s
+  [320/700] ok=320 fail=0 elapsed=323s rate=0.99/s eta=383s
+  [340/700] ok=340 fail=0 elapsed=354s rate=0.96/s eta=374s
+  [360/700] ok=360 fail=0 elapsed=694s rate=0.52/s eta=656s
+  [380/700] ok=378 fail=2 elapsed=1592s rate=0.24/s eta=1340s
+  [400/700] ok=395 fail=5 elapsed=2482s rate=0.16/s eta=1862s

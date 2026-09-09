@@ -1,0 +1,53 @@
+Traceback (most recent call last):
+  File "D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\aiohttp\client_reqrep.py", line 558, in start
+    message, payload = await protocol.read()  # type: ignore[union-attr]
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\aiohttp\streams.py", line 705, in read
+    await self._waiter
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\workspace\rag-for-qw\work\c-round2\build_nonrel_async.py", line 71, in process_doc
+    async with session.post(f'{B}/api/upload/markdown',
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        data=form, headers=headers, timeout=60) as r:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\aiohttp\client.py", line 1693, in __aenter__
+    self._resp: _RetType_co = await self._coro
+                              ^^^^^^^^^^^^^^^^
+  File "D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\aiohttp\client.py", line 858, in _request
+    resp = await handler(req)
+           ^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\aiohttp\client.py", line 836, in _connect_and_send_request
+    await resp.start(conn)
+  File "D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\aiohttp\client_reqrep.py", line 553, in start
+    with self._timer:
+         ^^^^^^^^^^^
+  File "D:\workspace\rag-for-qw\backend\.venv\Lib\site-packages\aiohttp\helpers.py", line 759, in __exit__
+    raise asyncio.TimeoutError from exc_val
+TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\workspace\rag-for-qw\work\c-round2\build_nonrel_async.py", line 155, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\asyncio\runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\ASUS\AppData\Roaming\uv\python\cpython-3.13.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "D:\workspace\rag-for-qw\work\c-round2\build_nonrel_async.py", line 123, in main
+    await asyncio.gather(*batch)
+  File "D:\workspace\rag-for-qw\work\c-round2\build_nonrel_async.py", line 104, in process_doc
+    stats['fail'].append((doc_id, file_id, 'timeout', f'{step} timeout 300s'))
+                                  ^^^^^^^
+UnboundLocalError: cannot access local variable 'file_id' where it is not associated with a value
+<sys>:0: RuntimeWarning: coroutine 'process_doc' was never awaited
