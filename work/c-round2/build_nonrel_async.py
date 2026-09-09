@@ -60,6 +60,7 @@ async def process_doc(session, doc, sem, stats):
     async with sem:
         token = get_token_sync()
         headers = {'Authorization': f'Bearer {token}'}
+        file_id = None  # 初始化，防止 upload timeout 时 file_id 未定义
         
         try:
             # 1. upload（multipart）
