@@ -209,10 +209,26 @@ async def lifespan(app: FastAPI):
     from services.audit import audit
     audit.start()
 
+    # ── 缓存管理器（文档 08）：启动 60s 周期 stats 审计快照任务 ──
+    from services.cache import get_cache_manager
+    _cache_snapshot_task = asyncio.create_task(
+        get_cache_manager().stats_snapshot_loop())
+    logger.info("[Cache] 缓存管理器已启动（stats 快照 60s 周期）")
+
+    # ── 数据飞轮调度器（文档 09，Step 2）：APScheduler 周期跑数据飞轮 ──
+    # 默认 FLYWHEEL_ENABLED=false 不启动；需显式开启
+    from services.data_flywheel import start_scheduler as _start_flywheel
+    _start_flywheel()
+
     yield
 
     # 关闭时
     logger.info("正在关闭应用...")
+    # 缓存快照任务：优雅取消
+    _cache_snapshot_task.cancel()
+    # 数据飞轮调度器：优雅停机
+    from services.data_flywheel import stop_scheduler as _stop_flywheel
+    await _stop_flywheel()
     # 审计管道：优雅停机 flush 队列残留
     await audit.stop()
     logger.info("应用已关闭")

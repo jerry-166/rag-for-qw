@@ -1,0 +1,125 @@
+[wait] 等 LightRAG 索引完成 (pipeline_busy 连续 false 30s)...
+[0s] busy=True emb=97/98 processed=20/140 failed=0
+[10s] busy=True emb=102/103 processed=21/140 failed=0
+[20s] busy=True emb=105/106 processed=22/140 failed=0
+[30s] busy=True emb=106/106 processed=23/140 failed=0
+[40s] busy=True emb=111/112 processed=23/140 failed=0
+[50s] busy=True emb=117/117 processed=25/140 failed=0
+[60s] busy=True emb=122/125 processed=26/140 failed=0
+[70s] busy=True emb=127/130 processed=27/140 failed=0
+[80s] busy=True emb=130/130 processed=28/140 failed=0
+[90s] busy=True emb=139/139 processed=30/140 failed=0
+[100s] busy=True emb=139/139 processed=30/140 failed=0
+[110s] busy=True emb=144/144 processed=31/140 failed=0
+[120s] busy=True emb=152/152 processed=33/140 failed=0
+[130s] busy=True emb=152/152 processed=33/140 failed=0
+[140s] busy=True emb=157/160 processed=33/140 failed=0
+[150s] busy=True emb=160/160 processed=35/140 failed=0
+[160s] busy=True emb=165/165 processed=36/140 failed=0
+[170s] busy=True emb=169/170 processed=36/140 failed=0
+[180s] busy=True emb=179/181 processed=38/140 failed=0
+[190s] busy=True emb=181/188 processed=39/140 failed=0
+[200s] busy=True emb=197/198 processed=41/140 failed=0
+[210s] busy=True emb=201/207 processed=43/140 failed=0
+[220s] busy=True emb=207/207 processed=44/140 failed=0
+[230s] busy=True emb=211/214 processed=44/140 failed=0
+[240s] busy=True emb=220/222 processed=46/140 failed=0
+[250s] busy=True emb=228/228 processed=49/140 failed=0
+[260s] busy=True emb=234/235 processed=49/140 failed=0
+[270s] busy=True emb=244/244 processed=51/140 failed=0
+[280s] busy=True emb=246/246 processed=52/140 failed=0
+[290s] busy=True emb=256/260 processed=54/140 failed=0
+[300s] busy=True emb=260/260 processed=55/140 failed=0
+[310s] busy=True emb=271/273 processed=56/140 failed=0
+[320s] busy=True emb=278/278 processed=59/140 failed=0
+[330s] busy=True emb=278/278 processed=59/140 failed=0
+[340s] busy=True emb=288/288 processed=61/140 failed=0
+[350s] busy=True emb=292/292 processed=62/140 failed=0
+[360s] busy=True emb=305/305 processed=65/140 failed=0
+[370s] busy=True emb=305/305 processed=65/140 failed=0
+[380s] busy=True emb=311/315 processed=65/140 failed=0
+[390s] busy=True emb=321/321 processed=68/140 failed=0
+[400s] busy=True emb=330/332 processed=69/140 failed=0
+[410s] busy=True emb=336/336 processed=71/140 failed=0
+[420s] busy=True emb=350/350 processed=74/140 failed=0
+[430s] busy=True emb=350/350 processed=74/140 failed=0
+[440s] busy=True emb=361/363 processed=75/140 failed=0
+[450s] busy=True emb=364/371 processed=77/140 failed=0
+[460s] busy=True emb=376/378 processed=78/140 failed=0
+[470s] busy=True emb=380/380 processed=80/140 failed=0
+[480s] busy=True emb=388/395 processed=81/140 failed=0
+[490s] busy=True emb=399/403 processed=83/140 failed=0
+[500s] busy=True emb=406/406 processed=85/140 failed=0
+[510s] busy=True emb=411/412 processed=85/140 failed=0
+[520s] busy=True emb=422/422 processed=88/140 failed=0
+[530s] busy=True emb=427/427 processed=89/140 failed=0
+[540s] busy=True emb=439/441 processed=90/140 failed=0
+[550s] busy=True emb=445/445 processed=92/140 failed=0
+[560s] busy=True emb=446/450 processed=92/140 failed=0
+[570s] busy=True emb=455/460 processed=93/140 failed=0
+[580s] busy=True emb=469/469 processed=96/140 failed=0
+[590s] busy=True emb=474/479 processed=97/140 failed=0
+[600s] busy=True emb=479/479 processed=98/140 failed=0
+[610s] busy=True emb=488/489 processed=99/140 failed=0
+[620s] busy=True emb=494/495 processed=100/140 failed=0
+[630s] busy=True emb=500/500 processed=102/140 failed=0
+[640s] busy=True emb=509/510 processed=103/140 failed=0
+[650s] busy=True emb=517/517 processed=105/140 failed=0
+[660s] busy=True emb=522/530 processed=106/140 failed=0
+[670s] busy=True emb=534/535 processed=107/140 failed=0
+[680s] busy=True emb=539/539 processed=109/140 failed=0
+[690s] busy=True emb=539/539 processed=109/140 failed=0
+[700s] busy=True emb=548/548 processed=110/140 failed=0
+[710s] busy=True emb=553/554 processed=111/140 failed=0
+[720s] busy=True emb=559/559 processed=113/140 failed=0
+[730s] busy=True emb=564/564 processed=114/140 failed=0
+[740s] busy=True emb=571/575 processed=114/140 failed=0
+[750s] busy=True emb=578/578 processed=116/140 failed=0
+[760s] busy=True emb=581/582 processed=116/140 failed=0
+[770s] busy=True emb=588/592 processed=118/140 failed=0
+[780s] busy=True emb=592/592 processed=119/140 failed=0
+[790s] busy=True emb=596/600 processed=119/140 failed=0
+[800s] busy=True emb=604/605 processed=121/140 failed=0
+[810s] busy=True emb=605/605 processed=122/140 failed=0
+[820s] busy=True emb=612/614 processed=122/140 failed=0
+[830s] busy=True emb=618/618 processed=125/140 failed=0
+[840s] busy=True emb=618/618 processed=125/140 failed=0
+[850s] busy=True emb=624/625 processed=125/140 failed=0
+[860s] busy=True emb=632/632 processed=128/140 failed=0
+[870s] busy=True emb=632/632 processed=128/140 failed=0
+[880s] busy=True emb=632/632 processed=128/140 failed=1
+[warn] 1 docs failed, 继续（可能仍可跑 naive 压测）
+[890s] busy=True emb=632/632 processed=128/140 failed=3
+[warn] 3 docs failed, 继续（可能仍可跑 naive 压测）
+[900s] busy=True emb=632/632 processed=128/140 failed=4
+[warn] 4 docs failed, 继续（可能仍可跑 naive 压测）
+[910s] busy=True emb=632/632 processed=128/140 failed=6
+[warn] 6 docs failed, 继续（可能仍可跑 naive 压测）
+[920s] busy=True emb=632/632 processed=128/140 failed=7
+[warn] 7 docs failed, 继续（可能仍可跑 naive 压测）
+[930s] busy=True emb=632/632 processed=128/140 failed=9
+[warn] 9 docs failed, 继续（可能仍可跑 naive 压测）
+[940s] busy=True emb=632/632 processed=128/140 failed=10
+[warn] 10 docs failed, 继续（可能仍可跑 naive 压测）
+[950s] busy=False emb=632/632 processed=128/140 failed=12
+[warn] 12 docs failed, 继续（可能仍可跑 naive 压测）
+[960s] busy=False emb=632/632 processed=128/140 failed=12
+[warn] 12 docs failed, 继续（可能仍可跑 naive 压测）
+[970s] busy=False emb=632/632 processed=128/140 failed=12
+[wait] 索引完成（pipeline_busy 连续 false 30s）
+[bench] 跑 bench_lightrag.py...
+[warmup] native_rerank_off...
+{"tag": "native_rerank_off", "n": 40, "conc": 10, "wall_s": 7.1, "qps": 5.6, "ok": 40, "err": 0, "p50_ms": 1847, "p95_ms": 4100, "p99_ms": 4102, "max_ms": 4103}
+[warmup] lightrag_naive_rerank_off...
+{"tag": "lightrag_naive_rerank_off", "n": 40, "conc": 10, "wall_s": 208.4, "qps": 0.19, "ok": 40, "err": 0, "p50_ms": 43322, "p95_ms": 62172, "p99_ms": 62322, "max_ms": 62417}
+[warmup] native_rerank_on...
+{"tag": "native_rerank_on", "n": 40, "conc": 10, "wall_s": 464.7, "qps": 0.09, "ok": 40, "err": 0, "p50_ms": 135101, "p95_ms": 148402, "p99_ms": 149391, "max_ms": 149598}
+[warmup] lightrag_naive_rerank_on...
+{"tag": "lightrag_naive_rerank_on", "n": 40, "conc": 10, "wall_s": 209.9, "qps": 0.19, "ok": 40, "err": 0, "p50_ms": 44931, "p95_ms": 61244, "p99_ms": 62683, "max_ms": 63450}
+[warmup] hybrid_vec...
+{"tag": "hybrid_vec", "n": 40, "conc": 10, "wall_s": 9.0, "qps": 4.46, "ok": 40, "err": 0, "p50_ms": 2167, "p95_ms": 5380, "p99_ms": 5380, "max_ms": 5380}
+[warmup] lightrag_hybrid...
+{"tag": "lightrag_hybrid", "n": 40, "conc": 10, "wall_s": 204.3, "qps": 0.2, "ok": 40, "err": 0, "p50_ms": 42556, "p95_ms": 59923, "p99_ms": 60692, "max_ms": 61079}
+BENCH DONE - result_round1.json saved
+
+[done] bench 完成，结果在 work/lightrag-vs/result_round1.json

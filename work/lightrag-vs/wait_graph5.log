@@ -1,0 +1,78 @@
+[wait] 等 import [31964, 39768] 都结束...
+[0s] alive=[31964, 39768], app.log: 2026-09-04 20:54:05.279 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 20:54:05.282 - services.document_processor - 6924 - 2553
+[60s] alive=[31964, 39768], app.log: 2026-09-04 20:56:55.088 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 20:56:55.089 - services.document_processor - 6924 - 2553
+[120s] alive=[31964, 39768], app.log: 2026-09-04 20:56:55.088 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 20:56:55.089 - services.document_processor - 6924 - 2553
+[180s] alive=[31964, 39768], app.log: 2026-09-04 20:56:55.088 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 20:56:55.089 - services.document_processor - 6924 - 2553
+[240s] alive=[31964, 39768], app.log: 2026-09-04 21:00:19.386 - services.document_processor - 6924 - 25536 - INFO - 开始 | 2026-09-04 21:00:19.388 - services.document_processor - 6924 - 2553
+[300s] alive=[31964, 39768], app.log: 2026-09-04 21:00:35.874 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:00:35.875 - services.document_processor - 6924 - 2553
+[360s] alive=[31964, 39768], app.log: 2026-09-04 21:00:35.874 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:00:35.875 - services.document_processor - 6924 - 2553
+[420s] alive=[31964, 39768], app.log: 2026-09-04 21:00:35.874 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:00:35.875 - services.document_processor - 6924 - 2553
+[480s] alive=[31964, 39768], app.log: 2026-09-04 21:00:35.874 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:00:35.875 - services.document_processor - 6924 - 2553
+[540s] alive=[31964, 39768], app.log: 2026-09-04 21:00:35.874 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:00:35.875 - services.document_processor - 6924 - 2553
+[600s] alive=[31964, 39768], app.log: 2026-09-04 21:06:42.187 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:06:42.189 - services.document_processor - 6924 - 2553
+[660s] alive=[31964, 39768], app.log: 2026-09-04 21:06:42.187 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:06:42.189 - services.document_processor - 6924 - 2553
+[720s] alive=[31964, 39768], app.log: 2026-09-04 21:06:42.187 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:06:42.189 - services.document_processor - 6924 - 2553
+[780s] alive=[31964, 39768], app.log: 2026-09-04 21:06:42.187 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:06:42.189 - services.document_processor - 6924 - 2553
+[840s] alive=[31964, 39768], app.log: 2026-09-04 21:11:15.237 - services.document_processor - 6924 - 25536 - INFO - 嵌入 | 2026-09-04 21:11:35.817 - services.milvus_client - 6924 - 2052 - IN
+[900s] alive=[31964, 39768], app.log: 2026-09-04 21:11:15.237 - services.document_processor - 6924 - 25536 - INFO - 嵌入 | 2026-09-04 21:11:35.817 - services.milvus_client - 6924 - 2052 - IN
+[960s] alive=[31964, 39768], app.log: 2026-09-04 21:14:09.019 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:14:09.020 - services.document_processor - 6924 - 2553
+[1020s] alive=[31964, 39768], app.log: 2026-09-04 21:14:09.019 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:14:09.020 - services.document_processor - 6924 - 2553
+[1080s] alive=[31964, 39768], app.log: 2026-09-04 21:14:09.019 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:14:09.020 - services.document_processor - 6924 - 2553
+[1140s] alive=[31964, 39768], app.log: 2026-09-04 21:17:53.298 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 16 | 2026-09-04 21:17:54.068 - services.milvus_client - 6924 - 27600 - I
+[1200s] alive=[31964, 39768], app.log: 2026-09-04 21:18:18.617 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:18:18.619 - services.document_processor - 6924 - 2553
+[1260s] alive=[31964, 39768], app.log: 2026-09-04 21:18:18.617 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:18:18.619 - services.document_processor - 6924 - 2553
+[1320s] alive=[31964, 39768], app.log: 2026-09-04 21:18:18.617 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:18:18.619 - services.document_processor - 6924 - 2553
+[1380s] alive=[31964, 39768], app.log: 2026-09-04 21:22:20.715 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:22:20.717 - services.document_processor - 6924 - 2553
+[1440s] alive=[31964, 39768], app.log: 2026-09-04 21:22:20.715 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:22:20.717 - services.document_processor - 6924 - 2553
+[1500s] alive=[31964, 39768], app.log: 2026-09-04 21:22:20.715 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:22:20.717 - services.document_processor - 6924 - 2553
+[1560s] alive=[31964, 39768], app.log: 2026-09-04 21:25:33.672 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:25:33.674 - services.document_processor - 6924 - 2553
+[1620s] alive=[31964, 39768], app.log: 2026-09-04 21:25:33.672 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:25:33.674 - services.document_processor - 6924 - 2553
+[1680s] alive=[31964, 39768], app.log: 2026-09-04 21:25:33.672 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:25:33.674 - services.document_processor - 6924 - 2553
+[1740s] alive=[31964, 39768], app.log: 2026-09-04 21:29:27.605 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 5  | 2026-09-04 21:29:27.868 - services.milvus_client - 6924 - 27600 - I
+[1800s] alive=[31964, 39768], app.log: 2026-09-04 21:30:42.677 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 5  | 2026-09-04 21:30:42.910 - services.milvus_client - 6924 - 27600 - I
+[1860s] alive=[31964, 39768], app.log: 2026-09-04 21:31:44.632 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 16 | 2026-09-04 21:31:45.688 - services.milvus_client - 6924 - 27600 - I
+[1920s] alive=[31964, 39768], app.log: 2026-09-04 21:32:50.593 - services.milvus_client - 6924 - 7280 - INFO - 开始导入 5 个 | 2026-09-04 21:32:52.121 - services.milvus_client - 6924 - 7280 - IN
+[1980s] alive=[31964, 39768], app.log: 2026-09-04 21:34:16.340 - services.document_processor - 6924 - 25536 - INFO - 开始 | 2026-09-04 21:34:16.341 - services.document_processor - 6924 - 2553
+[2040s] alive=[31964, 39768], app.log: 2026-09-04 21:35:20.436 - services.milvus_client - 6924 - 38824 - INFO - 开始导入 16 | 2026-09-04 21:35:21.115 - services.milvus_client - 6924 - 38824 - I
+[2100s] alive=[31964, 39768], app.log: 2026-09-04 21:36:24.215 - services.milvus_client - 6924 - 7280 - INFO - 开始导入 16  | 2026-09-04 21:36:26.477 - services.milvus_client - 6924 - 7280 - IN
+[2160s] alive=[31964, 39768], app.log: 2026-09-04 21:37:34.282 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 16 | 2026-09-04 21:37:34.983 - services.milvus_client - 6924 - 27600 - I
+[2220s] alive=[31964, 39768], app.log: 2026-09-04 21:38:46.164 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:38:46.166 - services.document_processor - 6924 - 2553
+[2280s] alive=[31964, 39768], app.log: 2026-09-04 21:38:46.164 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:38:46.166 - services.document_processor - 6924 - 2553
+[2340s] alive=[31964, 39768], app.log: 2026-09-04 21:38:46.164 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:38:46.166 - services.document_processor - 6924 - 2553
+[2400s] alive=[31964, 39768], app.log: 2026-09-04 21:38:46.164 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:38:46.166 - services.document_processor - 6924 - 2553
+[2460s] alive=[31964, 39768], app.log: 2026-09-04 21:43:34.477 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:43:34.479 - services.document_processor - 6924 - 2553
+[2520s] alive=[31964, 39768], app.log: 2026-09-04 21:43:34.477 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:43:34.479 - services.document_processor - 6924 - 2553
+[2580s] alive=[31964, 39768], app.log: 2026-09-04 21:43:34.477 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:43:34.479 - services.document_processor - 6924 - 2553
+[2640s] alive=[31964, 39768], app.log: 2026-09-04 21:43:34.477 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:43:34.479 - services.document_processor - 6924 - 2553
+[2700s] alive=[31964, 39768], app.log: 2026-09-04 21:48:08.732 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 48 | 2026-09-04 21:48:09.635 - services.milvus_client - 6924 - 27600 - I
+[2760s] alive=[31964, 39768], app.log: 2026-09-04 21:48:26.136 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:48:26.137 - services.document_processor - 6924 - 2553
+[2820s] alive=[31964, 39768], app.log: 2026-09-04 21:48:26.136 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:48:26.137 - services.document_processor - 6924 - 2553
+[2880s] alive=[31964, 39768], app.log: 2026-09-04 21:51:30.492 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:51:30.494 - services.document_processor - 6924 - 2553
+[2940s] alive=[31964, 39768], app.log: 2026-09-04 21:51:30.492 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:51:30.494 - services.document_processor - 6924 - 2553
+[3000s] alive=[31964, 39768], app.log: 2026-09-04 21:51:30.492 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:51:30.494 - services.document_processor - 6924 - 2553
+[3060s] alive=[31964, 39768], app.log: 2026-09-04 21:55:06.407 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 16 | 2026-09-04 21:55:07.049 - services.milvus_client - 6924 - 27600 - I
+[3120s] alive=[31964, 39768], app.log: 2026-09-04 21:55:24.040 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:55:24.042 - services.document_processor - 6924 - 2553
+[3180s] alive=[31964, 39768], app.log: 2026-09-04 21:57:26.802 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 5  | 2026-09-04 21:57:27.050 - services.milvus_client - 6924 - 27600 - I
+[3240s] alive=[31964, 39768], app.log: 2026-09-04 21:57:51.341 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:57:51.344 - services.document_processor - 6924 - 2553
+[3300s] alive=[31964, 39768], app.log: 2026-09-04 21:57:51.341 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:57:51.344 - services.document_processor - 6924 - 2553
+[3360s] alive=[31964, 39768], app.log: 2026-09-04 21:57:51.341 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 21:57:51.344 - services.document_processor - 6924 - 2553
+[3420s] alive=[31964, 39768], app.log: 2026-09-04 22:01:46.210 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 22:01:46.211 - services.document_processor - 6924 - 2553
+[3480s] alive=[31964, 39768], app.log: 2026-09-04 22:01:46.210 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 22:01:46.211 - services.document_processor - 6924 - 2553
+[3540s] alive=[31964, 39768], app.log: 2026-09-04 22:01:46.210 - services.document_processor - 6924 - 25536 - DEBUG - 嵌 | 2026-09-04 22:01:46.211 - services.document_processor - 6924 - 2553
+[3600s] alive=[31964, 39768], app.log: 2026-09-04 22:05:33.336 - services.milvus_client - 6924 - 2052 - INFO - 开始导入 16  | 2026-09-04 22:05:34.122 - services.milvus_client - 6924 - 2052 - IN
+[3660s] alive=[31964, 39768], app.log: 2026-09-04 22:06:39.671 - services.milvus_client - 6924 - 38824 - INFO - 开始导入 5  | 2026-09-04 22:06:39.903 - services.milvus_client - 6924 - 38824 - I
+[3720s] alive=[31964, 39768], app.log: 2026-09-04 22:08:04.724 - services.milvus_client - 6924 - 2052 - INFO - 开始导入 17  | 2026-09-04 22:08:05.399 - services.milvus_client - 6924 - 2052 - IN
+[3780s] alive=[31964, 39768], app.log: 2026-09-04 22:09:04.547 - services.milvus_client - 6924 - 2052 - INFO - 开始导入 5 个 | 2026-09-04 22:09:04.780 - services.milvus_client - 6924 - 2052 - IN
+[3840s] alive=[31964, 39768], app.log: 2026-09-04 22:10:21.610 - services.milvus_client - 6924 - 2052 - INFO - 开始导入 47  | 2026-09-04 22:10:22.531 - services.milvus_client - 6924 - 2052 - IN
+[3900s] alive=[31964, 39768], app.log: 2026-09-04 22:11:30.437 - services.milvus_client - 6924 - 7280 - INFO - 开始导入 47  | 2026-09-04 22:11:32.830 - services.milvus_client - 6924 - 7280 - IN
+[3960s] alive=[31964, 39768], app.log: 2026-09-04 22:12:42.756 - services.milvus_client - 6924 - 2052 - INFO - 开始导入 5 个 | 2026-09-04 22:12:43.424 - services.milvus_client - 6924 - 2052 - IN
+[4020s] alive=[31964, 39768], app.log: 2026-09-04 22:13:37.842 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 5  | 2026-09-04 22:13:38.088 - services.milvus_client - 6924 - 27600 - I
+[4080s] alive=[31964, 39768], app.log: 2026-09-04 22:15:05.396 - services.milvus_client - 6924 - 7280 - INFO - 开始导入 5 个 | 2026-09-04 22:15:05.638 - services.milvus_client - 6924 - 7280 - IN
+[4140s] alive=[31964, 39768], app.log: 2026-09-04 22:16:07.428 - services.milvus_client - 6924 - 27600 - INFO - 开始导入 5  | 2026-09-04 22:16:07.695 - services.milvus_client - 6924 - 27600 - I
+[wait] 两个 import 都结束（4180s）
+[entity] KB17 PG entities=77 entity_relations=1108
+[warmup] graph_ours...
+{"tag": "graph_ours", "n": 40, "conc": 10, "wall_s": 36.4, "qps": 1.1, "ok": 40, "err": 0, "p50_ms": 9901, "p95_ms": 14010, "p99_ms": 15940, "max_ms": 17174}
+[warmup] hybrid_lightrag...
+{"tag": "hybrid_lightrag", "n": 40, "conc": 10, "wall_s": 208.8, "qps": 0.19, "ok": 40, "err": 0, "p50_ms": 42884, "p95_ms": 61884, "p99_ms": 62364, "max_ms": 62375}
+GRAPH BENCH DONE - result_graph.json saved

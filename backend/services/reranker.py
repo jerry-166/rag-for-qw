@@ -20,6 +20,47 @@ from config import settings, init_logger, get_runtime
 
 logger = init_logger(__name__)
 
+# Stage 4 压测复验 §9.1/§9.3：默认线程池并发 predict 导致 torch intra-op 线程
+# 超订阅（10 并发 × ~12 线程挤 12 物理核）+ Windows c10.dll 偶发崩溃
+# （"predict 只读推理多线程安全"的旧假设已被实测证伪）。
+# 治理：专用有界线程池 + torch.set_num_threads 硬预算。
+import concurrent.futures
+
+_RERANK_EXECUTOR = None
+_EXECUTOR_LOCK = None  # threading.Lock，延迟创建
+
+
+def _get_rerank_executor():
+    """懒创建专用有界线程池（worker 数与 torch 线程数可热调）。"""
+    global _RERANK_EXECUTOR, _EXECUTOR_LOCK
+    import threading
+    if _EXECUTOR_LOCK is None:
+        _EXECUTOR_LOCK = threading.Lock()
+    with _EXECUTOR_LOCK:
+        if _RERANK_EXECUTOR is None:
+            workers = int(get_runtime("RERANK_MAX_CONCURRENCY", 1))
+            try:
+                import torch
+                torch.set_num_threads(int(get_runtime("RERANK_TORCH_THREADS", 8)))
+            except ImportError:
+                pass  # sentence_transformers 不可用时反正走不到 predict
+            _RERANK_EXECUTOR = concurrent.futures.ThreadPoolExecutor(
+                max_workers=workers, thread_name_prefix="rerank")
+            logger.info(
+                f"[Reranker] 专用线程池就绪: workers={workers}, "
+                f"torch_threads={get_runtime('RERANK_TORCH_THREADS', 8)}"
+            )
+    return _RERANK_EXECUTOR
+
+
+def reset_rerank_executor():
+    """热调参数后重建线程池（在途任务不等待，自然排空）。"""
+    global _RERANK_EXECUTOR
+    if _RERANK_EXECUTOR is not None:
+        _RERANK_EXECUTOR.shutdown(wait=False)
+        _RERANK_EXECUTOR = None
+        logger.info("[Reranker] 线程池已重置，下次调用按新参数重建")
+
 
 class BaseReranker(ABC):
     """Reranker 抽象基类 — 统一接口"""
@@ -70,6 +111,7 @@ class LLMReranker(BaseReranker):
                 model=self._model,
                 temperature=0.1,  # 低温度确保排序稳定
                 max_tokens=get_runtime("LLM_RERANKER_MAX_TOKENS", settings.LLM_RERANKER_MAX_TOKENS),
+                request_timeout=30,  # 30s 超时，防止 LLM API hang 死
             )
         return self._client
 
@@ -209,12 +251,12 @@ class CrossEncoderReranker(BaseReranker):
                 for r in results
             ]
 
-            # predict 是同步重计算（秒级），必须放入线程池执行，否则会阻塞
-            # asyncio 事件循环导致所有并发请求排队（Stage 4 压测：native+rerank
-            # p50=35s 的主因）。CrossEncoder.predict 为只读推理，官方实现无共享
-            # 可变状态，多线程并发调用安全；默认线程池可并行多份推理。
+            # predict 放入专用有界线程池（RERANK_MAX_CONCURRENCY × RERANK_TORCH_THREADS
+            # 乘积须 ≤ 物理核数，防超订阅与 c10.dll 并发崩溃——Stage 4 复验实测教训：
+            # 默认线程池下 10 并发 × torch intra-op ~12 线程 = 120 线程挤 12 核，
+            # 单发 2-3s 放大到 ~62s/请求，且 Windows 下偶发 c10.dll APPCRASH）
             loop = asyncio.get_running_loop()
-            scores = await loop.run_in_executor(None, model.predict, pairs)
+            scores = await loop.run_in_executor(_get_rerank_executor(), model.predict, pairs)
 
             # 按分数降序排列
             scored = list(zip(results, scores))
@@ -238,6 +280,87 @@ class NoopReranker(BaseReranker):
         return True
 
     async def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
+        return results[:top_k]
+
+
+class CohereReranker(BaseReranker):
+    """
+    Cohere Rerank API 云端重排序。
+
+    使用 Cohere rerank endpoint（rerank-v3.5 多语言），延迟低（云端 GPU）、
+    不占本地 CPU，避免本地 torch intra-op 超订阅（Stage 4 复验 P0 瓶颈）。
+
+    需要: COHERE_API_KEY 环境变量（backend/.env）
+    模型: rerank-v3.5（默认，中英文通用）
+    """
+
+    def __init__(self, api_key: str = None, model: str = None):
+        self._api_key = api_key or get_runtime(
+            "COHERE_API_KEY", getattr(settings, "COHERE_API_KEY", ""))
+        self._model = model or get_runtime(
+            "COHERE_MODEL", getattr(settings, "COHERE_MODEL", "rerank-v3.5"))
+        self._client = None
+
+    def _get_client(self):
+        """懒加载 httpx.AsyncClient（复用连接）。"""
+        if self._client is None:
+            import httpx
+            self._client = httpx.AsyncClient(
+                base_url="https://api.cohere.com/v1",
+                headers={
+                    "Authorization": f"Bearer {self._api_key}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                timeout=30.0,
+            )
+        return self._client
+
+    def is_available(self) -> bool:
+        return bool(self._api_key)
+
+    async def rerank(self, query: str, results: List[Dict], top_k: int = 5) -> List[Dict]:
+        if not results:
+            return []
+
+        client = self._get_client()
+        # Cohere rerank 文档建议每条 doc ≤ 4096 tokens；本项目 chunk 已切分
+        documents = [
+            r.get('content', r.get('chunk_text', ''))[:2000]
+            for r in results
+        ]
+
+        # 重试 3 次应对代理出口 403 抖动（部分节点 IP 被 Cohere 区域拦）
+        last_err = None
+        for attempt in range(3):
+            try:
+                resp = await client.post("/rerank", json={
+                    "model": self._model,
+                    "query": query,
+                    "documents": documents,
+                    "top_n": top_k,
+                    "return_documents": False,
+                })
+                if resp.status_code == 200:
+                    data = resp.json()
+                    # Cohere 返回 {results: [{index, relevance_score}, ...]} 已按分降序
+                    ranked = [
+                        {**results[item["index"]], "rerank_score": float(item["relevance_score"])}
+                        for item in data.get("results", [])
+                    ]
+                    return ranked[:top_k]
+                elif resp.status_code == 403:
+                    # 代理出口抖动，退避重试
+                    last_err = f"403 (attempt {attempt + 1}/3)"
+                    await asyncio.sleep(0.5 * (attempt + 1))
+                    continue
+                else:
+                    resp.raise_for_status()
+            except Exception as e:
+                last_err = str(e)
+                await asyncio.sleep(0.5 * (attempt + 1))
+
+        logger.error(f"Cohere Rerank 失败（3 次重试）: {last_err}")
         return results[:top_k]
 
 
@@ -270,6 +393,16 @@ def get_reranker() -> BaseReranker:
                 f"配置为 CrossEncoderReranker 但依赖不可用，回退到 LLMReranker"
             )
             instance = LLMReranker()
+
+    elif reranker_type == 'cohere':
+        # 云端 Cohere rerank API（rerank-v3.5），避免本地 torch 超订阅
+        instance = CohereReranker()
+        if not instance.is_available():
+            logger.warning(
+                "配置为 CohereReranker 但 COHERE_API_KEY 未配置，回退到 CrossEncoderReranker"
+            )
+            instance = CrossEncoderReranker(
+                model_name=get_runtime('RERANKER_MODEL', getattr(settings, 'RERANKER_MODEL', 'BAAI/bge-reranker-v2-m3')))
 
     elif reranker_type in ('none', 'noop', 'no', 'skip'):
         instance = NoopReranker()

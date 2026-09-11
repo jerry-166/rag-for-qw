@@ -37,10 +37,13 @@ class Settings(BaseSettings):
 
     # LiteLLM配置
     LITELLM_BASE_URL: str = os.getenv("BASE_URL", "http://localhost:4000")
-    LITELLM_API_KEY: str = os.getenv("LITELLM_API_KEY", "")
+    LITELLM_API_KEY: str = os.getenv("DASHSCOPE_API_KEY", os.getenv("LITELLM_API_KEY", ""))
 
     # 模型配置
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "github_copilot/text-embedding-ada-002")
+    # 分离：embedding 用 DashScope text-embedding-v4（dim=1536），LLM 用智谱 GLM-4-Flash
+    EMBEDDING_BASE_URL: str = os.getenv("EMBEDDING_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+    EMBEDDING_API_KEY: str = os.getenv("DASHSCOPE_API_KEY", os.getenv("EMBEDDING_API_KEY", ""))
     DEFAULT_MODEL: str = os.getenv("DEFAULT_MODEL", "gpt-4o")
 
     # Milvus配置
@@ -102,8 +105,11 @@ class Settings(BaseSettings):
     LOG_FILE_LEVEL: int = logging.DEBUG  # 文件日志级别
     
     # Reranker 配置
-    RERANKER_TYPE: str = os.getenv("RERANKER_TYPE", "cross_encoder")  # llm / cross_encoder / none
+    RERANKER_TYPE: str = os.getenv("RERANKER_TYPE", "cross_encoder")  # llm / cross_encoder / cohere / none
     RERANKER_MODEL: str = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-base")
+    # Cohere 云端 rerank（替换本地 BGE 避 torch 超订阅；RERANKER_TYPE=cohere 时生效）
+    COHERE_API_KEY: str = os.getenv("COHERE_API_KEY", "")
+    COHERE_MODEL: str = os.getenv("COHERE_MODEL", "rerank-v3.5")  # rerank-v3.5 多语言
 
     # RAG 检索配置
     RETRIEVAL_MIN_SCORE: float = float(os.getenv("RETRIEVAL_MIN_SCORE", "0.3"))  # 检索结果最低相关度阈值（0-1），低于此分数的结果将被丢弃
@@ -128,6 +134,8 @@ class Settings(BaseSettings):
     RRF_K: int = int(os.getenv("RRF_K", "60"))  # 倒数排名融合平滑常数
     DEFAULT_RETRIEVAL_MODE: str = os.getenv("DEFAULT_RETRIEVAL_MODE", "advanced")  # 默认检索模式: native|advanced|hybrid
     NUM_SUBQUESTIONS: int = int(os.getenv("NUM_SUBQUESTIONS", "3"))  # 查询扩展子问题数
+    GRAPH_RELATION_MIN_SCORE: float = float(os.getenv("GRAPH_RELATION_MIN_SCORE", "0.5"))  # LLM 关系重排保留阈值
+    GRAPH_HOP: int = int(os.getenv("GRAPH_HOP", "1"))  # 图谱检索跳数（默认1）
 
     # LLM 温度配置（散布在 agent / rag_workflow / reranker）
     LLM_TEMPERATURE_DEFAULT: float = float(os.getenv("LLM_TEMPERATURE_DEFAULT", "0.7"))  # 默认温度
@@ -166,6 +174,16 @@ _env_baseline: dict = {}
 
 def get_runtime(key: str, default=None):
     """优先返回运行时覆盖值，否则 fallback 到 settings 属性。"""
+    # LLM 智谱 GLM-4-Flash（系统环境变量 LITELLM_API_KEY 是旧 litellm key，绕过用 ZHIPU_API_KEY）
+    if key == "LITELLM_API_KEY" and key not in _runtime_overrides:
+        zhipu = os.getenv("ZHIPU_API_KEY")
+        if zhipu:
+            return zhipu
+    # embedding DashScope text-embedding-v4（分离：embedding 用 DASHSCOPE_API_KEY）
+    if key == "EMBEDDING_API_KEY" and key not in _runtime_overrides:
+        ds = os.getenv("DASHSCOPE_API_KEY")
+        if ds:
+            return ds
     if key in _runtime_overrides:
         return _runtime_overrides[key]
     return getattr(settings, key, default)

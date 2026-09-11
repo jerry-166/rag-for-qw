@@ -1,0 +1,14 @@
+{
+  "dataset": "CRUD-RAG-300",
+  "kb_id": 65,
+  "results": [
+    {
+      "dataset": "CRUD-RAG-300",
+      "mode": "graph",
+      "nDCG@10": 0.8767,
+      "Recall@10": 0.88,
+      "MRR@10": 0.8767,
+      "n": 300
+    }
+  ]
+}

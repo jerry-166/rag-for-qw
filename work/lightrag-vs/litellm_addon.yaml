@@ -1,0 +1,11 @@
+  - model_name: qwen3.7-flash
+    litellm_params:
+      model: openai/qwen3.7-flash
+      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api_key: sk-1d8cbea1922f4952b19c4394e9b3eceb
+  - model_name: qwen3.7-text-embedding-flash
+    litellm_params:
+      model: openai/qwen3.7-text-embedding-flash
+      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api_key: sk-1d8cbea1922f4952b19c4394e9b3eceb
+      mode: embedding

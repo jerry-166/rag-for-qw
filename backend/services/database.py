@@ -288,6 +288,24 @@ class Database:
             ''')
             self.cursor.execute('CREATE INDEX IF NOT EXISTS idx_faq_pr_target ON faq_pr (target_kb_id, status)')
 
+            # ── 文档 08：缓存相关 ──
+            # L1 查询 embedding 缓存（持久层；embedding 是纯函数，无需失效逻辑）
+            self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS query_embedding_cache (
+                    query_hash TEXT PRIMARY KEY,
+                    query_text TEXT NOT NULL,
+                    model TEXT NOT NULL,
+                    embedding JSONB NOT NULL,
+                    hit_count INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_hit_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            # L2 版本号失效：KB 内容变更 → cache_version+1 → 旧缓存 key 自动失配
+            self.cursor.execute('''
+                ALTER TABLE knowledge_base ADD COLUMN IF NOT EXISTS cache_version INTEGER NOT NULL DEFAULT 0
+            ''')
+
             # L2 图谱层：实体与关系（文档 06 Phase 2）
             self.cursor.execute('''
                 CREATE TABLE IF NOT EXISTS entity (
@@ -501,6 +519,61 @@ class Database:
         except Exception as e:
             logger.error(f"FAQ 命中更新失败: {e}")
             return None
+
+    # ==================== 缓存相关方法（文档 08） ====================
+
+    def bump_kb_cache_version(self, kb_id) -> int:
+        """KB 内容变更后 bump 版本（旧缓存 key 自动失配）。返回新版本号，失败 -1。"""
+        row = self.fetchone(
+            "UPDATE knowledge_base SET cache_version = cache_version + 1 "
+            "WHERE id = %s RETURNING cache_version", (kb_id,))
+        return row["cache_version"] if row else -1
+
+    def get_kb_cache_versions(self, kb_ids) -> dict:
+        """批量取 KB 版本号 → {str(kb_id): version}（L2 key 版本维度）。"""
+        ids = [int(k) for k in kb_ids if k is not None]
+        if not ids:
+            return {}
+        rows = self.fetchall(
+            "SELECT id, cache_version FROM knowledge_base WHERE id = ANY(%s)", (ids,))
+        return {str(r["id"]): r["cache_version"] for r in rows}
+
+    def get_user_cache_scope_version(self, user_id) -> int:
+        """用户可见域（自有+被分享 KB）的最大版本号（无 KB 过滤的全局检索 key 用）。"""
+        row = self.fetchone('''
+            SELECT COALESCE(MAX(cache_version), 0) AS v FROM knowledge_base
+            WHERE user_id = %s OR id IN (
+                SELECT knowledge_base_id FROM user_kb_permission WHERE user_id = %s)
+        ''', (user_id, user_id))
+        return row["v"] if row else 0
+
+    def get_global_cache_version(self) -> int:
+        """全局最大版本号（admin 无过滤检索 key 用）。"""
+        row = self.fetchone(
+            "SELECT COALESCE(MAX(cache_version), 0) AS v FROM knowledge_base")
+        return row["v"] if row else 0
+
+    def get_query_embedding(self, query_hash):
+        """L1 查询 embedding 缓存：命中返回向量 list 并累计 hit_count，miss 返回 None。"""
+        row = self.fetchone(
+            "SELECT embedding FROM query_embedding_cache WHERE query_hash = %s", (query_hash,))
+        if row is None:
+            return None
+        vec = row["embedding"]
+        if not isinstance(vec, list):
+            vec = json.loads(vec)
+        self.execute(
+            "UPDATE query_embedding_cache SET hit_count = hit_count + 1, "
+            "last_hit_at = CURRENT_TIMESTAMP WHERE query_hash = %s", (query_hash,))
+        return vec
+
+    def put_query_embedding(self, query_hash, query_text, model, embedding):
+        """L1 写入（同 hash 同内容幂等；冲突只刷新 last_hit_at）。"""
+        return self.execute('''
+            INSERT INTO query_embedding_cache (query_hash, query_text, model, embedding)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (query_hash) DO UPDATE SET last_hit_at = CURRENT_TIMESTAMP
+        ''', (query_hash, query_text, model, json.dumps(embedding)))
 
     def promote_faq(self, faq_id, answer=None):
         """升格 candidate → active（可携带蒸馏后的新答案）"""
@@ -858,13 +931,38 @@ class Database:
         return self.fetchall(f"SELECT * FROM entity WHERE id IN ({id_list})")
 
     def find_entities_by_names(self, kb_id, names):
-        """按名称精确匹配实体（实体锚点直查）"""
+        """按名称匹配实体：先精确匹配，miss 的用 LIKE 模糊匹配 fallback"""
         if not names:
             return []
+        # 1. 精确匹配
         placeholders = ",".join(["%s"] * len(names))
-        return self.fetchall(
+        exact = self.fetchall(
             f"SELECT * FROM entity WHERE kb_id = %s AND name IN ({placeholders})",
             tuple([kb_id] + list(names)))
+        matched_names = {r["name"] for r in exact}
+        # 2. 对精确匹配 miss 的 names，用 LIKE 模糊匹配
+        miss_names = [n for n in names if n not in matched_names]
+        fuzzy_results = []
+        for n in miss_names:
+            # 截取 name 的核心部分（去括号、引号）做 LIKE
+            core = n.replace('（', '%').replace('）', '%').replace('"', '%').replace('"', '%').replace('"', '%')
+            if len(core) < 2:
+                continue
+            # 限制 LIKE 的 pattern 长度，避免太长匹配不到
+            pattern = f'%{core[:20]}%'
+            rows = self.fetchall(
+                "SELECT * FROM entity WHERE kb_id = %s AND name LIKE %s LIMIT 3",
+                (kb_id, pattern))
+            fuzzy_results.extend(rows)
+        # 合并去重
+        all_results = exact + fuzzy_results
+        seen_ids = set()
+        deduped = []
+        for r in all_results:
+            if r["id"] not in seen_ids:
+                deduped.append(r)
+                seen_ids.add(r["id"])
+        return deduped
 
     def get_chunks_by_ids(self, chunk_ids):
         if not chunk_ids:

@@ -1,0 +1,9802 @@
+{
+  "doc-979d472a84804b9f647bc185a877a8b5": {
+    "relation_pairs": [
+      [
+        "Cache Eviction Storm",
+        "Query Rewriting"
+      ],
+      [
+        "Concurrency Control",
+        "Query Rewriting"
+      ],
+      [
+        "Connection Pool Depletion",
+        "Query Rewriting"
+      ],
+      [
+        "Degradation Strategy",
+        "Query Rewriting"
+      ],
+      [
+        "Error Rate",
+        "Query Rewriting"
+      ],
+      [
+        "High Latency Round Trip",
+        "Query Rewriting"
+      ],
+      [
+        "Latency Percentiles",
+        "Query Rewriting"
+      ],
+      [
+        "Load Testing",
+        "Query Rewriting"
+      ],
+      [
+        "Parameter Tuning",
+        "Query Rewriting"
+      ],
+      [
+        "Preprocessing",
+        "Query Rewriting"
+      ],
+      [
+        "Query Rewriting",
+        "Queue Buffers"
+      ],
+      [
+        "Query Rewriting",
+        "Retry Mechanism"
+      ],
+      [
+        "Query Rewriting",
+        "Slow Query Attribution Analysis"
+      ],
+      [
+        "Query Rewriting",
+        "Stage 4"
+      ],
+      [
+        "Query Rewriting",
+        "State Consistency"
+      ],
+      [
+        "Query Rewriting",
+        "Throughput"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788255924,
+    "update_time": 1788255924,
+    "_id": "doc-979d472a84804b9f647bc185a877a8b5"
+  },
+  "doc-eb163727917cbba1eea208541a643e74": {
+    "relation_pairs": [
+      [
+        "Benchmark Testing",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Comparison Evidence",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Concurrency Control",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Data Preprocessing",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Dependency Services",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Error Rate",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Latency Percentiles"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Load Smoothing"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Parameter Tuning"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Queue Buffering"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Remote Service Latency"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Retry and Degraded Mode"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Slow Query Analysis"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Stage 4"
+      ],
+      [
+        "Evaluation Benchmark",
+        "State Consistency"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Throughput"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788255924,
+    "update_time": 1788255924,
+    "_id": "doc-eb163727917cbba1eea208541a643e74"
+  },
+  "doc-1534b76d325a8f591b52d302e7181331": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "状态一致性"
+      ],
+      [
+        "主流程",
+        "重排序"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "压测",
+        "重排序"
+      ],
+      [
+        "参数调优",
+        "重排序"
+      ],
+      [
+        "吞吐量",
+        "重排序"
+      ],
+      [
+        "并发控制",
+        "数据"
+      ],
+      [
+        "并发控制",
+        "重排序"
+      ],
+      [
+        "延迟分位数",
+        "重排序"
+      ],
+      [
+        "归因分析",
+        "慢查询"
+      ],
+      [
+        "慢查询",
+        "重排序"
+      ],
+      [
+        "数据",
+        "队列缓冲"
+      ],
+      [
+        "重排序",
+        "错误率"
+      ],
+      [
+        "重排序",
+        "队列缓冲"
+      ],
+      [
+        "重排序",
+        "降级"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788255925,
+    "update_time": 1788255925,
+    "_id": "doc-1534b76d325a8f591b52d302e7181331"
+  },
+  "doc-6f3ef77ac0e3619e98159e9b6febf557": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Multi-Channel Recall"
+      ],
+      [
+        "Caching",
+        "Multi-Channel Recall"
+      ],
+      [
+        "Caching",
+        "Network Round-Trip Delay"
+      ],
+      [
+        "Concurrency Control",
+        "Multi-Channel Recall"
+      ],
+      [
+        "Degradation Mechanism",
+        "Retry Mechanism"
+      ],
+      [
+        "Error Rate",
+        "Slow Query Analysis"
+      ],
+      [
+        "Latency Percentiles",
+        "Throughput"
+      ],
+      [
+        "Load Testing",
+        "Multi-Channel Recall"
+      ],
+      [
+        "Multi-Channel Recall",
+        "Queue Buffering"
+      ],
+      [
+        "Multi-Channel Recall",
+        "State Consistency"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1788255950,
+    "update_time": 1788255950,
+    "_id": "doc-6f3ef77ac0e3619e98159e9b6febf557"
+  },
+  "doc-091d584fced301b442654dd8c23b3fc9": {
+    "relation_pairs": [
+      [
+        "依赖服务",
+        "系统"
+      ],
+      [
+        "依赖服务",
+        "重试与降级"
+      ],
+      [
+        "前后对比证据链",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "参数调优",
+        "系统"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "负载"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询归因分析",
+        "监控"
+      ],
+      [
+        "数据",
+        "系统"
+      ],
+      [
+        "监控",
+        "系统"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "知识图谱",
+        "系统"
+      ],
+      [
+        "系统",
+        "连接池耗尽"
+      ],
+      [
+        "负载",
+        "队列缓冲"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788255972,
+    "update_time": 1788255972,
+    "_id": "doc-091d584fced301b442654dd8c23b3fc9"
+  },
+  "doc-b1d10e7bafa4421218a51b1e1f1b0ba2": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Semantic Cache"
+      ],
+      [
+        "Cache Invalid Storm",
+        "Connection Pool Exhaustion"
+      ],
+      [
+        "Cache Invalid Storm",
+        "Slow Query Analysis"
+      ],
+      [
+        "Concurrency Control",
+        "Semantic Cache"
+      ],
+      [
+        "Error Rate",
+        "Monitoring"
+      ],
+      [
+        "Error Rate",
+        "Semantic Cache"
+      ],
+      [
+        "Evidence Chains",
+        "Parameter Tuning"
+      ],
+      [
+        "Graceful Degradation",
+        "Semantic Cache"
+      ],
+      [
+        "Latency Percentile",
+        "Monitoring"
+      ],
+      [
+        "Latency Percentile",
+        "Semantic Cache"
+      ],
+      [
+        "Load Testing",
+        "Semantic Cache"
+      ],
+      [
+        "Monitoring",
+        "Semantic Cache"
+      ],
+      [
+        "Monitoring",
+        "Throughput"
+      ],
+      [
+        "Network Round-Trip Delay",
+        "Semantic Cache"
+      ],
+      [
+        "Parameter Tuning",
+        "Semantic Cache"
+      ],
+      [
+        "Preprocessing",
+        "Semantic Cache"
+      ],
+      [
+        "Queue Buffering",
+        "Semantic Cache"
+      ],
+      [
+        "Retry Strategies",
+        "Semantic Cache"
+      ],
+      [
+        "Semantic Cache",
+        "Slow Query Analysis"
+      ],
+      [
+        "Semantic Cache",
+        "State Consistency"
+      ],
+      [
+        "Semantic Cache",
+        "Throughput"
+      ]
+    ],
+    "count": 21,
+    "create_time": 1788255975,
+    "update_time": 1788255975,
+    "_id": "doc-b1d10e7bafa4421218a51b1e1f1b0ba2"
+  },
+  "doc-69adc1e107f7f7d035d7baf04342e1ca": {
+    "relation_pairs": [
+      [
+        "压测",
+        "向量数据库"
+      ],
+      [
+        "参数调优",
+        "向量数据库"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "向量数据库",
+        "吞吐量"
+      ],
+      [
+        "向量数据库",
+        "并发控制"
+      ],
+      [
+        "向量数据库",
+        "延迟分位数"
+      ],
+      [
+        "向量数据库",
+        "慢查询归因分析"
+      ],
+      [
+        "向量数据库",
+        "数据预处理"
+      ],
+      [
+        "向量数据库",
+        "系统状态一致性"
+      ],
+      [
+        "向量数据库",
+        "证据链"
+      ],
+      [
+        "向量数据库",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "向量数据库",
+        "重试"
+      ],
+      [
+        "向量数据库",
+        "错误率"
+      ],
+      [
+        "向量数据库",
+        "队列缓冲"
+      ],
+      [
+        "向量数据库",
+        "降级"
+      ],
+      [
+        "缓存失效风暴",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "缓存失效风暴",
+        "连接池耗尽"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788255978,
+    "update_time": 1788255978,
+    "_id": "doc-69adc1e107f7f7d035d7baf04342e1ca"
+  },
+  "doc-7eabe3a1649ffa2b3ff8c02ebfd5659f": {
+    "relation_pairs": [
+      [
+        "Attribution Analysis",
+        "Consistent Hashing"
+      ],
+      [
+        "Batch Processing",
+        "Consistent Hashing"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Consistent Hashing"
+      ],
+      [
+        "Concurrency Control",
+        "Consistent Hashing"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Consistent Hashing"
+      ],
+      [
+        "Consistent Hashing",
+        "Dependency Services"
+      ],
+      [
+        "Consistent Hashing",
+        "Error Rate"
+      ],
+      [
+        "Consistent Hashing",
+        "Evidence Chain"
+      ],
+      [
+        "Consistent Hashing",
+        "Graceful Degradation"
+      ],
+      [
+        "Consistent Hashing",
+        "Latency Percentiles"
+      ],
+      [
+        "Consistent Hashing",
+        "Load Testing"
+      ],
+      [
+        "Consistent Hashing",
+        "Monitoring"
+      ],
+      [
+        "Consistent Hashing",
+        "Network Round-Trip Latency"
+      ],
+      [
+        "Consistent Hashing",
+        "Parameter Tuning"
+      ],
+      [
+        "Consistent Hashing",
+        "Queue Buffering"
+      ],
+      [
+        "Consistent Hashing",
+        "Retry Mechanism"
+      ],
+      [
+        "Consistent Hashing",
+        "Slow Query Analysis"
+      ],
+      [
+        "Consistent Hashing",
+        "State Consistency"
+      ],
+      [
+        "Consistent Hashing",
+        "Throughput"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1788256010,
+    "update_time": 1788256010,
+    "_id": "doc-7eabe3a1649ffa2b3ff8c02ebfd5659f"
+  },
+  "doc-eae27d77ca20db309e056e3d2dcd7d69": {
+    "relation_pairs": [
+      [
+        "Stage 4",
+        "复验生成文档"
+      ],
+      [
+        "主流程",
+        "嵌入模型"
+      ],
+      [
+        "压测",
+        "嵌入模型"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "嵌入模型"
+      ],
+      [
+        "嵌入模型",
+        "并发控制"
+      ],
+      [
+        "嵌入模型",
+        "慢查询"
+      ],
+      [
+        "嵌入模型",
+        "数据预处理"
+      ],
+      [
+        "嵌入模型",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "嵌入模型",
+        "重试机制"
+      ],
+      [
+        "嵌入模型",
+        "队列缓冲"
+      ],
+      [
+        "嵌入模型",
+        "降级机制"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1788256018,
+    "update_time": 1788256018,
+    "_id": "doc-eae27d77ca20db309e056e3d2dcd7d69"
+  },
+  "doc-274ad4786c3abca69fa097b85867d9a4": {
+    "relation_pairs": [
+      [
+        "Cache Invalidation Storm",
+        "Document Slicing Strategy"
+      ],
+      [
+        "Concurrency Control",
+        "Document Slicing Strategy"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Document Slicing Strategy"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Error Rate"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Failover Mechanism"
+      ],
+      [
+        "Document Slicing Strategy",
+        "High Remote Service Round-Trip Delay"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Latency Percentile"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Load Testing"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Parameter Tuning"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Preprocessing"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Queue Buffering"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Retry Mechanism"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Slow Query Analysis"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Stage 4 Import Regression"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Throughput"
+      ],
+      [
+        "Error Rate",
+        "Slow Query Analysis"
+      ],
+      [
+        "Latency Percentile",
+        "Throughput"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256020,
+    "update_time": 1788256020,
+    "_id": "doc-274ad4786c3abca69fa097b85867d9a4"
+  },
+  "doc-e2c0be24560d78c5e599c2a9c9d0bbd2": {
+    "relation_pairs": [
+      [
+        "Stage 4",
+        "检索增强生成"
+      ],
+      [
+        "吞吐量",
+        "检索增强生成"
+      ],
+      [
+        "延迟分位数",
+        "检索增强生成"
+      ],
+      [
+        "慢查询",
+        "检索增强生成"
+      ],
+      [
+        "检索增强生成",
+        "缓存失效风暴"
+      ],
+      [
+        "检索增强生成",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "检索增强生成",
+        "连接池耗尽"
+      ],
+      [
+        "检索增强生成",
+        "错误率"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1788256039,
+    "update_time": 1788256039,
+    "_id": "doc-e2c0be24560d78c5e599c2a9c9d0bbd2"
+  },
+  "doc-3644a684f98ea8fe223c713b77189a77": {
+    "relation_pairs": [
+      [
+        "Stage 4",
+        "流式计算"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "流式计算"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询",
+        "监控"
+      ],
+      [
+        "流式计算",
+        "缓存失效风暴"
+      ],
+      [
+        "流式计算",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "流式计算",
+        "连接池耗尽"
+      ],
+      [
+        "流式计算",
+        "重试"
+      ],
+      [
+        "流式计算",
+        "队列缓冲"
+      ],
+      [
+        "流式计算",
+        "降级"
+      ],
+      [
+        "监控",
+        "错误率"
+      ]
+    ],
+    "count": 13,
+    "create_time": 1788256062,
+    "update_time": 1788256062,
+    "_id": "doc-3644a684f98ea8fe223c713b77189a77"
+  },
+  "doc-757b505cfd34c64c85ca5b5690ee5293": {
+    "relation_pairs": [
+      [
+        "压测",
+        "复验文档017"
+      ],
+      [
+        "压测",
+        "消息队列"
+      ],
+      [
+        "参数调优",
+        "复验文档017"
+      ],
+      [
+        "参数调优",
+        "消息队列"
+      ],
+      [
+        "吞吐量",
+        "消息队列"
+      ],
+      [
+        "复验文档017",
+        "消息队列"
+      ],
+      [
+        "延迟分位数",
+        "消息队列"
+      ],
+      [
+        "慢查询",
+        "监控"
+      ],
+      [
+        "消息队列",
+        "缓存失效风暴"
+      ],
+      [
+        "消息队列",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "消息队列",
+        "连接池耗尽"
+      ],
+      [
+        "消息队列",
+        "错误率"
+      ],
+      [
+        "监控",
+        "重试"
+      ],
+      [
+        "监控",
+        "降级"
+      ],
+      [
+        "重试",
+        "降级"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256063,
+    "update_time": 1788256063,
+    "_id": "doc-757b505cfd34c64c85ca5b5690ee5293"
+  },
+  "doc-854d6fae5ee42911677c739ee1734486": {
+    "relation_pairs": [
+      [
+        "Stage 4",
+        "熔断降级"
+      ],
+      [
+        "压测",
+        "熔断降级"
+      ],
+      [
+        "参数调优",
+        "熔断降级"
+      ],
+      [
+        "吞吐量",
+        "熔断降级"
+      ],
+      [
+        "并发控制",
+        "熔断降级"
+      ],
+      [
+        "延迟分位数",
+        "熔断降级"
+      ],
+      [
+        "归因分析",
+        "熔断降级"
+      ],
+      [
+        "慢查询",
+        "熔断降级"
+      ],
+      [
+        "熔断降级",
+        "状态一致性"
+      ],
+      [
+        "熔断降级",
+        "缓存失效风暴"
+      ],
+      [
+        "熔断降级",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "熔断降级",
+        "连接池耗尽"
+      ],
+      [
+        "熔断降级",
+        "重试"
+      ],
+      [
+        "熔断降级",
+        "错误率"
+      ],
+      [
+        "熔断降级",
+        "队列缓冲"
+      ],
+      [
+        "熔断降级",
+        "降级"
+      ],
+      [
+        "熔断降级",
+        "预处理"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256066,
+    "update_time": 1788256066,
+    "_id": "doc-854d6fae5ee42911677c739ee1734486"
+  },
+  "doc-84d9ee44e457ddef7f2c4f25dc8fa865": {
+    "relation_pairs": [
+      [
+        "Cache Invalidation Storm",
+        "Stress Testing"
+      ],
+      [
+        "Concurrency Control",
+        "Queue Buffering"
+      ],
+      [
+        "Connection Pooling Exhaustion",
+        "Stress Testing"
+      ],
+      [
+        "Dependencies",
+        "Graceful Degradation"
+      ],
+      [
+        "Dependencies",
+        "Retries"
+      ],
+      [
+        "Error Rate",
+        "Monitoring"
+      ],
+      [
+        "Latency Percentiles",
+        "Monitoring"
+      ],
+      [
+        "Monitoring",
+        "Throughput"
+      ],
+      [
+        "Parameter Optimization",
+        "Stress Testing"
+      ],
+      [
+        "Remote Service Network Latency",
+        "Stress Testing"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1788256096,
+    "update_time": 1788256096,
+    "_id": "doc-84d9ee44e457ddef7f2c4f25dc8fa865"
+  },
+  "doc-0e65972dce68dad4d52d063967f0a705": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Concurrency Control"
+      ],
+      [
+        "Batch Processing",
+        "Data Masking"
+      ],
+      [
+        "Batch Processing",
+        "Queue Buffering"
+      ],
+      [
+        "Cache Storm",
+        "Load Testing"
+      ],
+      [
+        "Concurrency Control",
+        "Queue Buffering"
+      ],
+      [
+        "Data Masking",
+        "Preprocessing"
+      ],
+      [
+        "Data Masking",
+        "Stage 4"
+      ],
+      [
+        "Degradation Mechanism",
+        "Retry Mechanism"
+      ],
+      [
+        "Error Rate",
+        "Slow Query Diagnosis"
+      ],
+      [
+        "Error Rate",
+        "Throughput"
+      ],
+      [
+        "Evidence Chain",
+        "Parameter Tuning"
+      ],
+      [
+        "Latency Percentile",
+        "Throughput"
+      ],
+      [
+        "Load Testing",
+        "Network Round-Trip Latency"
+      ],
+      [
+        "Load Testing",
+        "Parameter Tuning"
+      ],
+      [
+        "Queue Buffering",
+        "Retry Mechanism"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256116,
+    "update_time": 1788256116,
+    "_id": "doc-0e65972dce68dad4d52d063967f0a705"
+  },
+  "doc-85d8ce590ad8981ca2c8286f79f59954": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Document Slicing Strategy"
+      ],
+      [
+        "Cache Eviction Storm",
+        "Document Slicing Strategy"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Document Slicing Strategy"
+      ],
+      [
+        "Data Preprocessing",
+        "Document Slicing Strategy"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Error Rate"
+      ],
+      [
+        "Document Slicing Strategy",
+        "High Remote Service Round-Trip Delay"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Latency Percentile"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Load Testing"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Monitoring"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Parameter Optimization"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Slow Query Attribution Analysis"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Stage 4 Import Regression"
+      ],
+      [
+        "Document Slicing Strategy",
+        "Throughput"
+      ],
+      [
+        "Evidence Chain",
+        "Parameter Optimization"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1788256131,
+    "update_time": 1788256131,
+    "_id": "doc-85d8ce590ad8981ca2c8286f79f59954"
+  },
+  "doc-084b6fbb10729ed4da8c3d3f5a3ae7c9": {
+    "relation_pairs": [
+      [
+        "压测",
+        "联邦学习"
+      ],
+      [
+        "参数调优",
+        "联邦学习"
+      ],
+      [
+        "吞吐量",
+        "联邦学习"
+      ],
+      [
+        "并发控制",
+        "联邦学习"
+      ],
+      [
+        "延迟分位数",
+        "联邦学习"
+      ],
+      [
+        "慢查询归因分析",
+        "联邦学习"
+      ],
+      [
+        "数据预处理",
+        "联邦学习"
+      ],
+      [
+        "缓存失效风暴",
+        "联邦学习"
+      ],
+      [
+        "联邦学习",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "联邦学习",
+        "重试"
+      ],
+      [
+        "联邦学习",
+        "错误率"
+      ],
+      [
+        "联邦学习",
+        "队列缓冲"
+      ],
+      [
+        "联邦学习",
+        "降级"
+      ]
+    ],
+    "count": 13,
+    "create_time": 1788256131,
+    "update_time": 1788256131,
+    "_id": "doc-084b6fbb10729ed4da8c3d3f5a3ae7c9"
+  },
+  "doc-0336dcbab05b9d5ad24f4333c7658a0e": {
+    "relation_pairs": [
+      [
+        "Cache Expiry Storm",
+        "Text Compression"
+      ],
+      [
+        "Change Evidence Chain",
+        "Text Compression"
+      ],
+      [
+        "Concurrency Control",
+        "Text Compression"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Text Compression"
+      ],
+      [
+        "Error Rate",
+        "Text Compression"
+      ],
+      [
+        "High Remote Service Latency",
+        "Text Compression"
+      ],
+      [
+        "Latency Percentiles",
+        "Text Compression"
+      ],
+      [
+        "Load Testing",
+        "Text Compression"
+      ],
+      [
+        "Monitoring",
+        "Text Compression"
+      ],
+      [
+        "Parameter Tuning",
+        "Text Compression"
+      ],
+      [
+        "Preprocessing",
+        "Text Compression"
+      ],
+      [
+        "Queue Buffering",
+        "Text Compression"
+      ],
+      [
+        "Retry Mechanisms",
+        "Text Compression"
+      ],
+      [
+        "Service Degradation",
+        "Text Compression"
+      ],
+      [
+        "Slow Query Analysis",
+        "Text Compression"
+      ],
+      [
+        "State Consistency",
+        "Text Compression"
+      ],
+      [
+        "Text Compression",
+        "Throughput"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256158,
+    "update_time": 1788256158,
+    "_id": "doc-0336dcbab05b9d5ad24f4333c7658a0e"
+  },
+  "doc-bd686fd640be98efaae0091fa301e613": {
+    "relation_pairs": [
+      [
+        "Cache Invalidation Storm",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Concurrency Control",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Degradation Mechanism",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Error Rate",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Evidence Chain",
+        "Segmentation Algorithm"
+      ],
+      [
+        "High Network Round-Trip Latency",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Latency Percentiles",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Load Testing",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Parameter Tuning",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Queue Buffering",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Retry Mechanism",
+        "Segmentation Algorithm"
+      ],
+      [
+        "Segmentation Algorithm",
+        "Slow Query Attribution Analysis"
+      ],
+      [
+        "Segmentation Algorithm",
+        "Throughput"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1788256173,
+    "update_time": 1788256173,
+    "_id": "doc-bd686fd640be98efaae0091fa301e613"
+  },
+  "doc-a597e50502f5ff68e3e25b9114205d4a": {
+    "relation_pairs": [
+      [
+        "Stage 4导入链路回归",
+        "复验文档"
+      ],
+      [
+        "主流程",
+        "嵌入模型"
+      ],
+      [
+        "前后对比证据链",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "嵌入模型"
+      ],
+      [
+        "参数调优",
+        "嵌入模型"
+      ],
+      [
+        "吞吐量",
+        "嵌入模型"
+      ],
+      [
+        "复验文档",
+        "嵌入模型"
+      ],
+      [
+        "嵌入模型",
+        "并发控制"
+      ],
+      [
+        "嵌入模型",
+        "延迟分位数"
+      ],
+      [
+        "嵌入模型",
+        "慢查询归因分析"
+      ],
+      [
+        "嵌入模型",
+        "数据预处理"
+      ],
+      [
+        "嵌入模型",
+        "缓存失效风暴"
+      ],
+      [
+        "嵌入模型",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "嵌入模型",
+        "连接池耗尽"
+      ],
+      [
+        "嵌入模型",
+        "重试"
+      ],
+      [
+        "嵌入模型",
+        "错误率"
+      ],
+      [
+        "嵌入模型",
+        "队列缓冲"
+      ],
+      [
+        "嵌入模型",
+        "降级"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256176,
+    "update_time": 1788256176,
+    "_id": "doc-a597e50502f5ff68e3e25b9114205d4a"
+  },
+  "doc-58a2fc6ed39fd083f55d4182bf88826d": {
+    "relation_pairs": [
+      [
+        "Cache Miss Storm",
+        "Knowledge Graph"
+      ],
+      [
+        "Concurrency Control",
+        "Knowledge Graph"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Knowledge Graph"
+      ],
+      [
+        "Degradation Mechanism",
+        "Knowledge Graph"
+      ],
+      [
+        "Document 005",
+        "Knowledge Graph"
+      ],
+      [
+        "Error Rate",
+        "Knowledge Graph"
+      ],
+      [
+        "Knowledge Graph",
+        "Latency Percentile"
+      ],
+      [
+        "Knowledge Graph",
+        "Load Testing"
+      ],
+      [
+        "Knowledge Graph",
+        "Parameter Tuning"
+      ],
+      [
+        "Knowledge Graph",
+        "Queue Buffering"
+      ],
+      [
+        "Knowledge Graph",
+        "Remote Service Round-Trip Delay"
+      ],
+      [
+        "Knowledge Graph",
+        "Retry Mechanism"
+      ],
+      [
+        "Knowledge Graph",
+        "Slow Query Analysis"
+      ],
+      [
+        "Knowledge Graph",
+        "Throughput"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1788256188,
+    "update_time": 1788256188,
+    "_id": "doc-58a2fc6ed39fd083f55d4182bf88826d"
+  },
+  "doc-0aa1883c6411f7873cb83dacb17b0afc": {
+    "relation_pairs": [
+      [
+        "Stage 4",
+        "倒排索引"
+      ],
+      [
+        "倒排索引",
+        "压测"
+      ],
+      [
+        "倒排索引",
+        "参数调优"
+      ],
+      [
+        "倒排索引",
+        "吞吐量"
+      ],
+      [
+        "倒排索引",
+        "延迟分位数"
+      ],
+      [
+        "倒排索引",
+        "缓存失效风暴"
+      ],
+      [
+        "倒排索引",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "倒排索引",
+        "连接池耗尽"
+      ],
+      [
+        "倒排索引",
+        "错误率"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1788256207,
+    "update_time": 1788256207,
+    "_id": "doc-0aa1883c6411f7873cb83dacb17b0afc"
+  },
+  "doc-cfecdb276f634854f3ef915e2e980c31": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Distributed Index"
+      ],
+      [
+        "Cache",
+        "Load Testing"
+      ],
+      [
+        "Concurrency Control",
+        "Distributed Index"
+      ],
+      [
+        "Connection Pool",
+        "Load Testing"
+      ],
+      [
+        "Degradation Strategy",
+        "Distributed Index"
+      ],
+      [
+        "Distributed Index",
+        "Evidence Chain"
+      ],
+      [
+        "Distributed Index",
+        "Monitoring"
+      ],
+      [
+        "Distributed Index",
+        "Queue Buffering"
+      ],
+      [
+        "Distributed Index",
+        "Retry Mechanics"
+      ],
+      [
+        "Distributed Index",
+        "Stage 4"
+      ],
+      [
+        "Distributed Index",
+        "State Consistency"
+      ],
+      [
+        "Empirical Data",
+        "Parameter Tuning"
+      ],
+      [
+        "Error Rate",
+        "Monitoring"
+      ],
+      [
+        "Latency Percentiles",
+        "Monitoring"
+      ],
+      [
+        "Monitoring",
+        "Throughput"
+      ],
+      [
+        "Root Cause Analysis",
+        "Slow Query"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256220,
+    "update_time": 1788256220,
+    "_id": "doc-cfecdb276f634854f3ef915e2e980c31"
+  },
+  "doc-a2557a7b2e94197ff767970b67041697": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Concurrency Control",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Degradation Mechanism",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Error Rate",
+        "Evaluation Benchmark"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Latency Percentile"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Load Testing"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Parameter Tuning"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Preprocessing"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Queue Buffering"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Remote Service Network Round-Trip Delay"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Retry Mechanism"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Slow Query"
+      ],
+      [
+        "Evaluation Benchmark",
+        "Throughput"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256226,
+    "update_time": 1788256226,
+    "_id": "doc-a2557a7b2e94197ff767970b67041697"
+  },
+  "doc-9dcb88e0137649590b755372b040afad": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Query Rewriting"
+      ],
+      [
+        "Concurrency Control",
+        "Query Rewriting"
+      ],
+      [
+        "Error Rate",
+        "Query Rewriting"
+      ],
+      [
+        "Graceful Degradation",
+        "Query Rewriting"
+      ],
+      [
+        "Latency Percentile",
+        "Query Rewriting"
+      ],
+      [
+        "Load Testing",
+        "Query Rewriting"
+      ],
+      [
+        "Query Rewriting",
+        "Queue Buffering"
+      ],
+      [
+        "Query Rewriting",
+        "Retry Mechanism"
+      ],
+      [
+        "Query Rewriting",
+        "Slow Query Attribution Analysis"
+      ],
+      [
+        "Query Rewriting",
+        "Throughput"
+      ],
+      [
+        "Query Rewriting",
+        "Traffic Smoothing"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1788256235,
+    "update_time": 1788256235,
+    "_id": "doc-9dcb88e0137649590b755372b040afad"
+  },
+  "doc-9872ed9fc22fc182d371c3e9ed316094": {
+    "relation_pairs": [
+      [
+        "压测",
+        "多路召回"
+      ],
+      [
+        "参数调优",
+        "多路召回"
+      ],
+      [
+        "吞吐量",
+        "多路召回"
+      ],
+      [
+        "多路召回",
+        "延迟分位数"
+      ],
+      [
+        "多路召回",
+        "慢查询归因分析"
+      ],
+      [
+        "多路召回",
+        "缓存失效风暴"
+      ],
+      [
+        "多路召回",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "多路召回",
+        "连接池耗尽"
+      ],
+      [
+        "多路召回",
+        "错误率"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1788256250,
+    "update_time": 1788256250,
+    "_id": "doc-9872ed9fc22fc182d371c3e9ed316094"
+  },
+  "doc-31fefc0e570cb3860f2a6d4b38c6490d": {
+    "relation_pairs": [
+      [
+        "Cache Invalidation Storm",
+        "Semantic Cache"
+      ],
+      [
+        "Compression",
+        "Semantic Cache"
+      ],
+      [
+        "Concurrency Control",
+        "Semantic Cache"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Semantic Cache"
+      ],
+      [
+        "Degradation Strategy",
+        "Semantic Cache"
+      ],
+      [
+        "Error Rate",
+        "Semantic Cache"
+      ],
+      [
+        "Evidence Chain",
+        "Semantic Cache"
+      ],
+      [
+        "Latency Percentiles",
+        "Semantic Cache"
+      ],
+      [
+        "Load Testing",
+        "Semantic Cache"
+      ],
+      [
+        "Monitoring",
+        "Semantic Cache"
+      ],
+      [
+        "Network Round-Trip Delay",
+        "Semantic Cache"
+      ],
+      [
+        "Parameter Tuning",
+        "Semantic Cache"
+      ],
+      [
+        "Preprocessing",
+        "Semantic Cache"
+      ],
+      [
+        "Queue Buffering",
+        "Semantic Cache"
+      ],
+      [
+        "Retry Mechanism",
+        "Semantic Cache"
+      ],
+      [
+        "Semantic Cache",
+        "Slow Query Analysis"
+      ],
+      [
+        "Semantic Cache",
+        "State Consistency"
+      ],
+      [
+        "Semantic Cache",
+        "Throughput"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256254,
+    "update_time": 1788256254,
+    "_id": "doc-31fefc0e570cb3860f2a6d4b38c6490d"
+  },
+  "doc-eecca5b6365d9607ee5a9d336962c534": {
+    "relation_pairs": [
+      [
+        "Buffer Queues",
+        "Vector Database"
+      ],
+      [
+        "Cache Storm",
+        "Vector Database"
+      ],
+      [
+        "Concurrency Control",
+        "Vector Database"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Vector Database"
+      ],
+      [
+        "Data Preprocessing",
+        "Vector Database"
+      ],
+      [
+        "Error Rate",
+        "Vector Database"
+      ],
+      [
+        "Latency Percentiles",
+        "Vector Database"
+      ],
+      [
+        "Load Testing",
+        "Vector Database"
+      ],
+      [
+        "Network Round Trip Time",
+        "Vector Database"
+      ],
+      [
+        "Parameter Tuning",
+        "Vector Database"
+      ],
+      [
+        "Retry Mechanism",
+        "Vector Database"
+      ],
+      [
+        "Service Downgrade",
+        "Vector Database"
+      ],
+      [
+        "Slow Query Analysis",
+        "Vector Database"
+      ],
+      [
+        "Throughput",
+        "Vector Database"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1788256269,
+    "update_time": 1788256269,
+    "_id": "doc-eecca5b6365d9607ee5a9d336962c534"
+  },
+  "doc-6cdd60ea0045eb7a6ec44c54d29ed402": {
+    "relation_pairs": [
+      [
+        "前后对比证据链",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "重排序"
+      ],
+      [
+        "参数调优",
+        "重排序"
+      ],
+      [
+        "吞吐量",
+        "重排序"
+      ],
+      [
+        "延迟分位数",
+        "重排序"
+      ],
+      [
+        "缓存失效风暴",
+        "重排序"
+      ],
+      [
+        "远程服务网络往返延迟",
+        "重排序"
+      ],
+      [
+        "连接池耗尽",
+        "重排序"
+      ],
+      [
+        "重排序",
+        "错误率"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1788256272,
+    "update_time": 1788256272,
+    "_id": "doc-6cdd60ea0045eb7a6ec44c54d29ed402"
+  },
+  "doc-02522a2b2726fb0a03bb19f2d8d9524d": {
+    "relation_pairs": [
+      [
+        "Stage 4",
+        "查询改写"
+      ],
+      [
+        "压测",
+        "查询改写"
+      ],
+      [
+        "吞吐量",
+        "查询改写"
+      ],
+      [
+        "延迟分位数",
+        "查询改写"
+      ],
+      [
+        "慢查询归因分析",
+        "查询改写"
+      ],
+      [
+        "查询改写",
+        "状态一致性"
+      ],
+      [
+        "查询改写",
+        "缓存失效风暴"
+      ],
+      [
+        "查询改写",
+        "远程服务网络延迟"
+      ],
+      [
+        "查询改写",
+        "连接池"
+      ],
+      [
+        "查询改写",
+        "重试与降级机制"
+      ],
+      [
+        "查询改写",
+        "错误率"
+      ],
+      [
+        "查询改写",
+        "队列缓冲"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1788256293,
+    "update_time": 1788256293,
+    "_id": "doc-02522a2b2726fb0a03bb19f2d8d9524d"
+  },
+  "doc-9fc3d7152ba9336a670e36d0ed79bc43": {
+    "relation_pairs": [
+      [
+        "压测",
+        "多路召回"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "多路召回",
+        "缓存失效风暴"
+      ],
+      [
+        "多路召回",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "多路召回",
+        "连接池耗尽"
+      ],
+      [
+        "多路召回",
+        "重试"
+      ],
+      [
+        "多路召回",
+        "降级"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "监控",
+        "错误率"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1788256293,
+    "update_time": 1788256293,
+    "_id": "doc-9fc3d7152ba9336a670e36d0ed79bc43"
+  },
+  "doc-7f1de29e6da19d22b51c68001e7e0e54": {
+    "relation_pairs": [
+      [
+        "上线",
+        "压测"
+      ],
+      [
+        "主流程",
+        "状态一致性"
+      ],
+      [
+        "主流程",
+        "评估基准"
+      ],
+      [
+        "压测",
+        "评估基准"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "评估基准"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "评估基准"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "归因分析",
+        "慢查询"
+      ],
+      [
+        "归因分析",
+        "错误率"
+      ],
+      [
+        "慢查询",
+        "监控"
+      ],
+      [
+        "数据",
+        "评估基准"
+      ],
+      [
+        "数据库负载",
+        "缓存失效风暴"
+      ],
+      [
+        "监控",
+        "评估基准"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "缓存失效风暴",
+        "评估基准"
+      ],
+      [
+        "评估基准",
+        "远程服务网络延迟"
+      ],
+      [
+        "评估基准",
+        "连接池耗尽"
+      ],
+      [
+        "评估基准",
+        "重试机制"
+      ],
+      [
+        "评估基准",
+        "队列缓冲"
+      ],
+      [
+        "评估基准",
+        "降级机制"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1788256301,
+    "update_time": 1788256301,
+    "_id": "doc-7f1de29e6da19d22b51c68001e7e0e54"
+  },
+  "doc-65ded5353c5ee48d0b7d48c591b8f430": {
+    "relation_pairs": [
+      [
+        "Cache Invalidation Storm",
+        "Semantic Caching"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Semantic Caching"
+      ],
+      [
+        "Degradation Strategy",
+        "Semantic Caching"
+      ],
+      [
+        "Error Rate",
+        "Semantic Caching"
+      ],
+      [
+        "Latency Percentile",
+        "Semantic Caching"
+      ],
+      [
+        "Parameter Tuning",
+        "Semantic Caching"
+      ],
+      [
+        "Performance Testing",
+        "Semantic Caching"
+      ],
+      [
+        "Remote Service Roundtrip Latency",
+        "Semantic Caching"
+      ],
+      [
+        "Retry Mechanism",
+        "Semantic Caching"
+      ],
+      [
+        "Semantic Caching",
+        "Slow Query Analysis"
+      ],
+      [
+        "Semantic Caching",
+        "Throughput"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1788256318,
+    "update_time": 1788256318,
+    "_id": "doc-65ded5353c5ee48d0b7d48c591b8f430"
+  },
+  "doc-9b8619251a19057cff70779273e95aa6": {
+    "relation_pairs": [
+      [
+        "Cache Stampede",
+        "Load Testing"
+      ],
+      [
+        "Concurrency Control",
+        "Reordering"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Load Testing"
+      ],
+      [
+        "Evidence Chain",
+        "Performance Testing"
+      ],
+      [
+        "Evidence Chain",
+        "Reordering"
+      ],
+      [
+        "Load Testing",
+        "Network Round Trip Time"
+      ],
+      [
+        "Load Testing",
+        "Reordering"
+      ],
+      [
+        "Monitoring",
+        "Performance Testing"
+      ],
+      [
+        "Monitoring",
+        "Reordering"
+      ],
+      [
+        "Monitoring",
+        "Slow Query Attribution"
+      ],
+      [
+        "Performance Testing",
+        "Reordering"
+      ],
+      [
+        "Queue Buffering",
+        "Reordering"
+      ],
+      [
+        "Reordering",
+        "Retry Mechanism"
+      ],
+      [
+        "Reordering",
+        "Service Degradation"
+      ],
+      [
+        "Reordering",
+        "System Parameters"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256325,
+    "update_time": 1788256325,
+    "_id": "doc-9b8619251a19057cff70779273e95aa6"
+  },
+  "doc-1afa34a7f984eeabdbb0a7d494132ee5": {
+    "relation_pairs": [
+      [
+        "Cache Expiration Storm",
+        "Load Testing"
+      ],
+      [
+        "Comparison Evidence Chain",
+        "Parameter Tuning"
+      ],
+      [
+        "Concurrency Control",
+        "Knowledge Graph"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Load Testing"
+      ],
+      [
+        "Error Analysis",
+        "Knowledge Graph"
+      ],
+      [
+        "Error Rate",
+        "Knowledge Graph"
+      ],
+      [
+        "Fallback",
+        "Knowledge Graph"
+      ],
+      [
+        "Knowledge Graph",
+        "Latency Percentile"
+      ],
+      [
+        "Knowledge Graph",
+        "Load Testing"
+      ],
+      [
+        "Knowledge Graph",
+        "Parameter Tuning"
+      ],
+      [
+        "Knowledge Graph",
+        "Queue Buffering"
+      ],
+      [
+        "Knowledge Graph",
+        "Retry"
+      ],
+      [
+        "Knowledge Graph",
+        "Slow Query Attribution"
+      ],
+      [
+        "Knowledge Graph",
+        "Throughput"
+      ],
+      [
+        "Load Testing",
+        "Network Round-Trip Delay"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256337,
+    "update_time": 1788256337,
+    "_id": "doc-1afa34a7f984eeabdbb0a7d494132ee5"
+  },
+  "doc-76dc611d6ebaafc66cc0879c71b5db5c": {
+    "relation_pairs": [
+      [
+        "Stage 4",
+        "压测"
+      ],
+      [
+        "压测",
+        "嵌入模型"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "吞吐量",
+        "嵌入模型"
+      ],
+      [
+        "嵌入模型",
+        "延迟分位数"
+      ],
+      [
+        "嵌入模型",
+        "缓存失效风暴"
+      ],
+      [
+        "嵌入模型",
+        "网络往返延迟"
+      ],
+      [
+        "嵌入模型",
+        "连接池耗尽"
+      ],
+      [
+        "嵌入模型",
+        "错误率"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1788256353,
+    "update_time": 1788256353,
+    "_id": "doc-76dc611d6ebaafc66cc0879c71b5db5c"
+  },
+  "doc-d1f491a404d6854880943e5c3cd9ca25": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "压测生成文档"
+      ],
+      [
+        "前后对比证据链",
+        "实测数据"
+      ],
+      [
+        "压测生成文档",
+        "熔断降级"
+      ],
+      [
+        "实测数据",
+        "熔断降级"
+      ],
+      [
+        "并发控制",
+        "熔断降级"
+      ],
+      [
+        "延迟分位数",
+        "熔断降级"
+      ],
+      [
+        "慢查询归因分析",
+        "熔断降级"
+      ],
+      [
+        "熔断降级",
+        "监控吞吐量"
+      ],
+      [
+        "熔断降级",
+        "缓存失效风暴"
+      ],
+      [
+        "熔断降级",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "熔断降级",
+        "连接池耗尽"
+      ],
+      [
+        "熔断降级",
+        "重试"
+      ],
+      [
+        "熔断降级",
+        "错误率"
+      ],
+      [
+        "熔断降级",
+        "队列缓冲"
+      ],
+      [
+        "熔断降级",
+        "降级"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256358,
+    "update_time": 1788256358,
+    "_id": "doc-d1f491a404d6854880943e5c3cd9ca25"
+  },
+  "doc-ec5decca5ed3d6b8079e2e7e7bacc9f2": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Document Sharding Strategy Section 1"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Document Sharding Strategy"
+      ],
+      [
+        "Concurrency Control",
+        "Document Sharding Strategy"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Document Sharding Strategy"
+      ],
+      [
+        "Dependent Service",
+        "Document Sharding Strategy Section 1"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Document Sharding Strategy Section 1"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Document Sharding Strategy Section 2"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Error Rate"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Graceful Degradation"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Latency Percentile"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Load Testing"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Parameter Tuning"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Preprocessing"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Queue Buffering"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Remote Service Round-Trip Latency"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Retry Mechanism"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Slow Query"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Stage 4"
+      ],
+      [
+        "Document Sharding Strategy",
+        "Throughput"
+      ],
+      [
+        "Document Sharding Strategy Section 1",
+        "State Consistency"
+      ],
+      [
+        "Parameter Tuning",
+        "Throughput"
+      ]
+    ],
+    "count": 21,
+    "create_time": 1788256368,
+    "update_time": 1788256368,
+    "_id": "doc-ec5decca5ed3d6b8079e2e7e7bacc9f2"
+  },
+  "doc-069059b7ef840f0c74a814ec9237b6ec": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Retrieval Augmented Generation"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Stress Testing"
+      ],
+      [
+        "Concurrency Control",
+        "Retrieval Augmented Generation"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Stress Testing"
+      ],
+      [
+        "Data Preprocessing",
+        "Retrieval Augmented Generation"
+      ],
+      [
+        "Degradation Strategy",
+        "Retrieval Augmented Generation"
+      ],
+      [
+        "Error Rate",
+        "Performance Monitoring"
+      ],
+      [
+        "Latency Percentile",
+        "Performance Monitoring"
+      ],
+      [
+        "Network Round-Trip Latency",
+        "Stress Testing"
+      ],
+      [
+        "Parameter Tuning",
+        "Retrieval Augmented Generation"
+      ],
+      [
+        "Performance Monitoring",
+        "Retrieval Augmented Generation"
+      ],
+      [
+        "Performance Monitoring",
+        "Throughput"
+      ],
+      [
+        "Queue Buffering",
+        "Retrieval Augmented Generation"
+      ],
+      [
+        "Retrieval Augmented Generation",
+        "Retry Mechanism"
+      ],
+      [
+        "Retrieval Augmented Generation",
+        "Slow Query Attribution Analysis"
+      ],
+      [
+        "Retrieval Augmented Generation",
+        "State Consistency"
+      ],
+      [
+        "Retrieval Augmented Generation",
+        "Stress Testing"
+      ],
+      [
+        "Retrieval Augmented Generation",
+        "Test Document 101"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256379,
+    "update_time": 1788256379,
+    "_id": "doc-069059b7ef840f0c74a814ec9237b6ec"
+  },
+  "doc-3def184ad8f4755ff269862ea77393dd": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "向量数据库"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "向量数据库",
+        "吞吐量"
+      ],
+      [
+        "向量数据库",
+        "并发控制与队列缓冲"
+      ],
+      [
+        "向量数据库",
+        "延迟分位数"
+      ],
+      [
+        "向量数据库",
+        "性能监控系统"
+      ],
+      [
+        "向量数据库",
+        "重试与降级"
+      ],
+      [
+        "向量数据库",
+        "错误率"
+      ],
+      [
+        "吞吐量",
+        "慢查询归因分析"
+      ],
+      [
+        "延迟分位数",
+        "慢查询归因分析"
+      ],
+      [
+        "慢查询归因分析",
+        "错误率"
+      ],
+      [
+        "批次处理",
+        "数据预处理"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256381,
+    "update_time": 1788256381,
+    "_id": "doc-3def184ad8f4755ff269862ea77393dd"
+  },
+  "doc-c8ffe9a587b126f152ed3d89a146b445": {
+    "relation_pairs": [
+      [
+        "一致性哈希",
+        "主流程"
+      ],
+      [
+        "一致性哈希",
+        "并发控制"
+      ],
+      [
+        "一致性哈希",
+        "数据预处理"
+      ],
+      [
+        "一致性哈希",
+        "测试文档098"
+      ],
+      [
+        "一致性哈希",
+        "监控"
+      ],
+      [
+        "一致性哈希",
+        "缓存失效风暴"
+      ],
+      [
+        "一致性哈希",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "一致性哈希",
+        "连接池耗尽"
+      ],
+      [
+        "一致性哈希",
+        "重试与降级"
+      ],
+      [
+        "一致性哈希",
+        "队列缓冲"
+      ],
+      [
+        "一致性哈希技术详解",
+        "测试文档098"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询",
+        "监控"
+      ],
+      [
+        "批次处理",
+        "系统"
+      ],
+      [
+        "监控",
+        "错误率"
+      ]
+    ],
+    "count": 21,
+    "create_time": 1788256385,
+    "update_time": 1788256385,
+    "_id": "doc-c8ffe9a587b126f152ed3d89a146b445"
+  },
+  "doc-a0a080f42e6f13b3a2df133f073095dd": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "消息队列"
+      ],
+      [
+        "依赖服务异常处理",
+        "消息队列"
+      ],
+      [
+        "参数调优原则",
+        "消息队列"
+      ],
+      [
+        "常见问题",
+        "消息队列"
+      ],
+      [
+        "数据处理流程",
+        "消息队列"
+      ],
+      [
+        "消息队列",
+        "监控指标"
+      ],
+      [
+        "消息队列",
+        "负载管理"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1788256396,
+    "update_time": 1788256396,
+    "_id": "doc-a0a080f42e6f13b3a2df133f073095dd"
+  },
+  "doc-202cb962ac59075b964b07152d234b70": {
+    "relation_pairs": [
+      [
+        "压测",
+        "测试文档096"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "流式计算"
+      ],
+      [
+        "吞吐量",
+        "流式计算"
+      ],
+      [
+        "并发控制",
+        "流式计算"
+      ],
+      [
+        "延迟分位数",
+        "流式计算"
+      ],
+      [
+        "慢查询归因分析",
+        "流式计算"
+      ],
+      [
+        "批次处理",
+        "流式计算"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "数据预处理",
+        "流式计算"
+      ],
+      [
+        "流式计算",
+        "测试文档096"
+      ],
+      [
+        "流式计算",
+        "缓存失效风暴"
+      ],
+      [
+        "流式计算",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "流式计算",
+        "连接池耗尽"
+      ],
+      [
+        "流式计算",
+        "重试与降级"
+      ],
+      [
+        "流式计算",
+        "错误率"
+      ],
+      [
+        "流式计算",
+        "队列缓冲"
+      ],
+      [
+        "缓存失效风暴",
+        "连接池耗尽"
+      ],
+      [
+        "远程服务网络往返延迟",
+        "连接池耗尽"
+      ]
+    ],
+    "count": 21,
+    "create_time": 1788256398,
+    "update_time": 1788256398,
+    "_id": "doc-202cb962ac59075b964b07152d234b70"
+  },
+  "doc-4c56ff4ce4aaf9573aa5dff913df997a": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档095"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "数据脱敏"
+      ],
+      [
+        "参数调优",
+        "数据脱敏"
+      ],
+      [
+        "吞吐量",
+        "数据脱敏"
+      ],
+      [
+        "并发控制",
+        "数据脱敏"
+      ],
+      [
+        "延迟分位数",
+        "数据脱敏"
+      ],
+      [
+        "慢查询归因分析",
+        "数据脱敏"
+      ],
+      [
+        "数据脱敏",
+        "测试文档095"
+      ],
+      [
+        "数据脱敏",
+        "状态一致性"
+      ],
+      [
+        "数据脱敏",
+        "缓存失效风暴"
+      ],
+      [
+        "数据脱敏",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "数据脱敏",
+        "连接池耗尽"
+      ],
+      [
+        "数据脱敏",
+        "重试与降级"
+      ],
+      [
+        "数据脱敏",
+        "错误率"
+      ],
+      [
+        "数据脱敏",
+        "队列缓冲"
+      ],
+      [
+        "数据脱敏",
+        "预处理"
+      ],
+      [
+        "数据脱敏第1节",
+        "数据脱敏第2节"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256407,
+    "update_time": 1788256407,
+    "_id": "doc-4c56ff4ce4aaf9573aa5dff913df997a"
+  },
+  "doc-da4fb5c6e93e74d3df8527599fa62642": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档094"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "联邦学习"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "联邦学习"
+      ],
+      [
+        "状态一致性",
+        "联邦学习"
+      ],
+      [
+        "联邦学习",
+        "联邦学习第1节"
+      ],
+      [
+        "联邦学习",
+        "联邦学习第2节"
+      ],
+      [
+        "联邦学习",
+        "重试与降级"
+      ],
+      [
+        "联邦学习",
+        "错误率"
+      ],
+      [
+        "联邦学习第1节",
+        "联邦学习第2节"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256411,
+    "update_time": 1788256411,
+    "_id": "doc-da4fb5c6e93e74d3df8527599fa62642"
+  },
+  "doc-07e1cd7dca89a1678042477183b7ac3f": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Text Compression"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Load Testing"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Text Compression"
+      ],
+      [
+        "Concurrency Control",
+        "Text Compression"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Load Testing"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Text Compression"
+      ],
+      [
+        "Data Preprocessing",
+        "Text Compression"
+      ],
+      [
+        "Degradation Strategy",
+        "Text Compression"
+      ],
+      [
+        "Error Rate Monitoring",
+        "Text Compression"
+      ],
+      [
+        "Latency Percentile Monitoring",
+        "Text Compression"
+      ],
+      [
+        "Load Testing",
+        "Parameter Tuning"
+      ],
+      [
+        "Load Testing",
+        "Remote Service Network Latency"
+      ],
+      [
+        "Parameter Tuning",
+        "Text Compression"
+      ],
+      [
+        "Queue Buffering",
+        "Text Compression"
+      ],
+      [
+        "Remote Service Network Latency",
+        "Text Compression"
+      ],
+      [
+        "Retry Strategy",
+        "Text Compression"
+      ],
+      [
+        "Slow Query Root Cause Analysis",
+        "Text Compression"
+      ],
+      [
+        "Stage 4 Batch Import Performance Testing",
+        "Test Document 093"
+      ],
+      [
+        "Test Document 093",
+        "Text Compression"
+      ],
+      [
+        "Text Compression",
+        "Throughput Monitoring"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1788256427,
+    "update_time": 1788256427,
+    "_id": "doc-07e1cd7dca89a1678042477183b7ac3f"
+  },
+  "doc-5ef059938ba799aaa845e1c2e8a762bd": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "分词算法"
+      ],
+      [
+        "分词算法",
+        "现代系统"
+      ],
+      [
+        "分词算法",
+        "监控指标"
+      ],
+      [
+        "分词算法",
+        "缓存失效风暴"
+      ],
+      [
+        "分词算法",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "分词算法",
+        "连接池耗尽"
+      ],
+      [
+        "吞吐量",
+        "监控指标"
+      ],
+      [
+        "延迟分位数",
+        "监控指标"
+      ],
+      [
+        "监控指标",
+        "错误率"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1788256432,
+    "update_time": 1788256432,
+    "_id": "doc-5ef059938ba799aaa845e1c2e8a762bd"
+  },
+  "doc-c45147dee729311ef5b5c3003946c48f": {
+    "relation_pairs": [
+      [
+        "Test Document 086",
+        "语义缓存"
+      ]
+    ],
+    "count": 1,
+    "create_time": 1788256436,
+    "update_time": 1788256436,
+    "_id": "doc-c45147dee729311ef5b5c3003946c48f"
+  },
+  "doc-eb160de1de89d9058fcb0b968dbbbd68": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "压测生成文档"
+      ],
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档091"
+      ],
+      [
+        "主流程",
+        "倒排索引"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "倒排索引",
+        "倒排索引第1节"
+      ],
+      [
+        "倒排索引",
+        "倒排索引第2节"
+      ],
+      [
+        "倒排索引",
+        "压测"
+      ],
+      [
+        "倒排索引",
+        "吞吐量"
+      ],
+      [
+        "倒排索引",
+        "并发控制"
+      ],
+      [
+        "倒排索引",
+        "延迟分位数"
+      ],
+      [
+        "倒排索引",
+        "慢查询归因分析"
+      ],
+      [
+        "倒排索引",
+        "批次处理"
+      ],
+      [
+        "倒排索引",
+        "测试文档091"
+      ],
+      [
+        "倒排索引",
+        "缓存失效风暴"
+      ],
+      [
+        "倒排索引",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "倒排索引",
+        "连接池耗尽"
+      ],
+      [
+        "倒排索引",
+        "重试"
+      ],
+      [
+        "倒排索引",
+        "错误率"
+      ],
+      [
+        "倒排索引",
+        "队列缓冲"
+      ],
+      [
+        "倒排索引",
+        "降级"
+      ],
+      [
+        "倒排索引",
+        "预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ]
+    ],
+    "count": 26,
+    "create_time": 1788256439,
+    "update_time": 1788256439,
+    "_id": "doc-eb160de1de89d9058fcb0b968dbbbd68"
+  },
+  "doc-2b44928ae11fb9384c4cf38708677c48": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "分布式索引"
+      ],
+      [
+        "分布式索引",
+        "参数调优"
+      ],
+      [
+        "分布式索引",
+        "吞吐量"
+      ],
+      [
+        "分布式索引",
+        "并发控制"
+      ],
+      [
+        "分布式索引",
+        "延迟分位数"
+      ],
+      [
+        "分布式索引",
+        "慢查询归因分析"
+      ],
+      [
+        "分布式索引",
+        "批次处理"
+      ],
+      [
+        "分布式索引",
+        "状态一致性"
+      ],
+      [
+        "分布式索引",
+        "监控系统"
+      ],
+      [
+        "分布式索引",
+        "缓存失效风暴"
+      ],
+      [
+        "分布式索引",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "分布式索引",
+        "连接池耗尽"
+      ],
+      [
+        "分布式索引",
+        "重试与降级"
+      ],
+      [
+        "分布式索引",
+        "错误率"
+      ],
+      [
+        "分布式索引",
+        "队列缓冲"
+      ],
+      [
+        "分布式索引",
+        "预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "慢查询归因分析",
+        "监控系统"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1788256448,
+    "update_time": 1788256448,
+    "_id": "doc-2b44928ae11fb9384c4cf38708677c48"
+  },
+  "doc-5fd0b37cd7dbbb00f97ba6ce92bf5add": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档089"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "依赖服务异常",
+        "重试"
+      ],
+      [
+        "依赖服务异常",
+        "降级"
+      ],
+      [
+        "参数调优",
+        "评估基准"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "吞吐量",
+        "评估基准"
+      ],
+      [
+        "并发控制",
+        "评估基准"
+      ],
+      [
+        "并发控制",
+        "负载上升"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "延迟分位数",
+        "评估基准"
+      ],
+      [
+        "慢查询归因分析",
+        "评估基准"
+      ],
+      [
+        "测试文档089",
+        "评估基准"
+      ],
+      [
+        "状态一致性",
+        "评估基准"
+      ],
+      [
+        "监控",
+        "评估基准"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "缓存失效风暴",
+        "评估基准"
+      ],
+      [
+        "评估基准",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "评估基准",
+        "连接池耗尽"
+      ],
+      [
+        "评估基准",
+        "重试"
+      ],
+      [
+        "评估基准",
+        "错误率"
+      ],
+      [
+        "评估基准",
+        "队列缓冲"
+      ],
+      [
+        "评估基准",
+        "降级"
+      ],
+      [
+        "评估基准",
+        "预处理"
+      ],
+      [
+        "负载上升",
+        "队列缓冲"
+      ]
+    ],
+    "count": 25,
+    "create_time": 1788256451,
+    "update_time": 1788256451,
+    "_id": "doc-5fd0b37cd7dbbb00f97ba6ce92bf5add"
+  },
+  "doc-73278a4a86960eeb576a8fd4c9ec6997": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "查询改写"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "查询改写"
+      ],
+      [
+        "吞吐量",
+        "查询改写"
+      ],
+      [
+        "并发控制",
+        "查询改写"
+      ],
+      [
+        "延迟分位数",
+        "查询改写"
+      ],
+      [
+        "慢查询归因分析",
+        "查询改写"
+      ],
+      [
+        "查询改写",
+        "缓存失效风暴"
+      ],
+      [
+        "查询改写",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "查询改写",
+        "连接池耗尽"
+      ],
+      [
+        "查询改写",
+        "重试与降级"
+      ],
+      [
+        "查询改写",
+        "错误率"
+      ],
+      [
+        "查询改写",
+        "队列缓冲"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256467,
+    "update_time": 1788256467,
+    "_id": "doc-73278a4a86960eeb576a8fd4c9ec6997"
+  },
+  "doc-7f6ffaa6bb0b408017b62254211691b5": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "吞吐量",
+        "延迟分位数"
+      ],
+      [
+        "多路召回",
+        "并发控制"
+      ],
+      [
+        "多路召回",
+        "数据预处理"
+      ],
+      [
+        "多路召回",
+        "重试与降级"
+      ],
+      [
+        "多路召回",
+        "队列缓冲"
+      ],
+      [
+        "慢查询归因分析",
+        "错误率"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1788256469,
+    "update_time": 1788256469,
+    "_id": "doc-7f6ffaa6bb0b408017b62254211691b5"
+  },
+  "doc-698d51a19d8a121ce581499d7b701668": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "知识图谱"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "主流程",
+        "状态一致性"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "吞吐量",
+        "知识图谱"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "延迟分位数",
+        "知识图谱"
+      ],
+      [
+        "慢查询",
+        "知识图谱"
+      ],
+      [
+        "现代系统",
+        "知识图谱"
+      ],
+      [
+        "现代系统",
+        "重试与降级"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "知识图谱",
+        "错误率"
+      ],
+      [
+        "系统",
+        "缓存失效风暴"
+      ],
+      [
+        "系统",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "系统",
+        "连接池耗尽"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1788256477,
+    "update_time": 1788256477,
+    "_id": "doc-698d51a19d8a121ce581499d7b701668"
+  },
+  "doc-5f93f983524def3dca464469d2cf9f3e": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "重排序"
+      ],
+      [
+        "主流程",
+        "重排序"
+      ],
+      [
+        "压测",
+        "重排序"
+      ],
+      [
+        "参数调优",
+        "重排序"
+      ],
+      [
+        "吞吐量",
+        "重排序"
+      ],
+      [
+        "并发控制",
+        "重排序"
+      ],
+      [
+        "延迟分位数",
+        "重排序"
+      ],
+      [
+        "测试文档084",
+        "重排序"
+      ],
+      [
+        "状态一致性",
+        "重排序"
+      ],
+      [
+        "缓存失效风暴",
+        "重排序"
+      ],
+      [
+        "远程服务网络往返延迟",
+        "重排序"
+      ],
+      [
+        "连接池耗尽",
+        "重排序"
+      ],
+      [
+        "重排序",
+        "重试"
+      ],
+      [
+        "重排序",
+        "错误率"
+      ],
+      [
+        "重排序",
+        "队列缓冲"
+      ],
+      [
+        "重排序",
+        "降级"
+      ],
+      [
+        "重排序",
+        "预处理"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256486,
+    "update_time": 1788256486,
+    "_id": "doc-5f93f983524def3dca464469d2cf9f3e"
+  },
+  "doc-2723d092b63885e0d7c260cc007e8b9d": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "嵌入模型"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "嵌入模型"
+      ],
+      [
+        "吞吐量",
+        "嵌入模型"
+      ],
+      [
+        "嵌入模型",
+        "并发控制"
+      ],
+      [
+        "嵌入模型",
+        "延迟分位数"
+      ],
+      [
+        "嵌入模型",
+        "慢查询归因分析"
+      ],
+      [
+        "嵌入模型",
+        "批次处理"
+      ],
+      [
+        "嵌入模型",
+        "数据预处理"
+      ],
+      [
+        "嵌入模型",
+        "缓存失效风暴"
+      ],
+      [
+        "嵌入模型",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "嵌入模型",
+        "连接池耗尽"
+      ],
+      [
+        "嵌入模型",
+        "重试与降级"
+      ],
+      [
+        "嵌入模型",
+        "错误率"
+      ],
+      [
+        "嵌入模型",
+        "队列缓冲"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256489,
+    "update_time": 1788256489,
+    "_id": "doc-2723d092b63885e0d7c260cc007e8b9d"
+  },
+  "doc-a3c65c2974270fd093ee8a9bf8ae7d0b": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档082"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "文档切片策略"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "文档切片策略"
+      ],
+      [
+        "吞吐量",
+        "文档切片策略"
+      ],
+      [
+        "并发控制",
+        "文档切片策略"
+      ],
+      [
+        "延迟分位数",
+        "文档切片策略"
+      ],
+      [
+        "慢查询归因分析",
+        "文档切片策略"
+      ],
+      [
+        "文档切片策略",
+        "测试文档082"
+      ],
+      [
+        "文档切片策略",
+        "重试与降级"
+      ],
+      [
+        "文档切片策略",
+        "错误率"
+      ],
+      [
+        "文档切片策略",
+        "队列缓冲"
+      ],
+      [
+        "文档切片策略",
+        "预处理"
+      ],
+      [
+        "文档切片策略第1节：原理与实现",
+        "测试文档082"
+      ],
+      [
+        "文档切片策略第2节：原理与实现",
+        "测试文档082"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256496,
+    "update_time": 1788256496,
+    "_id": "doc-a3c65c2974270fd093ee8a9bf8ae7d0b"
+  },
+  "doc-a97da629b098b75c294dffdc3e463904": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档081"
+      ],
+      [
+        "压测",
+        "检索增强生成"
+      ],
+      [
+        "参数调优",
+        "检索增强生成"
+      ],
+      [
+        "吞吐量",
+        "检索增强生成"
+      ],
+      [
+        "并发控制",
+        "检索增强生成"
+      ],
+      [
+        "延迟分位数",
+        "检索增强生成"
+      ],
+      [
+        "慢查询归因分析",
+        "检索增强生成"
+      ],
+      [
+        "扫描器",
+        "检索增强生成"
+      ],
+      [
+        "检索增强生成",
+        "重试"
+      ],
+      [
+        "检索增强生成",
+        "错误率"
+      ],
+      [
+        "检索增强生成",
+        "队列缓冲"
+      ],
+      [
+        "检索增强生成",
+        "降级"
+      ],
+      [
+        "检索增强生成",
+        "预处理"
+      ]
+    ],
+    "count": 13,
+    "create_time": 1788256507,
+    "update_time": 1788256507,
+    "_id": "doc-a97da629b098b75c294dffdc3e463904"
+  },
+  "doc-65b9eea6e1cc6bb9f0cd2a47751a186f": {
+    "relation_pairs": [
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "流式计算"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询归因分析",
+        "监控"
+      ],
+      [
+        "批次处理",
+        "流式计算"
+      ],
+      [
+        "数据预处理",
+        "流式计算"
+      ],
+      [
+        "流式计算",
+        "测试文档076"
+      ],
+      [
+        "流式计算",
+        "状态一致性"
+      ],
+      [
+        "流式计算",
+        "监控"
+      ],
+      [
+        "流式计算",
+        "重试与降级"
+      ],
+      [
+        "流式计算",
+        "队列缓冲"
+      ],
+      [
+        "监控",
+        "错误率"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256514,
+    "update_time": 1788256514,
+    "_id": "doc-65b9eea6e1cc6bb9f0cd2a47751a186f"
+  },
+  "doc-f0935e4cd5920aa6c7c996a5ee53a70f": {
+    "relation_pairs": [
+      [
+        "Stage 4批次导入性能测试",
+        "测试文档080"
+      ],
+      [
+        "参数调优",
+        "向量数据库"
+      ],
+      [
+        "向量数据库",
+        "并发控制与队列缓冲"
+      ],
+      [
+        "向量数据库",
+        "批量处理机制"
+      ],
+      [
+        "向量数据库",
+        "测试文档080"
+      ],
+      [
+        "向量数据库",
+        "监控机制"
+      ],
+      [
+        "向量数据库",
+        "缓存失效风暴"
+      ],
+      [
+        "向量数据库",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "向量数据库",
+        "连接池耗尽"
+      ],
+      [
+        "向量数据库",
+        "重试与降级机制"
+      ],
+      [
+        "向量数据库",
+        "预处理流程"
+      ],
+      [
+        "吞吐量指标",
+        "监控机制"
+      ],
+      [
+        "延迟分位数指标",
+        "监控机制"
+      ],
+      [
+        "慢查询归因分析",
+        "监控机制"
+      ],
+      [
+        "批量处理机制",
+        "状态一致性"
+      ],
+      [
+        "测试文档080",
+        "第1节:原理与实现"
+      ],
+      [
+        "测试文档080",
+        "第2节:原理与实现"
+      ],
+      [
+        "监控机制",
+        "错误率指标"
+      ],
+      [
+        "第1节:原理与实现",
+        "第2节:原理与实现"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1788256515,
+    "update_time": 1788256515,
+    "_id": "doc-f0935e4cd5920aa6c7c996a5ee53a70f"
+  },
+  "doc-c9e1074f5b3f9fc8ea15d152add07294": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档079"
+      ],
+      [
+        "主流程",
+        "熔断降级"
+      ],
+      [
+        "压测",
+        "熔断降级"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "熔断降级"
+      ],
+      [
+        "吞吐量",
+        "熔断降级"
+      ],
+      [
+        "并发控制",
+        "熔断降级"
+      ],
+      [
+        "延迟分位数",
+        "熔断降级"
+      ],
+      [
+        "慢查询归因分析",
+        "熔断降级"
+      ],
+      [
+        "批次处理",
+        "熔断降级"
+      ],
+      [
+        "测试文档079",
+        "熔断降级"
+      ],
+      [
+        "熔断降级",
+        "状态一致性"
+      ],
+      [
+        "熔断降级",
+        "缓存失效风暴"
+      ],
+      [
+        "熔断降级",
+        "连接池耗尽"
+      ],
+      [
+        "熔断降级",
+        "重试"
+      ],
+      [
+        "熔断降级",
+        "错误率"
+      ],
+      [
+        "熔断降级",
+        "队列缓冲"
+      ],
+      [
+        "熔断降级",
+        "降级"
+      ],
+      [
+        "熔断降级",
+        "预处理"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1788256522,
+    "update_time": 1788256522,
+    "_id": "doc-c9e1074f5b3f9fc8ea15d152add07294"
+  },
+  "doc-6974ce5ac660610b44d9b9fed0ff9548": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "一致性哈希"
+      ],
+      [
+        "一致性哈希",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "一致性哈希",
+        "预处理"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "延迟分位数"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "错误率"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "重试机制",
+        "降级机制"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1788256539,
+    "update_time": 1788256539,
+    "_id": "doc-6974ce5ac660610b44d9b9fed0ff9548"
+  },
+  "doc-ec8956637a99787bd197eacd77acce5e": {
+    "relation_pairs": [
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "消息队列"
+      ],
+      [
+        "吞吐量",
+        "消息队列"
+      ],
+      [
+        "并发控制",
+        "消息队列"
+      ],
+      [
+        "延迟分位数",
+        "消息队列"
+      ],
+      [
+        "归因分析",
+        "慢查询"
+      ],
+      [
+        "往返延迟",
+        "远程服务"
+      ],
+      [
+        "慢查询",
+        "消息队列"
+      ],
+      [
+        "批量处理",
+        "消息队列"
+      ],
+      [
+        "消息队列",
+        "状态一致性"
+      ],
+      [
+        "消息队列",
+        "缓存失效风暴"
+      ],
+      [
+        "消息队列",
+        "远程服务"
+      ],
+      [
+        "消息队列",
+        "连接池耗尽"
+      ],
+      [
+        "消息队列",
+        "重试"
+      ],
+      [
+        "消息队列",
+        "错误率"
+      ],
+      [
+        "消息队列",
+        "队列缓冲"
+      ],
+      [
+        "消息队列",
+        "降级"
+      ],
+      [
+        "消息队列",
+        "预处理"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256542,
+    "update_time": 1788256542,
+    "_id": "doc-ec8956637a99787bd197eacd77acce5e"
+  },
+  "doc-38b3eff8baf56627478ec76a704e9b52": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档072"
+      ],
+      [
+        "主流程",
+        "分词算法"
+      ],
+      [
+        "分词算法",
+        "压测"
+      ],
+      [
+        "分词算法",
+        "参数调优"
+      ],
+      [
+        "分词算法",
+        "吞吐量"
+      ],
+      [
+        "分词算法",
+        "并发控制"
+      ],
+      [
+        "分词算法",
+        "延迟分位数"
+      ],
+      [
+        "分词算法",
+        "测试文档072"
+      ],
+      [
+        "分词算法",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "分词算法",
+        "重试"
+      ],
+      [
+        "分词算法",
+        "错误率"
+      ],
+      [
+        "分词算法",
+        "队列缓冲"
+      ],
+      [
+        "分词算法",
+        "降级"
+      ],
+      [
+        "分词算法",
+        "预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256543,
+    "update_time": 1788256543,
+    "_id": "doc-38b3eff8baf56627478ec76a704e9b52"
+  },
+  "doc-f899139df5e1059396431415e770c6dd": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "批次处理"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "数据脱敏"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "数据脱敏"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "数据脱敏"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "数据脱敏"
+      ],
+      [
+        "并发控制",
+        "负载上升"
+      ],
+      [
+        "延迟分位数",
+        "数据脱敏"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询归因分析",
+        "监控"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "数据脱敏",
+        "重试"
+      ],
+      [
+        "数据脱敏",
+        "错误率"
+      ],
+      [
+        "数据脱敏",
+        "队列缓冲"
+      ],
+      [
+        "数据脱敏",
+        "降级"
+      ],
+      [
+        "数据脱敏",
+        "预处理"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "负载上升",
+        "队列缓冲"
+      ]
+    ],
+    "count": 24,
+    "create_time": 1788256561,
+    "update_time": 1788256561,
+    "_id": "doc-f899139df5e1059396431415e770c6dd"
+  },
+  "doc-ac627ab1ccbdb62ec96e702f07f6425b": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档071"
+      ],
+      [
+        "主流程",
+        "批次处理"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "倒排索引",
+        "倒排索引第1节"
+      ],
+      [
+        "倒排索引",
+        "倒排索引第2节"
+      ],
+      [
+        "倒排索引",
+        "压测"
+      ],
+      [
+        "倒排索引",
+        "参数调优"
+      ],
+      [
+        "倒排索引",
+        "吞吐量"
+      ],
+      [
+        "倒排索引",
+        "并发控制"
+      ],
+      [
+        "倒排索引",
+        "延迟分位数"
+      ],
+      [
+        "倒排索引",
+        "慢查询"
+      ],
+      [
+        "倒排索引",
+        "测试文档071"
+      ],
+      [
+        "倒排索引",
+        "缓存失效风暴"
+      ],
+      [
+        "倒排索引",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "倒排索引",
+        "连接池耗尽"
+      ],
+      [
+        "倒排索引",
+        "重试"
+      ],
+      [
+        "倒排索引",
+        "错误率"
+      ],
+      [
+        "倒排索引",
+        "队列缓冲"
+      ],
+      [
+        "倒排索引",
+        "降级"
+      ],
+      [
+        "倒排索引",
+        "预处理"
+      ],
+      [
+        "倒排索引第1节",
+        "测试文档071"
+      ],
+      [
+        "倒排索引第2节",
+        "测试文档071"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ]
+    ],
+    "count": 27,
+    "create_time": 1788256562,
+    "update_time": 1788256562,
+    "_id": "doc-ac627ab1ccbdb62ec96e702f07f6425b"
+  },
+  "doc-ed3d2c21991e3bef5e069713af9fa6ca": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "联邦学习"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "联邦学习"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "联邦学习"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "吞吐量",
+        "联邦学习"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "延迟分位数",
+        "联邦学习"
+      ],
+      [
+        "慢查询归因分析",
+        "联邦学习"
+      ],
+      [
+        "数据预处理",
+        "联邦学习"
+      ],
+      [
+        "监控",
+        "联邦学习"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "缓存失效风暴",
+        "联邦学习"
+      ],
+      [
+        "联邦学习",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "联邦学习",
+        "连接池耗尽"
+      ],
+      [
+        "联邦学习",
+        "重试与降级"
+      ],
+      [
+        "联邦学习",
+        "错误率"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1788256564,
+    "update_time": 1788256564,
+    "_id": "doc-ed3d2c21991e3bef5e069713af9fa6ca"
+  },
+  "doc-e2ef524fbf3d9fe611d5a8e90fefdc9c": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "文本压缩"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "吞吐量",
+        "文本压缩"
+      ],
+      [
+        "并发控制",
+        "文本压缩"
+      ],
+      [
+        "延迟分位数",
+        "文本压缩"
+      ],
+      [
+        "慢查询",
+        "文本压缩"
+      ],
+      [
+        "文本压缩",
+        "测试文档073"
+      ],
+      [
+        "文本压缩",
+        "缓存失效风暴"
+      ],
+      [
+        "文本压缩",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "文本压缩",
+        "连接池耗尽"
+      ],
+      [
+        "文本压缩",
+        "重试与降级"
+      ],
+      [
+        "文本压缩",
+        "错误率"
+      ],
+      [
+        "文本压缩",
+        "队列缓冲"
+      ],
+      [
+        "文本压缩",
+        "预处理"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256583,
+    "update_time": 1788256583,
+    "_id": "doc-e2ef524fbf3d9fe611d5a8e90fefdc9c"
+  },
+  "doc-26657d5ff9020d2abefe558796b99584": {
+    "relation_pairs": [
+      [
+        "Cache Invalidation Storm",
+        "Distributed Index"
+      ],
+      [
+        "Concurrency Control",
+        "Distributed Index"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Distributed Index"
+      ],
+      [
+        "Degradation",
+        "Distributed Index"
+      ],
+      [
+        "Distributed Index",
+        "Error Rate"
+      ],
+      [
+        "Distributed Index",
+        "Latency Percentile"
+      ],
+      [
+        "Distributed Index",
+        "Parameter Tuning"
+      ],
+      [
+        "Distributed Index",
+        "Queue Buffering"
+      ],
+      [
+        "Distributed Index",
+        "Remote Service Network Round Trip Latency"
+      ],
+      [
+        "Distributed Index",
+        "Retry Mechanism"
+      ],
+      [
+        "Distributed Index",
+        "Slow Query Attribution Analysis"
+      ],
+      [
+        "Distributed Index",
+        "Throughput"
+      ],
+      [
+        "Distributed Index Section 1",
+        "Test Document 070"
+      ],
+      [
+        "Distributed Index Section 2",
+        "Test Document 070"
+      ],
+      [
+        "Stage 4",
+        "Test Document 070"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256585,
+    "update_time": 1788256585,
+    "_id": "doc-26657d5ff9020d2abefe558796b99584"
+  },
+  "doc-812b4ba287f5ee0bc9d43bbf5bbe87fb": {
+    "relation_pairs": [
+      [
+        "Batch Import Performance Test",
+        "Stage 4"
+      ],
+      [
+        "Batch Import Performance Test",
+        "评估基准"
+      ],
+      [
+        "Batch Processing",
+        "评估基准"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "评估基准"
+      ],
+      [
+        "Concurrency Control",
+        "评估基准"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "评估基准"
+      ],
+      [
+        "Data Preprocessing",
+        "评估基准"
+      ],
+      [
+        "Degradation",
+        "评估基准"
+      ],
+      [
+        "Error Rate",
+        "评估基准"
+      ],
+      [
+        "Evidence Chain",
+        "Parameter Tuning"
+      ],
+      [
+        "Evidence Chain",
+        "评估基准"
+      ],
+      [
+        "Latency Quantile",
+        "评估基准"
+      ],
+      [
+        "Parameter Tuning",
+        "评估基准"
+      ],
+      [
+        "Queue Buffering",
+        "评估基准"
+      ],
+      [
+        "Remote Service Network Round Trip Latency",
+        "评估基准"
+      ],
+      [
+        "Retry Mechanism",
+        "评估基准"
+      ],
+      [
+        "Slow Query Attribution Analysis",
+        "评估基准"
+      ],
+      [
+        "State Consistency",
+        "评估基准"
+      ],
+      [
+        "Throughput",
+        "评估基准"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1788256591,
+    "update_time": 1788256591,
+    "_id": "doc-812b4ba287f5ee0bc9d43bbf5bbe87fb"
+  },
+  "doc-f4b9ec30ad9f68f89b29639786cb62ef": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "压测生成文档"
+      ],
+      [
+        "主流程",
+        "查询改写"
+      ],
+      [
+        "压测生成文档",
+        "查询改写"
+      ],
+      [
+        "参数调优",
+        "查询改写"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "查询改写"
+      ],
+      [
+        "并发控制",
+        "查询改写"
+      ],
+      [
+        "延迟分位数",
+        "查询改写"
+      ],
+      [
+        "慢查询归因分析",
+        "查询改写"
+      ],
+      [
+        "批次处理",
+        "查询改写"
+      ],
+      [
+        "查询改写",
+        "状态一致性"
+      ],
+      [
+        "查询改写",
+        "缓存失效风暴"
+      ],
+      [
+        "查询改写",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "查询改写",
+        "连接池耗尽"
+      ],
+      [
+        "查询改写",
+        "重试与降级"
+      ],
+      [
+        "查询改写",
+        "错误率"
+      ],
+      [
+        "查询改写",
+        "队列缓冲"
+      ],
+      [
+        "查询改写",
+        "预处理"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256601,
+    "update_time": 1788256601,
+    "_id": "doc-f4b9ec30ad9f68f89b29639786cb62ef"
+  },
+  "doc-92cc227532d17e56e07902b254dfad10": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档067"
+      ],
+      [
+        "参数调优",
+        "系统"
+      ],
+      [
+        "多路召回",
+        "测试文档067"
+      ],
+      [
+        "并发控制",
+        "系统"
+      ],
+      [
+        "慢查询归因分析",
+        "系统"
+      ],
+      [
+        "数据预处理",
+        "系统"
+      ],
+      [
+        "监控指标",
+        "系统"
+      ],
+      [
+        "系统",
+        "缓存失效风暴"
+      ],
+      [
+        "系统",
+        "连接池耗尽"
+      ],
+      [
+        "系统",
+        "队列缓冲"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1788256604,
+    "update_time": 1788256604,
+    "_id": "doc-92cc227532d17e56e07902b254dfad10"
+  },
+  "doc-98dce83da57b0395e163467c9dae521b": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "压测生成文档"
+      ],
+      [
+        "主流程",
+        "重排序"
+      ],
+      [
+        "压测",
+        "压测生成文档"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "对比证据链"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "系统"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询",
+        "监控"
+      ],
+      [
+        "监控",
+        "系统"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "系统",
+        "重排序"
+      ],
+      [
+        "系统",
+        "重试"
+      ],
+      [
+        "系统",
+        "队列缓冲"
+      ],
+      [
+        "系统",
+        "降级"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256605,
+    "update_time": 1788256605,
+    "_id": "doc-98dce83da57b0395e163467c9dae521b"
+  },
+  "doc-54229abfcfa5649e7003b83dd4755294": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "语义缓存"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "语义缓存"
+      ],
+      [
+        "并发控制",
+        "语义缓存"
+      ],
+      [
+        "延迟分位数",
+        "语义缓存"
+      ],
+      [
+        "慢查询归因分析",
+        "语义缓存"
+      ],
+      [
+        "批次处理",
+        "语义缓存"
+      ],
+      [
+        "状态一致性",
+        "语义缓存"
+      ],
+      [
+        "语义缓存",
+        "重试"
+      ],
+      [
+        "语义缓存",
+        "错误率"
+      ],
+      [
+        "语义缓存",
+        "队列缓冲"
+      ],
+      [
+        "语义缓存",
+        "降级"
+      ],
+      [
+        "语义缓存",
+        "预处理"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256620,
+    "update_time": 1788256620,
+    "_id": "doc-54229abfcfa5649e7003b83dd4755294"
+  },
+  "doc-8613985ec49eb8f757ae6439e879bb2a": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档065"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "主流程",
+        "系统批次处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "吞吐量",
+        "知识图谱"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "知识图谱"
+      ],
+      [
+        "慢查询归因分析",
+        "知识图谱"
+      ],
+      [
+        "现代系统",
+        "知识图谱"
+      ],
+      [
+        "知识图谱",
+        "错误率"
+      ],
+      [
+        "重试机制",
+        "降级机制"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1788256621,
+    "update_time": 1788256621,
+    "_id": "doc-8613985ec49eb8f757ae6439e879bb2a"
+  },
+  "doc-7647966b7343c29048673252e490f736": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Vector Database"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Performance Testing"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Vector Database"
+      ],
+      [
+        "Concurrent Control",
+        "Vector Database"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Performance Testing"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Vector Database"
+      ],
+      [
+        "Error Rate Monitoring",
+        "Vector Database"
+      ],
+      [
+        "Latency Percentile Monitoring",
+        "Vector Database"
+      ],
+      [
+        "Performance Benchmarking",
+        "Vector Database"
+      ],
+      [
+        "Performance Testing",
+        "Remote Network Latency"
+      ],
+      [
+        "Performance Testing",
+        "Vector Database"
+      ],
+      [
+        "Preprocessing",
+        "Vector Database"
+      ],
+      [
+        "Queue Buffering",
+        "Vector Database"
+      ],
+      [
+        "Remote Network Latency",
+        "Vector Database"
+      ],
+      [
+        "Retry And Degradation",
+        "Vector Database"
+      ],
+      [
+        "Slow Query Analysis",
+        "Vector Database"
+      ],
+      [
+        "Throughput Monitoring",
+        "Vector Database"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256625,
+    "update_time": 1788256625,
+    "_id": "doc-7647966b7343c29048673252e490f736"
+  },
+  "doc-2a38a4a9316c49e5a833517c45d31070": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档063"
+      ],
+      [
+        "主流程",
+        "批次处理"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "对比证据链"
+      ],
+      [
+        "参数调优",
+        "嵌入模型"
+      ],
+      [
+        "吞吐量",
+        "嵌入模型"
+      ],
+      [
+        "嵌入模型",
+        "并发控制"
+      ],
+      [
+        "嵌入模型",
+        "延迟分位数"
+      ],
+      [
+        "嵌入模型",
+        "慢查询"
+      ],
+      [
+        "嵌入模型",
+        "测试文档063"
+      ],
+      [
+        "嵌入模型",
+        "监控"
+      ],
+      [
+        "嵌入模型",
+        "缓存失效风暴"
+      ],
+      [
+        "嵌入模型",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "嵌入模型",
+        "连接池耗尽"
+      ],
+      [
+        "嵌入模型",
+        "重试与降级"
+      ],
+      [
+        "嵌入模型",
+        "错误率"
+      ],
+      [
+        "嵌入模型",
+        "队列缓冲"
+      ],
+      [
+        "性能测试",
+        "缓存失效风暴"
+      ],
+      [
+        "性能测试",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "性能测试",
+        "连接池耗尽"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1788256639,
+    "update_time": 1788256639,
+    "_id": "doc-2a38a4a9316c49e5a833517c45d31070"
+  },
+  "doc-c7e1249ffc03eb9ded908c236bd1996d": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "文档切片策略"
+      ],
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档062"
+      ],
+      [
+        "主流程",
+        "并发控制"
+      ],
+      [
+        "主流程",
+        "批处理"
+      ],
+      [
+        "主流程",
+        "状态一致性"
+      ],
+      [
+        "主流程",
+        "重试"
+      ],
+      [
+        "主流程",
+        "队列缓冲"
+      ],
+      [
+        "主流程",
+        "降级"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "文档切片策略"
+      ],
+      [
+        "参数调优",
+        "文档切片策略"
+      ],
+      [
+        "吞吐量",
+        "文档切片策略"
+      ],
+      [
+        "延迟分位数",
+        "文档切片策略"
+      ],
+      [
+        "慢查询归因分析",
+        "文档切片策略"
+      ],
+      [
+        "文档切片策略",
+        "监控"
+      ],
+      [
+        "文档切片策略",
+        "缓存失效风暴"
+      ],
+      [
+        "文档切片策略",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "文档切片策略",
+        "连接池耗尽"
+      ],
+      [
+        "文档切片策略",
+        "错误率"
+      ],
+      [
+        "文档切片策略",
+        "预处理"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1788256645,
+    "update_time": 1788256645,
+    "_id": "doc-c7e1249ffc03eb9ded908c236bd1996d"
+  },
+  "doc-93db85ed909c13838ff95ccfa94cebd9": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档061"
+      ],
+      [
+        "参数调优",
+        "检索增强生成"
+      ],
+      [
+        "吞吐量",
+        "监控指标"
+      ],
+      [
+        "并发控制",
+        "检索增强生成"
+      ],
+      [
+        "延迟分位数",
+        "监控指标"
+      ],
+      [
+        "慢查询归因分析",
+        "检索增强生成"
+      ],
+      [
+        "数据预处理",
+        "检索增强生成"
+      ],
+      [
+        "检索增强生成",
+        "测试文档061"
+      ],
+      [
+        "检索增强生成",
+        "监控指标"
+      ],
+      [
+        "检索增强生成",
+        "第1节：原理与实现"
+      ],
+      [
+        "检索增强生成",
+        "第2节：原理与实现"
+      ],
+      [
+        "检索增强生成",
+        "重试与降级"
+      ],
+      [
+        "检索增强生成",
+        "队列缓冲"
+      ],
+      [
+        "测试文档061",
+        "第1节：原理与实现"
+      ],
+      [
+        "测试文档061",
+        "第2节：原理与实现"
+      ],
+      [
+        "监控指标",
+        "错误率"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256647,
+    "update_time": 1788256647,
+    "_id": "doc-93db85ed909c13838ff95ccfa94cebd9"
+  },
+  "doc-3ef815416f775098fe977004015c6193": {
+    "relation_pairs": [
+      [
+        "Availability",
+        "Degradation Strategy"
+      ],
+      [
+        "Availability",
+        "Retry Mechanism"
+      ],
+      [
+        "Batch Processing",
+        "State Consistency"
+      ],
+      [
+        "Batch Processing",
+        "Text Compression"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Text Compression"
+      ],
+      [
+        "Concurrency Control",
+        "Load Increase"
+      ],
+      [
+        "Concurrency Control",
+        "Text Compression"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Text Compression"
+      ],
+      [
+        "Data Preprocessing",
+        "Main Flow"
+      ],
+      [
+        "Degradation Strategy",
+        "Dependent Service Anomaly"
+      ],
+      [
+        "Degradation Strategy",
+        "Text Compression"
+      ],
+      [
+        "Dependent Service Anomaly",
+        "Retry Mechanism"
+      ],
+      [
+        "Error Rate",
+        "Monitoring"
+      ],
+      [
+        "Error Rate",
+        "Parameter Tuning"
+      ],
+      [
+        "Error Rate",
+        "Text Compression"
+      ],
+      [
+        "Evidence Chain",
+        "Parameter Tuning"
+      ],
+      [
+        "Evidence Chain",
+        "Text Compression"
+      ],
+      [
+        "Latency Percentile",
+        "Monitoring"
+      ],
+      [
+        "Latency Percentile",
+        "Parameter Tuning"
+      ],
+      [
+        "Latency Percentile",
+        "Text Compression"
+      ],
+      [
+        "Load Increase",
+        "Queue Buffering"
+      ],
+      [
+        "Main Flow",
+        "Preprocessing"
+      ],
+      [
+        "Monitoring",
+        "Text Compression"
+      ],
+      [
+        "Monitoring",
+        "Throughput"
+      ],
+      [
+        "Parameter Tuning",
+        "Text Compression"
+      ],
+      [
+        "Parameter Tuning",
+        "Throughput"
+      ],
+      [
+        "Performance Testing",
+        "Text Compression"
+      ],
+      [
+        "Preprocessing",
+        "Text Compression"
+      ],
+      [
+        "Queue Buffering",
+        "Text Compression"
+      ],
+      [
+        "Remote Service Network Round Trip",
+        "Text Compression"
+      ],
+      [
+        "Retry Mechanism",
+        "Text Compression"
+      ],
+      [
+        "Section 1",
+        "Test Document 053"
+      ],
+      [
+        "Section 2",
+        "Test Document 053"
+      ],
+      [
+        "Slow Query Attribution Analysis",
+        "Text Compression"
+      ],
+      [
+        "Stage 4 Batch Import Performance Test",
+        "Test Document 053"
+      ],
+      [
+        "Test Document 053",
+        "Text Compression"
+      ],
+      [
+        "Text Compression",
+        "Throughput"
+      ]
+    ],
+    "count": 37,
+    "create_time": 1788256663,
+    "update_time": 1788256663,
+    "_id": "doc-3ef815416f775098fe977004015c6193"
+  },
+  "doc-fe9fc289c3ff0af142b6d3bead98a923": {
+    "relation_pairs": [
+      [
+        "Cache Invalidation Storm",
+        "Consistent Hashing"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Performance Testing"
+      ],
+      [
+        "Concurrency Control",
+        "Load Balancing"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Consistent Hashing"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Performance Testing"
+      ],
+      [
+        "Consistent Hashing",
+        "Load Balancing"
+      ],
+      [
+        "Consistent Hashing",
+        "Remote Service Latency"
+      ],
+      [
+        "Consistent Hashing",
+        "Retry and Degradation"
+      ],
+      [
+        "Consistent Hashing",
+        "State Consistency"
+      ],
+      [
+        "Error Rate",
+        "Performance Testing"
+      ],
+      [
+        "Latency Percentile",
+        "Performance Testing"
+      ],
+      [
+        "Load Balancing",
+        "Queue Buffering"
+      ],
+      [
+        "Load Balancing",
+        "Retry and Degradation"
+      ],
+      [
+        "Parameter Tuning",
+        "Performance Testing"
+      ],
+      [
+        "Performance Testing",
+        "Remote Service Latency"
+      ],
+      [
+        "Performance Testing",
+        "Slow Query Analysis"
+      ],
+      [
+        "Performance Testing",
+        "Throughput"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256668,
+    "update_time": 1788256668,
+    "_id": "doc-fe9fc289c3ff0af142b6d3bead98a923"
+  },
+  "doc-68d30a9594728bc39aa24be94b319d21": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "熔断降级"
+      ],
+      [
+        "主流程",
+        "状态一致性"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "依赖服务异常",
+        "重试"
+      ],
+      [
+        "依赖服务异常",
+        "降级"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "吞吐量",
+        "熔断降级"
+      ],
+      [
+        "并发控制",
+        "负载"
+      ],
+      [
+        "延迟分位数",
+        "熔断降级"
+      ],
+      [
+        "归因分析",
+        "慢查询"
+      ],
+      [
+        "归因分析",
+        "熔断降级"
+      ],
+      [
+        "熔断降级",
+        "错误率"
+      ],
+      [
+        "负载",
+        "队列缓冲"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256669,
+    "update_time": 1788256669,
+    "_id": "doc-68d30a9594728bc39aa24be94b319d21"
+  },
+  "doc-9778d5d219c5080b9a6a17bef029331c": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "数据"
+      ],
+      [
+        "主流程",
+        "监控系统"
+      ],
+      [
+        "吞吐量",
+        "消息队列"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "消息队列"
+      ],
+      [
+        "消息队列",
+        "缓存失效风暴"
+      ],
+      [
+        "消息队列",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "消息队列",
+        "连接池耗尽"
+      ],
+      [
+        "消息队列",
+        "错误率"
+      ],
+      [
+        "重试机制",
+        "降级策略"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1788256681,
+    "update_time": 1788256681,
+    "_id": "doc-9778d5d219c5080b9a6a17bef029331c"
+  },
+  "doc-43ec517d68b6edd3015b3edc9a11367b": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档056"
+      ],
+      [
+        "并发控制与队列缓冲",
+        "批处理机制"
+      ],
+      [
+        "批处理机制",
+        "流式计算"
+      ],
+      [
+        "流式计算",
+        "测试文档056"
+      ],
+      [
+        "流式计算",
+        "监控指标"
+      ],
+      [
+        "流式计算",
+        "网络延迟优化"
+      ],
+      [
+        "流式计算",
+        "重试与降级"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1788256684,
+    "update_time": 1788256684,
+    "_id": "doc-43ec517d68b6edd3015b3edc9a11367b"
+  },
+  "doc-f033ab37c30201f73f142449d037028d": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档055"
+      ],
+      [
+        "主流程",
+        "数据脱敏"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "测试文档055"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "数据脱敏"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "数据脱敏"
+      ],
+      [
+        "并发控制",
+        "数据脱敏"
+      ],
+      [
+        "延迟分位数",
+        "数据脱敏"
+      ],
+      [
+        "慢查询归因分析",
+        "数据脱敏"
+      ],
+      [
+        "数据脱敏",
+        "测试文档055"
+      ],
+      [
+        "数据脱敏",
+        "状态一致性"
+      ],
+      [
+        "数据脱敏",
+        "缓存失效风暴"
+      ],
+      [
+        "数据脱敏",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "数据脱敏",
+        "连接池耗尽"
+      ],
+      [
+        "数据脱敏",
+        "重试"
+      ],
+      [
+        "数据脱敏",
+        "错误率"
+      ],
+      [
+        "数据脱敏",
+        "队列缓冲"
+      ],
+      [
+        "数据脱敏",
+        "降级"
+      ],
+      [
+        "数据脱敏",
+        "预处理"
+      ]
+    ],
+    "count": 23,
+    "create_time": 1788256693,
+    "update_time": 1788256693,
+    "_id": "doc-f033ab37c30201f73f142449d037028d"
+  },
+  "doc-d1fe173d08e959397adf34b1d77e88d7": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "测试文档054"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "联邦学习"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "联邦学习"
+      ],
+      [
+        "吞吐量",
+        "联邦学习"
+      ],
+      [
+        "并发控制",
+        "联邦学习"
+      ],
+      [
+        "延迟分位数",
+        "联邦学习"
+      ],
+      [
+        "慢查询归因分析",
+        "联邦学习"
+      ],
+      [
+        "数据预处理",
+        "联邦学习"
+      ],
+      [
+        "测试文档054",
+        "联邦学习"
+      ],
+      [
+        "联邦学习",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "联邦学习",
+        "重试与降级"
+      ],
+      [
+        "联邦学习",
+        "错误率"
+      ],
+      [
+        "联邦学习",
+        "队列缓冲"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256701,
+    "update_time": 1788256701,
+    "_id": "doc-d1fe173d08e959397adf34b1d77e88d7"
+  },
+  "doc-35f4a8d465e6e1edc05f3d8ab658c551": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "分词算法"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "主流程",
+        "系统批量处理"
+      ],
+      [
+        "分词算法",
+        "压测"
+      ],
+      [
+        "分词算法",
+        "工程实践"
+      ],
+      [
+        "分词算法",
+        "架构"
+      ],
+      [
+        "分词算法",
+        "核心概念"
+      ],
+      [
+        "分词算法",
+        "监控指标"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "监控指标"
+      ],
+      [
+        "吞吐量",
+        "监控系统"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "监控指标"
+      ],
+      [
+        "延迟分位数",
+        "监控系统"
+      ],
+      [
+        "归因分析",
+        "慢查询"
+      ],
+      [
+        "状态一致性",
+        "系统批量处理"
+      ],
+      [
+        "监控指标",
+        "错误率"
+      ],
+      [
+        "监控系统",
+        "错误率"
+      ],
+      [
+        "重试机制",
+        "降级机制"
+      ]
+    ],
+    "count": 23,
+    "create_time": 1788256703,
+    "update_time": 1788256703,
+    "_id": "doc-35f4a8d465e6e1edc05f3d8ab658c551"
+  },
+  "doc-28dd2c7955ce926456240b2ff0100bde": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "倒排索引"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "倒排索引"
+      ],
+      [
+        "Concurrency Control",
+        "倒排索引"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "倒排索引"
+      ],
+      [
+        "Error Rate",
+        "倒排索引"
+      ],
+      [
+        "Latency Percentiles",
+        "倒排索引"
+      ],
+      [
+        "Remote Service Network Round-trip Latency",
+        "倒排索引"
+      ],
+      [
+        "Retry and Degradation",
+        "倒排索引"
+      ],
+      [
+        "Slow Query Attribution Analysis",
+        "倒排索引"
+      ],
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档051"
+      ],
+      [
+        "Throughput",
+        "倒排索引"
+      ],
+      [
+        "倒排索引",
+        "测试文档051"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1788256713,
+    "update_time": 1788256713,
+    "_id": "doc-28dd2c7955ce926456240b2ff0100bde"
+  },
+  "doc-d09bf41544a3365a46c9077ebb5e35c3": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "压测生成文档"
+      ],
+      [
+        "主流程",
+        "批次处理"
+      ],
+      [
+        "主流程",
+        "数据处理"
+      ],
+      [
+        "主流程",
+        "状态一致性"
+      ],
+      [
+        "压测生成文档",
+        "评估基准"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "监控系统"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "监控系统"
+      ],
+      [
+        "慢查询归因分析",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "现代系统",
+        "评估基准"
+      ],
+      [
+        "监控系统",
+        "错误率"
+      ],
+      [
+        "重试机制",
+        "降级策略"
+      ]
+    ],
+    "count": 13,
+    "create_time": 1788256724,
+    "update_time": 1788256724,
+    "_id": "doc-d09bf41544a3365a46c9077ebb5e35c3"
+  },
+  "doc-fbd7939d674997cdb4692d34de8633c4": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Distributed Index"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Distributed Index"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Parameter Tuning"
+      ],
+      [
+        "Concurrency Control",
+        "Distributed Index"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Distributed Index"
+      ],
+      [
+        "Degradation",
+        "Distributed Index"
+      ],
+      [
+        "Distributed Index",
+        "Error Rate"
+      ],
+      [
+        "Distributed Index",
+        "Latency Percentile"
+      ],
+      [
+        "Distributed Index",
+        "Parameter Tuning"
+      ],
+      [
+        "Distributed Index",
+        "Performance Testing"
+      ],
+      [
+        "Distributed Index",
+        "Preprocessing"
+      ],
+      [
+        "Distributed Index",
+        "Queue Buffering"
+      ],
+      [
+        "Distributed Index",
+        "Remote Service Network Round-Trip Latency"
+      ],
+      [
+        "Distributed Index",
+        "Retry"
+      ],
+      [
+        "Distributed Index",
+        "Slow Query Attribution Analysis"
+      ],
+      [
+        "Distributed Index",
+        "Stress Testing"
+      ],
+      [
+        "Distributed Index",
+        "Throughput"
+      ],
+      [
+        "Distributed Index Section 1",
+        "Distributed Index Section 2"
+      ],
+      [
+        "Distributed Index Section 1",
+        "Test Document 050"
+      ],
+      [
+        "Distributed Index Section 2",
+        "Test Document 050"
+      ],
+      [
+        "Stage 4 Batch Import",
+        "Test Document 050"
+      ],
+      [
+        "Stress Testing",
+        "Test Document 050"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1788256726,
+    "update_time": 1788256726,
+    "_id": "doc-fbd7939d674997cdb4692d34de8633c4"
+  },
+  "doc-ad61ab143223efbc24c7d2583be69251": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "查询改写"
+      ],
+      [
+        "主流程",
+        "查询改写"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "查询改写"
+      ],
+      [
+        "并发控制",
+        "查询改写"
+      ],
+      [
+        "延迟分位数",
+        "查询改写"
+      ],
+      [
+        "慢查询归因分析",
+        "查询改写"
+      ],
+      [
+        "批次处理",
+        "查询改写"
+      ],
+      [
+        "查询改写",
+        "状态一致性"
+      ],
+      [
+        "查询改写",
+        "监控"
+      ],
+      [
+        "查询改写",
+        "重试"
+      ],
+      [
+        "查询改写",
+        "错误率"
+      ],
+      [
+        "查询改写",
+        "队列缓冲"
+      ],
+      [
+        "查询改写",
+        "降级"
+      ],
+      [
+        "查询改写",
+        "预处理"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1788256730,
+    "update_time": 1788256730,
+    "_id": "doc-ad61ab143223efbc24c7d2583be69251"
+  },
+  "doc-d2ddea18f00665ce8623e36bd4e3c7c5": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "多路召回"
+      ],
+      [
+        "压测",
+        "多路召回"
+      ],
+      [
+        "参数调优",
+        "多路召回"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "多路召回"
+      ],
+      [
+        "多路召回",
+        "多路召回技术详解(测试文档047)"
+      ],
+      [
+        "多路召回",
+        "并发控制"
+      ],
+      [
+        "多路召回",
+        "延迟分位数"
+      ],
+      [
+        "多路召回",
+        "慢查询"
+      ],
+      [
+        "多路召回",
+        "批次处理"
+      ],
+      [
+        "多路召回",
+        "缓存失效风暴"
+      ],
+      [
+        "多路召回",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "多路召回",
+        "连接池耗尽"
+      ],
+      [
+        "多路召回",
+        "重试"
+      ],
+      [
+        "多路召回",
+        "错误率"
+      ],
+      [
+        "多路召回",
+        "队列缓冲"
+      ],
+      [
+        "多路召回",
+        "降级"
+      ],
+      [
+        "多路召回",
+        "预处理"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1788256745,
+    "update_time": 1788256745,
+    "_id": "doc-d2ddea18f00665ce8623e36bd4e3c7c5"
+  },
+  "doc-32bb90e8976aab5298d5da10fe66f21d": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档046"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "网络往返延迟"
+      ],
+      [
+        "压测",
+        "语义缓存第1节"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "参数调优",
+        "语义缓存第1节"
+      ],
+      [
+        "吞吐量",
+        "语义缓存第1节"
+      ],
+      [
+        "并发控制",
+        "语义缓存第1节"
+      ],
+      [
+        "延迟分位数",
+        "语义缓存第1节"
+      ],
+      [
+        "归因分析",
+        "慢查询"
+      ],
+      [
+        "慢查询",
+        "语义缓存第1节"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "批次处理",
+        "语义缓存第1节"
+      ],
+      [
+        "数据预处理",
+        "语义缓存第1节"
+      ],
+      [
+        "测试文档046",
+        "语义缓存"
+      ],
+      [
+        "缓存失效风暴",
+        "语义缓存第1节"
+      ],
+      [
+        "网络往返延迟",
+        "语义缓存第1节"
+      ],
+      [
+        "语义缓存",
+        "语义缓存第1节"
+      ],
+      [
+        "语义缓存",
+        "语义缓存第2节"
+      ],
+      [
+        "语义缓存第1节",
+        "语义缓存第2节"
+      ],
+      [
+        "语义缓存第1节",
+        "连接池耗尽"
+      ],
+      [
+        "语义缓存第1节",
+        "重试"
+      ],
+      [
+        "语义缓存第1节",
+        "错误率"
+      ],
+      [
+        "语义缓存第1节",
+        "队列缓冲"
+      ],
+      [
+        "语义缓存第1节",
+        "降级"
+      ]
+    ],
+    "count": 27,
+    "create_time": 1788256754,
+    "update_time": 1788256754,
+    "_id": "doc-32bb90e8976aab5298d5da10fe66f21d"
+  },
+  "doc-e2c420d928d4bf8ce0ff2ec19b371514": {
+    "relation_pairs": [
+      [
+        "压测技术",
+        "缓存失效风暴"
+      ],
+      [
+        "压测技术",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测技术",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "吞吐量"
+      ],
+      [
+        "参数调优",
+        "延迟分位数"
+      ],
+      [
+        "参数调优",
+        "知识图谱"
+      ],
+      [
+        "参数调优",
+        "错误率"
+      ],
+      [
+        "吞吐量",
+        "监控指标"
+      ],
+      [
+        "并发控制",
+        "知识图谱"
+      ],
+      [
+        "延迟分位数",
+        "监控指标"
+      ],
+      [
+        "慢查询归因分析",
+        "知识图谱"
+      ],
+      [
+        "批次处理机制",
+        "知识图谱"
+      ],
+      [
+        "测试文档045",
+        "知识图谱"
+      ],
+      [
+        "测试文档045",
+        "知识图谱第1节"
+      ],
+      [
+        "测试文档045",
+        "知识图谱第2节"
+      ],
+      [
+        "监控指标",
+        "知识图谱"
+      ],
+      [
+        "监控指标",
+        "错误率"
+      ],
+      [
+        "知识图谱",
+        "知识图谱第1节"
+      ],
+      [
+        "知识图谱",
+        "知识图谱第2节"
+      ],
+      [
+        "知识图谱",
+        "缓存失效风暴"
+      ],
+      [
+        "知识图谱",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "知识图谱",
+        "连接池耗尽"
+      ],
+      [
+        "知识图谱",
+        "重试机制"
+      ],
+      [
+        "知识图谱",
+        "队列缓冲"
+      ],
+      [
+        "知识图谱",
+        "降级机制"
+      ],
+      [
+        "知识图谱",
+        "预处理流程"
+      ]
+    ],
+    "count": 26,
+    "create_time": 1788256757,
+    "update_time": 1788256757,
+    "_id": "doc-e2c420d928d4bf8ce0ff2ec19b371514"
+  },
+  "doc-7cbbc409ec990f19c78c75bd1e06f215": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "重排序"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "重排序"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "重排序"
+      ],
+      [
+        "吞吐量",
+        "重排序"
+      ],
+      [
+        "并发控制",
+        "重排序"
+      ],
+      [
+        "延迟分位数",
+        "重排序"
+      ],
+      [
+        "归因分析",
+        "重排序"
+      ],
+      [
+        "慢查询",
+        "重排序"
+      ],
+      [
+        "缓存失效风暴",
+        "重排序"
+      ],
+      [
+        "远程服务",
+        "重排序"
+      ],
+      [
+        "连接池耗尽",
+        "重排序"
+      ],
+      [
+        "重排序",
+        "重试"
+      ],
+      [
+        "重排序",
+        "错误率"
+      ],
+      [
+        "重排序",
+        "队列缓冲"
+      ],
+      [
+        "重排序",
+        "降级"
+      ],
+      [
+        "重排序",
+        "预处理"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256767,
+    "update_time": 1788256767,
+    "_id": "doc-7cbbc409ec990f19c78c75bd1e06f215"
+  },
+  "doc-14bfa6bb14875e45bba028a21ed38046": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "嵌入模型技术详解(测试文档043)"
+      ],
+      [
+        "压测",
+        "嵌入模型"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "嵌入模型",
+        "嵌入模型技术详解(测试文档043)"
+      ],
+      [
+        "嵌入模型",
+        "并发控制"
+      ],
+      [
+        "嵌入模型",
+        "数据预处理"
+      ],
+      [
+        "嵌入模型",
+        "监控"
+      ],
+      [
+        "嵌入模型",
+        "重试与降级"
+      ],
+      [
+        "嵌入模型",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询归因分析",
+        "监控"
+      ],
+      [
+        "监控",
+        "错误率"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1788256775,
+    "update_time": 1788256775,
+    "_id": "doc-14bfa6bb14875e45bba028a21ed38046"
+  },
+  "doc-735b90b4568125ed6c3f678819b6e058": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档042"
+      ],
+      [
+        "参数调优",
+        "系统主流程"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "性能压测",
+        "缓存失效风暴"
+      ],
+      [
+        "性能压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "性能压测",
+        "连接池耗尽"
+      ],
+      [
+        "数据预处理",
+        "系统主流程"
+      ],
+      [
+        "文档切片策略",
+        "文档切片策略第1节：原理与实现"
+      ],
+      [
+        "文档切片策略",
+        "文档切片策略第2节：原理与实现"
+      ],
+      [
+        "文档切片策略",
+        "测试文档042"
+      ],
+      [
+        "监控系统",
+        "系统主流程"
+      ],
+      [
+        "系统主流程",
+        "重试与降级"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1788256781,
+    "update_time": 1788256781,
+    "_id": "doc-735b90b4568125ed6c3f678819b6e058"
+  },
+  "doc-a3f390d88e4c41f2747bfa2f1b5f87db": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档038"
+      ],
+      [
+        "一致性哈希",
+        "主流程"
+      ],
+      [
+        "一致性哈希",
+        "吞吐量"
+      ],
+      [
+        "一致性哈希",
+        "并发控制"
+      ],
+      [
+        "一致性哈希",
+        "延迟分位数"
+      ],
+      [
+        "一致性哈希",
+        "慢查询归因分析"
+      ],
+      [
+        "一致性哈希",
+        "现代系统"
+      ],
+      [
+        "一致性哈希",
+        "重试"
+      ],
+      [
+        "一致性哈希",
+        "错误率"
+      ],
+      [
+        "一致性哈希",
+        "队列缓冲"
+      ],
+      [
+        "一致性哈希",
+        "降级"
+      ],
+      [
+        "主流程",
+        "批次处理"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "依赖服务异常",
+        "重试"
+      ],
+      [
+        "依赖服务异常",
+        "降级"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "负载上升"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "负载上升",
+        "队列缓冲"
+      ]
+    ],
+    "count": 25,
+    "create_time": 1788256785,
+    "update_time": 1788256785,
+    "_id": "doc-a3f390d88e4c41f2747bfa2f1b5f87db"
+  },
+  "doc-3295c76acbf4caaed33c36b1b5fc2cb1": {
+    "relation_pairs": [
+      [
+        "Data",
+        "参数调优"
+      ],
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档041"
+      ],
+      [
+        "State Consistency",
+        "数据预处理"
+      ],
+      [
+        "State Consistency",
+        "系统"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "主流程",
+        "系统"
+      ],
+      [
+        "参数调优",
+        "检索增强生成"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "系统"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询归因分析",
+        "监控"
+      ],
+      [
+        "数据预处理",
+        "检索增强生成"
+      ],
+      [
+        "检索增强生成",
+        "测试文档041"
+      ],
+      [
+        "检索增强生成",
+        "缓存失效风暴"
+      ],
+      [
+        "检索增强生成",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "检索增强生成",
+        "连接池耗尽"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "系统",
+        "重试"
+      ],
+      [
+        "系统",
+        "队列缓冲"
+      ],
+      [
+        "系统",
+        "降级"
+      ],
+      [
+        "重试",
+        "降级"
+      ]
+    ],
+    "count": 22,
+    "create_time": 1788256793,
+    "update_time": 1788256793,
+    "_id": "doc-3295c76acbf4caaed33c36b1b5fc2cb1"
+  },
+  "doc-fc490ca45c00b1249bbe3554a4fdf6fb": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "压测生成文档"
+      ],
+      [
+        "压测生成文档",
+        "流式计算技术详解(测试文档036)"
+      ],
+      [
+        "吞吐量",
+        "延迟分位数"
+      ],
+      [
+        "吞吐量",
+        "流式计算"
+      ],
+      [
+        "吞吐量",
+        "错误率"
+      ],
+      [
+        "并发控制",
+        "流式计算"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "慢查询归因分析"
+      ],
+      [
+        "延迟分位数",
+        "流式计算"
+      ],
+      [
+        "延迟分位数",
+        "错误率"
+      ],
+      [
+        "慢查询归因分析",
+        "流式计算"
+      ],
+      [
+        "批处理",
+        "流式计算"
+      ],
+      [
+        "批处理",
+        "预处理"
+      ],
+      [
+        "流式计算",
+        "流式计算技术详解(测试文档036)"
+      ],
+      [
+        "流式计算",
+        "状态一致性"
+      ],
+      [
+        "流式计算",
+        "缓存失效风暴"
+      ],
+      [
+        "流式计算",
+        "连接池耗尽"
+      ],
+      [
+        "流式计算",
+        "重试"
+      ],
+      [
+        "流式计算",
+        "错误率"
+      ],
+      [
+        "流式计算",
+        "队列缓冲"
+      ],
+      [
+        "流式计算",
+        "降级"
+      ],
+      [
+        "流式计算",
+        "预处理"
+      ],
+      [
+        "缓存失效风暴",
+        "连接池耗尽"
+      ],
+      [
+        "重试",
+        "降级"
+      ]
+    ],
+    "count": 24,
+    "create_time": 1788256806,
+    "update_time": 1788256806,
+    "_id": "doc-fc490ca45c00b1249bbe3554a4fdf6fb"
+  },
+  "doc-ea5d2f1c4608232e07d3aa3d998e5135": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Vector Database"
+      ],
+      [
+        "Concurrency Control",
+        "Vector Database"
+      ],
+      [
+        "Data Preprocessing",
+        "Vector Database"
+      ],
+      [
+        "Degradation Strategy",
+        "Vector Database"
+      ],
+      [
+        "Error Rate",
+        "Vector Database"
+      ],
+      [
+        "Latency Percentiles",
+        "Vector Database"
+      ],
+      [
+        "Monitored Data Evidence",
+        "Parameter Tuning"
+      ],
+      [
+        "Parameter Tuning",
+        "Vector Database"
+      ],
+      [
+        "Queue Buffering",
+        "Vector Database"
+      ],
+      [
+        "Retry Mechanism",
+        "Vector Database"
+      ],
+      [
+        "Slow Query Analysis",
+        "Vector Database"
+      ],
+      [
+        "Stage 4 Batch Import Performance Testing",
+        "Test Document 040"
+      ],
+      [
+        "State Consistency Maintenance",
+        "Vector Database"
+      ],
+      [
+        "Test Document 040",
+        "Vector Database"
+      ],
+      [
+        "Throughput",
+        "Vector Database"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256815,
+    "update_time": 1788256815,
+    "_id": "doc-ea5d2f1c4608232e07d3aa3d998e5135"
+  },
+  "doc-03afdbd66e7929b125f8597834fa83a4": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档039"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "熔断降级"
+      ],
+      [
+        "吞吐量",
+        "熔断降级"
+      ],
+      [
+        "并发控制",
+        "熔断降级"
+      ],
+      [
+        "延迟分位数",
+        "熔断降级"
+      ],
+      [
+        "慢查询归因分析",
+        "熔断降级"
+      ],
+      [
+        "数据预处理",
+        "熔断降级"
+      ],
+      [
+        "测试文档039",
+        "熔断降级"
+      ],
+      [
+        "熔断降级",
+        "状态一致性"
+      ],
+      [
+        "熔断降级",
+        "重试"
+      ],
+      [
+        "熔断降级",
+        "错误率"
+      ],
+      [
+        "熔断降级",
+        "队列缓冲"
+      ],
+      [
+        "熔断降级",
+        "降级"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256823,
+    "update_time": 1788256823,
+    "_id": "doc-03afdbd66e7929b125f8597834fa83a4"
+  },
+  "doc-44f683a84163b3523afe57c2e008bc8c": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "压测"
+      ],
+      [
+        "依赖服务",
+        "消息队列"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "系统"
+      ],
+      [
+        "吞吐量",
+        "系统"
+      ],
+      [
+        "延迟分位数",
+        "系统"
+      ],
+      [
+        "慢查询",
+        "系统"
+      ],
+      [
+        "消息队列",
+        "现代系统"
+      ],
+      [
+        "消息队列",
+        "系统"
+      ],
+      [
+        "消息队列",
+        "缓存失效风暴"
+      ],
+      [
+        "消息队列",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "消息队列",
+        "连接池耗尽"
+      ],
+      [
+        "系统",
+        "错误率"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256827,
+    "update_time": 1788256827,
+    "_id": "doc-44f683a84163b3523afe57c2e008bc8c"
+  },
+  "doc-7f39f8317fbdb1988ef4c628eba02591": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Main Processing Flow"
+      ],
+      [
+        "Batch Processing",
+        "State Consistency"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Performance Testing"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Text Compression"
+      ],
+      [
+        "Concurrency Control",
+        "Load Increase"
+      ],
+      [
+        "Concurrency Control",
+        "Main Processing Flow"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Performance Testing"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Text Compression"
+      ],
+      [
+        "Degradation Strategy",
+        "Dependent Service Anomaly"
+      ],
+      [
+        "Degradation Strategy",
+        "Main Processing Flow"
+      ],
+      [
+        "Dependent Service Anomaly",
+        "Retry Mechanism"
+      ],
+      [
+        "Error Rate",
+        "Monitoring"
+      ],
+      [
+        "Error Rate",
+        "Text Compression"
+      ],
+      [
+        "Evidence Chain",
+        "Parameter Tuning"
+      ],
+      [
+        "Latency Percentile",
+        "Monitoring"
+      ],
+      [
+        "Latency Percentile",
+        "Text Compression"
+      ],
+      [
+        "Load Increase",
+        "Queue Buffering"
+      ],
+      [
+        "Main Processing Flow",
+        "Preprocessing"
+      ],
+      [
+        "Main Processing Flow",
+        "Queue Buffering"
+      ],
+      [
+        "Main Processing Flow",
+        "Retry Mechanism"
+      ],
+      [
+        "Monitoring",
+        "Slow Query Analysis"
+      ],
+      [
+        "Monitoring",
+        "Throughput"
+      ],
+      [
+        "Network Round-trip Latency",
+        "Performance Testing"
+      ],
+      [
+        "Network Round-trip Latency",
+        "Text Compression"
+      ],
+      [
+        "Preprocessing",
+        "Text Compression"
+      ],
+      [
+        "Technical Documentation 033",
+        "Text Compression"
+      ],
+      [
+        "Text Compression",
+        "Throughput"
+      ]
+    ],
+    "count": 27,
+    "create_time": 1788256836,
+    "update_time": 1788256836,
+    "_id": "doc-7f39f8317fbdb1988ef4c628eba02591"
+  },
+  "doc-072b030ba126b2f4b2374f342be9ed44": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Distributed Index"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Distributed Index"
+      ],
+      [
+        "Concurrency Control",
+        "Distributed Index"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Distributed Index"
+      ],
+      [
+        "Dependency Service",
+        "Distributed Index"
+      ],
+      [
+        "Distributed Index",
+        "Load Testing"
+      ],
+      [
+        "Distributed Index",
+        "Monitoring"
+      ],
+      [
+        "Distributed Index",
+        "Parameter Tuning"
+      ],
+      [
+        "Distributed Index",
+        "Preprocessing"
+      ],
+      [
+        "Distributed Index",
+        "Queue Buffering"
+      ],
+      [
+        "Distributed Index",
+        "Remote Service Network Round Trip Delay"
+      ],
+      [
+        "Distributed Index",
+        "Retry and Degradation"
+      ],
+      [
+        "Distributed Index",
+        "Stage 4 Batch Import Performance Test"
+      ],
+      [
+        "Distributed Index",
+        "State Consistency"
+      ],
+      [
+        "Error Rate",
+        "Monitoring"
+      ],
+      [
+        "Evidence Chain",
+        "Parameter Tuning"
+      ],
+      [
+        "Latency Percentiles",
+        "Monitoring"
+      ],
+      [
+        "Monitoring",
+        "Slow Query Attribution Analysis"
+      ],
+      [
+        "Monitoring",
+        "Throughput"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1788256843,
+    "update_time": 1788256843,
+    "_id": "doc-072b030ba126b2f4b2374f342be9ed44"
+  },
+  "doc-093f65e080a295f8076b1c5722a46aa2": {
+    "relation_pairs": [
+      [
+        "Batch Processing",
+        "Main Flow"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Load Testing"
+      ],
+      [
+        "Cache Invalidation Storm",
+        "Query Rewriting"
+      ],
+      [
+        "Concurrency Control",
+        "Query Rewriting"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Load Testing"
+      ],
+      [
+        "Connection Pool Exhaustion",
+        "Query Rewriting"
+      ],
+      [
+        "Degradation",
+        "Query Rewriting"
+      ],
+      [
+        "Error Rate",
+        "Query Rewriting"
+      ],
+      [
+        "Latency Percentiles",
+        "Query Rewriting"
+      ],
+      [
+        "Load Testing",
+        "Network Round-Trip Latency"
+      ],
+      [
+        "Main Flow",
+        "Query Rewriting"
+      ],
+      [
+        "Network Round-Trip Latency",
+        "Query Rewriting"
+      ],
+      [
+        "Parameter Tuning",
+        "Query Rewriting"
+      ],
+      [
+        "Parameter Tuning",
+        "Queue Buffering"
+      ],
+      [
+        "Parameter Tuning",
+        "Retry"
+      ],
+      [
+        "Preprocessing",
+        "Query Rewriting"
+      ],
+      [
+        "Query Rewriting",
+        "Queue Buffering"
+      ],
+      [
+        "Query Rewriting",
+        "Retry"
+      ],
+      [
+        "Query Rewriting",
+        "Slow Query Analysis"
+      ],
+      [
+        "Query Rewriting",
+        "Throughput"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1788256849,
+    "update_time": 1788256849,
+    "_id": "doc-093f65e080a295f8076b1c5722a46aa2"
+  },
+  "doc-66f041e16a60928b05a7e228a89c3799": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档035"
+      ],
+      [
+        "主流程",
+        "数据脱敏"
+      ],
+      [
+        "吞吐量",
+        "数据脱敏"
+      ],
+      [
+        "并发控制",
+        "数据脱敏"
+      ],
+      [
+        "延迟分位数",
+        "数据脱敏"
+      ],
+      [
+        "慢查询归因分析",
+        "数据脱敏"
+      ],
+      [
+        "批次处理",
+        "数据脱敏"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "数据脱敏",
+        "数据脱敏第1节"
+      ],
+      [
+        "数据脱敏",
+        "数据脱敏第2节"
+      ],
+      [
+        "数据脱敏",
+        "测试文档035"
+      ],
+      [
+        "数据脱敏",
+        "缓存失效风暴"
+      ],
+      [
+        "数据脱敏",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "数据脱敏",
+        "连接池耗尽"
+      ],
+      [
+        "数据脱敏",
+        "重试"
+      ],
+      [
+        "数据脱敏",
+        "错误率"
+      ],
+      [
+        "数据脱敏",
+        "队列缓冲"
+      ],
+      [
+        "数据脱敏",
+        "降级"
+      ],
+      [
+        "数据脱敏",
+        "预处理"
+      ],
+      [
+        "数据脱敏第1节",
+        "测试文档035"
+      ],
+      [
+        "数据脱敏第2节",
+        "测试文档035"
+      ]
+    ],
+    "count": 21,
+    "create_time": 1788256854,
+    "update_time": 1788256854,
+    "_id": "doc-66f041e16a60928b05a7e228a89c3799"
+  },
+  "doc-72b32a1f754ba1c09b3695e0cb6cde7f": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "联邦学习"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "联邦学习"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "吞吐量",
+        "联邦学习"
+      ],
+      [
+        "并发控制",
+        "联邦学习"
+      ],
+      [
+        "延迟分位数",
+        "联邦学习"
+      ],
+      [
+        "数据预处理",
+        "联邦学习"
+      ],
+      [
+        "联邦学习",
+        "重试与降级"
+      ],
+      [
+        "联邦学习",
+        "错误率"
+      ],
+      [
+        "联邦学习",
+        "队列缓冲"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1788256857,
+    "update_time": 1788256857,
+    "_id": "doc-72b32a1f754ba1c09b3695e0cb6cde7f"
+  },
+  "doc-9f61408e3afb633e50cdf1b20de6f466": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档032"
+      ],
+      [
+        "主流程",
+        "分词算法"
+      ],
+      [
+        "主流程",
+        "数据"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "分词算法",
+        "参数调优"
+      ],
+      [
+        "分词算法",
+        "测试文档032"
+      ],
+      [
+        "分词算法",
+        "第1节：原理与实现"
+      ],
+      [
+        "分词算法",
+        "第2节：原理与实现"
+      ],
+      [
+        "分词算法",
+        "系统"
+      ],
+      [
+        "分词算法",
+        "缓存失效风暴"
+      ],
+      [
+        "分词算法",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "分词算法",
+        "连接池耗尽"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "系统"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询",
+        "监控"
+      ],
+      [
+        "数据",
+        "预处理"
+      ],
+      [
+        "监控",
+        "系统"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "系统",
+        "重试与降级"
+      ],
+      [
+        "系统",
+        "队列缓冲"
+      ]
+    ],
+    "count": 25,
+    "create_time": 1788256874,
+    "update_time": 1788256874,
+    "_id": "doc-9f61408e3afb633e50cdf1b20de6f466"
+  },
+  "doc-b53b3a3d6ab90ce0268229151c9bde11": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "倒排索引技术详解(测试文档031)"
+      ],
+      [
+        "倒排索引",
+        "参数调优"
+      ],
+      [
+        "倒排索引",
+        "吞吐量"
+      ],
+      [
+        "倒排索引",
+        "并发控制"
+      ],
+      [
+        "倒排索引",
+        "延迟分位数"
+      ],
+      [
+        "倒排索引",
+        "慢查询"
+      ],
+      [
+        "倒排索引",
+        "状态一致性"
+      ],
+      [
+        "倒排索引",
+        "重试与降级"
+      ],
+      [
+        "倒排索引",
+        "错误率"
+      ],
+      [
+        "倒排索引",
+        "队列缓冲"
+      ],
+      [
+        "倒排索引技术详解(测试文档031)",
+        "倒排索引第1节：原理与实现"
+      ],
+      [
+        "倒排索引技术详解(测试文档031)",
+        "倒排索引第2节：原理与实现"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256875,
+    "update_time": 1788256875,
+    "_id": "doc-b53b3a3d6ab90ce0268229151c9bde11"
+  },
+  "doc-a684eceee76fc522773286a895bc8436": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入",
+        "测试文档029"
+      ],
+      [
+        "主流程",
+        "评估基准"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "参数调优",
+        "评估基准"
+      ],
+      [
+        "吞吐量",
+        "评估基准"
+      ],
+      [
+        "并发控制",
+        "评估基准"
+      ],
+      [
+        "延迟分位数",
+        "评估基准"
+      ],
+      [
+        "慢查询归因分析",
+        "评估基准"
+      ],
+      [
+        "测试文档029",
+        "评估基准"
+      ],
+      [
+        "状态一致性",
+        "评估基准"
+      ],
+      [
+        "缓存失效风暴",
+        "评估基准"
+      ],
+      [
+        "评估基准",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "评估基准",
+        "连接池耗尽"
+      ],
+      [
+        "评估基准",
+        "重试"
+      ],
+      [
+        "评估基准",
+        "错误率"
+      ],
+      [
+        "评估基准",
+        "队列缓冲"
+      ],
+      [
+        "评估基准",
+        "降级"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788256882,
+    "update_time": 1788256882,
+    "_id": "doc-a684eceee76fc522773286a895bc8436"
+  },
+  "doc-d82c8d1619ad8176d665453cfb2e55f0": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档001"
+      ],
+      [
+        "Stage 4批量导入性能测试",
+        "缓存失效风暴"
+      ],
+      [
+        "Stage 4批量导入性能测试",
+        "连接池耗尽"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "并发控制",
+        "检索增强生成"
+      ],
+      [
+        "检索增强生成",
+        "测试文档001"
+      ],
+      [
+        "检索增强生成",
+        "重试"
+      ],
+      [
+        "检索增强生成",
+        "队列缓冲"
+      ],
+      [
+        "检索增强生成",
+        "降级"
+      ],
+      [
+        "检索增强生成",
+        "预处理"
+      ],
+      [
+        "测试文档001",
+        "第1节：原理与实现"
+      ],
+      [
+        "测试文档001",
+        "第2节：原理与实现"
+      ],
+      [
+        "测试文档001",
+        "缓存失效风暴"
+      ],
+      [
+        "测试文档001",
+        "连接池耗尽"
+      ]
+    ],
+    "count": 14,
+    "create_time": 1788256904,
+    "update_time": 1788256904,
+    "_id": "doc-d82c8d1619ad8176d665453cfb2e55f0"
+  },
+  "doc-2838023a778dfaecdc212708f721b788": {
+    "relation_pairs": [
+      [
+        "Stage 4",
+        "测试文档004"
+      ],
+      [
+        "参数调优",
+        "重排序"
+      ],
+      [
+        "吞吐量",
+        "重排序"
+      ],
+      [
+        "并发控制",
+        "重排序"
+      ],
+      [
+        "延迟分位数",
+        "重排序"
+      ],
+      [
+        "慢查询归因分析",
+        "重排序"
+      ],
+      [
+        "数据预处理",
+        "重排序"
+      ],
+      [
+        "测试文档004",
+        "重排序"
+      ],
+      [
+        "状态一致性",
+        "重排序"
+      ],
+      [
+        "缓存失效风暴",
+        "重排序"
+      ],
+      [
+        "远程服务",
+        "重排序"
+      ],
+      [
+        "连接池耗尽",
+        "重排序"
+      ],
+      [
+        "重排序",
+        "重试"
+      ],
+      [
+        "重排序",
+        "错误率"
+      ],
+      [
+        "重排序",
+        "队列缓冲"
+      ],
+      [
+        "重排序",
+        "降级"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256917,
+    "update_time": 1788256917,
+    "_id": "doc-2838023a778dfaecdc212708f721b788"
+  },
+  "doc-9a1158154dfa42caddbd0694a4e9bdc8": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档027"
+      ],
+      [
+        "主流程",
+        "多路召回第1节"
+      ],
+      [
+        "主流程",
+        "多路召回第2节"
+      ],
+      [
+        "主流程",
+        "批次处理"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "多路召回"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "多路召回"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "多路召回",
+        "多路召回第1节"
+      ],
+      [
+        "多路召回",
+        "多路召回第2节"
+      ],
+      [
+        "多路召回",
+        "测试文档027"
+      ],
+      [
+        "多路召回",
+        "现代系统"
+      ],
+      [
+        "多路召回",
+        "缓存失效风暴"
+      ],
+      [
+        "多路召回",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "多路召回",
+        "连接池耗尽"
+      ],
+      [
+        "多路召回第1节",
+        "并发控制"
+      ],
+      [
+        "多路召回第1节",
+        "批次处理"
+      ],
+      [
+        "多路召回第1节",
+        "状态一致性"
+      ],
+      [
+        "多路召回第1节",
+        "监控"
+      ],
+      [
+        "多路召回第1节",
+        "重试与降级"
+      ],
+      [
+        "多路召回第1节",
+        "队列缓冲"
+      ],
+      [
+        "多路召回第1节",
+        "预处理"
+      ],
+      [
+        "多路召回第2节",
+        "并发控制"
+      ],
+      [
+        "多路召回第2节",
+        "批次处理"
+      ],
+      [
+        "多路召回第2节",
+        "状态一致性"
+      ],
+      [
+        "多路召回第2节",
+        "监控"
+      ],
+      [
+        "多路召回第2节",
+        "重试与降级"
+      ],
+      [
+        "多路召回第2节",
+        "队列缓冲"
+      ],
+      [
+        "多路召回第2节",
+        "预处理"
+      ],
+      [
+        "并发控制",
+        "重试与降级"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "归因分析",
+        "慢查询"
+      ],
+      [
+        "慢查询",
+        "监控"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "监控",
+        "错误率"
+      ]
+    ],
+    "count": 39,
+    "create_time": 1788256920,
+    "update_time": 1788256920,
+    "_id": "doc-9a1158154dfa42caddbd0694a4e9bdc8"
+  },
+  "doc-c0c7c76d30bd3dcaefc96f40275bdc0a": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "压测生成文档"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "依赖服务",
+        "重试"
+      ],
+      [
+        "依赖服务",
+        "降级"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "语义缓存"
+      ],
+      [
+        "并发控制",
+        "负载上升"
+      ],
+      [
+        "延迟分位数",
+        "语义缓存"
+      ],
+      [
+        "慢查询归因分析",
+        "语义缓存"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "批次处理",
+        "语义缓存"
+      ],
+      [
+        "测试文档026",
+        "语义缓存"
+      ],
+      [
+        "现代系统",
+        "语义缓存"
+      ],
+      [
+        "语义缓存",
+        "错误率"
+      ],
+      [
+        "语义缓存",
+        "预处理"
+      ],
+      [
+        "负载上升",
+        "队列缓冲"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1788256922,
+    "update_time": 1788256922,
+    "_id": "doc-c0c7c76d30bd3dcaefc96f40275bdc0a"
+  },
+  "doc-f457c545a9ded88f18ecee47145a72c0": {
+    "relation_pairs": [
+      [
+        "压测",
+        "嵌入模型"
+      ],
+      [
+        "参数调优",
+        "嵌入模型"
+      ],
+      [
+        "吞吐量",
+        "监控指标"
+      ],
+      [
+        "嵌入模型",
+        "并发控制"
+      ],
+      [
+        "嵌入模型",
+        "批次处理"
+      ],
+      [
+        "嵌入模型",
+        "数据预处理"
+      ],
+      [
+        "嵌入模型",
+        "监控指标"
+      ],
+      [
+        "嵌入模型",
+        "缓存失效风暴"
+      ],
+      [
+        "嵌入模型",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "嵌入模型",
+        "连接池耗尽"
+      ],
+      [
+        "嵌入模型",
+        "重试与降级"
+      ],
+      [
+        "嵌入模型",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "监控指标"
+      ],
+      [
+        "慢查询归因分析",
+        "监控指标"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "监控指标",
+        "错误率"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256937,
+    "update_time": 1788256937,
+    "_id": "doc-f457c545a9ded88f18ecee47145a72c0"
+  },
+  "doc-642e92efb79421734881b53e1e1b18b6": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "批次处理"
+      ],
+      [
+        "主流程",
+        "重排序"
+      ],
+      [
+        "压测",
+        "重排序"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "参数调优",
+        "重排序"
+      ],
+      [
+        "吞吐量",
+        "重排序"
+      ],
+      [
+        "并发控制",
+        "重排序"
+      ],
+      [
+        "延迟分位数",
+        "重排序"
+      ],
+      [
+        "慢查询归因分析",
+        "重排序"
+      ],
+      [
+        "状态一致性",
+        "重排序"
+      ],
+      [
+        "缓存失效风暴",
+        "重排序"
+      ],
+      [
+        "远程服务网络往返延迟",
+        "重排序"
+      ],
+      [
+        "连接池耗尽",
+        "重排序"
+      ],
+      [
+        "重排序",
+        "重试机制"
+      ],
+      [
+        "重排序",
+        "错误率"
+      ],
+      [
+        "重排序",
+        "队列缓冲"
+      ],
+      [
+        "重排序",
+        "降级策略"
+      ],
+      [
+        "重排序",
+        "预处理"
+      ]
+    ],
+    "count": 18,
+    "create_time": 1788256953,
+    "update_time": 1788256953,
+    "_id": "doc-642e92efb79421734881b53e1e1b18b6"
+  },
+  "doc-67c6a1e7ce56d3d6fa748ab6d9af3fd7": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "知识图谱技术详解(测试文档025)"
+      ],
+      [
+        "参数调优",
+        "缓存失效风暴"
+      ],
+      [
+        "参数调优",
+        "连接池耗尽"
+      ],
+      [
+        "吞吐量",
+        "延迟分位数"
+      ],
+      [
+        "吞吐量",
+        "慢查询归因分析"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "并发控制",
+        "预处理"
+      ],
+      [
+        "延迟分位数",
+        "错误率"
+      ],
+      [
+        "知识图谱",
+        "知识图谱技术详解(测试文档025)"
+      ],
+      [
+        "知识图谱",
+        "知识图谱第1节：原理与实现"
+      ],
+      [
+        "知识图谱",
+        "知识图谱第2节：原理与实现"
+      ],
+      [
+        "知识图谱",
+        "预处理"
+      ],
+      [
+        "知识图谱技术详解(测试文档025)",
+        "知识图谱第1节：原理与实现"
+      ],
+      [
+        "知识图谱技术详解(测试文档025)",
+        "知识图谱第2节：原理与实现"
+      ],
+      [
+        "知识图谱第1节：原理与实现",
+        "知识图谱第2节：原理与实现"
+      ],
+      [
+        "重试",
+        "降级"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788256957,
+    "update_time": 1788256957,
+    "_id": "doc-67c6a1e7ce56d3d6fa748ab6d9af3fd7"
+  },
+  "doc-d9d4f495e875a2e075a1a4a6e1b9770f": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "知识图谱"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "主流程",
+        "系统"
+      ],
+      [
+        "参数调优",
+        "监控指标"
+      ],
+      [
+        "并发控制",
+        "系统"
+      ],
+      [
+        "慢查询归因分析",
+        "系统"
+      ],
+      [
+        "批次处理",
+        "系统"
+      ],
+      [
+        "监控指标",
+        "系统"
+      ],
+      [
+        "知识图谱",
+        "第1节：原理与实现"
+      ],
+      [
+        "知识图谱",
+        "第2节：原理与实现"
+      ],
+      [
+        "系统",
+        "缓存失效风暴"
+      ],
+      [
+        "系统",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "系统",
+        "连接池耗尽"
+      ],
+      [
+        "系统",
+        "重试与降级"
+      ],
+      [
+        "系统",
+        "队列缓冲"
+      ]
+    ],
+    "count": 15,
+    "create_time": 1788256971,
+    "update_time": 1788256971,
+    "_id": "doc-d9d4f495e875a2e075a1a4a6e1b9770f"
+  },
+  "doc-6c8349cc7260ae62e3b1396831a8398f": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "嵌入模型"
+      ],
+      [
+        "主流程",
+        "批处理"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "嵌入模型"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "嵌入模型"
+      ],
+      [
+        "吞吐量",
+        "嵌入模型"
+      ],
+      [
+        "嵌入模型",
+        "并发控制"
+      ],
+      [
+        "嵌入模型",
+        "延迟分位数"
+      ],
+      [
+        "嵌入模型",
+        "慢查询归因分析"
+      ],
+      [
+        "嵌入模型",
+        "数据预处理"
+      ],
+      [
+        "嵌入模型",
+        "状态一致性"
+      ],
+      [
+        "嵌入模型",
+        "监控"
+      ],
+      [
+        "嵌入模型",
+        "重试机制"
+      ],
+      [
+        "嵌入模型",
+        "错误率"
+      ],
+      [
+        "嵌入模型",
+        "队列缓冲"
+      ],
+      [
+        "嵌入模型",
+        "降级机制"
+      ]
+    ],
+    "count": 20,
+    "create_time": 1788256977,
+    "update_time": 1788256977,
+    "_id": "doc-6c8349cc7260ae62e3b1396831a8398f"
+  },
+  "doc-f7177163c833dff4b38fc8d2872f1ec6": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "向量数据库"
+      ],
+      [
+        "主流程",
+        "向量数据库"
+      ],
+      [
+        "主流程",
+        "状态一致性"
+      ],
+      [
+        "参数调优",
+        "向量数据库"
+      ],
+      [
+        "向量数据库",
+        "吞吐量"
+      ],
+      [
+        "向量数据库",
+        "并发控制"
+      ],
+      [
+        "向量数据库",
+        "延迟分位数"
+      ],
+      [
+        "向量数据库",
+        "慢查询归因分析"
+      ],
+      [
+        "向量数据库",
+        "缓存失效风暴"
+      ],
+      [
+        "向量数据库",
+        "网络往返延迟"
+      ],
+      [
+        "向量数据库",
+        "连接池耗尽"
+      ],
+      [
+        "向量数据库",
+        "重试机制"
+      ],
+      [
+        "向量数据库",
+        "错误率"
+      ],
+      [
+        "向量数据库",
+        "队列缓冲"
+      ],
+      [
+        "向量数据库",
+        "降级机制"
+      ],
+      [
+        "向量数据库",
+        "预处理"
+      ],
+      [
+        "吞吐量",
+        "监控指标"
+      ],
+      [
+        "延迟分位数",
+        "监控指标"
+      ],
+      [
+        "监控指标",
+        "错误率"
+      ]
+    ],
+    "count": 19,
+    "create_time": 1788256986,
+    "update_time": 1788256986,
+    "_id": "doc-f7177163c833dff4b38fc8d2872f1ec6"
+  },
+  "doc-a1d0c6e83f027327d8461063f4ac58a6": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "主流程",
+        "检索增强生成"
+      ],
+      [
+        "参数调优",
+        "检索增强生成"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "检索增强生成"
+      ],
+      [
+        "并发控制",
+        "检索增强生成"
+      ],
+      [
+        "延迟分位数",
+        "检索增强生成"
+      ],
+      [
+        "慢查询归因分析",
+        "检索增强生成"
+      ],
+      [
+        "数据预处理",
+        "检索增强生成"
+      ],
+      [
+        "检索增强生成",
+        "注入压测"
+      ],
+      [
+        "检索增强生成",
+        "监控"
+      ],
+      [
+        "检索增强生成",
+        "缓存失效风暴"
+      ],
+      [
+        "检索增强生成",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "检索增强生成",
+        "连接池耗尽"
+      ],
+      [
+        "检索增强生成",
+        "重试与降级"
+      ],
+      [
+        "检索增强生成",
+        "错误率"
+      ],
+      [
+        "检索增强生成",
+        "队列缓冲"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788257004,
+    "update_time": 1788257004,
+    "_id": "doc-a1d0c6e83f027327d8461063f4ac58a6"
+  },
+  "doc-17e62166fc8586dfa4d1bc0e1742c08b": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档022"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "文档切片策略"
+      ],
+      [
+        "参数调优",
+        "证据链"
+      ],
+      [
+        "吞吐量",
+        "文档切片策略"
+      ],
+      [
+        "并发控制",
+        "文档切片策略"
+      ],
+      [
+        "延迟分位数",
+        "文档切片策略"
+      ],
+      [
+        "归因分析",
+        "慢查询"
+      ],
+      [
+        "慢查询",
+        "文档切片策略"
+      ],
+      [
+        "批次处理",
+        "文档切片策略"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "文档切片策略",
+        "测试文档022"
+      ],
+      [
+        "文档切片策略",
+        "状态一致性"
+      ],
+      [
+        "文档切片策略",
+        "缓存失效风暴"
+      ],
+      [
+        "文档切片策略",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "文档切片策略",
+        "连接池耗尽"
+      ],
+      [
+        "文档切片策略",
+        "重试"
+      ],
+      [
+        "文档切片策略",
+        "错误率"
+      ],
+      [
+        "文档切片策略",
+        "队列缓冲"
+      ],
+      [
+        "文档切片策略",
+        "降级"
+      ],
+      [
+        "文档切片策略",
+        "预处理"
+      ]
+    ],
+    "count": 24,
+    "create_time": 1788257005,
+    "update_time": 1788257005,
+    "_id": "doc-17e62166fc8586dfa4d1bc0e1742c08b"
+  },
+  "doc-3416a75f4cea9109507cacd8e2f2aefc": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档018"
+      ],
+      [
+        "一致性哈希",
+        "吞吐量"
+      ],
+      [
+        "一致性哈希",
+        "并发控制"
+      ],
+      [
+        "一致性哈希",
+        "延迟分位数"
+      ],
+      [
+        "一致性哈希",
+        "慢查询"
+      ],
+      [
+        "一致性哈希",
+        "测试文档018"
+      ],
+      [
+        "一致性哈希",
+        "系统"
+      ],
+      [
+        "一致性哈希",
+        "缓存失效风暴"
+      ],
+      [
+        "一致性哈希",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "一致性哈希",
+        "连接池耗尽"
+      ],
+      [
+        "一致性哈希",
+        "重试"
+      ],
+      [
+        "一致性哈希",
+        "错误率"
+      ],
+      [
+        "一致性哈希",
+        "队列缓冲"
+      ],
+      [
+        "一致性哈希",
+        "降级"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "重试",
+        "降级"
+      ]
+    ],
+    "count": 17,
+    "create_time": 1788257006,
+    "update_time": 1788257006,
+    "_id": "doc-3416a75f4cea9109507cacd8e2f2aefc"
+  },
+  "doc-d645920e395fedad7bbbed0eca3fe2e0": {
+    "relation_pairs": [
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "实测数据"
+      ],
+      [
+        "参数调优",
+        "熔断降级"
+      ],
+      [
+        "吞吐量",
+        "熔断降级"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "熔断降级"
+      ],
+      [
+        "慢查询",
+        "熔断降级"
+      ],
+      [
+        "数据预处理",
+        "状态一致性"
+      ],
+      [
+        "熔断降级",
+        "现代系统"
+      ],
+      [
+        "熔断降级",
+        "缓存失效风暴"
+      ],
+      [
+        "熔断降级",
+        "远程服务网络往返延迟"
+      ],
+      [
+        "熔断降级",
+        "连接池耗尽"
+      ],
+      [
+        "熔断降级",
+        "错误率"
+      ],
+      [
+        "重试",
+        "降级"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788257029,
+    "update_time": 1788257029,
+    "_id": "doc-d645920e395fedad7bbbed0eca3fe2e0"
+  },
+  "doc-d67d8ab4f4c10bf22aa353e27879133c": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档017"
+      ],
+      [
+        "主流程",
+        "数据预处理"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "参数调优",
+        "数据预处理"
+      ],
+      [
+        "吞吐量",
+        "消息队列"
+      ],
+      [
+        "吞吐量",
+        "监控机制"
+      ],
+      [
+        "并发控制",
+        "消息队列"
+      ],
+      [
+        "延迟分位数",
+        "消息队列"
+      ],
+      [
+        "延迟分位数",
+        "监控机制"
+      ],
+      [
+        "慢查询",
+        "慢查询归因分析"
+      ],
+      [
+        "慢查询",
+        "监控机制"
+      ],
+      [
+        "慢查询归因分析",
+        "消息队列"
+      ],
+      [
+        "批次处理",
+        "状态一致性"
+      ],
+      [
+        "批次处理",
+        "系统"
+      ],
+      [
+        "数据预处理",
+        "消息队列"
+      ],
+      [
+        "测试文档017",
+        "消息队列"
+      ],
+      [
+        "消息队列",
+        "重试机制"
+      ],
+      [
+        "消息队列",
+        "错误率"
+      ],
+      [
+        "消息队列",
+        "队列缓冲"
+      ],
+      [
+        "消息队列",
+        "降级策略"
+      ],
+      [
+        "状态一致性",
+        "系统"
+      ],
+      [
+        "监控机制",
+        "错误率"
+      ]
+    ],
+    "count": 23,
+    "create_time": 1788257032,
+    "update_time": 1788257032,
+    "_id": "doc-d67d8ab4f4c10bf22aa353e27879133c"
+  },
+  "doc-a5771bce93e200c36f7cd9dfd0e5deaa": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档016"
+      ],
+      [
+        "主流程",
+        "预处理"
+      ],
+      [
+        "压测",
+        "参数调优"
+      ],
+      [
+        "压测",
+        "测试文档016"
+      ],
+      [
+        "压测",
+        "缓存失效风暴"
+      ],
+      [
+        "压测",
+        "远程服务网络往返延迟过高"
+      ],
+      [
+        "压测",
+        "连接池耗尽"
+      ],
+      [
+        "吞吐量",
+        "监控"
+      ],
+      [
+        "并发控制",
+        "队列缓冲"
+      ],
+      [
+        "延迟分位数",
+        "监控"
+      ],
+      [
+        "慢查询归因分析",
+        "监控"
+      ],
+      [
+        "流式计算",
+        "流式计算第1节"
+      ],
+      [
+        "流式计算",
+        "流式计算第2节"
+      ],
+      [
+        "流式计算",
+        "状态一致性"
+      ],
+      [
+        "监控",
+        "错误率"
+      ],
+      [
+        "重试",
+        "降级"
+      ]
+    ],
+    "count": 16,
+    "create_time": 1788257034,
+    "update_time": 1788257034,
+    "_id": "doc-a5771bce93e200c36f7cd9dfd0e5deaa"
+  },
+  "doc-a5bfc9e07964f8dddeb95fc584cd965d": {
+    "relation_pairs": [
+      [
+        "Stage 4批量导入性能测试",
+        "测试文档015"
+      ],
+      [
+        "主流程",
+        "数据脱敏"
+      ],
+      [
+        "参数调优",
+        "数据脱敏"
+      ],
+      [
+        "并发控制",
+        "数据脱敏"
+      ],
+      [
+        "数据脱敏",
+        "测试文档015"
+      ],
+      [
+        "数据脱敏",
+        "监控系统"
+      ],
+      [
+        "数据脱敏",
+        "缓存失效风暴"
+      ],
+      [
+        "数据脱敏",
+        "网络往返延迟"
+      ],
+      [
+        "数据脱敏",
+        "连接池耗尽"
+      ],
+      [
+        "数据脱敏",
+        "重试与降级"
+      ],
+      [
+        "数据脱敏",
+        "队列缓冲"
+      ],
+      [
+        "数据脱敏",
+        "预处理"
+      ]
+    ],
+    "count": 12,
+    "create_time": 1788257057,
+    "update_time": 1788257057,
+    "_id": "doc-a5bfc9e07964f8dddeb95fc584cd965d"
+  }
+}

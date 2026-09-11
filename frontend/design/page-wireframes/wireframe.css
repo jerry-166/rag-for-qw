@@ -396,6 +396,10 @@ body.light-mode .form-field input, body.light-mode .form-field textarea, body.li
 .shell > main { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .content { max-width: var(--content-max); margin: 0 auto; width: 100%; flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: var(--sp-2); }
 
+/* 评估页：禁用 .content 的内部滚动条（由 #eval-sample-table 接管），并去掉为滚动条预留的右内距。
+   只在含 .eval-layout 子元素的页面生效，路由切换 innerHTML 清空后自动失效，不污染其他页面。 */
+.shell:has(.eval-layout) .content { overflow: hidden; padding-right: 0; }
+
 /* ================= 卡片 ================= */
 .card { padding: var(--sp-5); }
 

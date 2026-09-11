@@ -1,0 +1,351 @@
+- generic [ref=e1]:
+  - generic [ref=e437]:
+    - complementary [ref=e438]:
+      - generic [ref=e439]:
+        - generic [ref=e440]: RAGFlow
+        - button "折叠侧边栏" [ref=e446] [cursor=pointer]
+      - navigation [ref=e449]:
+        - link "知识库" [ref=e450] [cursor=pointer]:
+          - /url: "#"
+        - link "文档管理" [ref=e457] [cursor=pointer]:
+          - /url: "#"
+        - link "知识检索" [ref=e464] [cursor=pointer]:
+          - /url: "#"
+        - link "AI Agent" [ref=e470] [cursor=pointer]:
+          - /url: "#"
+        - link "知识记忆" [ref=e476] [cursor=pointer]:
+          - /url: "#"
+        - link "设置" [ref=e482] [cursor=pointer]:
+          - /url: "#"
+        - link "审计中心" [ref=e488] [cursor=pointer]:
+          - /url: "#"
+        - link "测试集" [ref=e493] [cursor=pointer]:
+          - /url: "#"
+        - link "缓存中心" [ref=e500] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e506]:
+        - generic [ref=e507]: 统计概览
+        - generic [ref=e508]:
+          - generic [ref=e509]:
+            - generic [ref=e510]: "189"
+            - generic [ref=e511]: 文档
+          - generic [ref=e512]:
+            - generic [ref=e513]: "5433"
+            - generic [ref=e514]: Chunk
+          - generic [ref=e515]:
+            - generic [ref=e516]: "12637"
+            - generic [ref=e517]: 子问题
+          - generic [ref=e518]:
+            - generic [ref=e519]: "2786"
+            - generic [ref=e520]: 摘要
+          - generic [ref=e521]:
+            - generic [ref=e522]: "15"
+            - generic [ref=e523]: 用户
+      - button "用户菜单" [ref=e525] [cursor=pointer]:
+        - generic [ref=e526]: A
+        - generic [ref=e527]:
+          - generic [ref=e528]: admin
+          - generic [ref=e529]: 管理员
+    - main [ref=e532]:
+      - generic [ref=e533]:
+        - generic [ref=e534]: 测试集管理
+        - button "切换主题" [ref=e535] [cursor=pointer]
+        - button "用户菜单" [ref=e538] [cursor=pointer]:
+          - generic [ref=e539]: A
+      - generic [ref=e540]:
+        - generic [ref=e590]:
+          - generic [ref=e591]:
+            - heading "测试集管理" [level=1] [ref=e592]
+            - paragraph [ref=e593]: 从 session 提取 → 待审状态 → 人工审核（含 LLM 辅助补 ground_truth）→ approved 入评估
+          - generic [ref=e594]:
+            - button "从 Session 提取" [ref=e595] [cursor=pointer]
+            - button "导入" [ref=e596] [cursor=pointer]
+            - button "跑评估" [disabled] [ref=e597]
+        - generic [ref=e598]:
+          - generic [ref=e599]:
+            - generic [ref=e600]: 总样本
+            - generic [ref=e601]: "20"
+          - generic [ref=e602]:
+            - generic [ref=e603]: 待审
+            - generic [ref=e604]: "19"
+          - generic [ref=e605]:
+            - generic [ref=e606]: 已通过
+            - generic [ref=e607]: "1"
+          - generic [ref=e608]:
+            - generic [ref=e609]: 含 GT
+            - generic [ref=e610]: "0"
+          - generic [ref=e611]:
+            - generic [ref=e612]: 来源数
+            - generic [ref=e613]: "1"
+        - generic [ref=e614]:
+          - generic [ref=e615]:
+            - generic [ref=e616]: 测试集
+            - generic [ref=e617]:
+              - generic [ref=e618] [cursor=pointer]:
+                - generic [ref=e619]: all_sessions_20260901
+                - generic [ref=e620]: 20 条
+              - generic [ref=e621] [cursor=pointer]:
+                - generic [ref=e622]: default
+                - generic [ref=e623]: 5 条
+              - generic [ref=e624] [cursor=pointer]:
+                - generic [ref=e625]: test_create
+                - generic [ref=e626]: 3 条
+              - generic [ref=e627] [cursor=pointer]:
+                - generic [ref=e628]: verify_ours_import
+                - generic [ref=e629]: 3 条
+              - generic [ref=e630] [cursor=pointer]:
+                - generic [ref=e631]: verify_ragas_import
+                - generic [ref=e632]: 3 条
+          - generic [ref=e634]:
+            - generic [ref=e635]:
+              - combobox [ref=e636]:
+                - option "全部状态" [selected]
+                - option "待审"
+                - option "已通过"
+                - option "已驳回"
+              - button "导出" [ref=e637] [cursor=pointer]
+              - button "删除" [ref=e638] [cursor=pointer]
+            - table [ref=e640]:
+              - rowgroup [ref=e641]:
+                - row [ref=e642]:
+                  - columnheader "#" [ref=e643]
+                  - columnheader "问题" [ref=e644]
+                  - columnheader "来源" [ref=e645]
+                  - columnheader "状态" [ref=e646]
+                  - columnheader "GT" [ref=e647]
+                  - columnheader "操作" [ref=e648]
+              - rowgroup [ref=e649]:
+                - row [ref=e650]:
+                  - cell "0" [ref=e651]
+                  - cell "BM25关键词检索的打分原理是什么？" [ref=e652]
+                  - cell "session" [ref=e653]
+                  - cell "通过" [ref=e654]
+                  - cell "✗" [ref=e656]
+                  - cell [ref=e657]:
+                    - button "审核" [active] [ref=e658] [cursor=pointer]
+                    - button "✕" [ref=e659] [cursor=pointer]
+                - row [ref=e660]:
+                  - cell "1" [ref=e661]
+                  - cell "怎么提高bm25的准确率" [ref=e662]
+                  - cell "session" [ref=e663]
+                  - cell "待审" [ref=e664]
+                  - cell "✗" [ref=e666]
+                  - cell [ref=e667]:
+                    - button "审核" [ref=e668] [cursor=pointer]
+                    - button "✓" [ref=e669] [cursor=pointer]
+                    - button "✕" [ref=e670] [cursor=pointer]
+                - row [ref=e671]:
+                  - cell "2" [ref=e672]
+                  - cell "什么是 RAG？一句话回答" [ref=e673]
+                  - cell "session" [ref=e674]
+                  - cell "待审" [ref=e675]
+                  - cell "✗" [ref=e677]
+                  - cell [ref=e678]:
+                    - button "审核" [ref=e679] [cursor=pointer]
+                    - button "✓" [ref=e680] [cursor=pointer]
+                    - button "✕" [ref=e681] [cursor=pointer]
+                - row [ref=e682]:
+                  - cell "3" [ref=e683]
+                  - cell "什么是RAG？" [ref=e684]
+                  - cell "session" [ref=e685]
+                  - cell "待审" [ref=e686]
+                  - cell "✗" [ref=e688]
+                  - cell [ref=e689]:
+                    - button "审核" [ref=e690] [cursor=pointer]
+                    - button "✓" [ref=e691] [cursor=pointer]
+                    - button "✕" [ref=e692] [cursor=pointer]
+                - row [ref=e693]:
+                  - cell "4" [ref=e694]
+                  - cell "什么是RAG？" [ref=e695]
+                  - cell "session" [ref=e696]
+                  - cell "待审" [ref=e697]
+                  - cell "✗" [ref=e699]
+                  - cell [ref=e700]:
+                    - button "审核" [ref=e701] [cursor=pointer]
+                    - button "✓" [ref=e702] [cursor=pointer]
+                    - button "✕" [ref=e703] [cursor=pointer]
+                - row [ref=e704]:
+                  - cell "5" [ref=e705]
+                  - cell "什么是RAG？" [ref=e706]
+                  - cell "session" [ref=e707]
+                  - cell "待审" [ref=e708]
+                  - cell "✗" [ref=e710]
+                  - cell [ref=e711]:
+                    - button "审核" [ref=e712] [cursor=pointer]
+                    - button "✓" [ref=e713] [cursor=pointer]
+                    - button "✕" [ref=e714] [cursor=pointer]
+                - row [ref=e715]:
+                  - cell "6" [ref=e716]
+                  - cell "什么是RAG？" [ref=e717]
+                  - cell "session" [ref=e718]
+                  - cell "待审" [ref=e719]
+                  - cell "✗" [ref=e721]
+                  - cell [ref=e722]:
+                    - button "审核" [ref=e723] [cursor=pointer]
+                    - button "✓" [ref=e724] [cursor=pointer]
+                    - button "✕" [ref=e725] [cursor=pointer]
+                - row [ref=e726]:
+                  - cell "7" [ref=e727]
+                  - cell "What is RAG system?" [ref=e728]
+                  - cell "session" [ref=e729]
+                  - cell "待审" [ref=e730]
+                  - cell "✗" [ref=e732]
+                  - cell [ref=e733]:
+                    - button "审核" [ref=e734] [cursor=pointer]
+                    - button "✓" [ref=e735] [cursor=pointer]
+                    - button "✕" [ref=e736] [cursor=pointer]
+                - row [ref=e737]:
+                  - cell "8" [ref=e738]
+                  - cell "RAG和Fine-tuning 的区别是什么?" [ref=e739]
+                  - cell "session" [ref=e740]
+                  - cell "待审" [ref=e741]
+                  - cell "✗" [ref=e743]
+                  - cell [ref=e744]:
+                    - button "审核" [ref=e745] [cursor=pointer]
+                    - button "✓" [ref=e746] [cursor=pointer]
+                    - button "✕" [ref=e747] [cursor=pointer]
+                - row [ref=e748]:
+                  - cell "9" [ref=e749]
+                  - cell "梯度下降" [ref=e750]
+                  - cell "session" [ref=e751]
+                  - cell "待审" [ref=e752]
+                  - cell "✗" [ref=e754]
+                  - cell [ref=e755]:
+                    - button "审核" [ref=e756] [cursor=pointer]
+                    - button "✓" [ref=e757] [cursor=pointer]
+                    - button "✕" [ref=e758] [cursor=pointer]
+                - row [ref=e759]:
+                  - cell "10" [ref=e760]
+                  - cell "梯度下降" [ref=e761]
+                  - cell "session" [ref=e762]
+                  - cell "待审" [ref=e763]
+                  - cell "✗" [ref=e765]
+                  - cell [ref=e766]:
+                    - button "审核" [ref=e767] [cursor=pointer]
+                    - button "✓" [ref=e768] [cursor=pointer]
+                    - button "✕" [ref=e769] [cursor=pointer]
+                - row [ref=e770]:
+                  - cell "11" [ref=e771]
+                  - cell "全连接网络" [ref=e772]
+                  - cell "session" [ref=e773]
+                  - cell "待审" [ref=e774]
+                  - cell "✗" [ref=e776]
+                  - cell [ref=e777]:
+                    - button "审核" [ref=e778] [cursor=pointer]
+                    - button "✓" [ref=e779] [cursor=pointer]
+                    - button "✕" [ref=e780] [cursor=pointer]
+                - row [ref=e781]:
+                  - cell "12" [ref=e782]
+                  - cell "全连接网络" [ref=e783]
+                  - cell "session" [ref=e784]
+                  - cell "待审" [ref=e785]
+                  - cell "✗" [ref=e787]
+                  - cell [ref=e788]:
+                    - button "审核" [ref=e789] [cursor=pointer]
+                    - button "✓" [ref=e790] [cursor=pointer]
+                    - button "✕" [ref=e791] [cursor=pointer]
+                - row [ref=e792]:
+                  - cell "13" [ref=e793]
+                  - cell "全连接网络" [ref=e794]
+                  - cell "session" [ref=e795]
+                  - cell "待审" [ref=e796]
+                  - cell "✗" [ref=e798]
+                  - cell [ref=e799]:
+                    - button "审核" [ref=e800] [cursor=pointer]
+                    - button "✓" [ref=e801] [cursor=pointer]
+                    - button "✕" [ref=e802] [cursor=pointer]
+                - row [ref=e803]:
+                  - cell "14" [ref=e804]
+                  - cell "梯度下降" [ref=e805]
+                  - cell "session" [ref=e806]
+                  - cell "待审" [ref=e807]
+                  - cell "✗" [ref=e809]
+                  - cell [ref=e810]:
+                    - button "审核" [ref=e811] [cursor=pointer]
+                    - button "✓" [ref=e812] [cursor=pointer]
+                    - button "✕" [ref=e813] [cursor=pointer]
+                - row [ref=e814]:
+                  - cell "15" [ref=e815]
+                  - cell "全连接神经网络" [ref=e816]
+                  - cell "session" [ref=e817]
+                  - cell "待审" [ref=e818]
+                  - cell "✗" [ref=e820]
+                  - cell [ref=e821]:
+                    - button "审核" [ref=e822] [cursor=pointer]
+                    - button "✓" [ref=e823] [cursor=pointer]
+                    - button "✕" [ref=e824] [cursor=pointer]
+                - row [ref=e825]:
+                  - cell "16" [ref=e826]
+                  - cell "梯度下降" [ref=e827]
+                  - cell "session" [ref=e828]
+                  - cell "待审" [ref=e829]
+                  - cell "✗" [ref=e831]
+                  - cell [ref=e832]:
+                    - button "审核" [ref=e833] [cursor=pointer]
+                    - button "✓" [ref=e834] [cursor=pointer]
+                    - button "✕" [ref=e835] [cursor=pointer]
+                - row [ref=e836]:
+                  - cell "17" [ref=e837]
+                  - cell "告诉我rag和agent的区别" [ref=e838]
+                  - cell "session" [ref=e839]
+                  - cell "待审" [ref=e840]
+                  - cell "✗" [ref=e842]
+                  - cell [ref=e843]:
+                    - button "审核" [ref=e844] [cursor=pointer]
+                    - button "✓" [ref=e845] [cursor=pointer]
+                    - button "✕" [ref=e846] [cursor=pointer]
+                - row [ref=e847]:
+                  - cell "18" [ref=e848]
+                  - cell "多模态RAG是什么？" [ref=e849]
+                  - cell "session" [ref=e850]
+                  - cell "待审" [ref=e851]
+                  - cell "✗" [ref=e853]
+                  - cell [ref=e854]:
+                    - button "审核" [ref=e855] [cursor=pointer]
+                    - button "✓" [ref=e856] [cursor=pointer]
+                    - button "✕" [ref=e857] [cursor=pointer]
+                - row [ref=e858]:
+                  - cell "19" [ref=e859]
+                  - cell "我要测试一下trace功能和评估系统" [ref=e860]
+                  - cell "session" [ref=e861]
+                  - cell "待审" [ref=e862]
+                  - cell "✗" [ref=e864]
+                  - cell [ref=e865]:
+                    - button "审核" [ref=e866] [cursor=pointer]
+                    - button "✓" [ref=e867] [cursor=pointer]
+                    - button "✕" [ref=e868] [cursor=pointer]
+            - generic [ref=e869]:
+              - generic [ref=e870]: 共 20 条 · 每页 20
+              - generic [ref=e871]: 1 / 1
+              - generic [ref=e872]:
+                - button "← 上一页" [disabled] [ref=e873]
+                - button "下一页 →" [disabled] [ref=e874]
+  - generic [ref=e876]:
+    - generic [ref=e877]:
+      - 'heading "样本 #0 审核" [level=2] [ref=e878]'
+      - button "✕ 关闭" [ref=e879] [cursor=pointer]
+    - generic [ref=e880]:
+      - generic [ref=e881]:
+        - text: 状态
+        - generic [ref=e882]: 通过
+      - generic [ref=e883]: 来源 session
+      - generic [ref=e884]: Agent 生成，需审核
+    - generic [ref=e885]:
+      - generic [ref=e886]: 问题（只读）
+      - textbox [ref=e887]: BM25关键词检索的打分原理是什么？
+    - generic [ref=e888]:
+      - generic [ref=e889]: Answer
+      - textbox [ref=e890]: "BM25（Best Matching 25）关键词检索的打分原理是基于词频（Term Frequency, TF）和逆文档频率（Inverse Document Frequency, IDF）来计算文档与查询之间的相关性分数。其核心公式为： \\[ \\text{score}(q, d) = \\sum_{t \\in q} IDF(t) \\cdot \\frac{f(t, d) \\cdot (k_1 + 1)}{f(t, d) + k_1 \\cdot (1 - b + b \\cdot \\frac{|d|}{\\text{avgdl}})}, \\] 其中： - \\( f(t, d) \\): 词 \\( t \\) 在文档 \\( d \\) 中的出现频率（词频）。 - \\( |d| \\): 文档 \\( d \\) 的长度。 - \\( \\text{avgdl} \\): 语料库中文档的平均长度。 - \\( k_1 \\) 和 \\( b \\): 调节参数，控制词频饱和度和文档长度归一化的程度。 - \\( IDF(t) \\): 逆文档频率，用于衡量词 \\( t \\) 的区分能力。 BM25 通过结合词频和逆文档频率，平衡了高频词的权重，同时避免过长文档对相关性分数的过度影响。 ### 来源 - [1] BM25排序函数的基本原理是什么？ - [2] BM25排序函数的核心原理是什么，它如何结合词频与逆文档频率进行打分？ - [4] BM25 是如何利用词频与逆文档频率进行排序的？"
+    - generic [ref=e891]:
+      - generic [ref=e892]: Contexts（每段用 --- 分隔）
+      - textbox [ref=e893]: BM25 是基于词频与逆文档频率的经典排序函数，对查询词在文档中的频率与文档长度联合打分。它无需训练、可解释、能精确匹配术语，与向量检索互补。在第2部分中，我们关注BM25 关键词检索的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。 --- BM25 是基于词频与逆文档频率的经典排序函数，对查询词在文档中的频率与文档长度联合打分。它无需训练、可解释、能精确匹配术语，与向量检索互补。在第4部分中，我们关注BM25 关键词检索的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。 --- BM25 是基于词频与逆文档频率的经典排序函数，对查询词在文档中的频率与文档长度联合打分。它无需训练、可解释、能精确匹配术语，与向量检索互补。在第3部分中，我们关注BM25 关键词检索的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。 --- BM25 是基于词频与逆文档频率的经典排序函数，对查询词在文档中的频率与文档长度联合打分。它无需训练、可解释、能精确匹配术语，与向量检索互补。在第1部分中，我们关注BM25 关键词检索的工程落地细节。典型做法是先以默认配置建立基线，再用固定评测集对比迭代。监控指标包括 P95 延迟、吞吐量、错误率与质量评分，任何变更都应通过回归测试。与相邻组件的组合调优往往能带来叠加收益，例如召回阶段扩宽候选、精排阶段收紧阈值。运维上建议保留灰度开关，出现回退可快速切回；文档记录与告警配置同样重要。
+    - generic [ref=e894]:
+      - generic [ref=e895]:
+        - generic [ref=e896]: Ground Truth
+        - button "✨ 一键生成 GT" [ref=e897] [cursor=pointer]
+      - textbox [ref=e898]
+    - generic [ref=e899]:
+      - button "✓ 通过" [ref=e900] [cursor=pointer]
+      - button "✕ 驳回" [ref=e901] [cursor=pointer]
+      - button "取消" [ref=e902] [cursor=pointer]
+      - button "保存" [ref=e903] [cursor=pointer]

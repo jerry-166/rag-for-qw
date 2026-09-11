@@ -1,0 +1,27 @@
+login ok, token=eyJhbGciOiJIUzI1NiIs...
+corpus: 1000 (src=300, nonrel=700)
+src map: 300 file_ids
+
+=== src docs (generate+import): 300 docs, workers=3 ===
+  [20/300] ok=20 elapsed=2s rate=10.18/s eta=28s
+  [40/300] ok=40 elapsed=3s rate=12.41/s eta=21s
+  [60/300] ok=60 elapsed=4s rate=13.38/s eta=18s
+  [80/300] ok=80 elapsed=6s rate=14.09/s eta=16s
+  [100/300] ok=100 elapsed=7s rate=14.86/s eta=13s
+  [120/300] ok=120 elapsed=8s rate=15.24/s eta=12s
+  [140/300] ok=140 elapsed=9s rate=15.91/s eta=10s
+  [160/300] ok=160 elapsed=204s rate=0.78/s eta=179s
+  [180/300] ok=180 elapsed=1109s rate=0.16/s eta=739s
+  [200/300] ok=200 elapsed=1940s rate=0.10/s eta=970s
+  [220/300] ok=220 elapsed=2739s rate=0.08/s eta=996s
+  [240/300] ok=239 elapsed=3744s rate=0.06/s eta=936s
+  [260/300] ok=259 elapsed=4508s rate=0.06/s eta=694s
+  [280/300] ok=278 elapsed=5307s rate=0.05/s eta=379s
+  [300/300] ok=298 elapsed=6203s rate=0.05/s eta=0s
+  done: ok=298 fail=2 elapsed=6203s
+  fail samples:
+    ('crud_221', 442, 'exc', "HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=300)")
+    ('crud_274', None, 'no_file_id', 'src doc not in map')
+
+=== non-rel docs (full pipeline): 700 docs, workers=3 ===
+  [20/700] ok=20 elapsed=765s rate=0.03/s eta=26005s

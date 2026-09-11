@@ -1,0 +1,16 @@
+[login] OK
+[list] page=1 got=140 cumulative=140 total_field=140 keys=['status', 'documents', 'total', 'page', 'page_size']
+[list] KB17 docs total: 140
+[list] first doc keys: ['file_id', 'filename', 'file_size', 'status', 'knowledge_base_id', 'created_at']
+[preview] 20/140 done, texts=20
+[preview] 40/140 done, texts=40
+[preview] 60/140 done, texts=60
+[preview] 80/140 done, texts=80
+[preview] 100/140 done, texts=100
+[preview] 120/140 done, texts=120
+[preview] 140/140 done, texts=140
+[preview] texts with content: 140, fail: 0
+[save] work/lightrag-vs/kb17_docs.json (140 docs)
+[import] posting 140 texts to LightRAG...
+[import] HTTP 422, resp[:300]: {"detail":[{"type":"string_type","loc":["body","texts",0],"msg":"Input should be a valid string","input":{"text":"# 查询改写 技术详解（复验文档 028）\n\n本文介绍查询改写的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时
+[FATAL] import failed: {"detail":[{"type":"string_type","loc":["body","texts",0],"msg":"Input should be a valid string","input":{"text":"# 查询改写 技术详解（复验文档 028）\n\n本文介绍查询改写的核心概念、架构与工程实践。复验生成文档，用于 Stage 4 导入链路回归。\n\n## 查询改写 第1节：原理与实现\n\n查询改写在现代系统中承担关键角色。第1节讨论其内部机制：数据经过预处理后进入主流程，系统按批次处理并维护状态一致性。当负载上升时，通过并发控制与队列缓冲平滑流量；当依赖服务异常时，通过重试与降级保证可用性。监控方面需要关注吞吐量、延迟分位数与错误率三类核心指标，并对慢查询进行归因分析。实践中常见的问题包括缓存失效风暴、连接池耗尽、以及远程服务网络往返延迟过高，这些都需要通过压测在上线前暴露。参数调优应基于实测数据而非直觉，任何改动需保留前后对比证据链。\n\n## 查询改写 第2节：原理与实现\n\n查询改写在现代系统中承担关键角色。第2节讨论其内部机制：数据经过预处理后

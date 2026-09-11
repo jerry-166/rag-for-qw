@@ -1,0 +1,905 @@
+{
+  "qid_to_doc_id": {
+    "crud_q000": {
+      "crud_000": 1
+    },
+    "crud_q001": {
+      "crud_001": 1
+    },
+    "crud_q002": {
+      "crud_002": 1
+    },
+    "crud_q003": {
+      "crud_003": 1
+    },
+    "crud_q004": {
+      "crud_004": 1
+    },
+    "crud_q005": {
+      "crud_005": 1
+    },
+    "crud_q006": {
+      "crud_006": 1
+    },
+    "crud_q007": {
+      "crud_007": 1
+    },
+    "crud_q008": {
+      "crud_008": 1
+    },
+    "crud_q009": {
+      "crud_009": 1
+    },
+    "crud_q010": {
+      "crud_010": 1
+    },
+    "crud_q011": {
+      "crud_011": 1
+    },
+    "crud_q012": {
+      "crud_012": 1
+    },
+    "crud_q013": {
+      "crud_013": 1
+    },
+    "crud_q014": {
+      "crud_014": 1
+    },
+    "crud_q015": {
+      "crud_015": 1
+    },
+    "crud_q016": {
+      "crud_016": 1
+    },
+    "crud_q017": {
+      "crud_017": 1
+    },
+    "crud_q018": {
+      "crud_018": 1
+    },
+    "crud_q019": {
+      "crud_019": 1
+    },
+    "crud_q020": {
+      "crud_020": 1
+    },
+    "crud_q021": {
+      "crud_021": 1
+    },
+    "crud_q022": {
+      "crud_022": 1
+    },
+    "crud_q023": {
+      "crud_023": 1
+    },
+    "crud_q024": {
+      "crud_024": 1
+    },
+    "crud_q025": {
+      "crud_025": 1
+    },
+    "crud_q026": {
+      "crud_026": 1
+    },
+    "crud_q027": {
+      "crud_027": 1
+    },
+    "crud_q028": {
+      "crud_028": 1
+    },
+    "crud_q029": {
+      "crud_029": 1
+    },
+    "crud_q030": {
+      "crud_030": 1
+    },
+    "crud_q031": {
+      "crud_031": 1
+    },
+    "crud_q032": {
+      "crud_032": 1
+    },
+    "crud_q033": {
+      "crud_033": 1
+    },
+    "crud_q034": {
+      "crud_034": 1
+    },
+    "crud_q035": {
+      "crud_035": 1
+    },
+    "crud_q036": {
+      "crud_036": 1
+    },
+    "crud_q037": {
+      "crud_037": 1
+    },
+    "crud_q038": {
+      "crud_038": 1
+    },
+    "crud_q039": {
+      "crud_039": 1
+    },
+    "crud_q040": {
+      "crud_040": 1
+    },
+    "crud_q041": {
+      "crud_041": 1
+    },
+    "crud_q042": {
+      "crud_042": 1
+    },
+    "crud_q043": {
+      "crud_043": 1
+    },
+    "crud_q044": {
+      "crud_044": 1
+    },
+    "crud_q045": {
+      "crud_045": 1
+    },
+    "crud_q046": {
+      "crud_046": 1
+    },
+    "crud_q047": {
+      "crud_047": 1
+    },
+    "crud_q048": {
+      "crud_048": 1
+    },
+    "crud_q049": {
+      "crud_049": 1
+    },
+    "crud_q050": {
+      "crud_050": 1
+    },
+    "crud_q051": {
+      "crud_051": 1
+    },
+    "crud_q052": {
+      "crud_052": 1
+    },
+    "crud_q053": {
+      "crud_053": 1
+    },
+    "crud_q054": {
+      "crud_054": 1
+    },
+    "crud_q055": {
+      "crud_055": 1
+    },
+    "crud_q056": {
+      "crud_056": 1
+    },
+    "crud_q057": {
+      "crud_057": 1
+    },
+    "crud_q058": {
+      "crud_058": 1
+    },
+    "crud_q059": {
+      "crud_059": 1
+    },
+    "crud_q060": {
+      "crud_060": 1
+    },
+    "crud_q061": {
+      "crud_061": 1
+    },
+    "crud_q062": {
+      "crud_062": 1
+    },
+    "crud_q063": {
+      "crud_063": 1
+    },
+    "crud_q064": {
+      "crud_064": 1
+    },
+    "crud_q065": {
+      "crud_065": 1
+    },
+    "crud_q066": {
+      "crud_066": 1
+    },
+    "crud_q067": {
+      "crud_067": 1
+    },
+    "crud_q068": {
+      "crud_068": 1
+    },
+    "crud_q069": {
+      "crud_069": 1
+    },
+    "crud_q070": {
+      "crud_070": 1
+    },
+    "crud_q071": {
+      "crud_071": 1
+    },
+    "crud_q072": {
+      "crud_072": 1
+    },
+    "crud_q073": {
+      "crud_073": 1
+    },
+    "crud_q074": {
+      "crud_074": 1
+    },
+    "crud_q075": {
+      "crud_075": 1
+    },
+    "crud_q076": {
+      "crud_076": 1
+    },
+    "crud_q077": {
+      "crud_077": 1
+    },
+    "crud_q078": {
+      "crud_078": 1
+    },
+    "crud_q079": {
+      "crud_079": 1
+    },
+    "crud_q080": {
+      "crud_080": 1
+    },
+    "crud_q081": {
+      "crud_081": 1
+    },
+    "crud_q082": {
+      "crud_082": 1
+    },
+    "crud_q083": {
+      "crud_083": 1
+    },
+    "crud_q084": {
+      "crud_084": 1
+    },
+    "crud_q085": {
+      "crud_085": 1
+    },
+    "crud_q086": {
+      "crud_086": 1
+    },
+    "crud_q087": {
+      "crud_087": 1
+    },
+    "crud_q088": {
+      "crud_088": 1
+    },
+    "crud_q089": {
+      "crud_089": 1
+    },
+    "crud_q090": {
+      "crud_090": 1
+    },
+    "crud_q091": {
+      "crud_091": 1
+    },
+    "crud_q092": {
+      "crud_092": 1
+    },
+    "crud_q093": {
+      "crud_093": 1
+    },
+    "crud_q094": {
+      "crud_094": 1
+    },
+    "crud_q095": {
+      "crud_095": 1
+    },
+    "crud_q096": {
+      "crud_096": 1
+    },
+    "crud_q097": {
+      "crud_097": 1
+    },
+    "crud_q098": {
+      "crud_098": 1
+    },
+    "crud_q099": {
+      "crud_099": 1
+    },
+    "crud_q100": {
+      "crud_100": 1
+    },
+    "crud_q101": {
+      "crud_101": 1
+    },
+    "crud_q102": {
+      "crud_102": 1
+    },
+    "crud_q103": {
+      "crud_103": 1
+    },
+    "crud_q104": {
+      "crud_104": 1
+    },
+    "crud_q105": {
+      "crud_105": 1
+    },
+    "crud_q106": {
+      "crud_106": 1
+    },
+    "crud_q107": {
+      "crud_107": 1
+    },
+    "crud_q108": {
+      "crud_108": 1
+    },
+    "crud_q109": {
+      "crud_109": 1
+    },
+    "crud_q110": {
+      "crud_110": 1
+    },
+    "crud_q111": {
+      "crud_111": 1
+    },
+    "crud_q112": {
+      "crud_112": 1
+    },
+    "crud_q113": {
+      "crud_113": 1
+    },
+    "crud_q114": {
+      "crud_114": 1
+    },
+    "crud_q115": {
+      "crud_115": 1
+    },
+    "crud_q116": {
+      "crud_116": 1
+    },
+    "crud_q117": {
+      "crud_117": 1
+    },
+    "crud_q118": {
+      "crud_118": 1
+    },
+    "crud_q119": {
+      "crud_119": 1
+    },
+    "crud_q120": {
+      "crud_120": 1
+    },
+    "crud_q121": {
+      "crud_121": 1
+    },
+    "crud_q122": {
+      "crud_122": 1
+    },
+    "crud_q123": {
+      "crud_123": 1
+    },
+    "crud_q124": {
+      "crud_124": 1
+    },
+    "crud_q125": {
+      "crud_125": 1
+    },
+    "crud_q126": {
+      "crud_126": 1
+    },
+    "crud_q127": {
+      "crud_127": 1
+    },
+    "crud_q128": {
+      "crud_128": 1
+    },
+    "crud_q129": {
+      "crud_129": 1
+    },
+    "crud_q130": {
+      "crud_130": 1
+    },
+    "crud_q131": {
+      "crud_131": 1
+    },
+    "crud_q132": {
+      "crud_132": 1
+    },
+    "crud_q133": {
+      "crud_133": 1
+    },
+    "crud_q134": {
+      "crud_134": 1
+    },
+    "crud_q135": {
+      "crud_135": 1
+    },
+    "crud_q136": {
+      "crud_136": 1
+    },
+    "crud_q137": {
+      "crud_137": 1
+    },
+    "crud_q138": {
+      "crud_138": 1
+    },
+    "crud_q139": {
+      "crud_139": 1
+    },
+    "crud_q140": {
+      "crud_140": 1
+    },
+    "crud_q141": {
+      "crud_141": 1
+    },
+    "crud_q142": {
+      "crud_142": 1
+    },
+    "crud_q143": {
+      "crud_143": 1
+    },
+    "crud_q144": {
+      "crud_144": 1
+    },
+    "crud_q145": {
+      "crud_145": 1
+    },
+    "crud_q146": {
+      "crud_146": 1
+    },
+    "crud_q147": {
+      "crud_147": 1
+    },
+    "crud_q148": {
+      "crud_148": 1
+    },
+    "crud_q149": {
+      "crud_149": 1
+    },
+    "crud_q150": {
+      "crud_150": 1
+    },
+    "crud_q151": {
+      "crud_151": 1
+    },
+    "crud_q152": {
+      "crud_152": 1
+    },
+    "crud_q153": {
+      "crud_153": 1
+    },
+    "crud_q154": {
+      "crud_154": 1
+    },
+    "crud_q155": {
+      "crud_155": 1
+    },
+    "crud_q156": {
+      "crud_156": 1
+    },
+    "crud_q157": {
+      "crud_157": 1
+    },
+    "crud_q158": {
+      "crud_158": 1
+    },
+    "crud_q159": {
+      "crud_159": 1
+    },
+    "crud_q160": {
+      "crud_160": 1
+    },
+    "crud_q161": {
+      "crud_161": 1
+    },
+    "crud_q162": {
+      "crud_162": 1
+    },
+    "crud_q163": {
+      "crud_163": 1
+    },
+    "crud_q164": {
+      "crud_164": 1
+    },
+    "crud_q165": {
+      "crud_165": 1
+    },
+    "crud_q166": {
+      "crud_166": 1
+    },
+    "crud_q167": {
+      "crud_167": 1
+    },
+    "crud_q168": {
+      "crud_168": 1
+    },
+    "crud_q169": {
+      "crud_169": 1
+    },
+    "crud_q170": {
+      "crud_170": 1
+    },
+    "crud_q171": {
+      "crud_171": 1
+    },
+    "crud_q172": {
+      "crud_172": 1
+    },
+    "crud_q173": {
+      "crud_173": 1
+    },
+    "crud_q174": {
+      "crud_174": 1
+    },
+    "crud_q175": {
+      "crud_175": 1
+    },
+    "crud_q176": {
+      "crud_176": 1
+    },
+    "crud_q177": {
+      "crud_177": 1
+    },
+    "crud_q178": {
+      "crud_178": 1
+    },
+    "crud_q179": {
+      "crud_179": 1
+    },
+    "crud_q180": {
+      "crud_180": 1
+    },
+    "crud_q181": {
+      "crud_181": 1
+    },
+    "crud_q182": {
+      "crud_182": 1
+    },
+    "crud_q183": {
+      "crud_183": 1
+    },
+    "crud_q184": {
+      "crud_184": 1
+    },
+    "crud_q185": {
+      "crud_185": 1
+    },
+    "crud_q186": {
+      "crud_186": 1
+    },
+    "crud_q187": {
+      "crud_187": 1
+    },
+    "crud_q188": {
+      "crud_188": 1
+    },
+    "crud_q189": {
+      "crud_189": 1
+    },
+    "crud_q190": {
+      "crud_190": 1
+    },
+    "crud_q191": {
+      "crud_191": 1
+    },
+    "crud_q192": {
+      "crud_192": 1
+    },
+    "crud_q193": {
+      "crud_193": 1
+    },
+    "crud_q194": {
+      "crud_194": 1
+    },
+    "crud_q195": {
+      "crud_195": 1
+    },
+    "crud_q196": {
+      "crud_196": 1
+    },
+    "crud_q197": {
+      "crud_197": 1
+    },
+    "crud_q198": {
+      "crud_198": 1
+    },
+    "crud_q199": {
+      "crud_199": 1
+    },
+    "crud_q200": {
+      "crud_200": 1
+    },
+    "crud_q201": {
+      "crud_201": 1
+    },
+    "crud_q202": {
+      "crud_202": 1
+    },
+    "crud_q203": {
+      "crud_203": 1
+    },
+    "crud_q204": {
+      "crud_204": 1
+    },
+    "crud_q205": {
+      "crud_205": 1
+    },
+    "crud_q206": {
+      "crud_206": 1
+    },
+    "crud_q207": {
+      "crud_207": 1
+    },
+    "crud_q208": {
+      "crud_208": 1
+    },
+    "crud_q209": {
+      "crud_209": 1
+    },
+    "crud_q210": {
+      "crud_210": 1
+    },
+    "crud_q211": {
+      "crud_211": 1
+    },
+    "crud_q212": {
+      "crud_212": 1
+    },
+    "crud_q213": {
+      "crud_213": 1
+    },
+    "crud_q214": {
+      "crud_214": 1
+    },
+    "crud_q215": {
+      "crud_215": 1
+    },
+    "crud_q216": {
+      "crud_216": 1
+    },
+    "crud_q217": {
+      "crud_217": 1
+    },
+    "crud_q218": {
+      "crud_218": 1
+    },
+    "crud_q219": {
+      "crud_219": 1
+    },
+    "crud_q220": {
+      "crud_220": 1
+    },
+    "crud_q221": {
+      "crud_221": 1
+    },
+    "crud_q222": {
+      "crud_222": 1
+    },
+    "crud_q223": {
+      "crud_223": 1
+    },
+    "crud_q224": {
+      "crud_224": 1
+    },
+    "crud_q225": {
+      "crud_225": 1
+    },
+    "crud_q226": {
+      "crud_226": 1
+    },
+    "crud_q227": {
+      "crud_227": 1
+    },
+    "crud_q228": {
+      "crud_228": 1
+    },
+    "crud_q229": {
+      "crud_229": 1
+    },
+    "crud_q230": {
+      "crud_230": 1
+    },
+    "crud_q231": {
+      "crud_231": 1
+    },
+    "crud_q232": {
+      "crud_232": 1
+    },
+    "crud_q233": {
+      "crud_233": 1
+    },
+    "crud_q234": {
+      "crud_234": 1
+    },
+    "crud_q235": {
+      "crud_235": 1
+    },
+    "crud_q236": {
+      "crud_236": 1
+    },
+    "crud_q237": {
+      "crud_237": 1
+    },
+    "crud_q238": {
+      "crud_238": 1
+    },
+    "crud_q239": {
+      "crud_239": 1
+    },
+    "crud_q240": {
+      "crud_240": 1
+    },
+    "crud_q241": {
+      "crud_241": 1
+    },
+    "crud_q242": {
+      "crud_242": 1
+    },
+    "crud_q243": {
+      "crud_243": 1
+    },
+    "crud_q244": {
+      "crud_244": 1
+    },
+    "crud_q245": {
+      "crud_245": 1
+    },
+    "crud_q246": {
+      "crud_246": 1
+    },
+    "crud_q247": {
+      "crud_247": 1
+    },
+    "crud_q248": {
+      "crud_248": 1
+    },
+    "crud_q249": {
+      "crud_249": 1
+    },
+    "crud_q250": {
+      "crud_250": 1
+    },
+    "crud_q251": {
+      "crud_251": 1
+    },
+    "crud_q252": {
+      "crud_252": 1
+    },
+    "crud_q253": {
+      "crud_253": 1
+    },
+    "crud_q254": {
+      "crud_254": 1
+    },
+    "crud_q255": {
+      "crud_255": 1
+    },
+    "crud_q256": {
+      "crud_256": 1
+    },
+    "crud_q257": {
+      "crud_257": 1
+    },
+    "crud_q258": {
+      "crud_258": 1
+    },
+    "crud_q259": {
+      "crud_259": 1
+    },
+    "crud_q260": {
+      "crud_260": 1
+    },
+    "crud_q261": {
+      "crud_261": 1
+    },
+    "crud_q262": {
+      "crud_262": 1
+    },
+    "crud_q263": {
+      "crud_263": 1
+    },
+    "crud_q264": {
+      "crud_264": 1
+    },
+    "crud_q265": {
+      "crud_265": 1
+    },
+    "crud_q266": {
+      "crud_266": 1
+    },
+    "crud_q267": {
+      "crud_267": 1
+    },
+    "crud_q268": {
+      "crud_268": 1
+    },
+    "crud_q269": {
+      "crud_269": 1
+    },
+    "crud_q270": {
+      "crud_270": 1
+    },
+    "crud_q271": {
+      "crud_271": 1
+    },
+    "crud_q272": {
+      "crud_272": 1
+    },
+    "crud_q273": {
+      "crud_273": 1
+    },
+    "crud_q274": {
+      "crud_274": 1
+    },
+    "crud_q275": {
+      "crud_275": 1
+    },
+    "crud_q276": {
+      "crud_276": 1
+    },
+    "crud_q277": {
+      "crud_277": 1
+    },
+    "crud_q278": {
+      "crud_278": 1
+    },
+    "crud_q279": {
+      "crud_279": 1
+    },
+    "crud_q280": {
+      "crud_280": 1
+    },
+    "crud_q281": {
+      "crud_281": 1
+    },
+    "crud_q282": {
+      "crud_282": 1
+    },
+    "crud_q283": {
+      "crud_283": 1
+    },
+    "crud_q284": {
+      "crud_284": 1
+    },
+    "crud_q285": {
+      "crud_285": 1
+    },
+    "crud_q286": {
+      "crud_286": 1
+    },
+    "crud_q287": {
+      "crud_287": 1
+    },
+    "crud_q288": {
+      "crud_288": 1
+    },
+    "crud_q289": {
+      "crud_289": 1
+    },
+    "crud_q290": {
+      "crud_290": 1
+    },
+    "crud_q291": {
+      "crud_291": 1
+    },
+    "crud_q292": {
+      "crud_292": 1
+    },
+    "crud_q293": {
+      "crud_293": 1
+    },
+    "crud_q294": {
+      "crud_294": 1
+    },
+    "crud_q295": {
+      "crud_295": 1
+    },
+    "crud_q296": {
+      "crud_296": 1
+    },
+    "crud_q297": {
+      "crud_297": 1
+    },
+    "crud_q298": {
+      "crud_298": 1
+    },
+    "crud_q299": {
+      "crud_299": 1
+    }
+  },
+  "note": "CRUD-RAG: 1 relevant doc per query"
+}

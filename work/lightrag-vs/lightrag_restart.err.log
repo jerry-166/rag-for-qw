@@ -1,0 +1,1080 @@
+WARNING: Failed to parse ENTITY_TYPES as JSON list: Illegal trailing comma before end of array: line 1 column 66 (char 65), using default
+WARNING: TOKEN_SECRET not set and AUTH_ACCOUNTS is not configured. Falling back to the default guest-mode JWT secret. 
+INFO: Frontend build is up-to-date
+INFO: OpenAI LLM Options: {'extra_body': {'reasoning': {'enabled': False}}}
+INFO: Embedding config: binding=openai model=text-embedding-v4 embedding_dim=1536 max_token_size=8192
+INFO: Send embedding dimension: False by env var (dimensions=1536, has_param=True, binding=openai)
+INFO: Embedding max_token_size: 8192 (from openai provider default)
+INFO: Reranking is disabled
+INFO: [] Loaded graph from D:\workspace\LightRAG\rag_storage\graph_chunk_entity_relation.graphml with 91 nodes, 62 edges
+INFO: PostgreSQL table: LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d
+INFO: PostgreSQL table: LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d
+INFO: PostgreSQL table: LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d
+INFO: WebUI assets mounted at /webui
+INFO: Started server process [33968]
+INFO: Waiting for application startup.
+INFO: PostgreSQL, Retry config: attempts=10, backoff=3.0s, backoff_max=30.0s, pool_close_timeout=5.0s
+INFO: PostgreSQL, VECTOR extension enabled
+INFO: PostgreSQL, Connected to database at localhost:5432/rag without SSL
+INFO: chunk_id column already exists in LIGHTRAG_LLM_CACHE table
+INFO: cache_type column already exists in LIGHTRAG_LLM_CACHE table
+INFO: queryparam column already exists in LIGHTRAG_LLM_CACHE table
+INFO: mode column does not exist in LIGHTRAG_LLM_CACHE table
+INFO: chunks_list column already exists in LIGHTRAG_DOC_STATUS table
+INFO: llm_cache_list column already exists in LIGHTRAG_DOC_CHUNKS table
+INFO: track_id column already exists in LIGHTRAG_DOC_STATUS table
+INFO: Index on track_id column already exists for LIGHTRAG_DOC_STATUS table
+INFO: metadata column already exists in LIGHTRAG_DOC_STATUS table
+INFO: error_msg column already exists in LIGHTRAG_DOC_STATUS table
+INFO: PostgreSQL, Creating index idx_lightrag_vdb_entity_text_embedding_v4_1536d_id on table LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d
+INFO: PostgreSQL, Creating composite index idx_lightrag_vdb_entity_text_embedding_v4_1536d_workspace_id on table LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d
+INFO: PostgreSQL: New table 'LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d' created successfully
+INFO: Creating HNSW index idx_lightrag_vdb_entity_text_embedding_v4_1536d_hnsw_cosine on table LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d
+INFO: Successfully created vector index idx_lightrag_vdb_entity_text_embedding_v4_1536d_hnsw_cosine on table LIGHTRAG_VDB_ENTITY_text_embedding_v4_1536d
+INFO: Ensure this new table creation is caused by new workspace setup and not an unexpected embedding model change.
+INFO: PostgreSQL, Creating index idx_lightrag_vdb_relation_text_embedding_v4_1536d_id on table LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d
+INFO: PostgreSQL, Creating composite index idx_lightrag_vdb_relation_text_embedding_v4_1536d_workspace_id on table LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d
+INFO: PostgreSQL: New table 'LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d' created successfully
+INFO: Creating HNSW index idx_lightrag_vdb_relation_text_embedding_v4_1536d_hnsw_cosine on table LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d
+INFO: Successfully created vector index idx_lightrag_vdb_relation_text_embedding_v4_1536d_hnsw_cosine on table LIGHTRAG_VDB_RELATION_text_embedding_v4_1536d
+INFO: Ensure this new table creation is caused by new workspace setup and not an unexpected embedding model change.
+INFO: PostgreSQL, Creating index idx_lightrag_vdb_chunks_text_embedding_v4_1536d_id on table LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d
+INFO: PostgreSQL, Creating composite index idx_lightrag_vdb_chunks_text_embedding_v4_1536d_workspace_id on table LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d
+INFO: PostgreSQL: New table 'LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d' created successfully
+INFO: Creating HNSW index idx_lightrag_vdb_chunks_text_embedding_v4_1536d_hnsw_cosine on table LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d
+INFO: Successfully created vector index idx_lightrag_vdb_chunks_text_embedding_v4_1536d_hnsw_cosine on table LIGHTRAG_VDB_CHUNKS_text_embedding_v4_1536d
+INFO: Ensure this new table creation is caused by new workspace setup and not an unexpected embedding model change.
+INFO: Starting chunk_tracking data migration: 91 nodes
+INFO: Processed entity batch 1/1: 91 records (total: 91/91)
+INFO: Entity chunk_tracking migration completed: 91 records persisted
+INFO: Starting chunk_tracking data migration: 62 edges
+INFO: Processed relation batch 1/1: 62 records (total: 62/62)
+INFO: Relation chunk_tracking migration completed: 62 records persisted
+INFO: Application startup complete.
+INFO: Uvicorn running on http://0.0.0.0:9621 (Press CTRL+C to quit)
+INFO: 127.0.0.1:58420 - "POST /documents/texts HTTP/1.1" 200
+INFO: Processing 5 document(s)
+INFO: Extracting stage 1/5: doc_4
+INFO: Processing d-id: doc-2ff9712210940165f7641d284c9a6f7d
+INFO: Embedding func: 2 new workers initialized (Timeouts: Func: 30s, Worker: 60s, Health Check: 75s)
+INFO: Extracting stage 2/5: doc_3
+INFO: Processing d-id: doc-572e1d3b45d9873296c354eb2c8de2dd
+INFO: Extracting stage 3/5: doc_2
+INFO: Processing d-id: doc-cc2eb35d4bf8fe52817444e1266f27f1
+INFO: Extracting stage 4/5: doc_1
+INFO: Processing d-id: doc-2e3f327c3e043468cf5b8d7d50593cf6
+INFO: 127.0.0.1:58421 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:60634 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:60635 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:60636 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:60637 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:60638 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 1/5: doc_4
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 2/5: doc_3
+INFO: Extracting stage 5/5: doc_0
+INFO: Processing d-id: doc-e863b6edd28a75604f07fa7fc5c65c3c
+INFO: 127.0.0.1:60639 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50389 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50391 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50392 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50393 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50394 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50395 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50396 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50397 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 4/5: doc_1
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 3/5: doc_2
+INFO: 127.0.0.1:50398 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50408 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50409 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50410 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50411 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50412 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50413 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50414 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50415 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50416 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50417 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+INFO: 127.0.0.1:50418 - "POST /documents/texts HTTP/1.1" 200
+INFO: Another process is already processing the document queue. Request queued.
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 5/5: doc_0
+INFO: Processing additional documents due to pending request
+INFO: Reset 5 documents from PROCESSING/FAILED to PENDING status
+INFO: Processing 140 document(s)
+INFO: Extracting stage 1/140: doc_4
+INFO: Processing d-id: doc-2ff9712210940165f7641d284c9a6f7d
+INFO: Extracting stage 2/140: doc_3
+INFO: Processing d-id: doc-572e1d3b45d9873296c354eb2c8de2dd
+INFO: Extracting stage 3/140: doc_2
+INFO: Processing d-id: doc-cc2eb35d4bf8fe52817444e1266f27f1
+INFO: Extracting stage 4/140: doc_1
+INFO: Processing d-id: doc-2e3f327c3e043468cf5b8d7d50593cf6
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 1/140: doc_4
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 2/140: doc_3
+INFO: Extracting stage 5/140: doc_0
+INFO: Processing d-id: doc-e863b6edd28a75604f07fa7fc5c65c3c
+INFO: Extracting stage 6/140: doc_139
+INFO: Processing d-id: doc-42cb264426b51ef60bfd87732b86f017
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 3/140: doc_2
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 4/140: doc_1
+INFO: Extracting stage 7/140: doc_138
+INFO: Processing d-id: doc-bf6c86b4a375977d4609e6292ea2fc02
+INFO: Extracting stage 8/140: doc_137
+INFO: Processing d-id: doc-7b103ff5c979d9917984e2e72e2018fd
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 5/140: doc_0
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 6/140: doc_139
+INFO: Extracting stage 9/140: doc_135
+INFO: Processing d-id: doc-e475faf61e5536255306e06ef2c1425f
+INFO: Extracting stage 10/140: doc_136
+INFO: Processing d-id: doc-077bbcd10fb7f5c4ffd1ac243f076f11
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 7/140: doc_138
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 8/140: doc_137
+INFO: Extracting stage 11/140: doc_134
+INFO: Processing d-id: doc-2b346dafde6237c846d69636eec3818e
+INFO: Extracting stage 12/140: doc_133
+INFO: Processing d-id: doc-50b2e3fa49de651c47e2183929b3b40a
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 9/140: doc_135
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 10/140: doc_136
+INFO: Extracting stage 13/140: doc_132
+INFO: Processing d-id: doc-de9a97af69e2f4515161e982eef30844
+INFO: Extracting stage 14/140: doc_131
+INFO: Processing d-id: doc-8b4cd2bfdb1a4bc2d95f749db007d88f
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 12/140: doc_133
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 11/140: doc_134
+INFO: Extracting stage 15/140: doc_130
+INFO: Processing d-id: doc-7835bfbf56177bc61ec911d8e8f54784
+INFO: Extracting stage 16/140: doc_129
+INFO: Processing d-id: doc-b1bb65c063b051c64b9eb3d62b356f7f
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 13/140: doc_132
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 14/140: doc_131
+INFO: Extracting stage 17/140: doc_128
+INFO: Processing d-id: doc-6f135530166d6eba19320baebf4a02db
+INFO: Extracting stage 18/140: doc_127
+INFO: Processing d-id: doc-0e7580ed1b44a6e9c6ef928ae41408fc
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 15/140: doc_130
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 16/140: doc_129
+INFO: Extracting stage 19/140: doc_126
+INFO: Processing d-id: doc-d3a456ee69d2a98459c47eb71bf2d10d
+INFO: Extracting stage 20/140: doc_125
+INFO: Processing d-id: doc-339b7e58c696a21cb8f02b759936e764
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 18/140: doc_127
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 17/140: doc_128
+INFO: Extracting stage 21/140: doc_124
+INFO: Processing d-id: doc-d37380fbb1978a148b0cb917ff012b5d
+INFO: Extracting stage 22/140: doc_123
+INFO: Processing d-id: doc-601076c923d000db1ed8bbd355f12469
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 20/140: doc_125
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 19/140: doc_126
+INFO: Extracting stage 23/140: doc_122
+INFO: Processing d-id: doc-39db131dbe9844537985e7e080779e5c
+INFO: Extracting stage 24/140: doc_121
+INFO: Processing d-id: doc-7c0a1e3fe5fb033cef56ce306e5c1ade
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 21/140: doc_124
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 22/140: doc_123
+INFO: Extracting stage 25/140: doc_120
+INFO: Processing d-id: doc-993f3c1cb241f7ecc182d41ed30c044f
+INFO: Extracting stage 26/140: doc_119
+INFO: Processing d-id: doc-8a09e274afe14b6845d4c05b54264855
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 23/140: doc_122
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 24/140: doc_121
+INFO: Extracting stage 27/140: doc_118
+INFO: Processing d-id: doc-ef3b5a2d068f55e85afb808e49a0ddaa
+INFO: Extracting stage 28/140: doc_117
+INFO: Processing d-id: doc-0b88ff142a42755851cef64a347ca108
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 26/140: doc_119
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 25/140: doc_120
+INFO: Extracting stage 29/140: doc_116
+INFO: Processing d-id: doc-9236d16861c5d0d57cbdd38d266b33f5
+INFO: Extracting stage 30/140: doc_115
+INFO: Processing d-id: doc-1837a2beee933ec45b7bee28ca8b91f0
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 27/140: doc_118
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 28/140: doc_117
+INFO: Extracting stage 31/140: doc_114
+INFO: Processing d-id: doc-4a4788f669c3a5ff1bf52aa748122b58
+INFO: Extracting stage 32/140: doc_113
+INFO: Processing d-id: doc-1659ff5d11e6c8b8a7e9ac24aa2920e4
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 29/140: doc_116
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 30/140: doc_115
+INFO: Extracting stage 33/140: doc_112
+INFO: Processing d-id: doc-b439bba0eb6e1cae03a66f46c8160b38
+INFO: Extracting stage 34/140: doc_111
+INFO: Processing d-id: doc-2c0804c1bedb778e91f57cb0357ff471
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 32/140: doc_113
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 31/140: doc_114
+INFO: Extracting stage 35/140: doc_110
+INFO: Processing d-id: doc-9c6d06c79dd62f469cfaa79ed3365dbc
+INFO: Extracting stage 36/140: doc_109
+INFO: Processing d-id: doc-520f0ce132a0ba4680108aca67d84dc8
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 33/140: doc_112
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 34/140: doc_111
+INFO: Extracting stage 37/140: doc_108
+INFO: Processing d-id: doc-eb0c763af3e3c88a81592dd071f8132e
+INFO: Extracting stage 38/140: doc_107
+INFO: Processing d-id: doc-721a738839c2b15898822317704f9d3d
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 35/140: doc_110
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 36/140: doc_109
+INFO: Extracting stage 39/140: doc_106
+INFO: Processing d-id: doc-a216d0c08210e24a4859c6f51fe3f279
+INFO: Extracting stage 40/140: doc_105
+INFO: Processing d-id: doc-d4087d3a733571c02cbc4bec6a02f786
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 38/140: doc_107
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 37/140: doc_108
+INFO: Extracting stage 41/140: doc_104
+INFO: Processing d-id: doc-dc0440617de6402205c77e2c182abe55
+INFO: Extracting stage 42/140: doc_103
+INFO: Processing d-id: doc-9cba3a43d856778ac40bf6f83f67c930
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 39/140: doc_106
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 40/140: doc_105
+INFO: Extracting stage 43/140: doc_102
+INFO: Processing d-id: doc-b010938e13ccc55c9eeda67b21fa8529
+INFO: Extracting stage 44/140: doc_101
+INFO: Processing d-id: doc-07ba53ad9e5d7ed0c4d141a460689d0f
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 41/140: doc_104
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 42/140: doc_103
+INFO: Extracting stage 45/140: doc_100
+INFO: Processing d-id: doc-dd447f36b5fdf157d9c7e26f823e777d
+INFO: Extracting stage 46/140: doc_99
+INFO: Processing d-id: doc-427e19628e2e6d991430cfe2a16ca6c7
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 44/140: doc_101
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 43/140: doc_102
+INFO: Extracting stage 47/140: doc_98
+INFO: Processing d-id: doc-c77a6a08cecec6eff76f16225d91bf66
+INFO: Extracting stage 48/140: doc_97
+INFO: Processing d-id: doc-db6c4160522f9bd49a52a4d7c45f16af
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 46/140: doc_99
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 45/140: doc_100
+INFO: Extracting stage 49/140: doc_96
+INFO: Processing d-id: doc-1f4e97c7f9c439f59be40bd0c372fc49
+INFO: Extracting stage 50/140: doc_95
+INFO: Processing d-id: doc-d098b0e9fbdfecf963dd7d912be9761f
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 48/140: doc_97
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 47/140: doc_98
+INFO: Extracting stage 51/140: doc_94
+INFO: Processing d-id: doc-a2caca2ddf246039142bd863ac620622
+INFO: Extracting stage 52/140: doc_93
+INFO: Processing d-id: doc-d512b39290cfa2363d1cf1dfe5a84646
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 49/140: doc_96
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 50/140: doc_95
+INFO: Extracting stage 53/140: doc_92
+INFO: Processing d-id: doc-d7f8eaa685d8c3b020d179270d8a2e3b
+INFO: Extracting stage 54/140: doc_91
+INFO: Processing d-id: doc-6a464995567fa887fa108233b054b9a1
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 51/140: doc_94
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 52/140: doc_93
+INFO: Extracting stage 55/140: doc_90
+INFO: Processing d-id: doc-2f1605a78edd2622d594126b5edf122c
+INFO: Extracting stage 56/140: doc_89
+INFO: Processing d-id: doc-285a8c986747872d9e358031ed85467d
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 53/140: doc_92
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 54/140: doc_91
+INFO: Extracting stage 57/140: doc_88
+INFO: Processing d-id: doc-01d6d61772c07ad98c5b483c842904b3
+INFO: Extracting stage 58/140: doc_87
+INFO: Processing d-id: doc-121bd7b8760c65db11d07c793240671a
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 55/140: doc_90
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 56/140: doc_89
+INFO: Extracting stage 59/140: doc_86
+INFO: Processing d-id: doc-265f0f5ab50499017d85e2d5ee3da861
+INFO: Extracting stage 60/140: doc_85
+INFO: Processing d-id: doc-a52e3082f752a13b490ff75fc52ada36
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 58/140: doc_87
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 57/140: doc_88
+INFO: Extracting stage 61/140: doc_84
+INFO: Processing d-id: doc-ccee8845d8aefcc7a23a50547e91a504
+INFO: Extracting stage 62/140: doc_83
+INFO: Processing d-id: doc-0591553d910b64a177c0319ccb720814
+ERROR: Traceback (most recent call last):
+  File "D:\workspace\LightRAG\lightrag\lightrag.py", line 2040, in process_document
+    await asyncio.gather(*first_stage_tasks)
+  File "D:\workspace\LightRAG\lightrag\kg\postgres_impl.py", line 3412, in upsert
+    embeddings_list = await asyncio.gather(*embedding_tasks)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\LightRAG\lightrag\utils.py", line 521, in __call__
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Embedding dimension mismatch detected: total elements (1024) cannot be evenly divided by expected dimension (1536). 
+
+ERROR: Failed to extract document 59/140: doc_86

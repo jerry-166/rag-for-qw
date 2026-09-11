@@ -10,6 +10,15 @@
   GET  /api/evaluation/reports/{name}   - 获取指定报告内容
   POST /api/evaluation/dataset/from-sessions - 从 session 历史生成测试集
   GET  /api/evaluation/dataset/list     - 列出所有测试集
+  GET  /api/evaluation/dataset/{name}/samples - 分页+status 过滤查样本
+  GET  /api/evaluation/dataset/{name}/sample/{idx} - 单条样本详情
+  PATCH /api/evaluation/dataset/{name}/sample/{idx} - 更新单条样本
+  POST /api/evaluation/dataset/{name}/sample/{idx}/approve - 审核通过
+  POST /api/evaluation/dataset/{name}/sample/{idx}/reject - 驳回
+  POST /api/evaluation/dataset/{name}/sample/{idx}/generate-gt - LLM 生成 GT 草稿
+  POST /api/evaluation/dataset/import    - 多格式导入测试集
+  DELETE /api/evaluation/dataset/{name}  - 删除测试集
+  GET  /api/evaluation/dataset/{name}/export - 导出测试集
   POST /api/evaluation/fill             - 填充测试集（调用 Agent 填充 answer/contexts）
 """
 
@@ -21,7 +30,7 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, Query
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, Query, UploadFile, File, Form
 from pydantic import BaseModel, Field
 
 import sys
@@ -115,6 +124,14 @@ class DatasetFromSessionsRequest(BaseModel):
     save: bool = Field(default=True, description="是否自动保存到文件")
 
 
+class SampleUpdateRequest(BaseModel):
+    """更新单条样本的请求"""
+    answer: Optional[str] = None
+    contexts: Optional[List[str]] = None
+    ground_truth: Optional[str] = None
+    status: Optional[str] = None
+
+
 # ─────────────────────────────────────────────────────────────
 # 后台任务
 # ─────────────────────────────────────────────────────────────
@@ -201,13 +218,32 @@ async def run_evaluation(
     触发批量评估任务（异步）
 
     返回 task_id，通过 GET /status/{task_id} 查询进度。
+
+    质量门控：dataset 中 is_evaluable() 的样本数 < 30 时返回 400，
+    确保评估统计显著性。
     """
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+
+    # 门控校验：evaluable 样本数
+    dataset_path = str(TESTSET_DIR / f"{request.dataset_name}.json")
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail=f"测试集不存在: {request.dataset_name}.json")
+
+    dataset = EvaluationDataset.load(dataset_path)
+    evaluable_count = sum(1 for s in dataset.samples if s.is_evaluable())
+    if evaluable_count < 30:
+        raise HTTPException(
+            status_code=400,
+            detail=f"审核通过的完整样本不足 30（当前 {evaluable_count}），无法保证评估统计显著性"
+        )
+
     task_id = f"eval_{uuid.uuid4().hex[:8]}"
     _tasks[task_id] = {
         "task_id": task_id,
         "status": "pending",
         "dataset_name": request.dataset_name,
         "created_at": datetime.now().isoformat(),
+        "evaluable_count": evaluable_count,
     }
 
     background_tasks.add_task(
@@ -408,3 +444,392 @@ async def fill_dataset(
     except Exception as e:
         logger.error(f"[Evaluation API] 填充测试集失败: {e}")
         raise HTTPException(status_code=500, detail=f"填充失败: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────
+# 样本管理端点
+# ─────────────────────────────────────────────────────────────
+
+@router.get("/dataset/{name}/samples")
+async def list_samples(
+    name: str,
+    status: str = Query(default="all", description="过滤状态: all/pending/approved/rejected"),
+    source: str = Query(default="all", description="过滤来源: all/manual/session"),
+    page: int = Query(default=1, ge=1, description="页码（1-based）"),
+    page_size: int = Query(default=20, ge=1, le=100, description="每页条数"),
+    current_user=Depends(get_current_user),
+):
+    """分页查询样本，支持 status/source 过滤"""
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+
+    dataset_path = str(TESTSET_DIR / f"{name}.json")
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail=f"测试集不存在: {name}")
+
+    dataset = EvaluationDataset.load(dataset_path)
+
+    # 过滤
+    filtered = dataset.samples
+    if status != "all":
+        filtered = [s for s in filtered if s.status == status]
+    if source != "all":
+        filtered = [s for s in filtered if s.metadata.get("source", "unknown") == source]
+
+    total = len(filtered)
+    start = (page - 1) * page_size
+    end = start + page_size
+    page_samples = filtered[start:end]
+
+    return {
+        "samples": [s.to_dict() for s in page_samples],
+        "page": page,
+        "page_size": page_size,
+        "total": total,
+        "stats": dataset.stats(),
+    }
+
+
+@router.get("/dataset/{name}/sample/{idx}")
+async def get_sample(
+    name: str,
+    idx: int,
+    current_user=Depends(get_current_user),
+):
+    """获取单条样本详情"""
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+
+    dataset_path = str(TESTSET_DIR / f"{name}.json")
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail=f"测试集不存在: {name}")
+
+    dataset = EvaluationDataset.load(dataset_path)
+
+    if idx < 0 or idx >= len(dataset.samples):
+        raise HTTPException(status_code=404, detail=f"样本索引越界: {idx}（共 {len(dataset.samples)} 条）")
+
+    sample = dataset.samples[idx]
+    return {
+        "idx": idx,
+        "sample": sample.to_dict(),
+    }
+
+
+@router.patch("/dataset/{name}/sample/{idx}")
+async def update_sample(
+    name: str,
+    idx: int,
+    request: SampleUpdateRequest,
+    current_user=Depends(get_current_user),
+):
+    """更新单条样本的字段（answer/contexts/ground_truth/status）"""
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+
+    dataset_path = str(TESTSET_DIR / f"{name}.json")
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail=f"测试集不存在: {name}")
+
+    dataset = EvaluationDataset.load(dataset_path)
+
+    if idx < 0 or idx >= len(dataset.samples):
+        raise HTTPException(status_code=404, detail=f"样本索引越界: {idx}（共 {len(dataset.samples)} 条）")
+
+    # 只传非 None 的字段
+    fields = {k: v for k, v in request.model_dump().items() if v is not None}
+
+    # status 合法性校验
+    if "status" in fields and fields["status"] not in ("pending", "approved", "rejected"):
+        raise HTTPException(status_code=400, detail=f"无效 status: {fields['status']}")
+
+    sample = dataset.update_sample(idx, **fields)
+    dataset.save()
+
+    logger.info(f"[Evaluation API] 更新样本 {name}[{idx}]: {list(fields.keys())}")
+
+    return {
+        "status": "success",
+        "idx": idx,
+        "sample": sample.to_dict(),
+    }
+
+
+@router.post("/dataset/{name}/sample/{idx}/approve")
+async def approve_sample(
+    name: str,
+    idx: int,
+    current_user=Depends(get_current_user),
+):
+    """审核通过单条样本"""
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+
+    dataset_path = str(TESTSET_DIR / f"{name}.json")
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail=f"测试集不存在: {name}")
+
+    dataset = EvaluationDataset.load(dataset_path)
+
+    if idx < 0 or idx >= len(dataset.samples):
+        raise HTTPException(status_code=404, detail=f"样本索引越界: {idx}（共 {len(dataset.samples)} 条）")
+
+    dataset.update_sample(idx, status="approved")
+    dataset.save()
+
+    logger.info(f"[Evaluation API] 审核通过 {name}[{idx}]")
+
+    return {
+        "status": "success",
+        "idx": idx,
+        "sample": dataset.samples[idx].to_dict(),
+    }
+
+
+@router.post("/dataset/{name}/sample/{idx}/reject")
+async def reject_sample(
+    name: str,
+    idx: int,
+    current_user=Depends(get_current_user),
+):
+    """驳回单条样本"""
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+
+    dataset_path = str(TESTSET_DIR / f"{name}.json")
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail=f"测试集不存在: {name}")
+
+    dataset = EvaluationDataset.load(dataset_path)
+
+    if idx < 0 or idx >= len(dataset.samples):
+        raise HTTPException(status_code=404, detail=f"样本索引越界: {idx}（共 {len(dataset.samples)} 条）")
+
+    dataset.update_sample(idx, status="rejected")
+    dataset.save()
+
+    logger.info(f"[Evaluation API] 驳回 {name}[{idx}]")
+
+    return {
+        "status": "success",
+        "idx": idx,
+        "sample": dataset.samples[idx].to_dict(),
+    }
+
+
+@router.post("/dataset/{name}/sample/{idx}/generate-gt")
+async def generate_gt(
+    name: str,
+    idx: int,
+    current_user=Depends(get_current_user),
+):
+    """
+    调 LLM 基于 contexts 生成 ground_truth 草稿
+
+    返回草稿字符串，不自动保存（前端拿到后 PATCH 保存）。
+    """
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+    from evaluation.gt_generator import generate_ground_truth
+
+    dataset_path = str(TESTSET_DIR / f"{name}.json")
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail=f"测试集不存在: {name}")
+
+    dataset = EvaluationDataset.load(dataset_path)
+
+    if idx < 0 or idx >= len(dataset.samples):
+        raise HTTPException(status_code=404, detail=f"样本索引越界: {idx}（共 {len(dataset.samples)} 条）")
+
+    sample = dataset.samples[idx]
+
+    if not sample.contexts:
+        raise HTTPException(status_code=400, detail="该样本无 contexts，无法生成 ground_truth")
+
+    ground_truth = generate_ground_truth(sample.question, sample.contexts)
+
+    if not ground_truth:
+        raise HTTPException(status_code=500, detail="LLM 生成 ground_truth 失败，请检查 litellm 服务")
+
+    logger.info(f"[Evaluation API] 生成 GT 草稿 {name}[{idx}]，长度 {len(ground_truth)}")
+
+    return {
+        "status": "success",
+        "idx": idx,
+        "ground_truth": ground_truth,
+    }
+
+
+@router.post("/dataset/import")
+async def import_dataset(
+    file: UploadFile = File(...),
+    fmt: str = Form(default="auto", description="格式: auto/ours/ragas/crudrag/nfcorpus"),
+    dataset_name: str = Form(default=None, description="新测试集名称（留空则用文件名）"),
+    current_user=Depends(get_current_user),
+):
+    """
+    多格式导入测试集
+
+    支持 ours/ragas/crudrag/nfcorpus 格式，auto 自动探测。
+    文件大小限制 10MB。
+    """
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+    from evaluation.importers import detect_format, convert_to_ours
+
+    # 文件大小校验（10MB）
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="文件大小超过 10MB 限制")
+
+    try:
+        data = json.loads(content.decode("utf-8"))
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=400, detail=f"JSON 解析失败: {e}")
+
+    # 格式探测
+    if fmt == "auto":
+        fmt = detect_format(data)
+        logger.info(f"[Evaluation API] 自动探测格式: {fmt}")
+
+    if fmt == "unknown":
+        raise HTTPException(status_code=400, detail="无法识别数据格式，请手动指定 format")
+
+    # 转换
+    samples = convert_to_ours(data, fmt)
+    if not samples:
+        raise HTTPException(status_code=400, detail=f"转换后无有效样本（格式: {fmt}）")
+
+    # 生成名称
+    if not dataset_name:
+        dataset_name = file.filename.rsplit(".", 1)[0] if file.filename else "imported"
+        dataset_name = f"{dataset_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+    # 保存
+    dataset = EvaluationDataset(samples=samples, name=dataset_name)
+    dataset.save()
+
+    logger.info(f"[Evaluation API] 导入测试集: {dataset_name}, 格式: {fmt}, 样本数: {len(samples)}")
+
+    return {
+        "status": "success",
+        "dataset_name": dataset_name,
+        "format": fmt,
+        "count": len(samples),
+        "message": f"成功导入 {len(samples)} 条样本（格式: {fmt}）",
+    }
+
+
+@router.delete("/dataset/{name}")
+async def delete_dataset(
+    name: str,
+    current_user=Depends(get_current_user),
+):
+    """删除测试集文件"""
+    from evaluation.dataset import EvaluationDataset
+
+    try:
+        EvaluationDataset.delete(name)
+        logger.info(f"[Evaluation API] 删除测试集: {name}")
+        return {
+            "status": "success",
+            "message": f"已删除测试集: {name}",
+        }
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/dataset/{name}/export")
+async def export_dataset(
+    name: str,
+    fmt: str = Query(default="ours", description="导出格式: ours/ragas"),
+    current_user=Depends(get_current_user),
+):
+    """导出测试集为 JSON（ours 或 ragas 格式）"""
+    from evaluation.dataset import EvaluationDataset, TESTSET_DIR
+
+    dataset_path = str(TESTSET_DIR / f"{name}.json")
+    if not os.path.exists(dataset_path):
+        raise HTTPException(status_code=404, detail=f"测试集不存在: {name}")
+
+    dataset = EvaluationDataset.load(dataset_path)
+
+    if fmt not in ("ours", "ragas"):
+        raise HTTPException(status_code=400, detail=f"不支持的导出格式: {fmt}")
+
+    return dataset.export(fmt=fmt)
+
+
+# ─────────────────────────────────────────────────────────────
+# 数据飞轮（文档 09，Step 2/3）— 调度器状态 + 手动触发 + 上次结果
+# ─────────────────────────────────────────────────────────────
+
+# 上次飞轮周期的结果摘要（内存级，重启丢失，仅用于查看最近一次）
+_last_flywheel_result: Optional[Dict[str, Any]] = None
+# 当前正在跑的飞轮周期 task_id（防止重复触发）
+_running_flywheel_task: Optional[asyncio.Task] = None
+
+
+@router.get("/flywheel/info")
+async def flywheel_info(
+    current_user=Depends(get_current_user),
+):
+    """
+    查询数据飞轮调度器状态
+
+    返回调度器是否在跑、cron 任务下次触发时间、上次周期结果摘要。
+    用于前端「数据飞轮」页面状态展示。
+    """
+    from services.data_flywheel import get_scheduler_info
+    return {
+        "scheduler": get_scheduler_info(),
+        "last_result": _last_flywheel_result,
+        "running": _running_flywheel_task is not None and not _running_flywheel_task.done(),
+    }
+
+
+@router.post("/flywheel/trigger")
+async def flywheel_trigger(
+    background_tasks: BackgroundTasks,
+    current_user=Depends(get_current_user),
+):
+    """
+    手动触发一次数据飞轮周期（测试用）
+
+    异步执行：from_sessions → generate_gt → 自评 approve → evaluate → 报告 + 策略建议。
+    不阻塞 HTTP 响应，返回 task_id 后客户端轮询 /flywheel/info 看 running 状态。
+
+    防重入：若上一个周期还在跑，返回 409。
+    """
+    global _running_flywheel_task
+
+    if _running_flywheel_task is not None and not _running_flywheel_task.done():
+        raise HTTPException(status_code=409, detail="上一个飞轮周期仍在运行，请等待完成")
+
+    from services.data_flywheel import run_flywheel_cycle
+
+    async def _bg_task():
+        global _last_flywheel_result
+        try:
+            summary = await run_flywheel_cycle(triggered_by=f"manual:{current_user.id}")
+            _last_flywheel_result = summary
+        except Exception as e:
+            _last_flywheel_result = {
+                "status": "failed",
+                "error": str(e),
+                "completed_at": datetime.now().isoformat(),
+            }
+            logger.error(f"[Flywheel API] 手动触发失败: {e}")
+
+    _running_flywheel_task = asyncio.create_task(_bg_task())
+
+    logger.info(f"[Flywheel API] 用户 {current_user.id} 手动触发飞轮周期")
+    return {
+        "status": "accepted",
+        "message": "飞轮周期已启动，通过 GET /api/evaluation/flywheel/info 查询进度",
+        "note": "周期含 from_sessions + generate_gt + evaluate，预计 5-15 分钟（取决于样本数）",
+    }
+
+
+@router.get("/flywheel/last-result")
+async def flywheel_last_result(
+    current_user=Depends(get_current_user),
+):
+    """查询上次飞轮周期的完整结果摘要（含策略建议）"""
+    if _last_flywheel_result is None:
+        return {"status": "never_run", "message": "飞轮从未跑过"}
+    return _last_flywheel_result
+

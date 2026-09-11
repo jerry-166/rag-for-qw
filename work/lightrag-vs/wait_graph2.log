@@ -1,0 +1,9 @@
+[wait] 等 import 进程 25076 结束...
+[0s] gen log: [import] DONE: ok=17 fail=123 | [final] KB17 PG entities=0 entity_relations=0 | [ALL DONE]
+[60s] gen log: [import] DONE: ok=17 fail=123 | [final] KB17 PG entities=0 entity_relations=0 | [ALL DONE]
+[120s] gen log: [import] DONE: ok=17 fail=123 | [final] KB17 PG entities=0 entity_relations=0 | [ALL DONE]
+[180s] gen log: [import] DONE: ok=17 fail=123 | [final] KB17 PG entities=0 entity_relations=0 | [ALL DONE]
+[240s] gen log: [import] DONE: ok=17 fail=123 | [final] KB17 PG entities=0 entity_relations=0 | [ALL DONE]
+[300s] gen log: [import] DONE: ok=17 fail=123 | [final] KB17 PG entities=0 entity_relations=0 | [ALL DONE]
+[360s] gen log: [import] DONE: ok=17 fail=123 | [final] KB17 PG entities=0 entity_relations=0 | [ALL DONE]
+[420s] gen log: [import] DONE: ok=17 fail=123 | [final] KB17 PG entities=0 entity_relations=0 | [ALL DONE]

@@ -1,0 +1,40 @@
+[list] KB17 docs: 140
+[generate] 开始对 140 docs 抽实体...
+[generate] 10/140 ok=10 fail=0
+[generate] 20/140 ok=20 fail=0
+[generate] 30/140 ok=30 fail=0
+[generate] 40/140 ok=40 fail=0
+[generate] 50/140 ok=50 fail=0
+[generate] 60/140 ok=60 fail=0
+[generate] 70/140 ok=70 fail=0
+[generate] 80/140 ok=80 fail=0
+[generate] 90/140 ok=90 fail=0
+[generate] 100/140 ok=100 fail=0
+[generate] 110/140 ok=110 fail=0
+[generate] 120/140 ok=120 fail=0
+[generate] 130/140 ok=130 fail=0
+[generate] 140/140 ok=140 fail=0
+[generate] DONE: ok=140 fail=0
+[import] 开始对 140 docs 同步 entity_vectors...
+[import] 10/140 ok=10 fail=0
+  [imp] 196 err: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None))
+  [imp] 195 err: HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/process/import/195 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8003): Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"))
+  [imp] 194 err: HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/process/import/194 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8003): Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"))
+[import] 20/140 ok=17 fail=3
+  [imp] 193 err: HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/process/import/193 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8003): Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"))
+  [imp] 192 err: HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/process/import/192 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8003): Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"))
+[import] 30/140 ok=17 fail=13
+[import] 40/140 ok=17 fail=23
+[import] 50/140 ok=17 fail=33
+[import] 60/140 ok=17 fail=43
+[import] 70/140 ok=17 fail=53
+[import] 80/140 ok=17 fail=63
+[import] 90/140 ok=17 fail=73
+[import] 100/140 ok=17 fail=83
+[import] 110/140 ok=17 fail=93
+[import] 120/140 ok=17 fail=103
+[import] 130/140 ok=17 fail=113
+[import] 140/140 ok=17 fail=123
+[import] DONE: ok=17 fail=123
+[final] KB17 PG entities=0 entity_relations=0
+[ALL DONE]

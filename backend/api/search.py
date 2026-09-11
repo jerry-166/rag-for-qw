@@ -67,9 +67,14 @@ def _effective_limit(request: QueryRequest) -> int:
 
 
 def _check_kb_access(request: QueryRequest, current_user: dict):
-    """显式指定 KB 时校验访问权（属主或被分享），替代旧的 user_id 向量过滤。"""
-    if request.knowledge_base_id and not db.check_kb_permission(
-            current_user["id"], request.knowledge_base_id):
+    """显式指定 KB 时校验访问权（属主或被分享），替代旧的 user_id 向量过滤。
+
+    admin 角色豁免（全局权限，可查任何 KB 用于管理/调试）——既有 bug 修复：
+    原实现未豁免 admin，导致 admin 查非属主 KB 被误拒（BUG-020）。
+    """
+    if (current_user.get("role") != "admin"
+            and request.knowledge_base_id
+            and not db.check_kb_permission(current_user["id"], request.knowledge_base_id)):
         raise HTTPException(403, "无权限访问该知识库")
 
 
@@ -107,56 +112,101 @@ async def _await_ready(*names):
 
 
 async def _es_search(request: QueryRequest, req, current_user: dict) -> list:
-    """执行关键词检索（BM25 或 ES，由 SEARCH_BACKEND 配置决定）。"""
+    """执行关键词检索（BM25 或 ES，由 SEARCH_BACKEND 配置决定）。
+
+    对单路结果去重（按 content[:200]，对齐 rag_tools.py:178 既有模式）——
+    单端点不走 rrf_fusion，同 chunk 多次返回会原样进 Top-K。hybrid 端点由 rrf_fusion 内部去重。
+    """
     search_client = req.app.state['search_client']
     filters = _build_es_filters(request)
     multiplier = 2 if request.use_rerank else 1
-    return search_client.search(
+    raw = search_client.search(
         query=request.query,
         user_id=current_user["id"],
         size=_effective_limit(request) * multiplier,
         filters=filters,
     )
+    # 单路去重（对齐 rag_tools.py 模式）：按 content 前 200 字符哈希
+    # 保留首次出现的顺序（保证 Top-K 排序不变）
+    seen, deduped = set(), []
+    for item in raw or []:
+        content = (item.get("content") or item.get("chunk_text") or "")[:200]
+        if content not in seen:
+            seen.add(content)
+            deduped.append(item)
+    return deduped[: _effective_limit(request) * multiplier]
 
 
 async def _milvus_search(request: QueryRequest, req: Request, current_user: dict) -> list:
-    """执行 Milvus 向量检索。"""
+    """执行 Milvus 向量检索。
+
+    对单路结果去重（按 content[:200]，对齐 rag_tools.py:178 既有模式）——
+    单端点不走 rrf_fusion，同 chunk 多次返回会原样进 Top-K。hybrid 端点由 rrf_fusion 内部去重。
+    """
     milvus_client = req.app.state['milvus_client']
     metadata_filter = _build_metadata_filter(request, current_user)
     multiplier = 2 if request.use_rerank else 1
-    return milvus_client.query(
+    raw = await milvus_client.aquery(
         query_text=request.query,
         limit=_effective_limit(request) * multiplier,
         metadata_filter=metadata_filter,
         retrieval_mode=request.retrieval_mode,
     )
+    # 单路去重（对齐 rag_tools.py 模式）：按 content 前 200 字符哈希，保留首次出现
+    seen, deduped = set(), []
+    for item in raw or []:
+        content = (item.get("content") or item.get("chunk_text") or "")[:200]
+        if content not in seen:
+            seen.add(content)
+            deduped.append(item)
+    return deduped[: _effective_limit(request) * multiplier]
 
 
 def _enrich_results(final_ids: list, rrf_scores: dict) -> list:
-    """从 PostgreSQL 补充完整 chunk 内容，并附加 RRF 分数。"""
+    """从 PostgreSQL 补充完整 chunk 内容，并附加 RRF 分数。
+
+    注：PG RealDictRow 返回的 chunk 可能含 created_at/updated_at 等
+    datetime 字段，FastAPI 直接 jsonable_encoder 会抛
+    "Object of type datetime is not JSON serializable"。
+    这里统一转成 isoformat 字符串，保持 hybrid/search 端点可序列化。
+    """
     if not final_ids:
         return []
 
     chunks = db.get_document_chunks_by_ids(final_ids)
     id_to_chunk = {chunk['id']: chunk for chunk in chunks}
 
+    from datetime import datetime as _dt
     results = []
     for cid in final_ids:
         if cid in id_to_chunk:
             chunk = id_to_chunk[cid]
             chunk['score'] = rrf_scores.get(cid, 0.0)
+            # datetime 字段转 isoformat 字符串，避免 JSON 序列化失败
+            for _k, _v in list(chunk.items()):
+                if isinstance(_v, _dt):
+                    chunk[_k] = _v.isoformat()
             results.append(chunk)
 
     return results
 
 
 async def _optional_rerank(query: str, results: list, top_k: int, enabled: bool) -> list:
-    """根据 enabled 决定是否执行 Rerank 精排。"""
+    """根据 enabled 决定是否执行 Rerank 精排。rerank 超时 30s 降级返回原始结果。"""
     if not enabled or not results:
         return results[:top_k] if results else []
 
     reranker = get_reranker()
-    return await reranker.rerank(query, results, top_k)
+    try:
+        return await asyncio.wait_for(
+            reranker.rerank(query, results, top_k), timeout=30
+        )
+    except asyncio.TimeoutError:
+        logger.warning("Rerank 超时 30s，降级返回原始结果")
+        return results[:top_k]
+    except Exception as e:
+        logger.warning(f"Rerank 失败，降级返回原始结果: {e}")
+        return results[:top_k]
 
 
 # ============================================================
@@ -185,7 +235,21 @@ async def query_milvus(
         # 召回：use_rerank 时多取几条供精排使用
         multiplier = 3 if request.use_rerank else 1
         effective_limit = _effective_limit(request)
-        raw_results = milvus_client.query(
+
+        # ── 文档 08 L2：检索结果缓存（权限闸门之后、真实检索之前；
+        # key 材料 = 生效过滤条件，版本失效由写路径 bump 保证）──
+        from services.cache import get_cache_manager
+        cm = get_cache_manager()
+        cache_key = cm.build_search_key(
+            query=request.query, filt=metadata_filter,
+            mode=request.retrieval_mode, limit=effective_limit,
+            use_rerank=request.use_rerank)
+        cached = cm.get(cache_key)
+        if cached is not None:
+            return {"status": "success", "query": request.query,
+                    "results": cached, "cached": True}
+
+        raw_results = await milvus_client.aquery(
             query_text=request.query,
             limit=effective_limit * multiplier,
             metadata_filter=metadata_filter,
@@ -199,6 +263,10 @@ async def query_milvus(
 
         logger.debug(f"Milvus 检索完成, 返回 {len(results)} 条结果")
         logger.info("Milvus 向量检索成功")
+
+        cm.set(cache_key, results, meta={
+            "kb_id": request.knowledge_base_id, "mode": request.retrieval_mode,
+            "limit": effective_limit, "rerank": request.use_rerank})
 
         return {
             "status": "success",
@@ -246,6 +314,24 @@ async def search_elasticsearch(
         # 召回
         multiplier = 3 if request.use_rerank else 1
         effective_limit = _effective_limit(request)
+
+        # ── 文档 08 L2：检索结果缓存 ──
+        # key 过滤材料 = ES 路实际生效范围：KB 过滤（共享 KB 权限已由闸门把关）
+        # 或 user_id（无 KB 时 BM25 按用户桶隔离）——与检索语义严格一致
+        from services.cache import get_cache_manager
+        cm = get_cache_manager()
+        key_filt = dict(filters)
+        if current_user["role"] != "admin" and not request.knowledge_base_id:
+            key_filt["user_id"] = current_user["id"]
+        cache_key = cm.build_search_key(
+            query=request.query, filt=key_filt,
+            mode="keyword", limit=effective_limit,
+            use_rerank=request.use_rerank)
+        cached = cm.get(cache_key)
+        if cached is not None:
+            return {"status": "success", "query": request.query,
+                    "results": cached, "cached": True}
+
         raw_results = search_client.search(
             query=request.query,
             user_id=current_user["id"],
@@ -260,6 +346,10 @@ async def search_elasticsearch(
 
         logger.debug(f"ES 检索完成, 返回 {len(results)} 条结果")
         logger.info("Elasticsearch 关键词检索成功")
+
+        cm.set(cache_key, results, meta={
+            "kb_id": request.knowledge_base_id, "mode": "keyword",
+            "limit": effective_limit, "rerank": request.use_rerank})
 
         return {
             "status": "success",
@@ -295,6 +385,22 @@ async def hybrid_search(
 
     try:
         _check_kb_access(request, current_user)
+
+        # ── 文档 08 L2：混合检索结果缓存（两路融合+rerank 的最终结果；
+        # key 过滤材料 = milvus 路 metadata_filter，含 user_id/kb_id 生效范围）──
+        from services.cache import get_cache_manager
+        cm = get_cache_manager()
+        hybrid_key_filt = _build_metadata_filter(request, current_user)
+        hybrid_limit = _effective_limit(request)
+        cache_key = cm.build_search_key(
+            query=request.query, filt=hybrid_key_filt,
+            mode=request.retrieval_mode, limit=hybrid_limit,
+            use_rerank=request.use_rerank)
+        cached = cm.get(cache_key)
+        if cached is not None:
+            return {"status": "success", "query": request.query,
+                    "results": cached, "cached": True}
+
         # ---- Step 1: 并行召回 ----
         es_results, milvus_results = await asyncio.gather(
             _es_search(request, req, current_user),
@@ -309,6 +415,9 @@ async def hybrid_search(
             rankings.append(milvus_results)
 
         if not rankings:
+            cm.set(cache_key, [], meta={
+                "kb_id": request.knowledge_base_id, "mode": "hybrid",
+                "limit": hybrid_limit, "rerank": request.use_rerank})  # 空结果短 TTL 防穿透
             return {
                 "status": "success",
                 "query": request.query,
@@ -331,6 +440,10 @@ async def hybrid_search(
 
         logger.debug(f"混合检索完成, 返回 {len(reranked)} 条结果")
         logger.info("混合检索成功")
+
+        cm.set(cache_key, reranked, meta={
+            "kb_id": request.knowledge_base_id, "mode": "hybrid",
+            "limit": hybrid_limit, "rerank": request.use_rerank})
 
         return {
             "status": "success",

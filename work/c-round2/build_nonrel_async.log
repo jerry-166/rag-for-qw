@@ -1,0 +1,24 @@
+login ok, token=eyJhbGciOiJIUzI1NiIs...
+concurrency=5, doc_count=700
+non-rel docs to process: 700
+  [20/700] ok=20 fail=0 elapsed=4s rate=4.58/s eta=149s
+  [40/700] ok=40 fail=0 elapsed=9s rate=4.40/s eta=150s
+  [60/700] ok=60 fail=0 elapsed=38s rate=1.58/s eta=406s
+  [80/700] ok=80 fail=0 elapsed=87s rate=0.92/s eta=674s
+  [100/700] ok=100 fail=0 elapsed=92s rate=1.09/s eta=552s
+  [120/700] ok=120 fail=0 elapsed=96s rate=1.25/s eta=464s
+  [140/700] ok=140 fail=0 elapsed=99s rate=1.41/s eta=396s
+  [160/700] ok=160 fail=0 elapsed=102s rate=1.57/s eta=345s
+  [180/700] ok=180 fail=0 elapsed=106s rate=1.70/s eta=305s
+  [200/700] ok=200 fail=0 elapsed=110s rate=1.82/s eta=274s
+  [220/700] ok=220 fail=0 elapsed=114s rate=1.93/s eta=248s
+  [240/700] ok=240 fail=0 elapsed=118s rate=2.03/s eta=227s
+  [260/700] ok=260 fail=0 elapsed=123s rate=2.11/s eta=209s
+  [280/700] ok=280 fail=0 elapsed=127s rate=2.21/s eta=190s
+  [300/700] ok=300 fail=0 elapsed=130s rate=2.30/s eta=174s
+  [320/700] ok=320 fail=0 elapsed=136s rate=2.36/s eta=161s
+  [340/700] ok=340 fail=0 elapsed=140s rate=2.42/s eta=149s
+  [360/700] ok=360 fail=0 elapsed=206s rate=1.74/s eta=195s
+  [380/700] ok=380 fail=0 elapsed=211s rate=1.80/s eta=178s
+  [400/700] ok=400 fail=0 elapsed=215s rate=1.86/s eta=161s
+  [420/700] ok=415 fail=5 elapsed=892s rate=0.47/s eta=594s

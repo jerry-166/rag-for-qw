@@ -214,6 +214,10 @@ async def split_document(file_id: str, req: Request, current_user=Depends(get_cu
             split_time=split_time
         )
 
+        # ── 文档 08：split 阶段 chunks 已写 PG + BM25 索引 → bump KB 缓存版本 ──
+        from services.cache import bump_kb_cache
+        bump_kb_cache(doc["knowledge_base_id"], "split", current_user["id"])
+
         # 记录工作流日志
         processing_time = time.time() - start_time
         db.add_workflow_log(
@@ -291,9 +295,10 @@ async def generate_sub_questions_and_summary(file_id: str, req: Request, current
         enabled = resolve_enabled_enhancers(doc["knowledge_base_id"])
         need_subq = "sub_question" in enabled
         need_summary = "summary" in enabled
+        need_entity = "entity" in enabled
 
         # 全关：跳过 LLM 生成，直接推进状态（纯原文 RAG，import 阶段只处理 chunk 向量）
-        if not (need_subq or need_summary):
+        if not (need_subq or need_summary or need_entity):
             if doc["status"] not in ["generated", "completed"]:
                 db.update_document(file_id, status="generated")
             logger.info(f"增强器已全部关闭，跳过生成并推进状态，文件ID: {file_id}")
@@ -699,6 +704,10 @@ async def import_to_milvus(file_id: str, request: Request, current_user=Depends(
                     status="completed",
                     import_time=import_time
                 )
+                # ── 文档 08：向量导入完成 → bump KB 缓存版本
+                # （上/下两个幂等早退分支内容未变，不 bump）──
+                from services.cache import bump_kb_cache
+                bump_kb_cache(doc["knowledge_base_id"], "import", current_user["id"])
             except Exception as inner_err:
                 # 导入失败时回滚状态到 generated，允许重试
                 logger.error(f"嵌入导入失败，回滚文档状态: {str(inner_err)}")

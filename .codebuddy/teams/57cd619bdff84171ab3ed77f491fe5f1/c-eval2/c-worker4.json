@@ -1,0 +1,20 @@
+[
+  {
+    "id": "msg-1788766423068-xrfbxs",
+    "from": "team-lead",
+    "to": "c-worker4",
+    "type": "message",
+    "content": "model 换 glm-4-flash-250414（比 glm-4-flash 快 1.05s vs 1.45s，无 429 限流）。.env DEFAULT_MODEL 已改 glm-4-flash-250414。后续 RAGAS/fill 用 250414。你已完成 BEIR（beir_round1.json）+ RAGAS 8 脚本——报告 docs/plans/2026-09-04-c-round1-result.md 还没出，继续完成报告。如果限流，切 250414。",
+    "timestamp": "2026-09-07T07:33:43.068Z",
+    "read": true
+  },
+  {
+    "id": "shutdown-1788776030000",
+    "from": "team-lead",
+    "to": "c-worker4",
+    "type": "shutdown_request",
+    "content": "{\"type\":\"shutdown_request\",\"request_id\":\"shutdown-1788776030000\",\"reason\":\"C 轮1 完成，感谢。关闭。\",\"from\":\"team-lead\",\"timestamp\":\"2026-09-07T10:13:50.000Z\"}",
+    "timestamp": "2026-09-07T10:13:50.000Z",
+    "read": true
+  }
+]

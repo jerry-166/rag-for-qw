@@ -30,10 +30,20 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from config import settings, init_logger
+from config import settings, init_logger, get_runtime
 from evaluation.dataset import EvaluationDataset, EvaluationSample
 
 logger = init_logger(__name__)
+
+
+# 低分样本归类阈值（Step 3 评估→策略反馈通道）
+# 低于这些值的样本会触发策略建议
+LOW_SCORE_THRESHOLDS = {
+    "faithfulness": 0.7,       # 答案不忠实于 contexts → prompt 优化
+    "answer_relevancy": 0.6,   # 答案跑题 → query_expansion prompt
+    "context_precision": 0.5,  # 检索到无关内容 → KB 内容缺漏
+    "context_recall": 0.5,     # GT 信息没被检索到 → 检索参数
+}
 
 
 class EvaluationReport:
@@ -58,6 +68,8 @@ class EvaluationReport:
         self.total_samples = total_samples
         self.skipped_samples = skipped_samples
         self.error = error
+        # 懒加载：策略建议（Step 3 评估→策略反馈通道）
+        self._suggested_actions: Optional[List[Dict]] = None
 
     def to_dict(self) -> Dict:
         return {
@@ -69,7 +81,59 @@ class EvaluationReport:
             "scores": self.scores,
             "sample_scores": self.sample_scores,
             "error": self.error,
+            # Step 3：评估→策略反馈通道，报告自带建议
+            "suggested_actions": self.build_suggested_actions(),
+            "low_score_count": len([
+                s for s in self.sample_scores
+                if any(v < LOW_SCORE_THRESHOLDS.get(m, 0.5)
+                       for m, v in s.get("scores", {}).items())
+            ]),
         }
+
+    def build_suggested_actions(self) -> List[Dict]:
+        """
+        Step 3 核心：低分样本自动归类到三类策略建议
+
+        归类优先级：faithfulness > context_recall > context_precision > answer_relevancy
+          - faithfulness 低 → prompt 优化（生成阶段产生幻觉）
+          - context_recall 低 → 检索参数（GT 信息没被检索到，调大 top_k / 调低 rerank 阈值）
+          - context_precision 低 → KB 内容（检索到无关 chunk，标 KB 缺漏或补文档）
+          - answer_relevancy 低 → prompt 优化（query_expansion 把语义带偏）
+        """
+        if self._suggested_actions is not None:
+            return self._suggested_actions
+        if not self.sample_scores:
+            self._suggested_actions = []
+            return self._suggested_actions
+
+        suggestions = []
+        for ss in self.sample_scores:
+            scores = ss.get("scores", {})
+            low = {m: v for m, v in scores.items()
+                   if v < LOW_SCORE_THRESHOLDS.get(m, 0.5)}
+            if not low:
+                continue
+            # 归类优先级
+            if "faithfulness" in low:
+                cat = "prompt 优化"
+                action = "改 generate_response prompt（强化「仅基于 contexts 答题」约束，可能产生幻觉）"
+            elif "context_recall" in low:
+                cat = "检索参数"
+                action = "调大 top_k 或调低 rerank 阈值（GT 信息没被检索到）"
+            elif "context_precision" in low:
+                cat = "KB 内容"
+                action = "检索到无关 chunk，标 KB 缺漏或补文档（可能是 chunk 切分过粗）"
+            else:
+                cat = "prompt 优化"
+                action = "改 query_expansion prompt（答案跑题，查询扩展可能把语义带偏）"
+            suggestions.append({
+                "category": cat,
+                "question": ss.get("question", ""),
+                "low_metrics": {m: round(v, 3) for m, v in low.items()},
+                "action": action,
+            })
+        self._suggested_actions = suggestions
+        return self._suggested_actions
 
     def save(self, report_dir: str = None) -> str:
         """保存报告到 JSON 文件"""
@@ -147,7 +211,7 @@ class RagasEvaluator:
             llm_model:    评估用 LLM 模型名，默认使用项目默认模型
         """
         self.llm_base_url = llm_base_url or settings.LITELLM_BASE_URL
-        self.llm_api_key = llm_api_key or settings.LITELLM_API_KEY
+        self.llm_api_key = llm_api_key or get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY)
         self.llm_model = llm_model or settings.DEFAULT_MODEL
         self._ragas_llm = None
         self._ragas_embeddings = None
@@ -180,11 +244,14 @@ class RagasEvaluator:
                 from ragas.embeddings import LangchainEmbeddingsWrapper
                 from langchain_openai import OpenAIEmbeddings
 
-                embeddings = OpenAIEmbeddings(
+                _emb_kwargs = dict(
                     model=settings.EMBEDDING_MODEL,
-                    base_url=self.llm_base_url,
-                    api_key=self.llm_api_key,
+                    base_url=get_runtime("EMBEDDING_BASE_URL", settings.EMBEDDING_BASE_URL),
+                    api_key=get_runtime("EMBEDDING_API_KEY", settings.EMBEDDING_API_KEY),
                 )
+                _emb_kwargs["dimensions"] = settings.EMBEDDING_DIM
+                _emb_kwargs["check_embedding_ctx_length"] = False
+                embeddings = OpenAIEmbeddings(**_emb_kwargs)
                 self._ragas_embeddings = LangchainEmbeddingsWrapper(embeddings)
             except Exception as e:
                 logger.warning(f"[RagasEvaluator] Embeddings 初始化失败（answer_relevancy 将跳过）: {e}")

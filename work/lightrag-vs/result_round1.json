@@ -1,0 +1,80 @@
+{
+ "native_rerank_off": {
+  "tag": "native_rerank_off",
+  "n": 40,
+  "conc": 10,
+  "wall_s": 7.1,
+  "qps": 5.6,
+  "ok": 40,
+  "err": 0,
+  "p50_ms": 1847,
+  "p95_ms": 4100,
+  "p99_ms": 4102,
+  "max_ms": 4103
+ },
+ "lightrag_naive_rerank_off": {
+  "tag": "lightrag_naive_rerank_off",
+  "n": 40,
+  "conc": 10,
+  "wall_s": 208.4,
+  "qps": 0.19,
+  "ok": 40,
+  "err": 0,
+  "p50_ms": 43322,
+  "p95_ms": 62172,
+  "p99_ms": 62322,
+  "max_ms": 62417
+ },
+ "native_rerank_on": {
+  "tag": "native_rerank_on",
+  "n": 40,
+  "conc": 10,
+  "wall_s": 464.7,
+  "qps": 0.09,
+  "ok": 40,
+  "err": 0,
+  "p50_ms": 135101,
+  "p95_ms": 148402,
+  "p99_ms": 149391,
+  "max_ms": 149598
+ },
+ "lightrag_naive_rerank_on": {
+  "tag": "lightrag_naive_rerank_on",
+  "n": 40,
+  "conc": 10,
+  "wall_s": 209.9,
+  "qps": 0.19,
+  "ok": 40,
+  "err": 0,
+  "p50_ms": 44931,
+  "p95_ms": 61244,
+  "p99_ms": 62683,
+  "max_ms": 63450
+ },
+ "hybrid_vec": {
+  "tag": "hybrid_vec",
+  "n": 40,
+  "conc": 10,
+  "wall_s": 9.0,
+  "qps": 4.46,
+  "ok": 40,
+  "err": 0,
+  "p50_ms": 2167,
+  "p95_ms": 5380,
+  "p99_ms": 5380,
+  "max_ms": 5380
+ },
+ "lightrag_hybrid": {
+  "tag": "lightrag_hybrid",
+  "n": 40,
+  "conc": 10,
+  "wall_s": 204.3,
+  "qps": 0.2,
+  "ok": 40,
+  "err": 0,
+  "p50_ms": 42556,
+  "p95_ms": 59923,
+  "p99_ms": 60692,
+  "max_ms": 61079
+ }
+}
