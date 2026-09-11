@@ -7,6 +7,7 @@ uv.lock
 
 # 其他忽略项
 *.md
+!docs/**/*.md
 .gitignore
 .workbuddy/
 .workbuddy/memory/
