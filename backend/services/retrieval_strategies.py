@@ -379,6 +379,7 @@ class GraphStrategy(RetrievalStrategy):
                 api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
                 base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
                 temperature=0, max_tokens=300,
+                request_timeout=30,  # 30s 超时，防止 LLM hang
             )
             chain = build_chain(llm, _ANCHOR_EXTRACT_TEMPLATE, _AnchorEntities)
             result = chain.invoke({"query": self.ctx.query})
@@ -458,6 +459,7 @@ class GraphStrategy(RetrievalStrategy):
                 api_key=get_runtime("LITELLM_API_KEY", settings.LITELLM_API_KEY),
                 base_url=get_runtime("LITELLM_BASE_URL", settings.LITELLM_BASE_URL),
                 temperature=0, max_tokens=800,
+                request_timeout=30,  # 30s 超时，防止 LLM hang
             )
             chain = build_chain(llm, _RELATION_RERANK_TEMPLATE, _RelationRerankResult)
             result = chain.invoke({"query": query, "relations_text": relations_text})
@@ -556,9 +558,21 @@ class GraphStrategy(RetrievalStrategy):
             logger.info("[GraphStrategy] 未找到实体锚点，降级 native")
             return _REGISTRY["native"](self.ctx).execute(limit)
 
-        # 2. 关系一跳扩展
-        relations, neighbor_ids = db.get_entity_neighbors(anchor_ids, kb_id=self.ctx.kb_id)
-        logger.info(f"[GraphStrategy] 锚点 {len(anchor_ids)} 个，扩展后实体 {len(neighbor_ids)} 个，"
+        # 2. 关系扩展（按 GRAPH_HOP，默认 1 跳，可配 2 跳）
+        hop = int(get_runtime("GRAPH_HOP", settings.GRAPH_HOP))
+        relations = []
+        visited_ids = set(anchor_ids)
+        current_ids = list(anchor_ids)
+        for h in range(hop):
+            new_rel, new_ids = db.get_entity_neighbors(current_ids, kb_id=self.ctx.kb_id)
+            relations.extend(new_rel)
+            new_ids = set(new_ids) - visited_ids  # 排除已访问
+            visited_ids.update(new_ids)
+            current_ids = list(new_ids)
+            if not new_ids:
+                break
+        neighbor_ids = visited_ids
+        logger.info(f"[GraphStrategy] 锚点 {len(anchor_ids)} 个，{hop} 跳扩展后实体 {len(neighbor_ids)} 个，"
                     f"关系 {len(relations)} 条")
 
         # 3. 拿邻居实体 name → LLM 关系重排（改造点 3）
@@ -604,6 +618,22 @@ class GraphStrategy(RetrievalStrategy):
         if not chunk_ids:
             logger.info("[GraphStrategy] 关系无关联 chunk，降级 native")
             return _REGISTRY["native"](self.ctx).execute(limit)
+
+        # ★ 兜底：chunk 数 < limit 时，补充 native 向量召回的 chunk（~0.3s，几乎无额外延迟）
+        if len(chunk_ids) < limit:
+            try:
+                native_results = _REGISTRY["native"](self.ctx).execute(limit)
+                existing_ids = set(chunk_ids)
+                for r in native_results:
+                    nc = r.get("metadata", {}).get("chunk_id")
+                    if nc is not None and nc not in existing_ids:
+                        chunk_ids.append(nc)
+                        existing_ids.add(nc)
+                        if len(chunk_ids) >= limit * 2:
+                            break
+                logger.info(f"[GraphStrategy] 兜底补充 native chunk: {len(chunk_ids)} 个")
+            except Exception as e:
+                logger.warning(f"[GraphStrategy] native 兜底失败: {e}")
 
         # 5. 取 chunk 原文，路径 B + 锚点实体来源给高分
         anchor_chunk_ids: List[int] = []

@@ -111,6 +111,7 @@ class LLMReranker(BaseReranker):
                 model=self._model,
                 temperature=0.1,  # 低温度确保排序稳定
                 max_tokens=get_runtime("LLM_RERANKER_MAX_TOKENS", settings.LLM_RERANKER_MAX_TOKENS),
+                request_timeout=30,  # 30s 超时，防止 LLM API hang 死
             )
         return self._client
 

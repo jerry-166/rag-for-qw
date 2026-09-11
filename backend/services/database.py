@@ -931,13 +931,38 @@ class Database:
         return self.fetchall(f"SELECT * FROM entity WHERE id IN ({id_list})")
 
     def find_entities_by_names(self, kb_id, names):
-        """按名称精确匹配实体（实体锚点直查）"""
+        """按名称匹配实体：先精确匹配，miss 的用 LIKE 模糊匹配 fallback"""
         if not names:
             return []
+        # 1. 精确匹配
         placeholders = ",".join(["%s"] * len(names))
-        return self.fetchall(
+        exact = self.fetchall(
             f"SELECT * FROM entity WHERE kb_id = %s AND name IN ({placeholders})",
             tuple([kb_id] + list(names)))
+        matched_names = {r["name"] for r in exact}
+        # 2. 对精确匹配 miss 的 names，用 LIKE 模糊匹配
+        miss_names = [n for n in names if n not in matched_names]
+        fuzzy_results = []
+        for n in miss_names:
+            # 截取 name 的核心部分（去括号、引号）做 LIKE
+            core = n.replace('（', '%').replace('）', '%').replace('"', '%').replace('"', '%').replace('"', '%')
+            if len(core) < 2:
+                continue
+            # 限制 LIKE 的 pattern 长度，避免太长匹配不到
+            pattern = f'%{core[:20]}%'
+            rows = self.fetchall(
+                "SELECT * FROM entity WHERE kb_id = %s AND name LIKE %s LIMIT 3",
+                (kb_id, pattern))
+            fuzzy_results.extend(rows)
+        # 合并去重
+        all_results = exact + fuzzy_results
+        seen_ids = set()
+        deduped = []
+        for r in all_results:
+            if r["id"] not in seen_ids:
+                deduped.append(r)
+                seen_ids.add(r["id"])
+        return deduped
 
     def get_chunks_by_ids(self, chunk_ids):
         if not chunk_ids:

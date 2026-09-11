@@ -84,27 +84,59 @@ def lr_filepath_to_filename(file_path):
 
 # ── 各模式 query 端点 ──
 def query_ours(query, mode_name, endpoint, extra, kb_id):
-    """本项目检索 → 返回 chunk_id ranking list（PG document_chunk.id 字符串）"""
+    """本项目检索 → 返回 doc_id ranking list（映射 chunk_id→doc_id 匹配 qrel）"""
     ensure_token()
     try:
         r = requests.post(f"{B}/api/{endpoint}",
             json={'query': query, 'limit': 10, 'knowledge_base_id': kb_id, **extra},
-            headers=H, timeout=30)
+            headers=H, timeout=120)
         if r.status_code == 401:
             ensure_token()
             r = requests.post(f"{B}/api/{endpoint}",
                 json={'query': query, 'limit': 10, 'knowledge_base_id': kb_id, **extra},
-                headers=H, timeout=30)
+                headers=H, timeout=120)
         results = r.json().get('results', [])
         ids = []
+        seen = set()  # 去重（同 doc 多 chunk 只算一次）
         for c in results:
-            cid = c.get('chunk_id') or c.get('id')
+            # chunk_id 可能在顶层、id 字段、或 metadata 里（graph 模式）
+            cid = c.get('chunk_id') or c.get('id') or c.get('metadata', {}).get('chunk_id')
             if cid is not None:
-                ids.append(str(cid))
+                doc_id = _chunk_to_doc_id(cid, kb_id)
+                did = str(doc_id) if doc_id else str(cid)
+                if did not in seen:
+                    ids.append(did)
+                    seen.add(did)
         return ids
     except Exception as e:
         print(f'    {mode_name} err: {str(e)[:80]}')
         return []
+
+# chunk_id → doc_id 缓存
+_chunk_doc_cache = {}
+def _chunk_to_doc_id(chunk_id, kb_id):
+    """PG chunk_id → doc_id（metadata->>'source' 去掉 .md 后缀）"""
+    key = (chunk_id, kb_id)
+    if key in _chunk_doc_cache:
+        return _chunk_doc_cache[key]
+    try:
+        conn = psycopg2.connect(PG_DSN)
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT metadata->>'source' FROM document_chunk WHERE id=%s AND knowledge_base_id=%s",
+            (chunk_id, kb_id))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        if row and row[0]:
+            # source = 'crud_000.md' → doc_id = 'crud_000'
+            doc_id = row[0].replace('.md', '')
+            _chunk_doc_cache[key] = doc_id
+            return doc_id
+    except Exception as e:
+        print(f'    chunk_to_doc err: {e}')
+    _chunk_doc_cache[key] = None
+    return None
 
 def query_lightrag(query, mode, kb_id):
     """LightRAG /query/data → file_path → 反查 PG chunk_id"""
@@ -125,18 +157,22 @@ def query_lightrag(query, mode, kb_id):
         print(f'    lightrag {mode} err: {str(e)[:80]}')
         return []
 
-# ── 8 模式定义 ──
+# ── 模式定义（C 轮2 只测 graph vs native，3 对象） ──
 # (mode_name, ours_endpoint, ours_extra, lr_mode_or_None)
-MODES = [
+_ALL_MODES = [
     ('native_rerank_off', 'milvus/query', {'retrieval_mode': 'native', 'use_rerank': False}, None),
     ('native_rerank_on',  'milvus/query', {'retrieval_mode': 'native', 'use_rerank': True}, None),
-    ('advanced',         'milvus/query', {'retrieval_mode': 'advanced', 'use_rerank': True}, None),
-    ('hybrid_vec',        'hybrid/search', {'retrieval_mode': 'hybrid', 'use_rerank': True}, None),
-    ('keyword',           'elasticsearch/search', {'retrieval_mode': 'native', 'use_rerank': True}, None),
     ('graph',             'milvus/query', {'retrieval_mode': 'graph', 'use_rerank': True}, None),
-    ('lightrag_naive',    None, None, 'naive'),
-    ('lightrag_hybrid',   None, None, 'hybrid'),
 ]
+# 支持模式选择：python beir_c2.py native（只跑 native）| graph（只跑 graph）| all（全 3 个）
+_mode_filter = sys.argv[1] if len(sys.argv) > 1 else 'all'
+if _mode_filter == 'native':
+    MODES = [m for m in _ALL_MODES if m[0].startswith('native')]
+elif _mode_filter == 'graph':
+    MODES = [m for m in _ALL_MODES if m[0] == 'graph']
+else:
+    MODES = _ALL_MODES
+print(f'modes: {[m[0] for m in MODES]}')
 
 # ── BEIR 指标（自实现，pytrec_eval TLS 装不上）──
 def ndcg_at_k(ranking, qrel, k=10):
@@ -206,22 +242,33 @@ def run_dataset(dataset_name, testset_path, qrels_path, kb_id):
             query_to_qid[s['question']] = qid
     print(f'query→qid mapped: {len(query_to_qid)}')
 
-    # 各模式 run
+    # 各模式 run（3 并发，避免 LLM 限流）
+    from concurrent.futures import ThreadPoolExecutor, as_completed
     results = []
     for mode_name, endpoint, extra, lr_mode in MODES:
         print(f'\n[mode] {mode_name}')
-        runs = {}  # {qid: [chunk_id ranking]}
-        for i, s in enumerate(samples):
+        runs = {}
+        t1 = time.time()
+
+        def _query_one(args):
+            i, s = args
             q = s['question']
             qid = s.get('metadata', {}).get('qid', str(i))
             if lr_mode:
                 ranking = query_lightrag(q, lr_mode, kb_id)
             else:
                 ranking = query_ours(q, mode_name, endpoint, extra, kb_id)
-            runs[qid] = ranking
-            time.sleep(0.15)
-            if (i + 1) % 50 == 0:
-                print(f'  [{i+1}/{len(samples)}] done')
+            return qid, ranking
+
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = [executor.submit(_query_one, (i, s)) for i, s in enumerate(samples)]
+            done = 0
+            for future in as_completed(futures):
+                qid, ranking = future.result()
+                runs[qid] = ranking
+                done += 1
+                if done % 50 == 0 or done == len(samples):
+                    print(f'  [{done}/{len(samples)}] elapsed={time.time()-t1:.0f}s')
         scores = evaluate_runs(runs, qrels)
         print(f'  {mode_name}: nDCG={scores["nDCG@10"]} Recall={scores["Recall@10"]} MRR={scores["MRR@10"]} (n={scores["n"]})')
         results.append({
@@ -231,11 +278,10 @@ def run_dataset(dataset_name, testset_path, qrels_path, kb_id):
         })
     return results
 
-# ── 跑两个数据集 ──
+# ── 跑 CRUD-RAG（C 轮2 只做 CRUD-RAG，不做 NFCorpus） ──
 all_results = []
 
-# CRUD-RAG
-crud_kb_id = 65  # build_kb_ours.py 创建的 KB id（运行后查 kb_map_crud.json）
+crud_kb_id = 65
 crud_map_path = os.path.join(THIS, 'kb_map_crud.json')
 if os.path.exists(crud_map_path):
     with open(crud_map_path, encoding='utf-8') as f:
@@ -249,23 +295,6 @@ crud_results = run_dataset(
 all_results.extend(crud_results)
 with open(os.path.join(OUT_DIR, 'beir_c2_crud.json'), 'w', encoding='utf-8') as f:
     json.dump({'dataset': 'CRUD-RAG-300', 'kb_id': crud_kb_id, 'results': crud_results},
-              f, ensure_ascii=False, indent=2)
-
-# NFCorpus
-nf_kb_id = 66
-nf_map_path = os.path.join(THIS, 'kb_map_nfcorpus.json')
-if os.path.exists(nf_map_path):
-    with open(nf_map_path, encoding='utf-8') as f:
-        nf_kb_id = json.load(f).get('kb_id', 66)
-nf_results = run_dataset(
-    'NFCorpus-100',
-    os.path.join(TESTSET_DIR, 'nfcorpus_100.json'),
-    os.path.join(QRELS_DIR, 'nfcorpus_qrels.json'),
-    nf_kb_id,
-)
-all_results.extend(nf_results)
-with open(os.path.join(OUT_DIR, 'beir_c2_nfcorpus.json'), 'w', encoding='utf-8') as f:
-    json.dump({'dataset': 'NFCorpus-100', 'kb_id': nf_kb_id, 'results': nf_results},
               f, ensure_ascii=False, indent=2)
 
 # 汇总

@@ -192,12 +192,21 @@ def _enrich_results(final_ids: list, rrf_scores: dict) -> list:
 
 
 async def _optional_rerank(query: str, results: list, top_k: int, enabled: bool) -> list:
-    """根据 enabled 决定是否执行 Rerank 精排。"""
+    """根据 enabled 决定是否执行 Rerank 精排。rerank 超时 30s 降级返回原始结果。"""
     if not enabled or not results:
         return results[:top_k] if results else []
 
     reranker = get_reranker()
-    return await reranker.rerank(query, results, top_k)
+    try:
+        return await asyncio.wait_for(
+            reranker.rerank(query, results, top_k), timeout=30
+        )
+    except asyncio.TimeoutError:
+        logger.warning("Rerank 超时 30s，降级返回原始结果")
+        return results[:top_k]
+    except Exception as e:
+        logger.warning(f"Rerank 失败，降级返回原始结果: {e}")
+        return results[:top_k]
 
 
 # ============================================================

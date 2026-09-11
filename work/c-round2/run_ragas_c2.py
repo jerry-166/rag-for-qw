@@ -23,12 +23,10 @@ REPORT_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'
 os.makedirs(REPORT_DIR, exist_ok=True)
 
 # 16 个测试集（C2 fill_c2.py 产出）
+# C 轮2 只测 graph vs native（3 测试集：native_rerank_off/on + graph）
 TARGETS = []
-for ds in ['crud', 'nfcorpus']:
-    for mode in ['native_rerank_off', 'native_rerank_on', 'advanced',
-                 'hybrid_vec', 'keyword', 'graph',
-                 'lightrag_naive', 'lightrag_hybrid']:
-        TARGETS.append(f'c2_{ds}_{mode}')
+for mode in ['native_rerank_off', 'native_rerank_on', 'graph']:
+    TARGETS.append(f'c2_crud_ours_{mode}')
 
 # 用于支持多模型轮换的 RagasEvaluator 子类
 class MultiModelRagasEvaluator(RagasEvaluator):
@@ -108,10 +106,15 @@ async def main():
     targets = TARGETS
     if mode_arg in ('crud', 'nfcorpus'):
         targets = [t for t in TARGETS if t.startswith(f'c2_{mode_arg}_')]
+    elif mode_arg in ('native_rerank_off', 'native_rerank_on', 'graph'):
+        targets = [t for t in TARGETS if t.endswith(f'_{mode_arg}')]
+    elif mode_arg == 'native':
+        targets = [t for t in TARGETS if 'native' in t]
     print(f'RAGAS C2 评估，judge=智谱 GLM-4-Flash-250414（多模型轮换）')
     print(f'测试集目录: {TESTSET_DIR}')
     print(f'报告目录: {REPORT_DIR}')
-    print(f'目标 ({len(targets)}): {targets}')
+    print(f'目标 ({len(targets)}): CRUD-RAG ours 6 模式')
+    print(f'  {targets}')
 
     evaluator = MultiModelRagasEvaluator()
     results = []

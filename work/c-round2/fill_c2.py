@@ -21,6 +21,7 @@ ground_truth：
   （NFCorpus 同样 8 个）
 """
 import os, sys, json, time, requests, threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 B = 'http://localhost:8003'
@@ -54,14 +55,21 @@ def H():
 print(f'login ok, token={get_token()[:20]}...')
 
 # ── ours 模式定义（仅 contexts 检索；answer 共享） ──
-OURS_MODES = [
+# C 轮2 只测 graph vs native（去掉 advanced/hybrid_vec/keyword）
+_ALL_MODES = [
     ('native_rerank_off', 'milvus/query', {'retrieval_mode': 'native', 'use_rerank': False}),
     ('native_rerank_on',  'milvus/query', {'retrieval_mode': 'native', 'use_rerank': True}),
-    ('advanced',         'milvus/query', {'retrieval_mode': 'advanced', 'use_rerank': True}),
-    ('hybrid_vec',       'hybrid/search', {'retrieval_mode': 'hybrid', 'use_rerank': True}),
-    ('keyword',          'elasticsearch/search', {'retrieval_mode': 'native', 'use_rerank': True}),
     ('graph',            'milvus/query', {'retrieval_mode': 'graph', 'use_rerank': True}),
 ]
+# 支持模式选择：python fill_c2.py crud native（只跑 native）| graph（只跑 graph）| all（全 3 个）
+_mode_filter = sys.argv[2] if len(sys.argv) > 2 else 'all'
+if _mode_filter == 'native':
+    OURS_MODES = [m for m in _ALL_MODES if m[0].startswith('native')]
+elif _mode_filter == 'graph':
+    OURS_MODES = [m for m in _ALL_MODES if m[0] == 'graph']
+else:
+    OURS_MODES = _ALL_MODES
+print(f'modes: {[m[0] for m in OURS_MODES]}')
 
 def get_shared_answer(question, kb_id):
     """调 /api/agent/chat 生成共享 answer（默认 advanced 检索）
@@ -82,6 +90,9 @@ def get_shared_answer(question, kb_id):
             return '', [], f'{r.status_code} {r.text[:120]}'
         j = r.json()
         answer = j.get('response', '') or j.get('content', '') or ''
+        # agent/chat 返回的 response 可能是 dict（{'content': '...'}），统一转成 str
+        if isinstance(answer, dict):
+            answer = answer.get('content', '') or answer.get('response', '') or str(answer)
         sources = j.get('sources', []) or j.get('metadata', {}).get('sources', [])
         contexts = [s.get('chunk_text') or s.get('content', '') for s in sources
                     if s.get('chunk_text') or s.get('content')]
@@ -94,12 +105,12 @@ def get_ours_contexts(question, mode_name, endpoint, extra, kb_id):
     try:
         r = requests.post(f'{B}/api/{endpoint}',
             json={'query': question, 'limit': 10, 'knowledge_base_id': kb_id, **extra},
-            headers=H(), timeout=30)
+            headers=H(), timeout=120)
         if r.status_code == 401:
             get_token(force=True)
             r = requests.post(f'{B}/api/{endpoint}',
                 json={'query': question, 'limit': 10, 'knowledge_base_id': kb_id, **extra},
-                headers=H(), timeout=30)
+                headers=H(), timeout=120)
         if r.status_code != 200:
             return [], f'{r.status_code} {r.text[:120]}'
         results = r.json().get('results', [])
@@ -155,49 +166,57 @@ def fill_dataset(dataset_short, testset_name, kb_id):
     samples = src.get('samples', [])
     print(f'source samples: {len(samples)}')
 
-    # ── Step 1: 生成共享 answer（ours 6 模式共享） + LightRAG 2 模式独立 ──
-    print('\n[Step 1] 生成 ours 共享 answer + LightRAG 独立 answer')
-    shared_answers = []   # [{answer, contexts, msg}]
-    lr_naive_data = []    # [{answer, contexts}]
-    lr_hybrid_data = []
+    # ── Step 1: 生成共享 answer（ours 模式共享，8 并发）──
+    print('\n[Step 1] 生成 ours 共享 answer (3 并发)')
+    shared_answers = [None] * len(samples)
     t0 = time.time()
-    for i, s in enumerate(samples):
-        q = s['question']
-        # ours 共享 answer
-        ans, ctx, msg = get_shared_answer(q, kb_id)
-        shared_answers.append({'answer': ans, 'contexts': ctx, 'msg': msg})
-        # LightRAG naive
-        lr_naive_ans, lr_naive_ctx = get_lightrag_answer_contexts(q, 'naive')
-        lr_naive_data.append({'answer': lr_naive_ans, 'contexts': lr_naive_ctx})
-        # LightRAG hybrid
-        lr_hybrid_ans, lr_hybrid_ctx = get_lightrag_answer_contexts(q, 'hybrid')
-        lr_hybrid_data.append({'answer': lr_hybrid_ans, 'contexts': lr_hybrid_ctx})
-        if (i + 1) % 20 == 0 or i == len(samples) - 1:
-            ok_ours = sum(1 for x in shared_answers if x['answer'])
-            ok_naive = sum(1 for x in lr_naive_data if x['answer'])
-            ok_hybrid = sum(1 for x in lr_hybrid_data if x['answer'])
-            print(f'  [{i+1}/{len(samples)}] elapsed={time.time()-t0:.0f}s ours_ans={ok_ours} lr_naive={ok_naive} lr_hybrid={ok_hybrid}')
 
-    # ── Step 2: ours 6 模式每模式独立检索 contexts ──
-    print('\n[Step 2] ours 6 模式独立检索 contexts')
-    ours_contexts = {m[0]: [] for m in OURS_MODES}
+    def _fetch_answer(args):
+        i, s, _kb_id = args
+        q = s['question']
+        ans, ctx, msg = get_shared_answer(q, _kb_id)
+        return i, {'answer': ans, 'contexts': ctx, 'msg': msg}
+
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = [executor.submit(_fetch_answer, (i, s, kb_id)) for i, s in enumerate(samples)]
+        done = 0
+        for future in as_completed(futures):
+            i, result = future.result()
+            shared_answers[i] = result
+            done += 1
+            if done % 20 == 0 or done == len(samples):
+                ok_ours = sum(1 for x in shared_answers if x and x['answer'])
+                print(f'  [{done}/{len(samples)}] elapsed={time.time()-t0:.0f}s ours_ans={ok_ours}')
+
+    # ── Step 2: ours 模式每模式独立检索 contexts（8 并发）──
+    print('\n[Step 2] ours 模式独立检索 contexts (3 并发)')
+    ours_contexts = {m[0]: [None] * len(samples) for m in OURS_MODES}
+
+    def _fetch_contexts(args):
+        i, s, mode_name, endpoint, extra, _kb_id = args
+        q = s['question']
+        ctx, msg = get_ours_contexts(q, mode_name, endpoint, extra, _kb_id)
+        return mode_name, i, {'contexts': ctx, 'msg': msg}
+
     for mode_name, endpoint, extra in OURS_MODES:
         print(f'  [mode] {mode_name}')
         t1 = time.time()
-        for i, s in enumerate(samples):
-            q = s['question']
-            ctx, msg = get_ours_contexts(q, mode_name, endpoint, extra, kb_id)
-            ours_contexts[mode_name].append({'contexts': ctx, 'msg': msg})
-            time.sleep(0.1)
-            if (i + 1) % 50 == 0:
-                ok = sum(1 for x in ours_contexts[mode_name] if x['contexts'])
-                print(f'    [{i+1}/{len(samples)}] ok={ok} elapsed={time.time()-t1:.0f}s')
-        ok = sum(1 for x in ours_contexts[mode_name] if x['contexts'])
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = [executor.submit(_fetch_contexts, (i, s, mode_name, endpoint, extra, kb_id))
+                       for i, s in enumerate(samples)]
+            done = 0
+            for future in as_completed(futures):
+                _mode, i, result = future.result()
+                ours_contexts[_mode][i] = result
+                done += 1
+                if done % 50 == 0 or done == len(samples):
+                    ok = sum(1 for x in ours_contexts[_mode] if x and x['contexts'])
+                    print(f'    [{done}/{len(samples)}] ok={ok} elapsed={time.time()-t1:.0f}s')
+        ok = sum(1 for x in ours_contexts[mode_name] if x and x['contexts'])
         print(f'  {mode_name} done: ok={ok}/{len(samples)} elapsed={time.time()-t1:.0f}s')
 
-    # ── Step 3: 组装 8 个 testset ──
+    # ── Step 3: 组装 6 个 testset（ours 6 模式，不包含 LightRAG） ──
     print('\n[Step 3] 组装 testsets')
-    # ours 6 模式
     for mode_name, _, _ in OURS_MODES:
         out_samples = []
         for i, s in enumerate(samples):
@@ -220,49 +239,15 @@ def fill_dataset(dataset_short, testset_name, kb_id):
             })
         save_testset(f'{dataset_short}_ours_{mode_name}', out_samples)
 
-    # LightRAG naive / hybrid
-    for mode_name, lr_data in [('lightrag_naive', lr_naive_data), ('lightrag_hybrid', lr_hybrid_data)]:
-        out_samples = []
-        for i, s in enumerate(samples):
-            ld = lr_data[i]
-            out_samples.append({
-                'question': s['question'],
-                'answer': ld['answer'],
-                'contexts': ld['contexts'],
-                'ground_truth': s.get('ground_truth', ''),
-                'status': 'approved',
-                'metadata': {
-                    'kb_id': kb_id,
-                    'source': 'lightrag',
-                    'mode': mode_name,
-                    'dataset': dataset_short,
-                    'qid': s.get('metadata', {}).get('qid', str(i)),
-                    'tags': s.get('metadata', {}).get('tags', []),
-                }
-            })
-        save_testset(f'{dataset_short}_{mode_name}', out_samples)
-
-# ── 主流程：接受 dataset 参数 ──
-# 用法：python fill_c2.py crud       # 只跑 CRUD-RAG（KB 65）
-#       python fill_c2.py nfcorpus   # 只跑 NFCorpus（KB 66/67）
-#       python fill_c2.py            # 两个都跑
-mode = sys.argv[1] if len(sys.argv) > 1 else 'all'
+# ── 主流程：C 轮2 只做 CRUD-RAG（不做 NFCorpus + LightRAG） ──
+mode = sys.argv[1] if len(sys.argv) > 1 else 'crud'
 
 if mode in ('crud', 'all'):
-    # 查 KB id
     crud_kb_id = 65
     crud_map_path = os.path.join(THIS, 'kb_map_crud.json')
     if os.path.exists(crud_map_path):
         with open(crud_map_path, encoding='utf-8') as f:
             crud_kb_id = json.load(f).get('kb_id', 65)
     fill_dataset('crud', 'crud_rag_300', crud_kb_id)
-
-if mode in ('nfcorpus', 'all'):
-    nf_kb_id = 66
-    nf_map_path = os.path.join(THIS, 'kb_map_nfcorpus.json')
-    if os.path.exists(nf_map_path):
-        with open(nf_map_path, encoding='utf-8') as f:
-            nf_kb_id = json.load(f).get('kb_id', 66)
-    fill_dataset('nfcorpus', 'nfcorpus_100', nf_kb_id)
 
 print('\n=== fill done ===')
