@@ -6,27 +6,75 @@ RAGFlow是一个基于Retrieval-Augmented Generation (RAG)技术的智能知识�
 
 ## 功能展示
 
-### 系统截图
+以下截图均取自真实运行的系统（Stage 5 玻璃风新前端，深色主题），按「文档接入 → 处理流水线 → 检索问答 → 工程化能力」的完整链路组织。
 
-| 登录页面 | 注册页面 |
-|:---:|:---:|
-| ![登录页面](img/login.png) | ![注册页面](img/registration.png) |
+### 入口与知识库管理
 
-| 知识库管理 | 文档上传 |
+| 登录页面 | 知识库管理 |
 |:---:|:---:|
-| ![知识库管理](img/knowledge_base.png) | ![文档上传](img/upload.png) |
+| ![登录页面](img/login.jpg) | ![知识库管理](img/knowledge_base.jpg) |
 
-| 文档解析 | 文档分块 |
-|:---:|:---:|
-| ![文档解析](img/parse_show.png) | ![文档分块](img/chunks.png) |
+创建知识库时可按库配置切割策略（如 Markdown 标题切割）与增强生成开关；两者均不勾选时该库走纯原文检索，不消耗 LLM token：
 
-| 子问题与摘要生成 | 向量数据库导入 |
-|:---:|:---:|
-| ![子问题与摘要](img/subq_summary.png) | ![导入Milvus](img/import_milvus.png) |
+![创建知识库](img/kb_create.jpg)
 
-| 知识检索 | AI Agent |
+### 文档处理流水线
+
+拖拽上传 PDF / Markdown（≤50MB），支持按知识库筛选与全文搜索，文档状态（已上传 / 已完成）全程可追踪：
+
+![文档管理](img/upload.jpg)
+
+进入流水线后每一步可视化。**Step 1**：PDF 解析为 Markdown，左右双栏实时对照预览：
+
+![PDF解析](img/parse_show.jpg)
+
+**Step 2**：按策略切分为语义 chunk（本例 360 个），逐块预览原文、token 数与来源：
+
+![文档分块](img/chunks.jpg)
+
+**Step 3**：LLM 为每个 chunk 生成子问题与摘要（约 146 字，压缩比 1.9x），作为 Advanced 检索的衍生向量：
+
+![子问题与摘要生成](img/subq_summary.jpg)
+
+**Step 4**：chunk / 子问题 / 摘要三路向量化导入 Milvus（360 chunks、360 vectors、1585 子问题、1024 维）：
+
+![导入Milvus](img/import_milvus.jpg)
+
+### 知识检索与 AI Agent
+
+支持向量 / BM25 关键词 / 混合（RRF + Rerank）三种检索模式，检索管道（FAQ → 实体图谱 → 向量 → 结果）逐级可视化，命中结果带相关度评分与原文展开：
+
+![知识检索](img/retrive.jpg)
+
+AI Agent 问答带引用来源与相似度评分，能力标签（rag-workflow / hybrid-retrieval / rerank / sse-stream 等）可追溯：
+
+![AI Agent](img/agent.jpg)
+
+「对比」模式下可让 Simple / Advanced / Claw 三个 Agent 并行回答同一问题，横向对比回答质量、耗时与引用数：
+
+![多Agent对比](img/agent_compare.jpg)
+
+### 工程化能力
+
+**知识记忆**：对话中沉淀的 FAQ 自动进入候选记忆，经「升级为正式知识」流转为正式知识，带命中数与热度统计，形成自进化闭环：
+
+| 正式知识（FAQ） | 检索配置 |
 |:---:|:---:|
-| ![知识检索](img/retrive.png) | ![AI Agent](img/agent.png) |
+| ![知识记忆](img/memory_faq.jpg) | ![检索配置](img/settings.jpg) |
+
+检索配置支持相关度阈值、Top-K、Reranker 类型（cross_encoder）、RRF 平滑常数等参数，运行时热生效、无需重启：
+
+**审计中心**：全量操作日志（今日事件、最高频动作、失败率）按动作 / 用户 / 请求 ID / 资源类型筛选，可下钻单次请求的 JSON 明细：
+
+![审计中心](img/audit.jpg)
+
+**缓存中心**：内存 LRU + PG 向量缓存的命中率统计与查询日志，写路径失败单独计数：
+
+![缓存中心](img/cache.jpg)
+
+**测试集管理**：从 Session 提取问答对、批量导入、人工审核（问题 / 回答 / 上下文 / Ground Truth 四栏对照），沉淀评测基准：
+
+![测试集](img/testset.jpg)
 
 ## 项目简介
 
@@ -134,17 +182,23 @@ rag-for-qw/
 │   │       ├── search.js         # 知识检索页面（design 复用）
 │   │       └── agent.js          # AI Agent页面（design 复用）
 │   └── index.html              # 旧主HTML入口（历史保留，访问 design/index.html 进入新前端）
-├── img/                        # 项目截图
-│   ├── login.png               # 登录页面
-│   ├── registration.png        # 注册页面
-│   ├── knowledge_base.png      # 知识库管理
-│   ├── upload.png              # 文档上传
-│   ├── parse_show.png          # 文档解析
-│   ├── chunks.png              # 文档分块
-│   ├── subq_summary.png        # 子问题与摘要
-│   ├── import_milvus.png       # 向量数据库导入
-│   ├── retrive.png             # 知识检索
-│   └── agent.png               # AI Agent
+├── img/                        # 项目截图（运行实拍）
+│   ├── login.jpg               # 登录页面
+│   ├── knowledge_base.jpg      # 知识库管理
+│   ├── kb_create.jpg           # 创建知识库（切割策略/增强生成配置）
+│   ├── upload.jpg              # 文档管理（拖拽上传）
+│   ├── parse_show.jpg          # Step1 PDF解析（PDF/MD对照）
+│   ├── chunks.jpg              # Step2 文档分块（chunk预览）
+│   ├── subq_summary.jpg        # Step3 子问题与摘要生成
+│   ├── import_milvus.jpg        # Step4 向量化导入Milvus
+│   ├── retrive.jpg             # 知识检索（多策略+管道可视化）
+│   ├── agent.jpg               # AI Agent对话（引用来源）
+│   ├── agent_compare.jpg       # 多Agent对比模式
+│   ├── memory_faq.jpg          # 知识记忆（FAQ沉淀）
+│   ├── settings.jpg            # 检索配置
+│   ├── audit.jpg               # 审计中心
+│   ├── cache.jpg               # 缓存中心
+│   └── testset.jpg             # 测试集管理
 └── README.md                   # 项目说明
 ```
 
